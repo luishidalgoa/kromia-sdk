@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
-  "protocolVersion": "2.0.0",
-  "generatedAt": "2026-05-27T20:55:13.745Z",
+  "protocolVersion": "2.1.0",
+  "generatedAt": "2026-05-27T23:20:58.102Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -696,6 +696,15 @@
         "select"
       ],
       "renderAs": "badge"
+    },
+    {
+      "id": "incremental",
+      "displayName": "Contador / dorsal",
+      "description": "Número auto-incrementable o secuencial. Útil para dorsales (1, 2, 3…), ediciones numeradas, índices ordinales de cromo, números de serie. El editor lo trata como número plano; el formateo opcional (zero-padding, prefijo) se configurará en una iteración futura.",
+      "applicableTypes": [
+        "number"
+      ],
+      "renderAs": null
     }
   ],
   "slotAcceptKinds": [
@@ -1127,6 +1136,11 @@
         "label": "Lista ordenada (jerarquía)"
       },
       {
+        "id": "behavior:incremental",
+        "category": "behavior",
+        "label": "Contador / dorsal"
+      },
+      {
         "id": "slotKind:text-short",
         "category": "slotKind",
         "label": "text-short"
@@ -1396,6 +1410,11 @@
       {
         "from": "fieldType:select",
         "to": "behavior:ordinal_enum",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:number",
+        "to": "behavior:incremental",
         "kind": "type-behavior"
       },
       {

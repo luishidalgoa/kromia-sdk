@@ -150,8 +150,9 @@ describe('action-registry', () => {
 describe('behavior-registry', () => {
   const behaviors = allBehaviors();
 
-  it('contiene 26 behaviors', () => {
-    expect(behaviors).toHaveLength(26);
+  it('contiene 27 behaviors', () => {
+    // +1 vs 26: añadido `incremental` (Bug 2, sesión KRO-70 verificación 2026-05-28)
+    expect(behaviors).toHaveLength(27);
   });
 
   it('IDs únicos (sin duplicados)', () => {

@@ -239,6 +239,16 @@ const BEHAVIORS: BehaviorDefinition[] = [
     applicableTypes: ['text', 'select'],
     renderAsSlotKind: 'badge',
   },
+  // Bug 2 (sesión 2026-05-28) — request del user durante verificación KRO-70 V1.
+  // Counter auto-incrementable. Reside aquí como behavior puro (no toca el
+  // renderer base) — la app cliente puede tratarlo como int normal y solo
+  // diferenciarse por el formateo en futuras versiones (zero-padding, prefijo).
+  {
+    id:              'incremental',
+    displayName:     'Contador / dorsal',
+    description:     'Número auto-incrementable o secuencial. Útil para dorsales (1, 2, 3…), ediciones numeradas, índices ordinales de cromo, números de serie. El editor lo trata como número plano; el formateo opcional (zero-padding, prefijo) se configurará en una iteración futura.',
+    applicableTypes: ['number'],
+  },
 ];
 
 const BY_ID = new Map(BEHAVIORS.map(b => [b.id, b]));
@@ -281,6 +291,10 @@ const SUGGESTION_PATTERNS: SuggestionPattern[] = [
   { keyMatch: /^(price|precio|cost(e)?|importe|valor)$/i,         suggest: 'currency' },
   { keyMatch: /^(percentage|porcentaje|percent|pct|%)$/i,         suggest: 'percentage' },
   { keyMatch: /^(rating|valoracion|score|puntuacion|puntos|stars)$/i, suggest: 'rating' },
+  // Bug 2 (KRO-70 verificación) — auto-detect counter/dorsal/edition fields.
+  // Patrones específicos para no pisar 'year' (que ya cubre edicion/edition):
+  // priorizamos dorsal/numero/serie/index/orden, los más típicos en cromos.
+  { keyMatch: /^(dorsal|numero|n[uú]m|serie|series|index|indice|orden|order|seq|sequence)$/i, suggest: 'incremental' },
   // array<number>
   { keyMatch: /^(cards|cartas|naipes)$/i,                         suggest: 'card_index_list' },
   // array<string>
