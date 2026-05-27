@@ -49,6 +49,8 @@ const EXPECTED_EXPORTS = [
   'getEffectiveSlots',
   'validateSlotOverrides',
   'customSlotToSlotDefinition',
+  // Composition validator — KRO-79
+  'validateComposition',
   // Synth (AppPreview) — KRO-72
   'synthSectionItems',
   'synthFieldValue',
@@ -150,6 +152,9 @@ import type {
   CardAspect,
   CardSize,
   CardFormat,
+  ValidationIssue,
+  ValidationResult,
+  ValidateCompositionOptions,
 } from '../src/index';
 
 describe('Type exports compile-check', () => {
@@ -185,7 +190,10 @@ describe('Type exports compile-check', () => {
       null as unknown as CardAspect,
       null as unknown as CardSize,
       null as unknown as CardFormat,
+      null as unknown as ValidationIssue,
+      null as unknown as ValidationResult,
+      null as unknown as ValidateCompositionOptions,
     ];
-    expect(_checks.length).toBe(28);
+    expect(_checks.length).toBe(31);
   });
 });

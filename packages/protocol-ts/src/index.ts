@@ -92,6 +92,18 @@ export {
   customSlotToSlotDefinition,
 } from './classify';
 
+// ── Composition validator — KRO-79 ─────────────────────────────────────
+// Función pura que valida una ViewComposition contra el modelo. Devuelve
+// issues con severity (error | warn). Útil para backend (pre-persist),
+// Studio (badge editor), Flutter (rechazar composiciones no renderizables)
+// y Drift CI (validar consistencia post-bump).
+export {
+  validateComposition,
+  type ValidationIssue,
+  type ValidationResult,
+  type ValidateCompositionOptions,
+} from './validate';
+
 // ── Synth (AppPreview / playgrounds) ───────────────────────────────────
 // KRO-72: migrado desde kromia-studio. Permite a cualquier consumer
 // (Studio, drift detector, futuro Flutter) generar items sintéticos
