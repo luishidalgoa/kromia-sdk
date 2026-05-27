@@ -14,14 +14,42 @@
  *
  * Patrón complementario:
  *  - `@kromia/flutter` (futuro, KRO-83) = mismos widgets en Dart.
- *
- * KRO-82 — en construcción. Los exports se añaden a medida que se migran
- * los componentes desde `kromia-studio/src/components/album/recipes/`.
  */
 
-// TODO KRO-82: añadir exports a medida que migran:
-//   ./recipes/* (8 recipes + dispatcher + nested renderer)
-//   ./ui/*     (AvatarBox, InitialsAvatar, ScalarText, ComposableSlot)
-//   ./recipe-utils (resolveSlot + appearance Tailwind helpers + buildAccentBorderStyle)
+// ── Utilities + helpers + re-exports SDK core (recipe-utils) ──────────
+export {
+  // Component utilities
+  AvatarBox,
+  InitialsAvatar,
+  ScalarText,
+  ComposableSlot,
+  StatusDot,
+  ThumbBox,
+  BannerBox,
+  BadgePill,
+  AccentFrame,
+  // Helpers (no-JSX)
+  resolveSlot,
+  appearanceShapeClass,
+  appearanceAspectClass,
+  appearanceTextClasses,
+  appearancePaddingClass,
+  appearanceTruncateClass,
+  appearanceSizePx,
+  applyAppearanceTruncate,
+  isEmpty,
+  buildAccentBorderStyle,
+  extractAccentColor,
+  slotDebugAttrs,
+  imageFocusStyle,
+  // SDK core re-exports
+  formatScalar,
+  extractAccentSettings,
+  // Types
+  type FieldDefLike,
+  type AccentSettings,
+  type ResolvedSlot,
+} from './recipe-utils';
 
-export {};
+// ── Recipes ────────────────────────────────────────────────────────────
+// TODO KRO-82.3: añadir cuando migren los 8 recipes + 2 dispatchers.
