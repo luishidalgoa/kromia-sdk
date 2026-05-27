@@ -37,6 +37,7 @@ const EXPECTED_EXPORTS = [
   'RECIPE_REGISTRY',
   'getRecipeManifest',
   'allRecipes',
+  'allRecipesByKind',
   // Slot kinds
   'SLOT_ACCEPT_KIND_META',
   'getSlotAcceptKindOptions',

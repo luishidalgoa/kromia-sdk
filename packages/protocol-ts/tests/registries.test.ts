@@ -33,6 +33,7 @@ import {
   RECIPE_REGISTRY,
   getRecipeManifest,
   allRecipes,
+  allRecipesByKind,
   type RecipeManifest,
 } from '../src/registries/recipes';
 import {
@@ -260,6 +261,42 @@ describe('recipe-registry', () => {
 
   it('RECIPE_REGISTRY tiene una entry por cada recipe', () => {
     expect(Object.keys(RECIPE_REGISTRY).sort()).toEqual(recipes.map(r => r.id).sort());
+  });
+
+  // KRO-76 — Helper allRecipesByKind
+  describe('allRecipesByKind', () => {
+    it('list → 3 recipes', () => {
+      const list = allRecipesByKind('list');
+      expect(list.length).toBeGreaterThanOrEqual(1);
+      list.forEach(r => expect(r.kind).toBe('list'));
+    });
+
+    it('detail → 3 recipes', () => {
+      const detail = allRecipesByKind('detail');
+      expect(detail.length).toBeGreaterThanOrEqual(1);
+      detail.forEach(r => expect(r.kind).toBe('detail'));
+    });
+
+    it('expand → 2 recipes', () => {
+      const expand = allRecipesByKind('expand');
+      expect(expand.length).toBeGreaterThanOrEqual(1);
+      expand.forEach(r => expect(r.kind).toBe('expand'));
+    });
+
+    it('sum por kind === total allRecipes()', () => {
+      const total = allRecipes().length;
+      const sum = allRecipesByKind('list').length
+                + allRecipesByKind('detail').length
+                + allRecipesByKind('expand').length;
+      expect(sum).toBe(total);
+    });
+
+    it('mismas referencias que el registry (no copia)', () => {
+      const list = allRecipesByKind('list');
+      list.forEach(r => {
+        expect(RECIPE_REGISTRY[r.id]).toBe(r);
+      });
+    });
   });
 });
 

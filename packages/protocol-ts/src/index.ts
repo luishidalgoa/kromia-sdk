@@ -69,6 +69,7 @@ export {
   RECIPE_REGISTRY,
   getRecipeManifest,
   allRecipes,
+  allRecipesByKind,
   type RecipeManifest,
   type SlotDefinition,
 } from './registries/recipes';

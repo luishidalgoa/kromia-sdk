@@ -189,3 +189,20 @@ export function getRecipeManifest(id: RecipeId): RecipeManifest | undefined {
 export function allRecipes(): RecipeManifest[] {
   return Object.values(RECIPE_REGISTRY).filter((r): r is RecipeManifest => r !== undefined);
 }
+
+/**
+ * Recetas filtradas por `kind`. KRO-76 — consolida el patrón repetido en
+ * múltiples consumers de Studio:
+ *
+ *   `Object.values(RECIPE_REGISTRY).filter(m => m.kind === 'list')`
+ *
+ * Studio y Flutter consumen ambos esta función, garantizando que ven la
+ * misma lista de recetas válidas por categoría.
+ *
+ * Nota: "nestable" no es un `kind` — es una propiedad lógica (solo recetas
+ * de kind=list pueden anidarse en otros slots). Para obtener nestables, usar
+ * `allRecipesByKind('list')`.
+ */
+export function allRecipesByKind(kind: RecipeManifest['kind']): RecipeManifest[] {
+  return allRecipes().filter(r => r.kind === kind);
+}
