@@ -63,7 +63,7 @@ Ver `kromia-recipe-protocol-v1.schema.json` para el contrato completo.
 
 ### Cómo regenerar
 
-Desde el root del monorepo (`kromia-protocol/`):
+Desde el root del monorepo (`kromia-sdk/`):
 
 ```bash
 pnpm gen
@@ -71,7 +71,7 @@ pnpm gen
 
 O desde Studio: `pnpm gen:protocol` (forwards al submodule).
 
-El output se escribe en `kromia-protocol/contracts/kromia-recipe-protocol-v1.json`.
+El output se escribe en `kromia-sdk/contracts/kromia-recipe-protocol-v1.json`.
 
 ### Notas
 

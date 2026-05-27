@@ -19,7 +19,7 @@
  * El ID técnico (snake_case, en `id`) es lo que se almacena en BD en
  * `field.behavior`. El `displayName` es solo cosa del UI.
  *
- * Ver `kromia-protocol/playbooks/add-behavior.md` para el flujo de añadir
+ * Ver `kromia-sdk/playbooks/add-behavior.md` para el flujo de añadir
  * un behavior nuevo.
  */
 

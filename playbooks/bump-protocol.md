@@ -19,7 +19,7 @@ Cuando aparezcan nuevos contracts/paquetes, este playbook cubre todos.
 
 ## Pasos
 
-### En `kromia-protocol/packages/protocol-ts/` (SDK, productor)
+### En `kromia-sdk/packages/protocol-ts/` (SDK, productor)
 
 - [ ] Edita los registries / lógica según el playbook que aplique
   ([add-behavior](add-behavior.md), [add-action](add-action.md),
@@ -38,9 +38,9 @@ Cuando aparezcan nuevos contracts/paquetes, este playbook cubre todos.
 - [ ] Actualiza `contracts/README.md` si hay cambios visibles en la estructura
   del payload.
 
-### En `kromia-protocol` (root del monorepo)
+### En `kromia-sdk` (root del monorepo)
 
-- [ ] Commit en kromia-protocol con mensaje:
+- [ ] Commit en kromia-sdk con mensaje:
   - `feat(krp): minor — <descripción>` (para minor)
   - `fix(krp): patch — <descripción>` (para patch)
   - `feat(krp)!: major — <descripción>` (para major, nota el `!`)

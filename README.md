@@ -1,4 +1,4 @@
-# kromia-protocol
+# kromia-sdk
 
 Repositorio central de **contratos** y **playbooks** del ecosistema Kromia.
 Lo consumen los proyectos cliente como **submodule**:
@@ -10,7 +10,7 @@ Lo consumen los proyectos cliente como **submodule**:
 ## Estructura
 
 ```
-kromia-protocol/
+kromia-sdk/
 ├── contracts/                  ← datos versionados (machine-readable)
 │   ├── kromia-recipe-protocol-v1.json
 │   ├── kromia-recipe-protocol-v1.schema.json
@@ -49,11 +49,11 @@ Ver [`playbooks/INDEX.md`](playbooks/INDEX.md) para el catálogo.
 ### 1. Añadir como submodule
 
 ```bash
-git submodule add <url-del-remote> kromia-protocol
+git submodule add <url-del-remote> kromia-sdk
 git submodule update --init --recursive
 ```
 
-Convención: el submodule vive en `kromia-protocol/` al root del repo
+Convención: el submodule vive en `kromia-sdk/` al root del repo
 cliente. Si tu repo necesita otra ubicación, ajustar el path en `AGENTS.md`.
 
 ### 2. Importar el INDEX en `AGENTS.md` del cliente
@@ -65,7 +65,7 @@ Antes de cualquier modificación al código, contratos o configuración,
 consulta el INDEX de playbooks. Si un playbook aplica → seguirlo.
 Si nada matchea o el cambio es trivial → procede normal.
 
-@kromia-protocol/playbooks/INDEX.md
+@kromia-sdk/playbooks/INDEX.md
 ```
 
 El `@import` hace que el INDEX esté **siempre cargado** en el contexto de
@@ -74,7 +74,7 @@ la IA, sin tener que enumerar triggers en AGENTS.md.
 ### 3. Consumir contracts en build/runtime
 
 - **Studio (productor)**: el generator (`pnpm gen:protocol`) escribe en
-  `kromia-protocol/contracts/`. Cambios se commitean en este repo.
+  `kromia-sdk/contracts/`. Cambios se commitean en este repo.
 - **Flutter (consumer)**: parsea el `.json` del submodule en build time o
   lo embebe como asset.
 - **Wiki / drift detector**: leen el `.json` directamente.
@@ -102,9 +102,9 @@ Ver [`playbooks/bump-protocol.md`](playbooks/bump-protocol.md).
 ```
 1. Editor edita registries en kromia-studio/src/lib/*
         ↓
-2. pnpm gen:protocol regenera kromia-protocol/contracts/*.json
+2. pnpm gen:protocol regenera kromia-sdk/contracts/*.json
         ↓
-3. Commit + tag en kromia-protocol
+3. Commit + tag en kromia-sdk
         ↓
 4. Clientes pinean al tag nuevo (manual o vía CI)
         ↓
@@ -130,4 +130,4 @@ Ver [`playbooks/bump-protocol.md`](playbooks/bump-protocol.md).
 - Los playbooks evitan que el conocimiento tribal se pierda en commits y
   conversaciones.
 - Si dos lugares describen "qué es un behavior", solo uno gana — este.
-# kromia-protocol
+# kromia-sdk

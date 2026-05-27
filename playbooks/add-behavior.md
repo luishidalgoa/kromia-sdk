@@ -11,7 +11,7 @@ un field además de su `type` base.
 
 ## Pasos
 
-### SDK (`kromia-protocol/packages/protocol-ts/`)
+### SDK (`kromia-sdk/packages/protocol-ts/`)
 
 - [ ] Añadir entrada en `src/registries/behaviors.ts`:
   - `id` (snake_case, único, lo que se guarda en BD)
@@ -79,7 +79,7 @@ un field además de su `type` base.
 
 ### Git
 
-- [ ] **Commit en kromia-protocol**: `feat(behaviors): añadir <id> — <descripción>`.
+- [ ] **Commit en kromia-sdk**: `feat(behaviors): añadir <id> — <descripción>`.
 - [ ] Tag si el cambio justifica un bump: `krp/v1.X.Y`.
 - [ ] **Commit en kromia-studio**: solo si hubo trabajo en render. Mensaje:
   `chore(krp): bump submodule + render handler para <behavior>`.

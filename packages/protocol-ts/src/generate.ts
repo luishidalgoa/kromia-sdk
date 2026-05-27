@@ -36,7 +36,7 @@ const PROTOCOL_VERSION = '1.1.0';
 
 const OUTPUT_PATH = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  // src/ → packages/protocol-ts/ → packages/ → kromia-protocol/contracts/
+  // src/ → packages/protocol-ts/ → packages/ → kromia-sdk/contracts/
   '..',
   '..',
   '..',

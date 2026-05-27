@@ -70,7 +70,7 @@ Niveles SemVer:
 | Minor | Nueva entidad backward-compatible (behavior, recipe, action, slot kind, field type). |
 | Major | Breaking shape (eliminar entidad, cambiar `accepts`, etc.). |
 
-Ver `kromia-protocol/playbooks/bump-protocol.md`.
+Ver `kromia-sdk/playbooks/bump-protocol.md`.
 
 ## Publicación a npm
 
@@ -81,7 +81,7 @@ API). Consumido vía path local del submodule:
 // kromia-studio/package.json
 {
   "dependencies": {
-    "@kromia/protocol": "file:./kromia-protocol/packages/protocol-ts"
+    "@kromia/protocol": "file:./kromia-sdk/packages/protocol-ts"
   }
 }
 ```
@@ -119,4 +119,4 @@ packages/protocol-ts/
 ## Mantenimiento
 
 Antes de añadir behavior/action/recipe/etc., consulta el playbook correspondiente
-en `kromia-protocol/playbooks/INDEX.md`.
+en `kromia-sdk/playbooks/INDEX.md`.

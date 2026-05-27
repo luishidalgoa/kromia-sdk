@@ -19,7 +19,7 @@
  *    kind: 'expand' (puede ser expand-target).
  *  - `behaviors.ts` — url/email/phone → fields elegibles para
  *    `linkField` cuando action = external_link.
- *  - `kromia-protocol/playbooks/add-action.md`.
+ *  - `kromia-sdk/playbooks/add-action.md`.
  */
 
 export interface ActionDefinition {

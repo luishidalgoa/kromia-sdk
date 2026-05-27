@@ -1,5 +1,5 @@
 {
-  "name": "kromia-protocol",
+  "name": "kromia-sdk",
   "version": "1.0.0",
   "private": true,
   "description": "Monorepo del contrato Kromia: contracts/ (JSON + schemas) + playbooks/ (procesos) + packages/protocol-ts (SDK TypeScript). Futuro packages/protocol-dart cuando Flutter exista.",

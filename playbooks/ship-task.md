@@ -50,7 +50,7 @@ limpiamente.
 
 ### Cross-repo (cuando el cambio toca varios)
 
-- [ ] Si modificaste KRP: bump tag en `kromia-protocol`
+- [ ] Si modificaste KRP: bump tag en `kromia-sdk`
   (ver [bump-protocol.md](bump-protocol.md)).
 - [ ] Si el cambio requiere acción en otro repo (Flutter, NodeJS), abrir
   issue de seguimiento ahí o documentarlo en la descripción de cierre.

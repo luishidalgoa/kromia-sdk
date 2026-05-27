@@ -11,7 +11,7 @@ qué pasa cuando el usuario toca un item en una recipe `list`.
 
 ## Pasos
 
-### SDK (`kromia-protocol/packages/protocol-ts/`)
+### SDK (`kromia-sdk/packages/protocol-ts/`)
 
 - [ ] Añadir entrada en `src/registries/actions.ts`:
   - `id` (snake_case)
@@ -64,7 +64,7 @@ qué pasa cuando el usuario toca un item en una recipe `list`.
 
 ### Git
 
-- [ ] **Commit en kromia-protocol**: `feat(actions): añadir <id> — <descripción>`.
+- [ ] **Commit en kromia-sdk**: `feat(actions): añadir <id> — <descripción>`.
 - [ ] **Commit en kromia-studio**: solo si hubo trabajo en AppPreview/editor.
 
 ## Pitfalls conocidos

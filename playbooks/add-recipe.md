@@ -16,7 +16,7 @@ renderers viven en cada cliente.
 
 ## Pasos
 
-### SDK — Manifest (`kromia-protocol/packages/protocol-ts/`)
+### SDK — Manifest (`kromia-sdk/packages/protocol-ts/`)
 
 - [ ] Añadir manifest en `src/registries/recipes.ts`, bajo `RECIPE_REGISTRY`:
   - `id` (snake_case único)
@@ -84,7 +84,7 @@ renderers viven en cada cliente.
 
 ### Git
 
-- [ ] **Commit en kromia-protocol** (manifest): `feat(recipes): añadir <id>`.
+- [ ] **Commit en kromia-sdk** (manifest): `feat(recipes): añadir <id>`.
 - [ ] **Commit en kromia-studio** (renderer): `feat(recipes): renderer .tsx
   para <id> + bump submodule`.
 
