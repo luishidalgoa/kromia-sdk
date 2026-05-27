@@ -52,4 +52,15 @@ export {
 } from './recipe-utils';
 
 // ── Recipes ────────────────────────────────────────────────────────────
-// TODO KRO-82.3: añadir cuando migren los 8 recipes + 2 dispatchers.
+export { CompactAvatarRecipe }        from './recipes/CompactAvatarRecipe';
+export { CompactCardRecipe }          from './recipes/CompactCardRecipe';
+export { HeroProtagonicoRecipe }      from './recipes/HeroProtagonicoRecipe';
+export { RowTextRecipe }              from './recipes/RowTextRecipe';
+export { EditorialRecipe }            from './recipes/EditorialRecipe';
+export { MomentoRecipe }              from './recipes/MomentoRecipe';
+export { AccordionSimpleRecipe }      from './recipes/AccordionSimpleRecipe';
+export { AccordionWithActionsRecipe } from './recipes/AccordionWithActionsRecipe';
+
+// ── Dispatchers ────────────────────────────────────────────────────────
+export { RecipeRenderer }       from './recipes/RecipeRenderer';
+export { NestedRecipeRenderer } from './recipes/NestedRecipeRenderer';
