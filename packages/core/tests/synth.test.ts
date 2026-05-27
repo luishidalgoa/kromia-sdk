@@ -85,7 +85,7 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
     expect(items).toMatchInlineSnapshot(`
       [
         {
-          "avatar": "Bajo el palio, el silencio se hizo respeto.",
+          "avatar": "https://picsum.photos/seed/kromia-4/400/300",
           "color": "#42d7be",
           "edad": 96,
           "galeria": [
@@ -99,7 +99,7 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
           "website": "https://kromia.app",
         },
         {
-          "avatar": "El compás marcaba el ritmo del corazón.",
+          "avatar": "https://picsum.photos/seed/kromia-76/400/300",
           "color": "#7d42d7",
           "edad": 20,
           "galeria": [
@@ -113,7 +113,7 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
           "website": "https://example.com/page",
         },
         {
-          "avatar": "El compás marcaba el ritmo del corazón.",
+          "avatar": "https://picsum.photos/seed/kromia-16/400/300",
           "color": "#d7b442",
           "edad": 32,
           "galeria": [
@@ -173,7 +173,7 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
     expect(items).toMatchInlineSnapshot(`
       [
         {
-          "cover": "Caminamos hasta el amanecer entre cánticos.",
+          "cover": "https://picsum.photos/seed/kromia-27/400/300",
           "cuerpo": "Era una noche oscura y tormentosa. El viento azotaba las ventanas mientras escribíamos esta crónica.",
           "fecha": "2024-01-04",
           "precio": 24,
@@ -185,7 +185,7 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
           "titulo": "Andrés Romero",
         },
         {
-          "cover": "La emoción del primer paso fue inolvidable.",
+          "cover": "https://picsum.photos/seed/kromia-98/400/300",
           "cuerpo": "En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo de los de lanza en astillero.",
           "fecha": "2024-02-11",
           "precio": 76,
@@ -197,7 +197,7 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
           "titulo": "Carmen Hidalgo",
         },
         {
-          "cover": "Caminamos hasta el amanecer entre cánticos.",
+          "cover": "https://picsum.photos/seed/kromia-2/400/300",
           "cuerpo": "Era una noche oscura y tormentosa. El viento azotaba las ventanas mientras escribíamos esta crónica.",
           "fecha": "2024-03-18",
           "precio": 56,

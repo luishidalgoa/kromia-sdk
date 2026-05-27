@@ -193,6 +193,14 @@ export function synthFieldValue(
   if (type === 'number') {
     return hash(seed) % 100;
   }
+  // Bug fix (KRO-70 verificación 2026-05-28) — type=image sin behavior caía
+  // al fallback de PHRASES, devolviendo texto narrativo como URL. Otros image
+  // funcionaban porque tenían behavior (avatar/banner/cover — ahora deprecados
+  // por KRO-69 pero el switch arriba los sigue manejando) o porque su key
+  // matcheaba alguna heurística textual al final. Manejo explícito aquí.
+  if (type === 'image') {
+    return placeholderImage(hash(seed) % 100, 400, 300);
+  }
   if (type === 'textarea') {
     return pick(LONG_BODIES, seed);
   }
@@ -209,6 +217,11 @@ export function synthFieldValue(
     // Heurística: array de refs → ids fake. Resto → 3 strings del corpus.
     if (type.includes('cardRef') || type.includes('sectionRef')) {
       return [1, 2, 3];
+    }
+    // Bug fix (KRO-70 verificación 2026-05-28) — array<image> caía al
+    // corpus de CITIES como string. Devolver URLs placeholder reales.
+    if (type === 'array<image>') {
+      return [0, 1, 2].map(o => placeholderImage((hash(seed) + o) % 100, 400, 300));
     }
     return [pick(CITIES, seed), pick(CITIES, seed + 'b'), pick(CITIES, seed + 'c')];
   }
