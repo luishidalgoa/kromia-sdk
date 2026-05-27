@@ -1,11 +1,10 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
   "protocolVersion": "1.0.0",
-  "generatedAt": "2026-05-26T09:52:33.960Z",
+  "generatedAt": "2026-05-27T13:57:21.325Z",
   "generatedFrom": {
-    "registryPath": "src/components/album/recipes/recipe-registry.ts",
-    "behaviorsPath": "src/lib/behavior-registry.ts",
-    "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen:protocol`."
+    "packagePath": "packages/protocol-ts/",
+    "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
   },
   "recipes": [
     {
@@ -19,7 +18,7 @@
           "label": "Avatar",
           "kind": "single",
           "accepts": [
-            "image-avatar"
+            "image"
           ],
           "optional": false,
           "nestable": false,
@@ -75,7 +74,7 @@
           "label": "Imagen",
           "kind": "single",
           "accepts": [
-            "image-cover"
+            "image"
           ],
           "optional": false,
           "nestable": false,
@@ -129,7 +128,7 @@
           "label": "Banner superior",
           "kind": "single",
           "accepts": [
-            "image-banner"
+            "image"
           ],
           "optional": false,
           "nestable": false,
@@ -140,7 +139,7 @@
           "label": "Avatar",
           "kind": "single",
           "accepts": [
-            "image-avatar"
+            "image"
           ],
           "optional": false,
           "nestable": false,
@@ -258,8 +257,7 @@
           "label": "Imagen de cabecera",
           "kind": "single",
           "accepts": [
-            "image-cover",
-            "image-banner"
+            "image"
           ],
           "optional": false,
           "nestable": false,
@@ -588,7 +586,7 @@
       "applicableTypes": [
         "text"
       ],
-      "renderAs": null
+      "renderAs": "color"
     },
     {
       "id": "url_list",
@@ -654,42 +652,6 @@
       "renderAs": "date"
     },
     {
-      "id": "avatar",
-      "displayName": "Avatar (foto circular)",
-      "description": "Imagen 1:1 renderizada como círculo. Para retratos del autor de la carta, mascotas de equipo, personajes o cualquier cara.",
-      "applicableTypes": [
-        "image"
-      ],
-      "renderAs": "image-avatar"
-    },
-    {
-      "id": "banner",
-      "displayName": "Banner (cabecera ancha)",
-      "description": "Imagen panorámica 21:9. Para cabeceras de sección, vistas panorámicas (estadio, paisaje), portadas horizontales.",
-      "applicableTypes": [
-        "image"
-      ],
-      "renderAs": "image-banner"
-    },
-    {
-      "id": "cover",
-      "displayName": "Portada (vertical 2:3)",
-      "description": "Imagen vertical 2:3 estilo póster o portada de libro. Para carátulas de cómic, portadas de álbum, posters.",
-      "applicableTypes": [
-        "image"
-      ],
-      "renderAs": "image-cover"
-    },
-    {
-      "id": "thumbnail",
-      "displayName": "Miniatura (64×64)",
-      "description": "Imagen cuadrada muy pequeña (64×64 px). Para iconos, previews compactas en listas, marcadores.",
-      "applicableTypes": [
-        "image"
-      ],
-      "renderAs": "image-cover"
-    },
-    {
       "id": "gallery",
       "displayName": "Galería de imágenes",
       "description": "Grid de imágenes sin orden semántico. Para fotos de un evento, varias instantáneas del mismo objeto, momentos sueltos.",
@@ -738,44 +700,13 @@
   ],
   "slotAcceptKinds": [
     {
-      "id": "image-avatar",
-      "description": "Imagen renderizada como círculo (avatar de persona/entidad).",
-      "behaviorIds": [
-        "avatar"
-      ]
-    },
-    {
-      "id": "image-banner",
-      "description": "Imagen panorámica para cabeceras (21:9 aprox).",
-      "behaviorIds": [
-        "banner"
-      ]
-    },
-    {
-      "id": "image-cover",
-      "description": "Imagen vertical 2:3 estilo portada o thumbnail cuadrado pequeño.",
-      "behaviorIds": [
-        "cover",
-        "thumbnail"
-      ]
-    },
-    {
-      "id": "image-array",
-      "description": "Colección de imágenes (galería, slideshow, multiview de carta).",
-      "behaviorIds": [
-        "gallery",
-        "card_multiview",
-        "slideshow"
-      ]
-    },
-    {
       "id": "text-short",
-      "description": "Texto en una línea (título, etiqueta corta).",
+      "description": "Fields tipo text o select (nombre, ciudad, opciones cerradas).",
       "behaviorIds": []
     },
     {
       "id": "text-long",
-      "description": "Texto largo con párrafos (descripción, biografía, markdown).",
+      "description": "Fields tipo textarea (descripción, bio, párrafos). También markdown/notes/html.",
       "behaviorIds": [
         "markdown",
         "notes",
@@ -784,12 +715,12 @@
     },
     {
       "id": "number",
-      "description": "Valor numérico (puntaje, año, precio…).",
+      "description": "Fields tipo number (precio, índice, cantidad). Cualquier behavior numérico.",
       "behaviorIds": []
     },
     {
       "id": "date",
-      "description": "Fecha o año destacado tipográficamente.",
+      "description": "Fields con behavior year o iso_date (año de fundación, fecha de evento).",
       "behaviorIds": [
         "year",
         "iso_date",
@@ -798,7 +729,7 @@
     },
     {
       "id": "badge",
-      "description": "Etiqueta visual destacada (rareza, categoría, rating).",
+      "description": "Fields con behavior rating, enum u ordinal_enum (rareza, categoría, tier).",
       "behaviorIds": [
         "enum",
         "rating",
@@ -806,8 +737,44 @@
       ]
     },
     {
+      "id": "color",
+      "description": "Fields con behavior color_hex. Se renderiza como swatch visual (cuadradito coloreado) y futuro accent del wrapper.",
+      "behaviorIds": [
+        "color_hex"
+      ]
+    },
+    {
+      "id": "image",
+      "description": "Cualquier field tipo image. El slot decide cómo se renderiza (circular, banner, cover…) según su id y su Apariencia.",
+      "behaviorIds": []
+    },
+    {
+      "id": "image-avatar",
+      "description": "[Legacy] Alias de \"Imagen\". Mantenido para composiciones existentes. Cualquier field tipo image.",
+      "behaviorIds": []
+    },
+    {
+      "id": "image-cover",
+      "description": "[Legacy] Alias de \"Imagen\". Mantenido para composiciones existentes. Cualquier field tipo image.",
+      "behaviorIds": []
+    },
+    {
+      "id": "image-banner",
+      "description": "[Legacy] Alias de \"Imagen\". Mantenido para composiciones existentes. Cualquier field tipo image.",
+      "behaviorIds": []
+    },
+    {
+      "id": "image-array",
+      "description": "Fields tipo array<image> o behaviors gallery/slideshow/card_multiview.",
+      "behaviorIds": [
+        "gallery",
+        "card_multiview",
+        "slideshow"
+      ]
+    },
+    {
       "id": "card-ref",
-      "description": "Referencia a otras cartas del álbum (por índice o por código).",
+      "description": "Fields con behavior card_index_list o card_code_list (referencias a otras cartas).",
       "behaviorIds": [
         "card_index_list",
         "card_code_list"
@@ -815,7 +782,7 @@
     },
     {
       "id": "url",
-      "description": "Acción externa: URL web, email, teléfono (botón clicable).",
+      "description": "Fields con behavior url, email o phone (links clicables).",
       "behaviorIds": [
         "url",
         "email",
@@ -824,7 +791,7 @@
     },
     {
       "id": "any",
-      "description": "Wildcard — el slot acepta cualquier field independientemente de su clasificación.",
+      "description": "Wildcard — acepta cualquier field sin filtrar.",
       "behaviorIds": []
     }
   ],
