@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kromia.app/contracts/kromia-recipe-protocol-v1.schema.json",
+  "title": "Kromia Recipe Protocol V1",
+  "description": "Contrato del catálogo de recetas + actions + behaviors que Studio expone a Flutter y demás clientes downstream. El payload se genera con `pnpm gen:protocol` desde los registries de TypeScript en src/. Este esquema es la verdad portable — cualquier cliente que consume el JSON debe validar contra él antes de renderizar.",
+  "type": "object",
+  "required": [
+    "protocolVersion",
+    "generatedAt",
+    "generatedFrom",
+    "recipes",
+    "actions",
+    "behaviors",
+    "slotAcceptKinds",
+    "compatibilityMatrix"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Ruta o URL al JSON Schema que valida este documento. Se incluye para que editores con LSP (VSCode, JetBrains) puedan auto-validar."
+    },
+    "protocolVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Versión SemVer del protocolo. El bumping automático lo hará KRO-63 al detectar cambios de shape entre regeneraciones."
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp de la última generación. Los consumers deben IGNORARLO para comparaciones de paridad — usar el resto del payload."
+    },
+    "generatedFrom": {
+      "type": "object",
+      "required": ["registryPath", "behaviorsPath", "note"],
+      "additionalProperties": false,
+      "properties": {
+        "registryPath":  { "type": "string" },
+        "behaviorsPath": { "type": "string" },
+        "note":          { "type": "string" }
+      }
+    },
+    "recipes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/recipe" }
+    },
+    "actions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/action" }
+    },
+    "behaviors": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/behavior" }
+    },
+    "slotAcceptKinds": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/slotKind" }
+    },
+    "compatibilityMatrix": {
+      "type": "object",
+      "description": "Map recipeId → entry. Define qué actions admite cada receta y qué targetRecipes/expandRecipes son válidos para esa source.",
+      "additionalProperties": { "$ref": "#/$defs/compatibilityEntry" }
+    }
+  },
+  "$defs": {
+    "recipeKind": {
+      "type": "string",
+      "enum": ["list", "detail", "expand"],
+      "description": "Posición del recipe en el grafo de composición: list arranca una sección, detail es target de navigate/modal, expand es target de expand_inline."
+    },
+    "slotAcceptKind": {
+      "type": "string",
+      "enum": [
+        "image-avatar", "image-banner", "image-cover", "image-array",
+        "text-short", "text-long", "number", "date", "badge", "card-ref",
+        "url", "any"
+      ]
+    },
+    "recipe": {
+      "type": "object",
+      "required": ["id", "kind", "displayName", "description", "slots"],
+      "additionalProperties": false,
+      "properties": {
+        "id":          { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "kind":        { "$ref": "#/$defs/recipeKind" },
+        "displayName": { "type": "string" },
+        "description": { "type": "string" },
+        "slots": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/slot" }
+        }
+      }
+    },
+    "slot": {
+      "type": "object",
+      "required": ["id", "label", "kind", "accepts", "optional", "nestable", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "id":    { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "label": { "type": "string" },
+        "kind":  {
+          "type": "string",
+          "enum": ["single", "composable"],
+          "description": "single = exactamente 1 field; composable = 1-N fields con orientation + separator."
+        },
+        "accepts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/slotAcceptKind" },
+          "minItems": 1
+        },
+        "optional":    { "type": "boolean" },
+        "nestable":    {
+          "type": "boolean",
+          "description": "true → este slot acepta una receta anidada (V4 KRO-43). Tipicamente true en slots card-ref."
+        },
+        "description": { "type": ["string", "null"] }
+      }
+    },
+    "action": {
+      "type": "object",
+      "required": ["id", "displayName", "description", "transition"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "enum": ["none", "navigate_to_detail", "modal", "expand_inline", "external_link"]
+        },
+        "displayName": { "type": "string" },
+        "description": { "type": "string" },
+        "transition": {
+          "type": "string",
+          "enum": ["static", "push", "modal", "inline", "external"]
+        },
+        "requiresTargetRecipe": { "type": "boolean" },
+        "targetRecipeKind":     { "type": "string", "enum": ["detail"] },
+        "requiresExpandRecipe": { "type": "boolean" },
+        "requiresLinkField":    { "type": "boolean" }
+      }
+    },
+    "behavior": {
+      "type": "object",
+      "required": ["id", "displayName", "description", "applicableTypes", "renderAs"],
+      "additionalProperties": false,
+      "properties": {
+        "id":              { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "displayName":     { "type": "string" },
+        "description":     { "type": "string" },
+        "applicableTypes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "renderAs": {
+          "description": "Hint del SlotAcceptKind primario donde este behavior encaja. null si solo cabe por type base.",
+          "anyOf": [
+            { "$ref": "#/$defs/slotAcceptKind" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "slotKind": {
+      "type": "object",
+      "required": ["id", "description", "behaviorIds"],
+      "additionalProperties": false,
+      "properties": {
+        "id":          { "$ref": "#/$defs/slotAcceptKind" },
+        "description": { "type": "string" },
+        "behaviorIds": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "compatibilityEntry": {
+      "type": "object",
+      "required": ["kindRole", "allowedActions", "allowedTargetRecipes", "allowedExpandRecipes"],
+      "additionalProperties": false,
+      "properties": {
+        "kindRole": {
+          "type": "string",
+          "enum": ["list-source", "detail-target", "expand-target"]
+        },
+        "allowedActions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "allowedTargetRecipes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "allowedExpandRecipes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

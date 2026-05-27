@@ -1,0 +1,926 @@
+{
+  "$schema": "./kromia-recipe-protocol-v1.schema.json",
+  "protocolVersion": "1.0.0",
+  "generatedAt": "2026-05-26T09:52:33.960Z",
+  "generatedFrom": {
+    "registryPath": "src/components/album/recipes/recipe-registry.ts",
+    "behaviorsPath": "src/lib/behavior-registry.ts",
+    "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen:protocol`."
+  },
+  "recipes": [
+    {
+      "id": "compact_avatar",
+      "kind": "list",
+      "displayName": "Avatar compacto",
+      "description": "Imagen circular + nombre + texto secundario. Ideal para listas de personas/entidades.",
+      "slots": [
+        {
+          "id": "avatar",
+          "label": "Avatar",
+          "kind": "single",
+          "accepts": [
+            "image-avatar"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "title",
+          "label": "Título",
+          "kind": "single",
+          "accepts": [
+            "text-short"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "subtitle",
+          "label": "Subtítulo",
+          "kind": "composable",
+          "accepts": [
+            "text-short",
+            "date",
+            "number"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": "Texto secundario. Puedes componer varios fields con un separador (ciudad · año)."
+        },
+        {
+          "id": "meta",
+          "label": "Meta",
+          "kind": "single",
+          "accepts": [
+            "text-short",
+            "date",
+            "badge"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": "Información lateral (categoría, fecha, badge)."
+        }
+      ]
+    },
+    {
+      "id": "compact_card",
+      "kind": "list",
+      "displayName": "Mini card",
+      "description": "Thumb cuadrada + nombre + subtítulo + badge de rareza/categoría.",
+      "slots": [
+        {
+          "id": "thumb",
+          "label": "Imagen",
+          "kind": "single",
+          "accepts": [
+            "image-cover"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "title",
+          "label": "Título",
+          "kind": "single",
+          "accepts": [
+            "text-short"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "subtitle",
+          "label": "Subtítulo",
+          "kind": "composable",
+          "accepts": [
+            "text-short",
+            "date",
+            "number"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "badge",
+          "label": "Rareza/categoría",
+          "kind": "single",
+          "accepts": [
+            "badge"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": "Badge destacado (rareza, tipo). Ordinal_enum se ordena por jerarquía declarada."
+        }
+      ]
+    },
+    {
+      "id": "hero_protagonico",
+      "kind": "detail",
+      "displayName": "Hero protagónico",
+      "description": "Banner + avatar central + título + stats + body + galería. Para vistas hero al abrir un item.",
+      "slots": [
+        {
+          "id": "banner",
+          "label": "Banner superior",
+          "kind": "single",
+          "accepts": [
+            "image-banner"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "avatar",
+          "label": "Avatar",
+          "kind": "single",
+          "accepts": [
+            "image-avatar"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "title",
+          "label": "Título",
+          "kind": "single",
+          "accepts": [
+            "text-short"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "subtitle",
+          "label": "Subtítulo",
+          "kind": "composable",
+          "accepts": [
+            "text-short",
+            "date"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "stats",
+          "label": "Estadísticas",
+          "kind": "composable",
+          "accepts": [
+            "number"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": "Lista de valores numéricos. Cada uno con su label heredado del field."
+        },
+        {
+          "id": "body",
+          "label": "Cuerpo",
+          "kind": "single",
+          "accepts": [
+            "text-long"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "gallery",
+          "label": "Galería",
+          "kind": "single",
+          "accepts": [
+            "image-array"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "related",
+          "label": "Cartas relacionadas",
+          "kind": "single",
+          "accepts": [
+            "card-ref"
+          ],
+          "optional": true,
+          "nestable": true,
+          "description": "Cada carta referenciada se renderiza con una receta anidada (V4). Sin receta anidada cae a chips con IDs."
+        }
+      ]
+    },
+    {
+      "id": "row_text",
+      "kind": "list",
+      "displayName": "Fila de texto",
+      "description": "Una sola línea: título + subtítulo a la derecha. Sin imagen. Para listas densas (FAQs, días, partidos).",
+      "slots": [
+        {
+          "id": "title",
+          "label": "Título",
+          "kind": "single",
+          "accepts": [
+            "text-short"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "subtitle",
+          "label": "Subtítulo",
+          "kind": "composable",
+          "accepts": [
+            "text-short",
+            "date",
+            "number"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": "Información secundaria a la derecha (fecha, hora, autor)."
+        }
+      ]
+    },
+    {
+      "id": "editorial",
+      "kind": "detail",
+      "displayName": "Editorial",
+      "description": "Artículo con cover + título grande + meta + body markdown + galería. Para historias largas.",
+      "slots": [
+        {
+          "id": "cover",
+          "label": "Imagen de cabecera",
+          "kind": "single",
+          "accepts": [
+            "image-cover",
+            "image-banner"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "title",
+          "label": "Título",
+          "kind": "single",
+          "accepts": [
+            "text-short"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "meta",
+          "label": "Meta",
+          "kind": "composable",
+          "accepts": [
+            "date",
+            "text-short"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": "Autor · fecha · etiqueta. Se renderiza en pequeño bajo el título."
+        },
+        {
+          "id": "body",
+          "label": "Cuerpo",
+          "kind": "single",
+          "accepts": [
+            "text-long"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "gallery",
+          "label": "Galería",
+          "kind": "single",
+          "accepts": [
+            "image-array"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        }
+      ]
+    },
+    {
+      "id": "momento",
+      "kind": "detail",
+      "displayName": "Momento",
+      "description": "Fecha prominente + título + subtítulo + body + slideshow. Para efemérides, días, momentos clave.",
+      "slots": [
+        {
+          "id": "date",
+          "label": "Fecha",
+          "kind": "single",
+          "accepts": [
+            "date"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": "Fecha o año destacado tipográficamente en la cabecera."
+        },
+        {
+          "id": "title",
+          "label": "Título",
+          "kind": "single",
+          "accepts": [
+            "text-short"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "subtitle",
+          "label": "Subtítulo",
+          "kind": "single",
+          "accepts": [
+            "text-short"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "body",
+          "label": "Cuerpo",
+          "kind": "single",
+          "accepts": [
+            "text-long"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "slideshow",
+          "label": "Slideshow",
+          "kind": "single",
+          "accepts": [
+            "image-array"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": "Carrusel horizontal scrollable. Pensado para swipe en móvil."
+        }
+      ]
+    },
+    {
+      "id": "accordion_simple",
+      "kind": "expand",
+      "displayName": "Accordion simple",
+      "description": "Solo cuerpo de texto. Se despliega bajo la card al tap (action=expand_inline).",
+      "slots": [
+        {
+          "id": "body",
+          "label": "Cuerpo",
+          "kind": "single",
+          "accepts": [
+            "text-long"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": "Texto largo (markdown / notes / html) que aparece desplegado."
+        }
+      ]
+    },
+    {
+      "id": "accordion_with_actions",
+      "kind": "expand",
+      "displayName": "Accordion con acciones",
+      "description": "Cuerpo de texto + botones con enlaces. Para items con CTAs (redes, descargas, recursos).",
+      "slots": [
+        {
+          "id": "body",
+          "label": "Cuerpo",
+          "kind": "single",
+          "accepts": [
+            "text-long"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "actions",
+          "label": "Botones",
+          "kind": "composable",
+          "accepts": [
+            "url"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": "Lista de fields con behavior url/email/phone. Cada uno se renderiza como botón pulsable."
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "none",
+      "displayName": "Ninguna",
+      "description": "El item es informativo, no responde al tap.",
+      "transition": "static"
+    },
+    {
+      "id": "navigate_to_detail",
+      "displayName": "Navegar al detalle",
+      "description": "Push de una nueva pantalla con la receta de detalle declarada en targetRecipe.",
+      "transition": "push",
+      "requiresTargetRecipe": true,
+      "targetRecipeKind": "detail"
+    },
+    {
+      "id": "modal",
+      "displayName": "Modal overlay",
+      "description": "Bottom sheet con la receta de detalle declarada en targetRecipe (no abandona la lista).",
+      "transition": "modal",
+      "requiresTargetRecipe": true,
+      "targetRecipeKind": "detail"
+    },
+    {
+      "id": "expand_inline",
+      "displayName": "Expandir inline",
+      "description": "Mini-receta (accordion) desplegada bajo el item — la composition debe declarar `expand`.",
+      "transition": "inline",
+      "requiresExpandRecipe": true
+    },
+    {
+      "id": "external_link",
+      "displayName": "Enlace externo",
+      "description": "Abre la URL contenida en el field declarado en linkField (behavior url/email/phone).",
+      "transition": "external",
+      "requiresLinkField": true
+    }
+  ],
+  "behaviors": [
+    {
+      "id": "card_index_list",
+      "displayName": "Lista de cartas",
+      "description": "Lista de cartas del álbum referenciadas por su número. Útil para \"cartas relacionadas\", \"cartas del mismo set\", etc.",
+      "applicableTypes": [
+        "array<number>"
+      ],
+      "renderAs": "card-ref"
+    },
+    {
+      "id": "url",
+      "displayName": "Enlace web",
+      "description": "Dirección web (https://…). Se muestra como enlace clicable que abre en una pestaña nueva.",
+      "applicableTypes": [
+        "text"
+      ],
+      "renderAs": "url"
+    },
+    {
+      "id": "tags",
+      "displayName": "Etiquetas",
+      "description": "Etiquetas libres tipo Twitter/Instagram. Útiles para categorizar de forma flexible (#novedad, #legendaria, #2025…).",
+      "applicableTypes": [
+        "array<string>"
+      ],
+      "renderAs": null
+    },
+    {
+      "id": "email",
+      "displayName": "Email",
+      "description": "Dirección de correo electrónico. Se muestra con icono y al pulsarla abre el cliente de correo del usuario.",
+      "applicableTypes": [
+        "text"
+      ],
+      "renderAs": "url"
+    },
+    {
+      "id": "phone",
+      "displayName": "Teléfono",
+      "description": "Número de teléfono. Se muestra con icono y al pulsarlo el móvil ofrece llamar directamente.",
+      "applicableTypes": [
+        "text"
+      ],
+      "renderAs": "url"
+    },
+    {
+      "id": "year",
+      "displayName": "Año",
+      "description": "Año concreto (4 dígitos). Útil para ediciones, temporadas, año de fundación de un equipo, etc.",
+      "applicableTypes": [
+        "number"
+      ],
+      "renderAs": "date"
+    },
+    {
+      "id": "currency",
+      "displayName": "Precio",
+      "description": "Cantidad de dinero. El editor pone el símbolo de moneda delante (€, $, £). Útil para valor de mercado, precio de venta, etc.",
+      "applicableTypes": [
+        "number"
+      ],
+      "renderAs": null
+    },
+    {
+      "id": "markdown",
+      "displayName": "Texto con formato",
+      "description": "Texto largo donde puedes usar **negrita**, listas, enlaces, etc. La app pública lo muestra con el formato aplicado.",
+      "applicableTypes": [
+        "textarea"
+      ],
+      "renderAs": "text-long"
+    },
+    {
+      "id": "enum",
+      "displayName": "Opciones predefinidas",
+      "description": "Una o varias opciones de una lista que tú decides previamente. Útil para \"rareza\" (común / rara / épica / legendaria), \"tipo\", etc.",
+      "applicableTypes": [
+        "array<string>"
+      ],
+      "renderAs": "badge"
+    },
+    {
+      "id": "iso_date",
+      "displayName": "Fecha",
+      "description": "Fecha concreta (día / mes / año). El editor abre un calendario para elegir. Útil para fecha de nacimiento, debut, lanzamiento, etc.",
+      "applicableTypes": [
+        "text"
+      ],
+      "renderAs": "date"
+    },
+    {
+      "id": "slug",
+      "displayName": "URL amigable",
+      "description": "Texto pensado para aparecer en una URL. Solo minúsculas, números y guiones — sin espacios ni acentos. Útil cuando una carta o sección tiene una página propia con dirección legible (p.ej. /cartas/lionel-messi-2025).",
+      "applicableTypes": [
+        "text"
+      ],
+      "renderAs": null
+    },
+    {
+      "id": "percentage",
+      "displayName": "Porcentaje",
+      "description": "Porcentaje del 0 al 100. El editor añade el símbolo % automáticamente. Útil para descuentos, completitud, probabilidad de aparición, etc.",
+      "applicableTypes": [
+        "number"
+      ],
+      "renderAs": null
+    },
+    {
+      "id": "rating",
+      "displayName": "Valoración",
+      "description": "Valoración con estrellas (de 0 a 5 por defecto). El editor las muestra clicables como en cualquier reseña.",
+      "applicableTypes": [
+        "number"
+      ],
+      "renderAs": "badge"
+    },
+    {
+      "id": "color_hex",
+      "displayName": "Color",
+      "description": "Selector de color con paleta visual. Para el color corporativo de un equipo, el tinte de una rareza (rojo = legendario), el fondo destacado de una sección…",
+      "applicableTypes": [
+        "text"
+      ],
+      "renderAs": null
+    },
+    {
+      "id": "url_list",
+      "displayName": "Lista de enlaces",
+      "description": "Lista de enlaces web. Útil para \"enlaces relacionados\", \"redes sociales del jugador\", etc. Cada uno se muestra clicable.",
+      "applicableTypes": [
+        "array<string>"
+      ],
+      "renderAs": null
+    },
+    {
+      "id": "email_list",
+      "displayName": "Lista de emails",
+      "description": "Lista de direcciones de correo. Cada una se muestra clicable y abre el correo del usuario.",
+      "applicableTypes": [
+        "array<string>"
+      ],
+      "renderAs": null
+    },
+    {
+      "id": "measurement",
+      "displayName": "Medida con unidad",
+      "description": "Medida con unidad: peso, altura, volumen, duración… El editor añade la unidad que elijas (cm, kg, ml, min…).",
+      "applicableTypes": [
+        "number"
+      ],
+      "renderAs": null
+    },
+    {
+      "id": "notes",
+      "displayName": "Notas internas",
+      "description": "Texto largo libre para anotaciones que NO se muestran en la app pública. Útil para notas del equipo, recordatorios o información interna.",
+      "applicableTypes": [
+        "textarea"
+      ],
+      "renderAs": "text-long"
+    },
+    {
+      "id": "code",
+      "displayName": "Código fuente",
+      "description": "Texto en fuente monoespaciada para mostrar código de programación. Solo úsalo si tu álbum tiene cartas relacionadas con software o tutoriales técnicos.",
+      "applicableTypes": [
+        "textarea"
+      ],
+      "renderAs": null
+    },
+    {
+      "id": "html",
+      "displayName": "HTML avanzado",
+      "description": "Para usuarios técnicos. Permite insertar HTML directamente que la app pública renderizará (con limpieza de seguridad). Si no sabes lo que es HTML, usa \"Texto con formato\".",
+      "applicableTypes": [
+        "textarea"
+      ],
+      "renderAs": "text-long"
+    },
+    {
+      "id": "year_list",
+      "displayName": "Lista de años",
+      "description": "Lista de años. Útil para indicar ediciones múltiples, temporadas históricas en las que un jugador jugó, etc. Se añaden uno a uno.",
+      "applicableTypes": [
+        "array<number>"
+      ],
+      "renderAs": "date"
+    },
+    {
+      "id": "avatar",
+      "displayName": "Avatar (foto circular)",
+      "description": "Imagen 1:1 renderizada como círculo. Para retratos del autor de la carta, mascotas de equipo, personajes o cualquier cara.",
+      "applicableTypes": [
+        "image"
+      ],
+      "renderAs": "image-avatar"
+    },
+    {
+      "id": "banner",
+      "displayName": "Banner (cabecera ancha)",
+      "description": "Imagen panorámica 21:9. Para cabeceras de sección, vistas panorámicas (estadio, paisaje), portadas horizontales.",
+      "applicableTypes": [
+        "image"
+      ],
+      "renderAs": "image-banner"
+    },
+    {
+      "id": "cover",
+      "displayName": "Portada (vertical 2:3)",
+      "description": "Imagen vertical 2:3 estilo póster o portada de libro. Para carátulas de cómic, portadas de álbum, posters.",
+      "applicableTypes": [
+        "image"
+      ],
+      "renderAs": "image-cover"
+    },
+    {
+      "id": "thumbnail",
+      "displayName": "Miniatura (64×64)",
+      "description": "Imagen cuadrada muy pequeña (64×64 px). Para iconos, previews compactas en listas, marcadores.",
+      "applicableTypes": [
+        "image"
+      ],
+      "renderAs": "image-cover"
+    },
+    {
+      "id": "gallery",
+      "displayName": "Galería de imágenes",
+      "description": "Grid de imágenes sin orden semántico. Para fotos de un evento, varias instantáneas del mismo objeto, momentos sueltos.",
+      "applicableTypes": [
+        "array<image>"
+      ],
+      "renderAs": "image-array"
+    },
+    {
+      "id": "card_multiview",
+      "displayName": "Vistas de la carta",
+      "description": "Vistas alternativas de la misma carta (frontal, dorso, holo, foil…). Cada slot tiene una etiqueta fija definida en config.labels.",
+      "applicableTypes": [
+        "array<image>"
+      ],
+      "renderAs": "image-array"
+    },
+    {
+      "id": "slideshow",
+      "displayName": "Pase de diapositivas",
+      "description": "Imágenes con orden semántico (proceso, secuencia, antes/después). El cliente las muestra como carousel con flechas.",
+      "applicableTypes": [
+        "array<image>"
+      ],
+      "renderAs": "image-array"
+    },
+    {
+      "id": "card_code_list",
+      "displayName": "Lista de cartas (por código)",
+      "description": "Lista de cartas del mismo álbum referenciadas por su código de texto (p.ej. HC-001, HC-002). Equivalente a \"Lista de cartas\" pero cuando tu álbum identifica cada carta por código en lugar de por número.",
+      "applicableTypes": [
+        "array<string>"
+      ],
+      "renderAs": "card-ref"
+    },
+    {
+      "id": "ordinal_enum",
+      "displayName": "Lista ordenada (jerarquía)",
+      "description": "Una opción de una lista cuyo orden importa. Útil para rareza (común → legendaria), niveles, categorías escalonadas. Declara las opciones en el campo \"options\" del field, ordenadas de menor a mayor.",
+      "applicableTypes": [
+        "text",
+        "select"
+      ],
+      "renderAs": "badge"
+    }
+  ],
+  "slotAcceptKinds": [
+    {
+      "id": "image-avatar",
+      "description": "Imagen renderizada como círculo (avatar de persona/entidad).",
+      "behaviorIds": [
+        "avatar"
+      ]
+    },
+    {
+      "id": "image-banner",
+      "description": "Imagen panorámica para cabeceras (21:9 aprox).",
+      "behaviorIds": [
+        "banner"
+      ]
+    },
+    {
+      "id": "image-cover",
+      "description": "Imagen vertical 2:3 estilo portada o thumbnail cuadrado pequeño.",
+      "behaviorIds": [
+        "cover",
+        "thumbnail"
+      ]
+    },
+    {
+      "id": "image-array",
+      "description": "Colección de imágenes (galería, slideshow, multiview de carta).",
+      "behaviorIds": [
+        "gallery",
+        "card_multiview",
+        "slideshow"
+      ]
+    },
+    {
+      "id": "text-short",
+      "description": "Texto en una línea (título, etiqueta corta).",
+      "behaviorIds": []
+    },
+    {
+      "id": "text-long",
+      "description": "Texto largo con párrafos (descripción, biografía, markdown).",
+      "behaviorIds": [
+        "markdown",
+        "notes",
+        "html"
+      ]
+    },
+    {
+      "id": "number",
+      "description": "Valor numérico (puntaje, año, precio…).",
+      "behaviorIds": []
+    },
+    {
+      "id": "date",
+      "description": "Fecha o año destacado tipográficamente.",
+      "behaviorIds": [
+        "year",
+        "iso_date",
+        "year_list"
+      ]
+    },
+    {
+      "id": "badge",
+      "description": "Etiqueta visual destacada (rareza, categoría, rating).",
+      "behaviorIds": [
+        "enum",
+        "rating",
+        "ordinal_enum"
+      ]
+    },
+    {
+      "id": "card-ref",
+      "description": "Referencia a otras cartas del álbum (por índice o por código).",
+      "behaviorIds": [
+        "card_index_list",
+        "card_code_list"
+      ]
+    },
+    {
+      "id": "url",
+      "description": "Acción externa: URL web, email, teléfono (botón clicable).",
+      "behaviorIds": [
+        "url",
+        "email",
+        "phone"
+      ]
+    },
+    {
+      "id": "any",
+      "description": "Wildcard — el slot acepta cualquier field independientemente de su clasificación.",
+      "behaviorIds": []
+    }
+  ],
+  "compatibilityMatrix": {
+    "compact_avatar": {
+      "kindRole": "list-source",
+      "allowedActions": [
+        "none",
+        "navigate_to_detail",
+        "modal",
+        "expand_inline",
+        "external_link"
+      ],
+      "allowedTargetRecipes": [
+        "hero_protagonico",
+        "editorial",
+        "momento"
+      ],
+      "allowedExpandRecipes": [
+        "accordion_simple",
+        "accordion_with_actions"
+      ]
+    },
+    "compact_card": {
+      "kindRole": "list-source",
+      "allowedActions": [
+        "none",
+        "navigate_to_detail",
+        "modal",
+        "expand_inline",
+        "external_link"
+      ],
+      "allowedTargetRecipes": [
+        "hero_protagonico",
+        "editorial",
+        "momento"
+      ],
+      "allowedExpandRecipes": [
+        "accordion_simple",
+        "accordion_with_actions"
+      ]
+    },
+    "hero_protagonico": {
+      "kindRole": "detail-target",
+      "allowedActions": [
+        "none"
+      ],
+      "allowedTargetRecipes": [],
+      "allowedExpandRecipes": []
+    },
+    "row_text": {
+      "kindRole": "list-source",
+      "allowedActions": [
+        "none",
+        "navigate_to_detail",
+        "modal",
+        "expand_inline",
+        "external_link"
+      ],
+      "allowedTargetRecipes": [
+        "hero_protagonico",
+        "editorial",
+        "momento"
+      ],
+      "allowedExpandRecipes": [
+        "accordion_simple",
+        "accordion_with_actions"
+      ]
+    },
+    "editorial": {
+      "kindRole": "detail-target",
+      "allowedActions": [
+        "none"
+      ],
+      "allowedTargetRecipes": [],
+      "allowedExpandRecipes": []
+    },
+    "momento": {
+      "kindRole": "detail-target",
+      "allowedActions": [
+        "none"
+      ],
+      "allowedTargetRecipes": [],
+      "allowedExpandRecipes": []
+    },
+    "accordion_simple": {
+      "kindRole": "expand-target",
+      "allowedActions": [],
+      "allowedTargetRecipes": [],
+      "allowedExpandRecipes": []
+    },
+    "accordion_with_actions": {
+      "kindRole": "expand-target",
+      "allowedActions": [],
+      "allowedTargetRecipes": [],
+      "allowedExpandRecipes": []
+    }
+  }
+}
