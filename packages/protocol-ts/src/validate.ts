@@ -16,7 +16,7 @@
  *             debería ser advertido.
  */
 
-import type { ViewComposition, SlotComposition, SlotAppearance, FieldDefLike } from './types';
+import type { ViewComposition, SlotComposition, SlotAppearance, FieldDefLike, NestedViewComposition } from './types';
 import { RECIPE_REGISTRY, getRecipeManifest, allRecipesByKind } from './registries/recipes';
 import { ACTION_IDS } from './registries/actions';
 import { classifyField, isFieldCompatibleWithSlot } from './classify';
@@ -124,6 +124,65 @@ function validateAppearance(
   }
 }
 
+/**
+ * Valida una `NestedViewComposition` (mini-receta dentro de un slot).
+ *
+ * Reglas:
+ *  - `recipe` es string no vacío.
+ *  - `slots` es objeto.
+ *  - **Depth max = 2**: la nested NO puede tener slots con su propia
+ *    `nestedComposition`. Esto previene loops conceptuales (KRO-43 V4).
+ *
+ * NOTA: los fields del nested típicamente referencian OTRO schema (cross-section),
+ * por eso NO se validan contra `fieldDefs` del padre. Solo se valida
+ * well-formedness de strings no vacíos.
+ */
+function validateNested(
+  nested:   NestedViewComposition,
+  basePath: string,
+  issues:   ValidationIssue[],
+): void {
+  if (typeof nested !== 'object' || Array.isArray(nested)) {
+    issues.push({ path: basePath, level: 'error', message: 'nestedComposition no es un objeto' });
+    return;
+  }
+  if (!nested.recipe || typeof nested.recipe !== 'string' || !nested.recipe.trim()) {
+    issues.push({ path: `${basePath}.recipe`, level: 'error', message: 'nestedComposition.recipe vacío o no string' });
+  }
+  // `slots` puede ser undefined (interpretado como "sin slots"), pero si
+  // está EXPLÍCITO con null o un array, es error.
+  if (nested.slots !== undefined && (nested.slots === null || typeof nested.slots !== 'object' || Array.isArray(nested.slots))) {
+    issues.push({ path: `${basePath}.slots`, level: 'error', message: 'nestedComposition.slots no es un objeto' });
+    return;
+  }
+  const nestedSlots = nested.slots ?? {};
+  for (const [slotName, slot] of Object.entries(nestedSlots)) {
+    const slotPath = `${basePath}.slots.${slotName}`;
+    if (!slot || typeof slot !== 'object') {
+      issues.push({ path: slotPath, level: 'error', message: `slot "${slotName}" no es un objeto` });
+      continue;
+    }
+    const slotFields = Array.isArray(slot.fields) ? slot.fields : [];
+    slotFields.forEach((key, i) => {
+      if (typeof key !== 'string' || !key.trim()) {
+        issues.push({
+          path:    `${slotPath}.fields[${i}]`,
+          level:   'error',
+          message: `slot "${slotName}" contiene una entry vacía o no-string`,
+        });
+      }
+    });
+    // Depth max=2: una nested NO puede tener su propia nested.
+    if (slot.nestedComposition !== undefined && slot.nestedComposition !== null) {
+      issues.push({
+        path:    `${slotPath}.nestedComposition`,
+        level:   'error',
+        message: `slot "${slotName}" excede profundidad máxima (2). nestedComposition no permitida dentro de otra nested.`,
+      });
+    }
+  }
+}
+
 function validateSlot(
   slotId:    string,
   slot:      SlotComposition,
@@ -188,6 +247,11 @@ function validateSlot(
       level:   'error',
       message: `orientation "${slot.orientation}" no es válido (esperaba 'horizontal' o 'vertical')`,
     });
+  }
+
+  // KRO-80 — nestedComposition con depth max=2.
+  if (slot.nestedComposition !== undefined && slot.nestedComposition !== null) {
+    validateNested(slot.nestedComposition, `${basePath}.nestedComposition`, issues);
   }
 }
 
@@ -284,7 +348,28 @@ export function validateComposition(
     }
   }
 
-  // ── 6. targetRecipe (auto-pick si no especificado) ────────────────
+  // ── 6. linkField (KRO-80) ─────────────────────────────────────────
+  // Referencia un field existente en fieldDefs cuando se provee.
+  if (composition.linkField !== undefined && composition.linkField !== null) {
+    if (typeof composition.linkField !== 'string' || !composition.linkField.trim()) {
+      issues.push({
+        path:    'linkField',
+        level:   'error',
+        message: 'linkField debe ser un string no vacío (o ausente)',
+      });
+    } else if (fieldDefs) {
+      const fieldKeys = new Set(fieldDefs.map(f => f.key));
+      if (!fieldKeys.has(composition.linkField)) {
+        issues.push({
+          path:    'linkField',
+          level:   'error',
+          message: `linkField referencia el field "${composition.linkField}" que no existe en la sección`,
+        });
+      }
+    }
+  }
+
+  // ── 7. targetRecipe (auto-pick si no especificado) ────────────────
   if (composition.targetRecipe !== undefined) {
     const target = getRecipeManifest(composition.targetRecipe);
     if (!target) {
@@ -302,7 +387,7 @@ export function validateComposition(
     }
   }
 
-  // ── 7. slotOverrides ──────────────────────────────────────────────
+  // ── 8. slotOverrides ──────────────────────────────────────────────
   if (composition.slotOverrides) {
     const recipeSlotIds = new Set((manifest?.slots ?? []).map(s => s.id));
 

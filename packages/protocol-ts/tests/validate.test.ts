@@ -331,6 +331,115 @@ describe('validateComposition — slotOverrides', () => {
   });
 });
 
+// ── linkField (KRO-80) ─────────────────────────────────────────────
+
+describe('validateComposition — linkField', () => {
+  it('linkField ausente → ok', () => {
+    const r = validateComposition(makeValidComposition(), { fieldDefs: fieldsBase() });
+    expect(r.issues.filter(i => i.path === 'linkField')).toEqual([]);
+  });
+
+  it('linkField string vacío → error', () => {
+    const c = makeValidComposition();
+    c.linkField = '   ';
+    const r = validateComposition(c);
+    expect(r.valid).toBe(false);
+    expect(r.issues.some(i => i.path === 'linkField')).toBe(true);
+  });
+
+  it('linkField referencia field existente → ok', () => {
+    const c = makeValidComposition();
+    c.linkField = 'nombre';
+    const r = validateComposition(c, { fieldDefs: fieldsBase() });
+    expect(r.issues.filter(i => i.path === 'linkField')).toEqual([]);
+  });
+
+  it('linkField referencia field inexistente → error', () => {
+    const c = makeValidComposition();
+    c.linkField = 'fantasma';
+    const r = validateComposition(c, { fieldDefs: fieldsBase() });
+    expect(r.valid).toBe(false);
+    expect(r.issues.some(i =>
+      i.path === 'linkField' && i.message.includes('fantasma'),
+    )).toBe(true);
+  });
+
+  it('linkField inexistente SIN fieldDefs → no falla (no se valida)', () => {
+    const c = makeValidComposition();
+    c.linkField = 'fantasma';
+    const r = validateComposition(c);
+    expect(r.issues.filter(i => i.path === 'linkField')).toEqual([]);
+  });
+});
+
+// ── nestedComposition (KRO-80) ─────────────────────────────────────
+
+describe('validateComposition — nestedComposition (depth max=2)', () => {
+  it('nested válido (depth 2) → ok', () => {
+    const c = makeValidComposition();
+    c.slots.title.nestedComposition = {
+      recipe: 'compact_avatar',
+      slots: {
+        title: { fields: ['otro'] },
+      },
+    };
+    const r = validateComposition(c);
+    expect(r.issues.filter(i => i.path.includes('nestedComposition') && i.level === 'error')).toEqual([]);
+  });
+
+  it('nested con recipe vacío → error', () => {
+    const c = makeValidComposition();
+    c.slots.title.nestedComposition = {
+      recipe: '' as any,
+      slots: {},
+    };
+    const r = validateComposition(c);
+    expect(r.valid).toBe(false);
+    expect(r.issues.some(i => i.path.endsWith('nestedComposition.recipe'))).toBe(true);
+  });
+
+  it('nested DENTRO de nested → error (depth > 2)', () => {
+    const c = makeValidComposition();
+    c.slots.title.nestedComposition = {
+      recipe: 'compact_avatar',
+      slots: {
+        title: {
+          fields: ['x'],
+          nestedComposition: {
+            recipe: 'compact_card',
+            slots: {},
+          },
+        },
+      },
+    };
+    const r = validateComposition(c);
+    expect(r.valid).toBe(false);
+    expect(r.issues.some(i => i.message.includes('profundidad máxima'))).toBe(true);
+  });
+
+  it('nested.slots con field key vacío → error', () => {
+    const c = makeValidComposition();
+    c.slots.title.nestedComposition = {
+      recipe: 'compact_avatar',
+      slots: {
+        title: { fields: ['  '] },
+      },
+    };
+    const r = validateComposition(c);
+    expect(r.valid).toBe(false);
+  });
+
+  it('nested.slots NO es objeto → error', () => {
+    const c = makeValidComposition();
+    c.slots.title.nestedComposition = {
+      recipe: 'compact_avatar',
+      slots: null as any,
+    };
+    const r = validateComposition(c);
+    expect(r.valid).toBe(false);
+  });
+});
+
 // ── Semánticos ─────────────────────────────────────────────────────
 
 describe('validateComposition — semánticos', () => {
