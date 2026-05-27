@@ -248,3 +248,33 @@ export interface CustomSlotDefinition {
   optional?:   boolean;
   description?: string;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// KRO-73 — Tipos consumidos por los helpers de presentación (format/auto/
+// accent/compose). Son "structural subsets" mínimos: el SDK no se acopla al
+// modelo extendido de los consumers (CardFieldDefinition de Studio), solo
+// pide lo necesario para hacer su trabajo. Studio les pasa sus fields y por
+// structural typing TypeScript acepta.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Forma mínima de un field que los helpers del SDK necesitan para formatear
+ * y componer values. Compatible estructuralmente con `CardFieldDefinition`
+ * de Studio (que tiene más campos — el SDK solo pide los relevantes).
+ */
+export interface FieldDefLike {
+  key:       string;
+  label?:    string;
+  type:      string;
+  behavior?: string;
+  options?:  string[];
+}
+
+/**
+ * Resultado de `extractAccentSettings` — color hex resuelto + posición
+ * computada (composition override > slot override > recipe default).
+ */
+export interface AccentSettings {
+  color:    string;
+  position: 'top' | 'right' | 'bottom' | 'left' | 'none';
+}

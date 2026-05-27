@@ -15,7 +15,7 @@
 import { describe, it, expect } from 'vitest';
 import * as SDK from '../src/index';
 
-// ── Exports esperados (snapshot al 2026-05-27, KRP v1.2.0) ───────────
+// ── Exports esperados (snapshot al 2026-05-27, KRP v1.4.0) ───────────
 
 const EXPECTED_EXPORTS = [
   // Version constant — KRO-63
@@ -51,6 +51,11 @@ const EXPECTED_EXPORTS = [
   // Synth (AppPreview) — KRO-72
   'synthSectionItems',
   'synthFieldValue',
+  // Presentation helpers — KRO-73 (B+)
+  'formatScalar',
+  'buildAutoDetailComposition',
+  'extractAccentSettings',
+  'composeSlotValues',
 ] as const;
 
 describe('API snapshot — @kromia/protocol barrel', () => {
@@ -114,6 +119,10 @@ import type {
   SynthSourceField,
   SynthSourceSection,
   SynthItem,
+  FieldDefLike,
+  AccentSettings,
+  ComposeSlotInput,
+  ComposedSlotResult,
 } from '../src/index';
 
 describe('Type exports compile-check', () => {
@@ -140,7 +149,11 @@ describe('Type exports compile-check', () => {
       null as unknown as SynthSourceField,
       null as unknown as SynthSourceSection,
       null as unknown as SynthItem,
+      null as unknown as FieldDefLike,
+      null as unknown as AccentSettings,
+      null as unknown as ComposeSlotInput,
+      null as unknown as ComposedSlotResult,
     ];
-    expect(_checks.length).toBe(19);
+    expect(_checks.length).toBe(23);
   });
 });

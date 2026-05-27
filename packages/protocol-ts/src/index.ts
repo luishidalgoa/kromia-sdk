@@ -102,3 +102,18 @@ export {
   type SynthSourceSection,
   type SynthItem,
 } from './synth';
+
+// ── Presentation helpers (format / auto / accent / compose) ────────────
+// KRO-73 (B+): migrados desde kromia-studio. Cuatro funciones puras que
+// Studio + futuro Flutter consumen para que el AppPreview se renderice
+// "primo hermano" en ambas plataformas. NO contienen JSX/Widgets — solo
+// la lógica que precede al render.
+export type { FieldDefLike, AccentSettings } from './types';
+export { formatScalar } from './format-scalar';
+export { buildAutoDetailComposition } from './auto-detail';
+export { extractAccentSettings } from './extract-accent';
+export {
+  composeSlotValues,
+  type ComposeSlotInput,
+  type ComposedSlotResult,
+} from './compose-slot';
