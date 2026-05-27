@@ -4,56 +4,68 @@
 `navigate_to_detail`, `expand_inline`, `external_link`...). Una action define
 qué pasa cuando el usuario toca un item en una recipe `list`.
 
+## Regla de oro
+
+> La action se define en el **SDK** (`@kromia/protocol`), no en Studio
+> ni en Flutter. Los clientes lo **consumen** vía import del paquete.
+
 ## Pasos
 
-### Studio (kromia-studio)
+### SDK (`kromia-protocol/packages/protocol-ts/`)
 
-- [ ] Hoy las actions están **hardcoded** en
-  `scripts/generate-recipe-protocol.ts` (constante `ACTIONS`). KRP V1.5 las
-  moverá a `src/lib/action-registry.ts`. Mientras tanto:
-  - Si V1.5 ya está shipped → editar `src/lib/action-registry.ts`.
-  - Si no → editar la constante `ACTIONS` en el generator script.
-- [ ] Campos obligatorios por entrada:
+- [ ] Añadir entrada en `src/registries/actions.ts`:
   - `id` (snake_case)
   - `displayName`, `description`
   - `transition`: `'static' | 'push' | 'modal' | 'inline' | 'external'`
-  - `requiresTargetRecipe?`, `targetRecipeKind?`, `requiresExpandRecipe?`,
-    `requiresLinkField?` según aplique.
+  - `requiresTargetRecipe?`, `targetRecipeKind?`,
+    `requiresExpandRecipe?`, `requiresLinkField?` según aplique.
+- [ ] `pnpm test` debe pasar (las actions no tienen corpus específico hoy
+  pero los tests del modelo deben seguir verdes).
+- [ ] Regenerar: `pnpm gen`. Verificar `actions[]` + `compatibilityMatrix`
+  + `connections.edges` (kind `recipe-action`).
+- [ ] Si introduces un nuevo `transition` no existente, considerar si el
+  shape de `ActionDefinition` debe extenderse (eso sería **major** bump).
+
+### Studio (`kromia-studio/`)
+
+- [ ] **NO se toca el modelo** — viene del SDK.
 - [ ] Si la action introduce nuevo flujo visual, implementarlo en el
   AppPreview (`src/components/album/SectionAppPreview.tsx` y similares) +
   el editor (`ViewCompositionTreeEditor.tsx` para nuevos campos requeridos).
 - [ ] Validar en `viewCompositionValidator.ts` (Studio) si la action exige
-  campos en la composition (target/expand/linkField).
-- [ ] Regenerar contract: `pnpm gen:protocol`.
-- [ ] Verificar `contracts/kromia-recipe-protocol-v1.json` → sección
-  `actions` + `compatibilityMatrix[<recipe>].allowedActions`.
+  campos en la composition (target/expand/linkField). El validador puede
+  reusar las constraint flags del `ActionDefinition` vía
+  `getAction(id)?.requiresTargetRecipe`.
 
-### Flutter (kromia-flutter) — cuando KRO-65 esté shipped
+### Flutter — cuando KRO-65 esté shipped
 
 - [ ] Añadir handler de la action en el navigator / overlay manager.
-- [ ] Si `transition: 'external'` → integrar con `url_launcher` o equivalente.
-- [ ] Si `transition: 'modal'` → bottom sheet con la recipe declarada en
+- [ ] `transition: 'external'` → integrar con `url_launcher` o equivalente.
+- [ ] `transition: 'modal'` → bottom sheet con la recipe declarada en
   `targetRecipe`.
 
-### Backend (Kromia_NodeJS)
+### Backend (`Kromia_NodeJS/`)
 
 - [ ] **NO se toca**. El validator backend es permisivo (acepta cualquier
   string non-empty en `composition.action`).
 
 ### Contract / Versionado
 
-- [ ] Cambio **minor** (1.x.0 → 1.(x+1).0). El cliente Flutter antiguo
-  ignora la action desconocida (renderiza como `none`).
+- [ ] Cambio **minor** (1.x.0 → 1.(x+1).0). El cliente antiguo ignora la
+  action desconocida (renderiza como `none`).
+- [ ] Bump version en `packages/protocol-ts/package.json` + `PROTOCOL_VERSION`.
 - [ ] Seguir [bump-protocol.md](bump-protocol.md).
 
 ### Jira
 
 - [ ] Subtarea de `KRO-21`.
-- [ ] Labels: `feature`, `frontend`, `behaviors`.
+- [ ] Labels: `feature`, `SDK`. Añadir `Studio` si requiere trabajo en
+  AppPreview o editor.
 
 ### Git
 
-- [ ] Commit message: `feat(actions): añadir <id> — <descripción>`.
+- [ ] **Commit en kromia-protocol**: `feat(actions): añadir <id> — <descripción>`.
+- [ ] **Commit en kromia-studio**: solo si hubo trabajo en AppPreview/editor.
 
 ## Pitfalls conocidos
 
@@ -66,4 +78,4 @@ qué pasa cuando el usuario toca un item en una recipe `list`.
 
 ## Last verified
 
-2026-05-27 — setup inicial del repo.
+2026-05-27 — KRP V1.5 (KRO-71 Fase 2 shipped, monorepo + SDK activos).
