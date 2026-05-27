@@ -3,7 +3,6 @@
   "version": "1.8.0",
   "private": true,
   "description": "SDK TypeScript del contrato Kromia. Source-of-truth del modelo (recipes, behaviors, actions, slot kinds, field types) + helpers (classifyField, isFieldCompatibleWithSlot). Emite contracts/*.json al regenerar.",
-  "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
