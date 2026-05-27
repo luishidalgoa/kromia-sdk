@@ -2,11 +2,11 @@
   "name": "kromia-sdk",
   "version": "1.0.0",
   "private": true,
-  "description": "Monorepo del contrato Kromia: contracts/ (JSON + schemas) + playbooks/ (procesos) + packages/protocol-ts (SDK TypeScript). Futuro packages/protocol-dart cuando Flutter exista.",
+  "description": "Monorepo del SDK Kromia: contracts/ (JSON + schemas) + playbooks/ (procesos) + packages/core (TS core) + packages/react (futuro, KRO-82) + packages/flutter (futuro, KRO-83).",
   "type": "module",
   "scripts": {
-    "gen": "pnpm --filter @kromia/protocol gen",
-    "test": "pnpm --filter @kromia/protocol test",
+    "gen": "pnpm --filter @kromia/core gen",
+    "test": "pnpm --filter @kromia/core test",
     "build": "pnpm -r build"
   },
   "devDependencies": {

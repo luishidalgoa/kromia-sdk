@@ -1,5 +1,5 @@
 /**
- * API snapshot del barrel público `@kromia/protocol`.
+ * API snapshot del barrel público `@kromia/core`.
  *
  * Captura el set actual de exports. Cualquier remoción, renombre o cambio
  * breaking del API surface lo caza este test.
@@ -82,7 +82,7 @@ const EXPECTED_EXPORTS = [
   'getFieldTypeDescriptions',
 ] as const;
 
-describe('API snapshot — @kromia/protocol barrel', () => {
+describe('API snapshot — @kromia/core barrel', () => {
   const actualExports = Object.keys(SDK).sort();
   const expectedExports = [...EXPECTED_EXPORTS].sort();
 

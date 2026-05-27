@@ -16,7 +16,7 @@ renderers viven en cada cliente.
 
 ## Pasos
 
-### SDK — Manifest (`kromia-sdk/packages/protocol-ts/`)
+### SDK — Manifest (`kromia-sdk/packages/core/`)
 
 - [ ] Añadir manifest en `src/registries/recipes.ts`, bajo `RECIPE_REGISTRY`:
   - `id` (snake_case único)

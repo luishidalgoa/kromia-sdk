@@ -3,7 +3,7 @@
 **Cuándo aplica**: vas a subir la versión de un contract (`protocolVersion`
 dentro del JSON + version del paquete + tag de git en este repo).
 
-Hoy aplica al KRP (`kromia-recipe-protocol-v1.json` + `@kromia/protocol`).
+Hoy aplica al KRP (`kromia-recipe-protocol-v1.json` + `@kromia/core`).
 Cuando aparezcan nuevos contracts/paquetes, este playbook cubre todos.
 
 ## Niveles SemVer
@@ -31,7 +31,7 @@ del git. Aplica:
 4. Escribe ambos archivos.
 
 **Single source-of-truth**: ya NO se edita `PROTOCOL_VERSION` a mano. La
-constante exportada del barrel (`@kromia/protocol#PROTOCOL_VERSION`) y
+constante exportada del barrel (`@kromia/core#PROTOCOL_VERSION`) y
 el `protocolVersion` del JSON ambos leen de `package.json#version`.
 
 **Flag útil**: `pnpm gen --dry-run` reporta qué bumpearía sin tocar
@@ -39,7 +39,7 @@ archivos. Útil antes de commit para confirmar el verdict.
 
 ## Pasos
 
-### En `kromia-sdk/packages/protocol-ts/` (SDK, productor)
+### En `kromia-sdk/packages/core/` (SDK, productor)
 
 - [ ] Edita los registries / lógica según el playbook que aplique
   ([add-behavior](add-behavior.md), [add-action](add-action.md),
@@ -70,15 +70,15 @@ archivos. Útil antes de commit para confirmar el verdict.
 - [ ] Actualiza el submodule pointer: `git submodule update --remote --merge`
   desde el root de Studio.
 - [ ] **Major bumps requieren coordinación**: revisa qué imports de
-  `@kromia/protocol` en Studio quedaron inválidos (TypeScript te lo dice
+  `@kromia/core` en Studio quedaron inválidos (TypeScript te lo dice
   al hacer `npx tsc --noEmit`). Adapta consumers.
 - [ ] Para minor / patch / major: **NO basta con `pnpm install`** — el
   cache de pnpm con `file:` deps no detecta cambios de version del
   paquete sin un add explícito. Usar:
   ```
-  pnpm add "@kromia/protocol@file:./kromia-sdk/packages/protocol-ts"
+  pnpm add "@kromia/core@file:./kromia-sdk/packages/core"
   ```
-  Eso refresca el symlink y reporta `+ @kromia/protocol X.Y.Z`. Síntoma
+  Eso refresca el symlink y reporta `+ @kromia/core X.Y.Z`. Síntoma
   de saltarse este paso: tests Studio fallan con `TypeError: <export> is
   not a function` aunque el SDK tenga el export.
 - [ ] Commit en kromia-studio: `chore(krp): bump submodule to v<X.Y.Z>`.

@@ -1,5 +1,5 @@
 /**
- * Vitest config local del paquete `@kromia/protocol`.
+ * Vitest config local del paquete `@kromia/core`.
  *
  * Existe principalmente para AISLAR el vitest del SDK del vitest.config.ts
  * de kromia-studio (que vive varios niveles más arriba al ser este repo un

@@ -1,4 +1,4 @@
-# @kromia/protocol
+# @kromia/core
 
 SDK TypeScript del contrato Kromia. **Source-of-truth** del modelo que define
 cómo Studio (Next.js) y Flutter (futuro) hablan del mismo álbum.
@@ -28,7 +28,7 @@ import {
   isFieldCompatibleWithSlot,
   RECIPE_REGISTRY,
   SLOT_ACCEPT_KIND_META,
-} from '@kromia/protocol';
+} from '@kromia/core';
 
 // Ejemplo: qué slot kinds aceptaría este field
 const kinds = classifyField({ type: 'number', behavior: 'year' });
@@ -40,7 +40,7 @@ const kinds = classifyField({ type: 'number', behavior: 'year' });
 Desde el root del monorepo:
 
 ```bash
-pnpm gen          # ejecuta packages/protocol-ts/src/generate.ts
+pnpm gen          # ejecuta packages/core/src/generate.ts
 ```
 
 Output: `../../contracts/kromia-recipe-protocol-v1.json` (carpeta `contracts/`
@@ -81,7 +81,7 @@ API). Consumido vía path local del submodule:
 // kromia-studio/package.json
 {
   "dependencies": {
-    "@kromia/protocol": "file:./kromia-sdk/packages/protocol-ts"
+    "@kromia/core": "file:./kromia-sdk/packages/core"
   }
 }
 ```
@@ -91,7 +91,7 @@ Cuando se decida publish, cambiar `"private": true` → `false` + `npm publish`.
 ## Estructura del SDK
 
 ```
-packages/protocol-ts/
+packages/core/
 ├── src/
 │   ├── types.ts                  ← SlotAcceptKind, RecipeId, SlotKind, ...
 │   ├── registries/

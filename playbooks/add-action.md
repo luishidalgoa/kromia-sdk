@@ -6,12 +6,12 @@ qué pasa cuando el usuario toca un item en una recipe `list`.
 
 ## Regla de oro
 
-> La action se define en el **SDK** (`@kromia/protocol`), no en Studio
+> La action se define en el **SDK** (`@kromia/core`), no en Studio
 > ni en Flutter. Los clientes lo **consumen** vía import del paquete.
 
 ## Pasos
 
-### SDK (`kromia-sdk/packages/protocol-ts/`)
+### SDK (`kromia-sdk/packages/core/`)
 
 - [ ] Añadir entrada en `src/registries/actions.ts`:
   - `id` (snake_case)
@@ -53,7 +53,7 @@ qué pasa cuando el usuario toca un item en una recipe `list`.
 
 - [ ] Cambio **minor** (1.x.0 → 1.(x+1).0). El cliente antiguo ignora la
   action desconocida (renderiza como `none`).
-- [ ] Bump version en `packages/protocol-ts/package.json` + `PROTOCOL_VERSION`.
+- [ ] Bump version en `packages/core/package.json` + `PROTOCOL_VERSION`.
 - [ ] Seguir [bump-protocol.md](bump-protocol.md).
 
 ### Jira

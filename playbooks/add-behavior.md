@@ -6,12 +6,12 @@ un field además de su `type` base.
 
 ## Regla de oro
 
-> El behavior se define en el **SDK** (`@kromia/protocol`), no en Studio
+> El behavior se define en el **SDK** (`@kromia/core`), no en Studio
 > ni en Flutter. Los clientes lo **consumen** vía import del paquete.
 
 ## Pasos
 
-### SDK (`kromia-sdk/packages/protocol-ts/`)
+### SDK (`kromia-sdk/packages/core/`)
 
 - [ ] Añadir entrada en `src/registries/behaviors.ts`:
   - `id` (snake_case, único, lo que se guarda en BD)
@@ -38,7 +38,7 @@ un field además de su `type` base.
 ### Studio (`kromia-studio/`)
 
 - [ ] **NO se toca** nada del modelo. Studio consume via
-  `from '@kromia/protocol'` y eso ya tiene el behavior nuevo.
+  `from '@kromia/core'` y eso ya tiene el behavior nuevo.
 - [ ] Si el behavior renderiza diferente en el preview (UI específica),
   actualizar el `.tsx` renderer correspondiente en
   `src/components/album/recipes/<Recipe>.tsx` o helpers de
@@ -68,7 +68,7 @@ un field además de su `type` base.
 
 - [ ] Esto es un cambio **minor** (1.x.0 → 1.(x+1).0) — nueva entidad
   backward-compatible. Para detalles: [bump-protocol.md](bump-protocol.md).
-- [ ] Bump version en `packages/protocol-ts/package.json` + `PROTOCOL_VERSION`
+- [ ] Bump version en `packages/core/package.json` + `PROTOCOL_VERSION`
   en `src/generate.ts`. Regenerar.
 
 ### Jira

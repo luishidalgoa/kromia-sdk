@@ -1,5 +1,5 @@
 /**
- * `@kromia/protocol` — API pública del SDK TypeScript.
+ * `@kromia/core` — API pública del SDK TypeScript.
  *
  * Cualquier consumer (Studio, drift-detector CI, herramienta interna,
  * futuras integraciones third-party) debe importar de aquí, NO de paths

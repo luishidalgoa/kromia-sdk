@@ -17,7 +17,7 @@ function baseJson(overrides: Record<string, unknown> = {}): Record<string, unkno
     $schema:        './schema.json',
     protocolVersion: '1.0.0',
     generatedAt:    '2026-05-27T00:00:00.000Z',
-    generatedFrom:  { packagePath: 'packages/protocol-ts/', note: 'derived' },
+    generatedFrom:  { packagePath: 'packages/core/', note: 'derived' },
     recipes:        [],
     actions:        [],
     behaviors:      [],

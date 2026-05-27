@@ -284,7 +284,7 @@ export function buildPayload(version: string, generatedAt?: string): ProtocolJso
     protocolVersion: version,
     generatedAt:     generatedAt ?? new Date().toISOString(),
     generatedFrom: {
-      packagePath: 'packages/protocol-ts/',
+      packagePath: 'packages/core/',
       note:        'JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo.',
     },
     recipes,

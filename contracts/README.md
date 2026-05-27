@@ -17,7 +17,7 @@ consumers.
 
 | ID | Productor | Consumers | Estado |
 | --- | --- | --- | --- |
-| `kromia-recipe-protocol-v1` | `@kromia/protocol` (TypeScript SDK, productor real) | kromia-flutter (vía `protocol-dart` futuro), wiki, drift detector CI | v1.1.0 |
+| `kromia-recipe-protocol-v1` | `@kromia/core` (TypeScript SDK, productor real) | kromia-flutter (vía `protocol-dart` futuro), wiki, drift detector CI | v1.1.0 |
 
 ## kromia-recipe-protocol (KRP)
 
@@ -35,7 +35,7 @@ Estructura del payload (v1.1.0):
 {
   "protocolVersion": "1.1.0",
   "generatedAt":     "2026-05-27T...",
-  "generatedFrom":   { "packagePath": "packages/protocol-ts/", "note": "..." },
+  "generatedFrom":   { "packagePath": "packages/core/", "note": "..." },
   "recipes":             [ { id, kind, displayName, description, slots: [...] } ],
   "actions":             [ { id, displayName, description, transition, ... } ],
   "behaviors":           [ { id, displayName, description, applicableTypes, renderAs } ],
@@ -57,7 +57,7 @@ Estructura del payload (v1.1.0):
   `recipe-target`, `recipe-expand`. Útil para visualizadores, tooltips
   encadenados (KRO-70), wiki (KRO-46).
 - `generatedFrom` simplificado a `packagePath` ahora que el productor es
-  el paquete `@kromia/protocol`, no Studio directamente.
+  el paquete `@kromia/core`, no Studio directamente.
 
 Ver `kromia-recipe-protocol-v1.schema.json` para el contrato completo.
 
