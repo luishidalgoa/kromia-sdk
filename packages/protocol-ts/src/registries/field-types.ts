@@ -93,6 +93,16 @@ const FIELD_TYPES: FieldTypeDefinition[] = [
     cardinality: 'array',
     elementType: 'image',
   },
+
+  // ── Referencias ───────────────────────────────────────────────────
+  // KRO-75 — añadido al SDK para resolver drift con Studio. Es un tipo
+  // escalar que apunta al primary key de otra carta del mismo álbum.
+  {
+    id:          'cardRef',
+    displayName: 'Referencia a carta',
+    description: 'Referencia a OTRA carta del mismo álbum por su primary key. Requiere PK declarada.',
+    cardinality: 'scalar',
+  },
 ];
 
 const FIELD_TYPES_BY_ID = Object.fromEntries(

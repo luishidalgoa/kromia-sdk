@@ -15,7 +15,7 @@
 import { describe, it, expect } from 'vitest';
 import * as SDK from '../src/index';
 
-// ── Exports esperados (snapshot al 2026-05-27, KRP v1.4.0) ───────────
+// ── Exports esperados (snapshot al 2026-05-27, KRP v1.5.0) ───────────
 
 const EXPECTED_EXPORTS = [
   // Version constant — KRO-63
@@ -56,6 +56,27 @@ const EXPECTED_EXPORTS = [
   'buildAutoDetailComposition',
   'extractAccentSettings',
   'composeSlotValues',
+  // Options catalogs — KRO-75
+  'OPTIONS_ACTION_LABELS',
+  'OPTIONS_APPEARANCE_SHAPE',
+  'OPTIONS_APPEARANCE_ASPECT',
+  'OPTIONS_APPEARANCE_ALIGN',
+  'OPTIONS_APPEARANCE_WEIGHT',
+  'OPTIONS_APPEARANCE_SIZE',
+  'OPTIONS_APPEARANCE_TRUNCATE',
+  'OPTIONS_APPEARANCE_PADDING_Y',
+  'OPTIONS_APPEARANCE_ACCENT_POSITION',
+  'OPTIONS_APPEARANCE_LABELS',
+  'OPTIONS_APPEARANCE_DESCRIPTIONS',
+  'APPEARANCE_PRESETS',
+  'detectActivePreset',
+  'CARD_ASPECTS',
+  'CARD_SIZES',
+  'DEFAULT_CARD_FORMAT',
+  'OPTIONS_CARD_ASPECT_LABELS',
+  'OPTIONS_CARD_SIZE_LABELS',
+  'aspectToRatio',
+  'getFieldTypeDescriptions',
 ] as const;
 
 describe('API snapshot — @kromia/protocol barrel', () => {
@@ -123,6 +144,11 @@ import type {
   AccentSettings,
   ComposeSlotInput,
   ComposedSlotResult,
+  CatalogOption,
+  AppearancePreset,
+  CardAspect,
+  CardSize,
+  CardFormat,
 } from '../src/index';
 
 describe('Type exports compile-check', () => {
@@ -153,7 +179,12 @@ describe('Type exports compile-check', () => {
       null as unknown as AccentSettings,
       null as unknown as ComposeSlotInput,
       null as unknown as ComposedSlotResult,
+      null as unknown as CatalogOption,
+      null as unknown as AppearancePreset,
+      null as unknown as CardAspect,
+      null as unknown as CardSize,
+      null as unknown as CardFormat,
     ];
-    expect(_checks.length).toBe(23);
+    expect(_checks.length).toBe(28);
   });
 });

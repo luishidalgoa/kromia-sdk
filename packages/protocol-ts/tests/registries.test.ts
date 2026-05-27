@@ -48,8 +48,9 @@ import type { SlotAcceptKind } from '../src/types';
 describe('field-type-registry', () => {
   const types = allFieldTypes();
 
-  it('contiene 8 types base', () => {
-    expect(types).toHaveLength(8);
+  it('contiene 9 types base', () => {
+    // KRO-75: añadido cardRef para resolver drift con Studio.
+    expect(types).toHaveLength(9);
   });
 
   it('incluye los IDs core', () => {
@@ -58,13 +59,16 @@ describe('field-type-registry', () => {
       expect.arrayContaining([
         'text', 'textarea', 'number', 'select', 'image',
         'array<string>', 'array<number>', 'array<image>',
+        'cardRef',
       ]),
     );
   });
 
   it('cada entry tiene shape válido', () => {
     types.forEach(t => {
-      expect(t.id).toMatch(/^[a-z<>]+$/);
+      // KRO-75: el regex acepta camelCase (cardRef) además de lowercase
+      // + delimitadores de tipo paramétrico.
+      expect(t.id).toMatch(/^[a-zA-Z<>]+$/);
       expect(t.displayName).toBeTruthy();
       expect(t.description.length).toBeGreaterThan(20);
       expect(['scalar', 'array']).toContain(t.cardinality);

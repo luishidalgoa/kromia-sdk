@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
-  "protocolVersion": "1.4.0",
-  "generatedAt": "2026-05-27T17:29:33.386Z",
+  "protocolVersion": "1.5.0",
+  "generatedAt": "2026-05-27T18:00:39.607Z",
   "generatedFrom": {
     "packagePath": "packages/protocol-ts/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -846,6 +846,12 @@
       "description": "Colección de imágenes. Para galerías, vistas alternativas de una carta, pases de diapositivas.",
       "cardinality": "array",
       "elementType": "image"
+    },
+    {
+      "id": "cardRef",
+      "displayName": "Referencia a carta",
+      "description": "Referencia a OTRA carta del mismo álbum por su primary key. Requiere PK declarada.",
+      "cardinality": "scalar"
     }
   ],
   "compatibilityMatrix": {
@@ -984,6 +990,11 @@
         "id": "fieldType:array<image>",
         "category": "fieldType",
         "label": "Lista de imágenes"
+      },
+      {
+        "id": "fieldType:cardRef",
+        "category": "fieldType",
+        "label": "Referencia a carta"
       },
       {
         "id": "behavior:card_index_list",

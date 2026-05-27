@@ -117,3 +117,43 @@ export {
   type ComposeSlotInput,
   type ComposedSlotResult,
 } from './compose-slot';
+
+// ── Options catalogs (KRO-75) ───────────────────────────────────────────
+// Catálogos de opciones de personalización disponibles al publisher en el
+// editor. Studio renderiza los dropdowns consumiendo estos catálogos —
+// no duplica las listas. Flutter (KRO-65) validará composiciones contra
+// los mismos catálogos.
+export {
+  // Action
+  OPTIONS_ACTION_LABELS,
+  // Appearance — catálogos por propiedad
+  OPTIONS_APPEARANCE_SHAPE,
+  OPTIONS_APPEARANCE_ASPECT,
+  OPTIONS_APPEARANCE_ALIGN,
+  OPTIONS_APPEARANCE_WEIGHT,
+  OPTIONS_APPEARANCE_SIZE,
+  OPTIONS_APPEARANCE_TRUNCATE,
+  OPTIONS_APPEARANCE_PADDING_Y,
+  OPTIONS_APPEARANCE_ACCENT_POSITION,
+  // Appearance — labels + descriptions por prop
+  OPTIONS_APPEARANCE_LABELS,
+  OPTIONS_APPEARANCE_DESCRIPTIONS,
+  // Appearance — presets compuestos (one-click)
+  APPEARANCE_PRESETS,
+  detectActivePreset,
+  // Card format
+  CARD_ASPECTS,
+  CARD_SIZES,
+  DEFAULT_CARD_FORMAT,
+  OPTIONS_CARD_ASPECT_LABELS,
+  OPTIONS_CARD_SIZE_LABELS,
+  aspectToRatio,
+  // Field type descriptions helper
+  getFieldTypeDescriptions,
+  // Tipos
+  type CatalogOption,
+  type AppearancePreset,
+  type CardAspect,
+  type CardSize,
+  type CardFormat,
+} from './options';
