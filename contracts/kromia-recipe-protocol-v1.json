@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
-  "protocolVersion": "1.0.0",
-  "generatedAt": "2026-05-27T13:57:21.325Z",
+  "protocolVersion": "1.1.0",
+  "generatedAt": "2026-05-27T14:06:14.086Z",
   "generatedFrom": {
     "packagePath": "packages/protocol-ts/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -795,6 +795,59 @@
       "behaviorIds": []
     }
   ],
+  "fieldTypes": [
+    {
+      "id": "text",
+      "displayName": "Texto",
+      "description": "Texto corto en una sola línea. Para nombres, títulos, etiquetas, identificadores.",
+      "cardinality": "scalar"
+    },
+    {
+      "id": "textarea",
+      "displayName": "Texto largo",
+      "description": "Texto con varios párrafos. Para descripciones, biografías, notas extensas.",
+      "cardinality": "scalar"
+    },
+    {
+      "id": "number",
+      "displayName": "Número",
+      "description": "Valor numérico (entero o decimal). Para puntajes, precios, años, contadores.",
+      "cardinality": "scalar"
+    },
+    {
+      "id": "select",
+      "displayName": "Selección",
+      "description": "Una opción de una lista cerrada que tú defines. Para categorías fijas, tipos de carta, equipos.",
+      "cardinality": "scalar"
+    },
+    {
+      "id": "image",
+      "displayName": "Imagen",
+      "description": "Una imagen única (subida o URL). Para avatares, portadas, banners, fotos protagónicas.",
+      "cardinality": "scalar"
+    },
+    {
+      "id": "array<string>",
+      "displayName": "Lista de texto",
+      "description": "Colección de textos cortos. Para etiquetas, enlaces, opciones múltiples, emails.",
+      "cardinality": "array",
+      "elementType": "text"
+    },
+    {
+      "id": "array<number>",
+      "displayName": "Lista de números",
+      "description": "Colección de números. Para ediciones (años), referencias a cartas por índice, listas estadísticas.",
+      "cardinality": "array",
+      "elementType": "number"
+    },
+    {
+      "id": "array<image>",
+      "displayName": "Lista de imágenes",
+      "description": "Colección de imágenes. Para galerías, vistas alternativas de una carta, pases de diapositivas.",
+      "cardinality": "array",
+      "elementType": "image"
+    }
+  ],
   "compatibilityMatrix": {
     "compact_avatar": {
       "kindRole": "list-source",
@@ -889,5 +942,691 @@
       "allowedTargetRecipes": [],
       "allowedExpandRecipes": []
     }
+  },
+  "connections": {
+    "nodes": [
+      {
+        "id": "fieldType:text",
+        "category": "fieldType",
+        "label": "Texto"
+      },
+      {
+        "id": "fieldType:textarea",
+        "category": "fieldType",
+        "label": "Texto largo"
+      },
+      {
+        "id": "fieldType:number",
+        "category": "fieldType",
+        "label": "Número"
+      },
+      {
+        "id": "fieldType:select",
+        "category": "fieldType",
+        "label": "Selección"
+      },
+      {
+        "id": "fieldType:image",
+        "category": "fieldType",
+        "label": "Imagen"
+      },
+      {
+        "id": "fieldType:array<string>",
+        "category": "fieldType",
+        "label": "Lista de texto"
+      },
+      {
+        "id": "fieldType:array<number>",
+        "category": "fieldType",
+        "label": "Lista de números"
+      },
+      {
+        "id": "fieldType:array<image>",
+        "category": "fieldType",
+        "label": "Lista de imágenes"
+      },
+      {
+        "id": "behavior:card_index_list",
+        "category": "behavior",
+        "label": "Lista de cartas"
+      },
+      {
+        "id": "behavior:url",
+        "category": "behavior",
+        "label": "Enlace web"
+      },
+      {
+        "id": "behavior:tags",
+        "category": "behavior",
+        "label": "Etiquetas"
+      },
+      {
+        "id": "behavior:email",
+        "category": "behavior",
+        "label": "Email"
+      },
+      {
+        "id": "behavior:phone",
+        "category": "behavior",
+        "label": "Teléfono"
+      },
+      {
+        "id": "behavior:year",
+        "category": "behavior",
+        "label": "Año"
+      },
+      {
+        "id": "behavior:currency",
+        "category": "behavior",
+        "label": "Precio"
+      },
+      {
+        "id": "behavior:markdown",
+        "category": "behavior",
+        "label": "Texto con formato"
+      },
+      {
+        "id": "behavior:enum",
+        "category": "behavior",
+        "label": "Opciones predefinidas"
+      },
+      {
+        "id": "behavior:iso_date",
+        "category": "behavior",
+        "label": "Fecha"
+      },
+      {
+        "id": "behavior:slug",
+        "category": "behavior",
+        "label": "URL amigable"
+      },
+      {
+        "id": "behavior:percentage",
+        "category": "behavior",
+        "label": "Porcentaje"
+      },
+      {
+        "id": "behavior:rating",
+        "category": "behavior",
+        "label": "Valoración"
+      },
+      {
+        "id": "behavior:color_hex",
+        "category": "behavior",
+        "label": "Color"
+      },
+      {
+        "id": "behavior:url_list",
+        "category": "behavior",
+        "label": "Lista de enlaces"
+      },
+      {
+        "id": "behavior:email_list",
+        "category": "behavior",
+        "label": "Lista de emails"
+      },
+      {
+        "id": "behavior:measurement",
+        "category": "behavior",
+        "label": "Medida con unidad"
+      },
+      {
+        "id": "behavior:notes",
+        "category": "behavior",
+        "label": "Notas internas"
+      },
+      {
+        "id": "behavior:code",
+        "category": "behavior",
+        "label": "Código fuente"
+      },
+      {
+        "id": "behavior:html",
+        "category": "behavior",
+        "label": "HTML avanzado"
+      },
+      {
+        "id": "behavior:year_list",
+        "category": "behavior",
+        "label": "Lista de años"
+      },
+      {
+        "id": "behavior:gallery",
+        "category": "behavior",
+        "label": "Galería de imágenes"
+      },
+      {
+        "id": "behavior:card_multiview",
+        "category": "behavior",
+        "label": "Vistas de la carta"
+      },
+      {
+        "id": "behavior:slideshow",
+        "category": "behavior",
+        "label": "Pase de diapositivas"
+      },
+      {
+        "id": "behavior:card_code_list",
+        "category": "behavior",
+        "label": "Lista de cartas (por código)"
+      },
+      {
+        "id": "behavior:ordinal_enum",
+        "category": "behavior",
+        "label": "Lista ordenada (jerarquía)"
+      },
+      {
+        "id": "slotKind:text-short",
+        "category": "slotKind",
+        "label": "text-short"
+      },
+      {
+        "id": "slotKind:text-long",
+        "category": "slotKind",
+        "label": "text-long"
+      },
+      {
+        "id": "slotKind:number",
+        "category": "slotKind",
+        "label": "number"
+      },
+      {
+        "id": "slotKind:date",
+        "category": "slotKind",
+        "label": "date"
+      },
+      {
+        "id": "slotKind:badge",
+        "category": "slotKind",
+        "label": "badge"
+      },
+      {
+        "id": "slotKind:color",
+        "category": "slotKind",
+        "label": "color"
+      },
+      {
+        "id": "slotKind:image",
+        "category": "slotKind",
+        "label": "image"
+      },
+      {
+        "id": "slotKind:image-avatar",
+        "category": "slotKind",
+        "label": "image-avatar"
+      },
+      {
+        "id": "slotKind:image-cover",
+        "category": "slotKind",
+        "label": "image-cover"
+      },
+      {
+        "id": "slotKind:image-banner",
+        "category": "slotKind",
+        "label": "image-banner"
+      },
+      {
+        "id": "slotKind:image-array",
+        "category": "slotKind",
+        "label": "image-array"
+      },
+      {
+        "id": "slotKind:card-ref",
+        "category": "slotKind",
+        "label": "card-ref"
+      },
+      {
+        "id": "slotKind:url",
+        "category": "slotKind",
+        "label": "url"
+      },
+      {
+        "id": "slotKind:any",
+        "category": "slotKind",
+        "label": "any"
+      },
+      {
+        "id": "recipe:compact_avatar",
+        "category": "recipe",
+        "label": "Avatar compacto"
+      },
+      {
+        "id": "recipe:compact_card",
+        "category": "recipe",
+        "label": "Mini card"
+      },
+      {
+        "id": "recipe:hero_protagonico",
+        "category": "recipe",
+        "label": "Hero protagónico"
+      },
+      {
+        "id": "recipe:row_text",
+        "category": "recipe",
+        "label": "Fila de texto"
+      },
+      {
+        "id": "recipe:editorial",
+        "category": "recipe",
+        "label": "Editorial"
+      },
+      {
+        "id": "recipe:momento",
+        "category": "recipe",
+        "label": "Momento"
+      },
+      {
+        "id": "recipe:accordion_simple",
+        "category": "recipe",
+        "label": "Accordion simple"
+      },
+      {
+        "id": "recipe:accordion_with_actions",
+        "category": "recipe",
+        "label": "Accordion con acciones"
+      },
+      {
+        "id": "action:none",
+        "category": "action",
+        "label": "Ninguna"
+      },
+      {
+        "id": "action:navigate_to_detail",
+        "category": "action",
+        "label": "Navegar al detalle"
+      },
+      {
+        "id": "action:modal",
+        "category": "action",
+        "label": "Modal overlay"
+      },
+      {
+        "id": "action:expand_inline",
+        "category": "action",
+        "label": "Expandir inline"
+      },
+      {
+        "id": "action:external_link",
+        "category": "action",
+        "label": "Enlace externo"
+      }
+    ],
+    "edges": [
+      {
+        "from": "fieldType:array<number>",
+        "to": "behavior:card_index_list",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:text",
+        "to": "behavior:url",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:array<string>",
+        "to": "behavior:tags",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:text",
+        "to": "behavior:email",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:text",
+        "to": "behavior:phone",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:number",
+        "to": "behavior:year",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:number",
+        "to": "behavior:currency",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:textarea",
+        "to": "behavior:markdown",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:array<string>",
+        "to": "behavior:enum",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:text",
+        "to": "behavior:iso_date",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:text",
+        "to": "behavior:slug",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:number",
+        "to": "behavior:percentage",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:number",
+        "to": "behavior:rating",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:text",
+        "to": "behavior:color_hex",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:array<string>",
+        "to": "behavior:url_list",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:array<string>",
+        "to": "behavior:email_list",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:number",
+        "to": "behavior:measurement",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:textarea",
+        "to": "behavior:notes",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:textarea",
+        "to": "behavior:code",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:textarea",
+        "to": "behavior:html",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:array<number>",
+        "to": "behavior:year_list",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:array<image>",
+        "to": "behavior:gallery",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:array<image>",
+        "to": "behavior:card_multiview",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:array<image>",
+        "to": "behavior:slideshow",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:array<string>",
+        "to": "behavior:card_code_list",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:text",
+        "to": "behavior:ordinal_enum",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "fieldType:select",
+        "to": "behavior:ordinal_enum",
+        "kind": "type-behavior"
+      },
+      {
+        "from": "behavior:card_index_list",
+        "to": "slotKind:card-ref",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "behavior:url",
+        "to": "slotKind:url",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "behavior:email",
+        "to": "slotKind:url",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "behavior:phone",
+        "to": "slotKind:url",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "behavior:year",
+        "to": "slotKind:date",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "behavior:markdown",
+        "to": "slotKind:text-long",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "behavior:enum",
+        "to": "slotKind:badge",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "behavior:iso_date",
+        "to": "slotKind:date",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "behavior:rating",
+        "to": "slotKind:badge",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "behavior:color_hex",
+        "to": "slotKind:color",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "behavior:notes",
+        "to": "slotKind:text-long",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "behavior:html",
+        "to": "slotKind:text-long",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "behavior:year_list",
+        "to": "slotKind:date",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "behavior:gallery",
+        "to": "slotKind:image-array",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "behavior:card_multiview",
+        "to": "slotKind:image-array",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "behavior:slideshow",
+        "to": "slotKind:image-array",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "behavior:card_code_list",
+        "to": "slotKind:card-ref",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "behavior:ordinal_enum",
+        "to": "slotKind:badge",
+        "kind": "behavior-slotKind"
+      },
+      {
+        "from": "recipe:compact_avatar",
+        "to": "action:none",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:compact_avatar",
+        "to": "action:navigate_to_detail",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:compact_avatar",
+        "to": "action:modal",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:compact_avatar",
+        "to": "action:expand_inline",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:compact_avatar",
+        "to": "action:external_link",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:compact_avatar",
+        "to": "recipe:hero_protagonico",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:compact_avatar",
+        "to": "recipe:editorial",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:compact_avatar",
+        "to": "recipe:momento",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:compact_avatar",
+        "to": "recipe:accordion_simple",
+        "kind": "recipe-expand"
+      },
+      {
+        "from": "recipe:compact_avatar",
+        "to": "recipe:accordion_with_actions",
+        "kind": "recipe-expand"
+      },
+      {
+        "from": "recipe:compact_card",
+        "to": "action:none",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:compact_card",
+        "to": "action:navigate_to_detail",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:compact_card",
+        "to": "action:modal",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:compact_card",
+        "to": "action:expand_inline",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:compact_card",
+        "to": "action:external_link",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:compact_card",
+        "to": "recipe:hero_protagonico",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:compact_card",
+        "to": "recipe:editorial",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:compact_card",
+        "to": "recipe:momento",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:compact_card",
+        "to": "recipe:accordion_simple",
+        "kind": "recipe-expand"
+      },
+      {
+        "from": "recipe:compact_card",
+        "to": "recipe:accordion_with_actions",
+        "kind": "recipe-expand"
+      },
+      {
+        "from": "recipe:row_text",
+        "to": "action:none",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:row_text",
+        "to": "action:navigate_to_detail",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:row_text",
+        "to": "action:modal",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:row_text",
+        "to": "action:expand_inline",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:row_text",
+        "to": "action:external_link",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:row_text",
+        "to": "recipe:hero_protagonico",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:row_text",
+        "to": "recipe:editorial",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:row_text",
+        "to": "recipe:momento",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:row_text",
+        "to": "recipe:accordion_simple",
+        "kind": "recipe-expand"
+      },
+      {
+        "from": "recipe:row_text",
+        "to": "recipe:accordion_with_actions",
+        "kind": "recipe-expand"
+      }
+    ]
   }
 }

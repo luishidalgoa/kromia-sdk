@@ -29,7 +29,13 @@ import type { SlotDefinition, RecipeManifest } from './registries/recipes';
  * El orden no importa — el caller hace intersección con `slot.accepts`.
  */
 export function classifyField(field: { type: string; behavior?: string }): SlotAcceptKind[] {
-  const kinds: SlotAcceptKind[] = ['any'];
+  // KRO-71 Fase 2E — Set para evitar duplicados (ej: textarea + behavior
+  // markdown/notes/html ambos disparaban 'text-long', resultando en
+  // duplicado en el array). El bug existía desde el principio en Studio,
+  // pero los consumidores hacían `kinds.includes(...)` que tolera dupes.
+  // Los tests cross-language NO lo toleran — paridad por construcción
+  // exige output determinístico.
+  const kinds = new Set<SlotAcceptKind>(['any']);
   const b = field.behavior;
 
   // KRO-69 follow-up — image unificado. type=image matchea el kind 'image'
@@ -37,31 +43,37 @@ export function classifyField(field: { type: string; behavior?: string }): SlotA
   // por backward-compat con manifests + composiciones existentes. El
   // SLOT decide cómo se ve vía su id (avatar/thumb/banner) + appearance.
   if (field.type === 'image') {
-    kinds.push('image', 'image-avatar', 'image-banner', 'image-cover');
+    kinds.add('image');
+    kinds.add('image-avatar');
+    kinds.add('image-banner');
+    kinds.add('image-cover');
   }
-  if (b === 'gallery' || b === 'slideshow' || b === 'card_multiview')   kinds.push('image-array');
-  if (field.type === 'array<image>' && !b)                              kinds.push('image-array');
-  if (b === 'markdown' || b === 'notes' || b === 'html')                kinds.push('text-long');
-  if (b === 'rating' || b === 'enum' || b === 'ordinal_enum')           kinds.push('badge');
-  if (b === 'card_index_list' || b === 'card_code_list')                kinds.push('card-ref');
-  if (b === 'year' || b === 'iso_date' || b === 'year_list')            kinds.push('date');
-  if (b === 'url' || b === 'email' || b === 'phone')                    kinds.push('url');
+  if (b === 'gallery' || b === 'slideshow' || b === 'card_multiview')   kinds.add('image-array');
+  if (field.type === 'array<image>' && !b)                              kinds.add('image-array');
+  if (b === 'markdown' || b === 'notes' || b === 'html')                kinds.add('text-long');
+  if (b === 'rating' || b === 'enum' || b === 'ordinal_enum')           kinds.add('badge');
+  if (b === 'card_index_list' || b === 'card_code_list')                kinds.add('card-ref');
+  if (b === 'year' || b === 'iso_date' || b === 'year_list')            kinds.add('date');
+  if (b === 'url' || b === 'email' || b === 'phone')                    kinds.add('url');
   // KRO-69 follow-up — color_hex tiene su propio kind 'color' (no se
   // mezcla con text-short). Un slot title/subtitle NO debe aceptar un
   // field de color: semánticamente es un color, no texto. Para mapearlo
   // hace falta un slot que acepte 'color' explícitamente (meta, accent).
-  if (b === 'color_hex')                                                kinds.push('color');
+  if (b === 'color_hex')                                                kinds.add('color');
 
   // Por type base — fallback cuando no hay behavior específico que clasifique.
   // KRO-69 follow-up: number también matchea text-short (un número se puede
   // renderizar como texto en slots text-short tipo title/subtitle).
-  if (field.type === 'number')                       kinds.push('number', 'text-short');
+  if (field.type === 'number') {
+    kinds.add('number');
+    kinds.add('text-short');
+  }
   // Excepción: color_hex es type=text técnicamente pero NO debe entrar
   // en text-short (un color no es texto a efectos de slot).
-  if ((field.type === 'text' || field.type === 'select') && b !== 'color_hex') kinds.push('text-short');
-  if (field.type === 'textarea')                     kinds.push('text-long');
+  if ((field.type === 'text' || field.type === 'select') && b !== 'color_hex') kinds.add('text-short');
+  if (field.type === 'textarea')                     kinds.add('text-long');
 
-  return kinds;
+  return [...kinds];
 }
 
 /** ¿Este field puede ir en este slot? */

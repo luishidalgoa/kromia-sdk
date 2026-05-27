@@ -17,7 +17,7 @@ consumers.
 
 | ID | Productor | Consumers | Estado |
 | --- | --- | --- | --- |
-| `kromia-recipe-protocol-v1` | kromia-studio (`scripts/generate-recipe-protocol.ts`) | kromia-flutter, wiki, drift detector CI | v1.0.0 (MVP) |
+| `kromia-recipe-protocol-v1` | `@kromia/protocol` (TypeScript SDK, productor real) | kromia-flutter (vía `protocol-dart` futuro), wiki, drift detector CI | v1.1.0 |
 
 ## kromia-recipe-protocol (KRP)
 
@@ -29,28 +29,49 @@ del editor de composiciones de Kromia.
 - **Versionado**: `protocolVersion` interno + tag git. Patch = nuevo behavior;
   minor = nueva recipe/slot/kind; major = breaking shape.
 
-Estructura del payload (resumen):
+Estructura del payload (v1.1.0):
 
 ```jsonc
 {
-  "protocolVersion": "1.0.0",
-  "generatedAt":     "2026-05-26T...",
-  "generatedFrom":   { "registryPath": "...", "behaviorsPath": "..." },
+  "protocolVersion": "1.1.0",
+  "generatedAt":     "2026-05-27T...",
+  "generatedFrom":   { "packagePath": "packages/protocol-ts/", "note": "..." },
   "recipes":             [ { id, kind, displayName, description, slots: [...] } ],
   "actions":             [ { id, displayName, description, transition, ... } ],
   "behaviors":           [ { id, displayName, description, applicableTypes, renderAs } ],
   "slotAcceptKinds":     [ { id, description, behaviorIds } ],
-  "compatibilityMatrix": { "<recipeId>": { kindRole, allowedActions, ... } }
+  "fieldTypes":          [ { id, displayName, description, cardinality, elementType? } ],
+  "compatibilityMatrix": { "<recipeId>": { kindRole, allowedActions, ... } },
+  "connections":         { "nodes": [...], "edges": [...] }
 }
 ```
+
+### Nuevo en v1.1.0 (KRO-71 Fase 2D)
+
+- **`fieldTypes`**: catálogo de los 8 types base (`text`, `textarea`, `number`,
+  `select`, `image`, `array<string>`, `array<number>`, `array<image>`) con
+  descripciones humanas. Antes implícito en `behaviors[*].applicableTypes`.
+- **`connections`**: grafo explícito de aristas entre entidades. Nodos
+  namespaced (`fieldType:text`, `behavior:url`, `slotKind:image`, etc.).
+  Edges con `kind`: `type-behavior`, `behavior-slotKind`, `recipe-action`,
+  `recipe-target`, `recipe-expand`. Útil para visualizadores, tooltips
+  encadenados (KRO-70), wiki (KRO-46).
+- `generatedFrom` simplificado a `packagePath` ahora que el productor es
+  el paquete `@kromia/protocol`, no Studio directamente.
 
 Ver `kromia-recipe-protocol-v1.schema.json` para el contrato completo.
 
 ### Cómo regenerar
 
-Hoy: `pnpm gen:protocol` en kromia-studio escribe directamente en
-`kromia-studio/contracts/`. La próxima iteración (KRP V1.5) cambia el output
-path para escribir aquí, en el submodule.
+Desde el root del monorepo (`kromia-protocol/`):
+
+```bash
+pnpm gen
+```
+
+O desde Studio: `pnpm gen:protocol` (forwards al submodule).
+
+El output se escribe en `kromia-protocol/contracts/kromia-recipe-protocol-v1.json`.
 
 ### Notas
 

@@ -27,11 +27,12 @@ import type { SlotDefinition } from './registries/recipes';
 import { SLOT_ACCEPT_KIND_META } from './registries/slot-kinds';
 import { allBehaviors, type BehaviorDefinition } from './registries/behaviors';
 import { allActions, type ActionDefinition } from './registries/actions';
+import { allFieldTypes, type FieldTypeDefinition } from './registries/field-types';
 import type { SlotAcceptKind } from './types';
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
-const PROTOCOL_VERSION = '1.0.0';
+const PROTOCOL_VERSION = '1.1.0';
 
 const OUTPUT_PATH = resolve(
   dirname(fileURLToPath(import.meta.url)),
@@ -57,7 +58,48 @@ interface ProtocolJson {
   actions:             ActionDefinition[];
   behaviors:           BehaviorJson[];
   slotAcceptKinds:     SlotKindJson[];
+  fieldTypes:          FieldTypeDefinition[];
   compatibilityMatrix: Record<string, CompatibilityEntry>;
+  connections:         ConnectionsSection;
+}
+
+/**
+ * Grafo explícito de aristas entre las entidades del modelo. Pensado para
+ * consumers que necesiten reconstruir el diagrama de nodos sin re-implementar
+ * la lógica (ej. visualizador KRO-71 Fase 3, tooltips KRO-70, wiki KRO-46).
+ *
+ * Reglas:
+ *  - `nodes` enumera todas las entidades con un id namespaced.
+ *  - `edges` son aristas dirigidas. La semántica de cada `kind` se documenta
+ *    abajo. NO se incluye edges derivables trivialmente (e.g. recipe→slot
+ *    está en `recipes[*].slots`).
+ */
+interface ConnectionsSection {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+}
+
+interface GraphNode {
+  /** id namespaced: `fieldType:text`, `behavior:url`, `slotKind:image`, etc. */
+  id:       string;
+  category: 'fieldType' | 'behavior' | 'slotKind' | 'recipe' | 'action';
+  label:    string;
+}
+
+interface GraphEdge {
+  /** Node id source. */
+  from: string;
+  /** Node id target. */
+  to:   string;
+  /**
+   * Tipo de relación:
+   *  - `type-behavior`: este behavior aplica a este fieldType (declared en `applicableTypes`).
+   *  - `behavior-slotKind`: este behavior se renderiza típicamente en este slotKind (declared en `renderAsSlotKind`).
+   *  - `recipe-action`: este recipe (kind=list) permite esta action.
+   *  - `recipe-target`: este recipe (kind=list) puede tener este detail recipe como targetRecipe.
+   *  - `recipe-expand`: este recipe (kind=list) puede tener este expand recipe como expand.
+   */
+  kind: 'type-behavior' | 'behavior-slotKind' | 'recipe-action' | 'recipe-target' | 'recipe-expand';
 }
 
 interface RecipeJson {
@@ -195,12 +237,66 @@ function buildCompatibilityMatrix(
 
 // ── Main ───────────────────────────────────────────────────────────────────
 
+function buildConnections(
+  fieldTypes: ReadonlyArray<FieldTypeDefinition>,
+  behaviors:  BehaviorJson[],
+  slotKinds:  SlotKindJson[],
+  recipes:    RecipeJson[],
+  actions:    ReadonlyArray<ActionDefinition>,
+  compatibilityMatrix: Record<string, CompatibilityEntry>,
+): ConnectionsSection {
+  const nodes: GraphNode[] = [
+    ...fieldTypes.map(t => ({ id: `fieldType:${t.id}`, category: 'fieldType' as const, label: t.displayName })),
+    ...behaviors.map(b  => ({ id: `behavior:${b.id}`,  category: 'behavior'  as const, label: b.displayName })),
+    ...slotKinds.map(k  => ({ id: `slotKind:${k.id}`,  category: 'slotKind'  as const, label: k.id })),
+    ...recipes.map(r    => ({ id: `recipe:${r.id}`,    category: 'recipe'    as const, label: r.displayName })),
+    ...actions.map(a    => ({ id: `action:${a.id}`,    category: 'action'    as const, label: a.displayName })),
+  ];
+
+  const edges: GraphEdge[] = [];
+
+  // type-behavior: behavior.applicableTypes → fieldType
+  for (const b of behaviors) {
+    for (const t of b.applicableTypes) {
+      edges.push({ from: `fieldType:${t}`, to: `behavior:${b.id}`, kind: 'type-behavior' });
+    }
+  }
+
+  // behavior-slotKind: behavior.renderAs → slotKind
+  for (const b of behaviors) {
+    if (b.renderAs) {
+      edges.push({ from: `behavior:${b.id}`, to: `slotKind:${b.renderAs}`, kind: 'behavior-slotKind' });
+    }
+  }
+
+  // recipe-action: lista de actions permitidas por recipe (kind=list)
+  // recipe-target: detail recipes válidos como targetRecipe
+  // recipe-expand: expand recipes válidos como expand
+  for (const [recipeId, entry] of Object.entries(compatibilityMatrix)) {
+    if (entry.kindRole === 'list-source') {
+      for (const aid of entry.allowedActions) {
+        edges.push({ from: `recipe:${recipeId}`, to: `action:${aid}`, kind: 'recipe-action' });
+      }
+      for (const tid of entry.allowedTargetRecipes) {
+        edges.push({ from: `recipe:${recipeId}`, to: `recipe:${tid}`, kind: 'recipe-target' });
+      }
+      for (const eid of entry.allowedExpandRecipes) {
+        edges.push({ from: `recipe:${recipeId}`, to: `recipe:${eid}`, kind: 'recipe-expand' });
+      }
+    }
+  }
+
+  return { nodes, edges };
+}
+
 function main() {
   const recipes = allRecipes().map(serializeRecipe);
   const behaviors = allBehaviors().map(serializeBehavior);
   const actions = allActions().slice();
+  const fieldTypes = allFieldTypes();
   const slotAcceptKinds     = buildSlotKinds(behaviors);
   const compatibilityMatrix = buildCompatibilityMatrix(recipes, actions);
+  const connections         = buildConnections(fieldTypes, behaviors, slotAcceptKinds, recipes, actions, compatibilityMatrix);
 
   const payload: ProtocolJson = {
     $schema:         './kromia-recipe-protocol-v1.schema.json',
@@ -214,7 +310,9 @@ function main() {
     actions: [...actions],
     behaviors,
     slotAcceptKinds,
+    fieldTypes: [...fieldTypes],
     compatibilityMatrix,
+    connections,
   };
 
   // 2 espacios de indent + newline final = formato git-friendly (diffs limpios).
@@ -228,6 +326,8 @@ function main() {
   console.log(`  actions:         ${actions.length}`);
   console.log(`  behaviors:       ${behaviors.length}`);
   console.log(`  slotAcceptKinds: ${slotAcceptKinds.length}`);
+  console.log(`  fieldTypes:      ${fieldTypes.length}`);
+  console.log(`  connections:     ${connections.nodes.length} nodes, ${connections.edges.length} edges`);
 }
 
 main();
