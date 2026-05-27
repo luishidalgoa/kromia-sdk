@@ -17,6 +17,26 @@ Cuando aparezcan nuevos contracts/paquetes, este playbook cubre todos.
   eliminar slot, cambiar `accepts` de un slot existente, renombrar campo
   del JSON. Requiere PR coordinado en TODOS los consumers.
 
+## Tras KRO-63 — Auto-bump
+
+Desde v1.3.0 (KRO-63), `pnpm gen` **detecta el tipo de cambio
+automáticamente** comparando el `.json` recién generado contra el `HEAD`
+del git. Aplica:
+
+1. Lee el `.json` previo desde `git show HEAD:contracts/...`.
+2. Compara prev vs candidate con `detectBumpKind` → major/minor/patch/none.
+3. Si kind ≠ 'none', bumpea `package.json#version` **y** el campo
+   `protocolVersion` del JSON juntos (single source-of-truth en
+   `package.json`).
+4. Escribe ambos archivos.
+
+**Single source-of-truth**: ya NO se edita `PROTOCOL_VERSION` a mano. La
+constante exportada del barrel (`@kromia/protocol#PROTOCOL_VERSION`) y
+el `protocolVersion` del JSON ambos leen de `package.json#version`.
+
+**Flag útil**: `pnpm gen --dry-run` reporta qué bumpearía sin tocar
+archivos. Útil antes de commit para confirmar el verdict.
+
 ## Pasos
 
 ### En `kromia-sdk/packages/protocol-ts/` (SDK, productor)
@@ -24,26 +44,24 @@ Cuando aparezcan nuevos contracts/paquetes, este playbook cubre todos.
 - [ ] Edita los registries / lógica según el playbook que aplique
   ([add-behavior](add-behavior.md), [add-action](add-action.md),
   [add-recipe](add-recipe.md)).
-- [ ] `pnpm test` (40+ tests del corpus deben pasar).
-- [ ] Bump version en **DOS sitios** que deben matchear:
-  - `packages/protocol-ts/package.json` → `version`
-  - `packages/protocol-ts/src/generate.ts` → constante `PROTOCOL_VERSION`
-- [ ] Regenera: `pnpm gen` (desde el root del monorepo).
+- [ ] `pnpm test` (tests del corpus deben pasar — 194+ al 2026-05-27).
+- [ ] **`pnpm gen --dry-run`** para preview del bump detectado.
+- [ ] **`pnpm gen`** para escribir cambios:
+  - Auto-bumpea `package.json#version` según changes detectados.
+  - Auto-actualiza `protocolVersion` en el `.json`.
+  - Reporta razones del bump (top 5).
 - [ ] Verifica el diff del `.json` en `contracts/`:
-  - Patch: solo cambian campos `description`, `displayName`, o entries
-    con metadata aditiva.
-  - Minor: aparece nueva entidad / slot opcional / kind. Las entidades
-    existentes no cambian shape.
-  - Major: desaparece o cambia tipo/shape de un campo existente.
+  - El diff debe matchear las razones que reportó el generator.
+  - Si te sorprende el bump → revisa los registries o abre issue contra el detector.
 - [ ] Actualiza `contracts/README.md` si hay cambios visibles en la estructura
   del payload.
 
 ### En `kromia-sdk` (root del monorepo)
 
-- [ ] Commit en kromia-sdk con mensaje:
-  - `feat(krp): minor — <descripción>` (para minor)
-  - `fix(krp): patch — <descripción>` (para patch)
-  - `feat(krp)!: major — <descripción>` (para major, nota el `!`)
+- [ ] Commit en kromia-sdk con mensaje (el generator imprime la nueva version, úsala):
+  - `feat(krp): minor X.Y.0 — <descripción>` (para minor)
+  - `fix(krp): patch X.Y.Z — <descripción>` (para patch)
+  - `feat(krp)!: major X.0.0 — <descripción>` (para major, nota el `!`)
 - [ ] Crea tag git: `git tag krp/v<X.Y.Z>` (formato `<dominio>/v<X.Y.Z>`).
 - [ ] Push con tags: `git push origin main --tags`.
 
@@ -54,9 +72,15 @@ Cuando aparezcan nuevos contracts/paquetes, este playbook cubre todos.
 - [ ] **Major bumps requieren coordinación**: revisa qué imports de
   `@kromia/protocol` en Studio quedaron inválidos (TypeScript te lo dice
   al hacer `npx tsc --noEmit`). Adapta consumers.
-- [ ] Para minor / patch: `pnpm install` (refresca el lock con la nueva
-  version del paquete) + `pnpm gen:protocol` (regenera para verificar
-  forward compat).
+- [ ] Para minor / patch / major: **NO basta con `pnpm install`** — el
+  cache de pnpm con `file:` deps no detecta cambios de version del
+  paquete sin un add explícito. Usar:
+  ```
+  pnpm add "@kromia/protocol@file:./kromia-sdk/packages/protocol-ts"
+  ```
+  Eso refresca el symlink y reporta `+ @kromia/protocol X.Y.Z`. Síntoma
+  de saltarse este paso: tests Studio fallan con `TypeError: <export> is
+  not a function` aunque el SDK tenga el export.
 - [ ] Commit en kromia-studio: `chore(krp): bump submodule to v<X.Y.Z>`.
 
 ### En `kromia-flutter` — cuando KRO-65 esté shipped
@@ -79,17 +103,18 @@ Cuando aparezcan nuevos contracts/paquetes, este playbook cubre todos.
 
 ## Pitfalls conocidos
 
-- **`generatedAt` cambia siempre** pero NO cuenta como bump. El diff debe
-  ignorarlo. Si el único cambio del `.json` es `generatedAt`, no hay bump.
-- **Patch en realidad debería ser minor si añade un id nuevo** que el cliente
-  necesita renderizar. Patch es para cambios "el cliente ni se entera"
-  (descripción, label). Si dudas, ve a minor.
+- **`generatedAt` cambia siempre** pero NO cuenta como bump. El detector
+  lo ignora — si el único diff del `.json` es `generatedAt`, no hay bump.
 - **Major implica trabajo coordinado**: NO bumpees major sin avisar al
   equipo de Flutter (cuando exista) + abrir tarea de migración.
-- **Olvidar bumpear `package.json` Y `generate.ts`**: deben matchear.
-  Si divergen, el `.json` declara una versión pero el paquete instala otra.
+- **Detector demasiado conservador**: cualquier change shape en una entrada
+  existente se marca major. Si crees que debería ser minor (ej. añadir
+  campo opcional a una entry), considera si esa "opcionalidad" es real
+  para clientes legacy.
+- **`pnpm install` no refresca el SDK en Studio**: usa `pnpm add` con
+  el path completo del paquete (ver sección "kromia-studio" arriba).
 
 ## Last verified
 
-2026-05-27 — KRP V1.5 (KRO-71 Fase 2 shipped). v1.1.0 emitido vía este
-flujo (tag `krp/v1.1.0`).
+2026-05-27 — KRO-63 shipped. Auto-bump activo desde v1.3.0. Antes (v1.0.0
+→ v1.2.0) el bump era manual; el playbook describe ahora el flow nuevo.

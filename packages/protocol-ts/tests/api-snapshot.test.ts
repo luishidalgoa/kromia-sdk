@@ -18,6 +18,8 @@ import * as SDK from '../src/index';
 // ── Exports esperados (snapshot al 2026-05-27, KRP v1.2.0) ───────────
 
 const EXPECTED_EXPORTS = [
+  // Version constant — KRO-63
+  'PROTOCOL_VERSION',
   // Field types
   'allFieldTypes',
   'getFieldType',
@@ -69,6 +71,20 @@ describe('API snapshot — @kromia/protocol barrel', () => {
     EXPECTED_EXPORTS.forEach(name => {
       expect((SDK as Record<string, unknown>)[name], `export "${name}" es undefined`).toBeDefined();
     });
+  });
+
+  it('PROTOCOL_VERSION matchea con package.json#version (single source-of-truth)', async () => {
+    const pkg = (await import('../package.json', {
+      with: { type: 'json' },
+    })).default as { version: string };
+    expect(SDK.PROTOCOL_VERSION).toBe(pkg.version);
+  });
+
+  it('PROTOCOL_VERSION matchea con protocolVersion del .json generado', async () => {
+    const krp = (await import('../../../contracts/kromia-recipe-protocol-v1.json', {
+      with: { type: 'json' },
+    })).default as { protocolVersion: string };
+    expect(SDK.PROTOCOL_VERSION).toBe(krp.protocolVersion);
   });
 });
 

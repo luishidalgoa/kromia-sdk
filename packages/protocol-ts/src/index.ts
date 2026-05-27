@@ -11,6 +11,20 @@
  *  - Cualquier cambio aquí es un cambio de versión del paquete.
  */
 
+// ── Version ────────────────────────────────────────────────────────────
+// Single source-of-truth: package.json#version. El generator del SDK
+// (KRO-63) auto-bumpea esta value, y este export la propaga a Studio
+// (que la inyecta en ViewComposition al guardar) y a cualquier otro
+// consumer.
+import pkg from '../package.json';
+
+/**
+ * Version del KRP que este SDK exporta. Coincide con `protocolVersion`
+ * del `.json` generado y con `package.json#version`. Studio inyecta
+ * este valor al guardar `ViewComposition` (KRO-63 Fase B).
+ */
+export const PROTOCOL_VERSION: string = pkg.version;
+
 // ── Types ──────────────────────────────────────────────────────────────
 export type {
   RecipeId,

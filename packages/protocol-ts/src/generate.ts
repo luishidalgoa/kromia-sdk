@@ -17,10 +17,29 @@
  * El generator debe ser puro: misma entrada → mismo output bit-a-bit
  * (excepto `generatedAt`, que se serializa pero los consumers ignoran
  * para el diff).
+ *
+ * ## KRO-63 — Auto-bump SemVer
+ *
+ * Tras KRO-63, este script:
+ *
+ *  1. Lee el `.json` previo desde `git show HEAD:contracts/...`.
+ *  2. Genera el `.json` nuevo en memoria con la version actual del package.
+ *  3. Compara prev vs next con `detectBumpKind` → kind (major/minor/patch/none).
+ *  4. Si kind ≠ 'none', bumpea `package.json#version` automáticamente
+ *     y re-genera con la nueva version.
+ *  5. Escribe el `.json` final.
+ *
+ * **Single source of truth**: `package.json#version` es ahora el único
+ * sitio donde se escribe la version. La constante exportada
+ * `PROTOCOL_VERSION` del SDK la lee desde ahí.
+ *
+ * Flags soportados:
+ *  - `--dry-run`: solo reporta lo que haría, no escribe nada.
  */
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execSync } from 'node:child_process';
 
 import { allRecipes, type RecipeManifest } from './registries/recipes';
 import type { SlotDefinition } from './registries/recipes';
@@ -29,30 +48,28 @@ import { allBehaviors, type BehaviorDefinition } from './registries/behaviors';
 import { allActions, type ActionDefinition } from './registries/actions';
 import { allFieldTypes, type FieldTypeDefinition } from './registries/field-types';
 import type { SlotAcceptKind } from './types';
+import { detectBumpKind, applyBump, type BumpKind } from './version-bump';
 
-// ── Constants ──────────────────────────────────────────────────────────────
+// ── Paths ──────────────────────────────────────────────────────────────
 
-const PROTOCOL_VERSION = '1.2.0';
-
-const OUTPUT_PATH = resolve(
+const PKG_ROOT = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  // src/ → packages/protocol-ts/ → packages/ → kromia-sdk/contracts/
   '..',
-  '..',
-  '..',
-  'contracts',
-  'kromia-recipe-protocol-v1.json',
 );
+const MONOREPO_ROOT = resolve(PKG_ROOT, '..', '..');
+const PACKAGE_JSON_PATH = resolve(PKG_ROOT, 'package.json');
+const OUTPUT_PATH = resolve(MONOREPO_ROOT, 'contracts', 'kromia-recipe-protocol-v1.json');
+const OUTPUT_REL_GIT = 'contracts/kromia-recipe-protocol-v1.json';
 
-// ── Tipos del payload generado (espejo de la estructura del JSON) ──────────
+// ── Tipos del payload generado (espejo de la estructura del JSON) ──────
 
 interface ProtocolJson {
-  $schema:        string;
+  $schema:         string;
   protocolVersion: string;
-  generatedAt:    string;
+  generatedAt:     string;
   generatedFrom: {
-    packagePath:  string;
-    note:         string;
+    packagePath:   string;
+    note:          string;
   };
   recipes:             RecipeJson[];
   actions:             ActionDefinition[];
@@ -63,42 +80,20 @@ interface ProtocolJson {
   connections:         ConnectionsSection;
 }
 
-/**
- * Grafo explícito de aristas entre las entidades del modelo. Pensado para
- * consumers que necesiten reconstruir el diagrama de nodos sin re-implementar
- * la lógica (ej. visualizador KRO-71 Fase 3, tooltips KRO-70, wiki KRO-46).
- *
- * Reglas:
- *  - `nodes` enumera todas las entidades con un id namespaced.
- *  - `edges` son aristas dirigidas. La semántica de cada `kind` se documenta
- *    abajo. NO se incluye edges derivables trivialmente (e.g. recipe→slot
- *    está en `recipes[*].slots`).
- */
 interface ConnectionsSection {
   nodes: GraphNode[];
   edges: GraphEdge[];
 }
 
 interface GraphNode {
-  /** id namespaced: `fieldType:text`, `behavior:url`, `slotKind:image`, etc. */
   id:       string;
   category: 'fieldType' | 'behavior' | 'slotKind' | 'recipe' | 'action';
   label:    string;
 }
 
 interface GraphEdge {
-  /** Node id source. */
   from: string;
-  /** Node id target. */
   to:   string;
-  /**
-   * Tipo de relación:
-   *  - `type-behavior`: este behavior aplica a este fieldType (declared en `applicableTypes`).
-   *  - `behavior-slotKind`: este behavior se renderiza típicamente en este slotKind (declared en `renderAsSlotKind`).
-   *  - `recipe-action`: este recipe (kind=list) permite esta action.
-   *  - `recipe-target`: este recipe (kind=list) puede tener este detail recipe como targetRecipe.
-   *  - `recipe-expand`: este recipe (kind=list) puede tener este expand recipe como expand.
-   */
   kind: 'type-behavior' | 'behavior-slotKind' | 'recipe-action' | 'recipe-target' | 'recipe-expand';
 }
 
@@ -125,7 +120,6 @@ interface BehaviorJson {
   displayName:     string;
   description:     string;
   applicableTypes: string[];
-  /** Hint del SlotAcceptKind primario en el que encaja. null si solo cabe por type. */
   renderAs:        SlotAcceptKind | null;
 }
 
@@ -136,24 +130,13 @@ interface SlotKindJson {
 }
 
 interface CompatibilityEntry {
-  /**
-   * Rol del recipe en el grafo de composiciones:
-   *   - list-source:    receta de lista (source de ViewCompositions con action)
-   *   - detail-target:  receta de detalle (puede ser targetRecipe de
-   *                     navigate_to_detail/modal; sin actions propias)
-   *   - expand-target:  receta de expand (puede ser composition.expand
-   *                     de expand_inline; sin actions propias)
-   */
-  kindRole:              'list-source' | 'detail-target' | 'expand-target';
-  /** Actions permitidas en este recipe (solo aplica si kindRole=list-source). */
-  allowedActions:        string[];
-  /** Recipes permitidos como targetRecipe (solo navigate_to_detail/modal). */
-  allowedTargetRecipes:  string[];
-  /** Recipes permitidos como composition.expand (solo expand_inline). */
-  allowedExpandRecipes:  string[];
+  kindRole:             'list-source' | 'detail-target' | 'expand-target';
+  allowedActions:       string[];
+  allowedTargetRecipes: string[];
+  allowedExpandRecipes: string[];
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+// ── Helpers de serialización ───────────────────────────────────────────
 
 function serializeSlot(s: SlotDefinition): SlotJson {
   return {
@@ -188,9 +171,6 @@ function serializeBehavior(b: BehaviorDefinition): BehaviorJson {
 }
 
 function buildSlotKinds(behaviors: BehaviorJson[]): SlotKindJson[] {
-  // Iterar las keys de SLOT_ACCEPT_KIND_META = orden canónico declarado en
-  // slot-kinds.ts. Garantiza paridad con el catálogo que ve la UI del Studio
-  // + incluye automáticamente kinds añadidos al union.
   const allKinds = Object.keys(SLOT_ACCEPT_KIND_META) as SlotAcceptKind[];
   return allKinds.map(id => ({
     id,
@@ -235,8 +215,6 @@ function buildCompatibilityMatrix(
   return out;
 }
 
-// ── Main ───────────────────────────────────────────────────────────────────
-
 function buildConnections(
   fieldTypes: ReadonlyArray<FieldTypeDefinition>,
   behaviors:  BehaviorJson[],
@@ -255,23 +233,16 @@ function buildConnections(
 
   const edges: GraphEdge[] = [];
 
-  // type-behavior: behavior.applicableTypes → fieldType
   for (const b of behaviors) {
     for (const t of b.applicableTypes) {
       edges.push({ from: `fieldType:${t}`, to: `behavior:${b.id}`, kind: 'type-behavior' });
     }
   }
-
-  // behavior-slotKind: behavior.renderAs → slotKind
   for (const b of behaviors) {
     if (b.renderAs) {
       edges.push({ from: `behavior:${b.id}`, to: `slotKind:${b.renderAs}`, kind: 'behavior-slotKind' });
     }
   }
-
-  // recipe-action: lista de actions permitidas por recipe (kind=list)
-  // recipe-target: detail recipes válidos como targetRecipe
-  // recipe-expand: expand recipes válidos como expand
   for (const [recipeId, entry] of Object.entries(compatibilityMatrix)) {
     if (entry.kindRole === 'list-source') {
       for (const aid of entry.allowedActions) {
@@ -289,22 +260,32 @@ function buildConnections(
   return { nodes, edges };
 }
 
-function main() {
-  const recipes = allRecipes().map(serializeRecipe);
-  const behaviors = allBehaviors().map(serializeBehavior);
-  const actions = allActions().slice();
-  const fieldTypes = allFieldTypes();
+// ── Builder del payload ────────────────────────────────────────────────
+
+/**
+ * Construye el ProtocolJson en memoria con la version dada. No escribe
+ * nada — solo arma el objeto.
+ *
+ * Si pasas un `generatedAt` fijo, se usa tal cual. Si no, se genera con
+ * `new Date().toISOString()` (el detector de bump lo ignora de todas
+ * formas).
+ */
+export function buildPayload(version: string, generatedAt?: string): ProtocolJson {
+  const recipes             = allRecipes().map(serializeRecipe);
+  const behaviors           = allBehaviors().map(serializeBehavior);
+  const actions             = allActions().slice();
+  const fieldTypes          = allFieldTypes();
   const slotAcceptKinds     = buildSlotKinds(behaviors);
   const compatibilityMatrix = buildCompatibilityMatrix(recipes, actions);
   const connections         = buildConnections(fieldTypes, behaviors, slotAcceptKinds, recipes, actions, compatibilityMatrix);
 
-  const payload: ProtocolJson = {
+  return {
     $schema:         './kromia-recipe-protocol-v1.schema.json',
-    protocolVersion: PROTOCOL_VERSION,
-    generatedAt:     new Date().toISOString(),
+    protocolVersion: version,
+    generatedAt:     generatedAt ?? new Date().toISOString(),
     generatedFrom: {
-      packagePath:  'packages/protocol-ts/',
-      note:         'JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo.',
+      packagePath: 'packages/protocol-ts/',
+      note:        'JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo.',
     },
     recipes,
     actions: [...actions],
@@ -314,20 +295,122 @@ function main() {
     compatibilityMatrix,
     connections,
   };
+}
 
-  // 2 espacios de indent + newline final = formato git-friendly (diffs limpios).
-  const serialized = JSON.stringify(payload, null, 2) + '\n';
+// ── Read/write package.json + git previous ─────────────────────────────
+
+interface PackageJson {
+  name:    string;
+  version: string;
+  [k: string]: unknown;
+}
+
+function readPackageJson(): PackageJson {
+  return JSON.parse(readFileSync(PACKAGE_JSON_PATH, 'utf8')) as PackageJson;
+}
+
+function writePackageJsonVersion(newVersion: string): void {
+  // Edit en disco preservando orden y formato. Como `JSON.stringify` no
+  // garantiza orden, parseamos + serializamos manteniendo el indent 2
+  // (estándar npm). Si hubiera comentarios/JSON5 esto rompería, pero
+  // package.json siempre es JSON puro.
+  const raw = readFileSync(PACKAGE_JSON_PATH, 'utf8');
+  const pkg = JSON.parse(raw) as PackageJson;
+  pkg.version = newVersion;
+  writeFileSync(PACKAGE_JSON_PATH, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
+}
+
+/**
+ * Lee el .json previo desde el HEAD del git. Si falla (primer commit,
+ * archivo no existía, repo no inicializado), devuelve null — el caller
+ * trata como "primera generación, no hay diff".
+ */
+function readPreviousJsonFromGit(): Record<string, unknown> | null {
+  try {
+    const raw = execSync(`git show HEAD:${OUTPUT_REL_GIT}`, {
+      cwd:      MONOREPO_ROOT,
+      encoding: 'utf8',
+      stdio:    ['ignore', 'pipe', 'ignore'],
+    });
+    return JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+// ── Main ───────────────────────────────────────────────────────────────
+
+function describeBumpReasons(reasons: ReturnType<typeof detectBumpKind>['reasons']): string {
+  // Top 5 razones, agrupadas por nivel. Suficiente para entender por qué
+  // bumpea sin saturar el terminal.
+  const top = reasons.slice(0, 5);
+  return top.map(r => `  - [${r.level}] ${r.description}`).join('\n');
+}
+
+function main(): void {
+  const dryRun = process.argv.includes('--dry-run');
+  const pkg = readPackageJson();
+  const currentVersion = pkg.version;
+
+  // 1) Generar el payload "candidato" con la version actual.
+  const candidate = buildPayload(currentVersion);
+
+  // 2) Comparar con el previo desde git.
+  const prev = readPreviousJsonFromGit();
+
+  let finalVersion = currentVersion;
+  let bumpKind: BumpKind = 'none';
+
+  if (prev) {
+    const detection = detectBumpKind(prev, candidate);
+    bumpKind = detection.kind;
+    if (bumpKind !== 'none') {
+      finalVersion = applyBump(currentVersion, bumpKind);
+      console.log(`▸ Cambios detectados: ${bumpKind.toUpperCase()} (${detection.reasons.length} razones)`);
+      console.log(describeBumpReasons(detection.reasons));
+      console.log(`▸ Bump: ${currentVersion} → ${finalVersion}`);
+    } else {
+      console.log(`▸ Sin cambios detectados frente a HEAD. Version se mantiene en ${currentVersion}.`);
+    }
+  } else {
+    console.log(`▸ No hay .json previo en git HEAD (primera generación o archivo recién añadido).`);
+    console.log(`▸ Version se mantiene en ${currentVersion} (sin auto-bump).`);
+  }
+
+  // 3) Re-construir el payload final con la version definitiva.
+  const finalPayload = (finalVersion === currentVersion)
+    ? candidate
+    : buildPayload(finalVersion);
+
+  // 4) Escribir (o reportar si --dry-run).
+  const serialized = JSON.stringify(finalPayload, null, 2) + '\n';
+
+  if (dryRun) {
+    console.log(`▸ --dry-run: NO se escribió nada.`);
+    console.log(`▸ Habría escrito: ${OUTPUT_PATH}`);
+    console.log(`▸ Habría actualizado package.json#version: ${pkg.version} → ${finalVersion}`);
+    return;
+  }
+
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
   writeFileSync(OUTPUT_PATH, serialized, 'utf8');
 
+  if (finalVersion !== currentVersion) {
+    writePackageJsonVersion(finalVersion);
+  }
+
+  // 5) Summary.
   console.log(`✓ Generado ${OUTPUT_PATH}`);
-  console.log(`  protocolVersion: ${PROTOCOL_VERSION}`);
-  console.log(`  recipes:         ${recipes.length} (list=${recipes.filter(r => r.kind === 'list').length}, detail=${recipes.filter(r => r.kind === 'detail').length}, expand=${recipes.filter(r => r.kind === 'expand').length})`);
-  console.log(`  actions:         ${actions.length}`);
-  console.log(`  behaviors:       ${behaviors.length}`);
-  console.log(`  slotAcceptKinds: ${slotAcceptKinds.length}`);
-  console.log(`  fieldTypes:      ${fieldTypes.length}`);
-  console.log(`  connections:     ${connections.nodes.length} nodes, ${connections.edges.length} edges`);
+  console.log(`  protocolVersion: ${finalVersion}`);
+  console.log(`  recipes:         ${finalPayload.recipes.length} (list=${finalPayload.recipes.filter(r => r.kind === 'list').length}, detail=${finalPayload.recipes.filter(r => r.kind === 'detail').length}, expand=${finalPayload.recipes.filter(r => r.kind === 'expand').length})`);
+  console.log(`  actions:         ${finalPayload.actions.length}`);
+  console.log(`  behaviors:       ${finalPayload.behaviors.length}`);
+  console.log(`  slotAcceptKinds: ${finalPayload.slotAcceptKinds.length}`);
+  console.log(`  fieldTypes:      ${finalPayload.fieldTypes.length}`);
+  console.log(`  connections:     ${finalPayload.connections.nodes.length} nodes, ${finalPayload.connections.edges.length} edges`);
+  if (finalVersion !== currentVersion) {
+    console.log(`✓ package.json#version actualizado: ${currentVersion} → ${finalVersion}`);
+  }
 }
 
 main();
