@@ -130,3 +130,4 @@ Ver [`playbooks/bump-protocol.md`](playbooks/bump-protocol.md).
 - Los playbooks evitan que el conocimiento tribal se pierda en commits y
   conversaciones.
 - Si dos lugares describen "qué es un behavior", solo uno gana — este.
+# kromia-protocol
