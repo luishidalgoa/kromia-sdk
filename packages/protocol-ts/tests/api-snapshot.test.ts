@@ -15,7 +15,7 @@
 import { describe, it, expect } from 'vitest';
 import * as SDK from '../src/index';
 
-// ── Exports esperados (snapshot al 2026-05-27, KRP v1.1.0) ───────────
+// ── Exports esperados (snapshot al 2026-05-27, KRP v1.2.0) ───────────
 
 const EXPECTED_EXPORTS = [
   // Field types
@@ -46,6 +46,9 @@ const EXPECTED_EXPORTS = [
   'getEffectiveSlots',
   'validateSlotOverrides',
   'customSlotToSlotDefinition',
+  // Synth (AppPreview) — KRO-72
+  'synthSectionItems',
+  'synthFieldValue',
 ] as const;
 
 describe('API snapshot — @kromia/protocol barrel', () => {
@@ -92,6 +95,9 @@ import type {
   RecipeManifest,
   SlotDefinition,
   AppearanceProp,
+  SynthSourceField,
+  SynthSourceSection,
+  SynthItem,
 } from '../src/index';
 
 describe('Type exports compile-check', () => {
@@ -115,7 +121,10 @@ describe('Type exports compile-check', () => {
       null as unknown as RecipeManifest,
       null as unknown as SlotDefinition,
       null as unknown as AppearanceProp,
+      null as unknown as SynthSourceField,
+      null as unknown as SynthSourceSection,
+      null as unknown as SynthItem,
     ];
-    expect(_checks.length).toBe(16);
+    expect(_checks.length).toBe(19);
   });
 });

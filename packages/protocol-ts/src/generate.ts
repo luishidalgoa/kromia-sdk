@@ -32,7 +32,7 @@ import type { SlotAcceptKind } from './types';
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
-const PROTOCOL_VERSION = '1.1.0';
+const PROTOCOL_VERSION = '1.2.0';
 
 const OUTPUT_PATH = resolve(
   dirname(fileURLToPath(import.meta.url)),

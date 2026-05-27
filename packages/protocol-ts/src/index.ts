@@ -76,3 +76,15 @@ export {
   validateSlotOverrides,
   customSlotToSlotDefinition,
 } from './classify';
+
+// ── Synth (AppPreview / playgrounds) ───────────────────────────────────
+// KRO-72: migrado desde kromia-studio. Permite a cualquier consumer
+// (Studio, drift detector, futuro Flutter) generar items sintéticos
+// deterministas para preview de recipes ANTES de tener datos reales.
+export {
+  synthSectionItems,
+  synthFieldValue,
+  type SynthSourceField,
+  type SynthSourceSection,
+  type SynthItem,
+} from './synth';
