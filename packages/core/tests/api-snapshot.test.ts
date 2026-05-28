@@ -80,6 +80,8 @@ const EXPECTED_EXPORTS = [
   'OPTIONS_CARD_SIZE_LABELS',
   'aspectToRatio',
   'getFieldTypeDescriptions',
+  // KRO-86 — pre-flight validation de cards + sectionsData
+  'validateAlbumData',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {

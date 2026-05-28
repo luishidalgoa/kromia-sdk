@@ -104,6 +104,21 @@ export {
   type ValidateCompositionOptions,
 } from './validate';
 
+// ── Album data validator — KRO-86 ─────────────────────────────────────
+// Función pura que valida cards + sectionsData de un álbum antes del POST.
+// Aplica type + behavior + required + enum + sectionRef. Studio lo usa en
+// `handleSubmit` para mostrar modal de errores antes de mandar al backend
+// (que también lo usará via Fase 5 — paridad estricta). Sin Zod, vanilla TS.
+export {
+  validateAlbumData,
+  type AlbumDataInput,
+  type ValidatableField,
+  type ValidatableSection,
+  type ValidationError as AlbumValidationError,
+  type ValidationResult as AlbumValidationResult,
+  type ValidationRule as AlbumValidationRule,
+} from './validate-album-data';
+
 // ── Synth (AppPreview / playgrounds) ───────────────────────────────────
 // KRO-72: migrado desde kromia-studio. Permite a cualquier consumer
 // (Studio, drift detector, futuro Flutter) generar items sintéticos
