@@ -55,6 +55,7 @@ Reglas duras:
 | Necesito… | Helper | Notas |
 |---|---|---|
 | Validar una ViewComposition | `validateComposition(vc, fields, options?)` | KRO-79/80. 14 reglas (slot required, action targets, compat…). Devuelve `ValidationIssue[]` con severity. **Usado cross-repo** (Studio handleSubmit + Backend pre-persist) |
+| Validar datos de un álbum (cards + sectionsData) ANTES del POST | `validateAlbumData({ cardFields, cards, sections, sectionsData })` | KRO-86. Pure TS, sin Zod. Aplica type + behavior + required + enum + sectionRef. Studio lo usa en `handleSubmit` para modal de errores. Backend (Fase 5) lo importará para paridad estricta. Sincronizado con `cardsZodBuilder.ts` del backend |
 | ¿Un field es compatible con un slot? | `isFieldCompatibleWithSlot(field, slot)` | Boolean, basado en `slot.accepts` |
 | ¿Qué slots aplican tras slot overrides V5? | `getEffectiveSlots(manifest, overrides)` | Resuelve disabled + custom + order |
 | Validar overrides per-instance | `validateSlotOverrides(overrides, manifest)` | Disabled no debe matar required, custom no debe colisionar con built-in |
@@ -204,6 +205,40 @@ mkdocs build --strict
 **Editar contenido**: solo añadir/editar `docs/**/*.md`. El frontmatter mínimo es `title`. Para que aparezca en el sidebar lateral añadir entry en `nav:` de `mkdocs.yml`. Para temas avanzados (admonitions, code blocks con anotaciones, tabs, dark mode) ver [docs de Material](https://squidfunk.github.io/mkdocs-material/reference/).
 
 **NO confundir** con este AGENTS.md o los READMEs de package — la doc en `docs/` es para gente que va a CONSUMIR el SDK. El mantenimiento interno (este archivo + playbooks + READMEs de package) sigue siendo markdown crudo en GitHub.
+
+---
+
+## Anti-drift: red de seguridad para `validateAlbumData` (KRO-86)
+
+El validador `validateAlbumData` del SDK (`validate-album-data.ts`) tiene SIEMPRE que estar sincronizado con dos sitios:
+
+1. **El registry de behaviors** (`registries/behaviors.ts`) — si añades behavior nuevo allí, este validador debe conocerlo (con validator específico O marcado como pass-through).
+2. **El backend `cardsZodBuilder.ts`** (`Kromia_NodeJS/.../cardsZodBuilder.ts`) — mismas reglas en TypeScript puro aquí, Zod allí. Hasta que se haga la **Fase 5 de KRO-86** (backend importa del SDK), la sincronización es manual.
+
+### Test automático que detecta drift
+
+`tests/validate-album-data-coverage.test.ts` cruza el registry con `BEHAVIOR_VALIDATORS` + `PASS_THROUGH_BEHAVIORS`. Si añades un behavior al registry pero olvidas darle validator o marcarlo como pass-through, el test falla con un mensaje muy explícito:
+
+```
+🚨 DRIFT DETECTADO: los siguientes behaviors están en el registry pero NO en validate-album-data.ts:
+    - iban
+Soluciones:
+  a. Si necesita validación: añade entry en BEHAVIOR_VALIDATORS
+  b. Si NO necesita validación (type base ya cubre): añade el id a PASS_THROUGH_BEHAVIORS
+  + Replica el mismo cambio en Kromia_NodeJS/.../cardsZodBuilder.ts hasta Fase 5
+```
+
+### Workflow al añadir behavior nuevo (paso a paso)
+
+1. Añadir entry al registry en `packages/core/src/registries/behaviors.ts`
+2. Decidir si necesita validación específica:
+   - **SÍ**: añadir validator en `packages/core/src/validate-album-data.ts > BEHAVIOR_VALIDATORS` (con regex / rango / lo que aplique)
+   - **NO**: añadir el id a `PASS_THROUGH_BEHAVIORS` con comentario justificando por qué (el `type` base ya cubre el caso, etc.)
+3. Añadir validator equivalente en `Kromia_NodeJS/src/modules/Albums/Core/services/cardsZodBuilder.ts > BEHAVIOR_VALIDATORS` con la misma lógica (regex / rango). Hasta Fase 5, esto es manual.
+4. Añadir test específico en `tests/validate-album-data.test.ts` para el nuevo behavior (al menos: caso válido + caso inválido + mensaje de error esperado).
+5. Bump version del SDK según matriz SemVer y actualizar consumers.
+
+El test de cobertura cubre el paso 2. Los pasos 1, 3, 4, 5 son responsabilidad del dev — disciplinados con este AGENTS.md y los playbooks de `playbooks/`.
 
 ---
 

@@ -406,10 +406,50 @@ const BEHAVIOR_VALIDATORS: Record<
   },
 
   // ── Pass-through (sin validación extra, type base ya validó) ──────
-  // tags, markdown, notes, code, html, avatar, banner, cover, thumbnail,
-  // gallery, card_multiview, slideshow, card_code_list → no aparecen aquí
-  // a propósito. El catálogo los acepta sin restricción extra.
+  // Ver `PASS_THROUGH_BEHAVIORS` abajo — exportada para que el test de
+  // cobertura sepa que NO añadirlos a BEHAVIOR_VALIDATORS es deliberado.
 };
+
+/**
+ * Behaviors que NO necesitan validator específico porque el `type` base
+ * ya cubre la validación necesaria (o porque son metadata UI sin reglas
+ * server-side adicionales). Lista cerrada — añadir entry nueva aquí
+ * requiere justificación documentada.
+ *
+ * El test `validate-album-data-coverage.test.ts` cruza el registry de
+ * behaviors con BEHAVIOR_VALIDATORS + PASS_THROUGH_BEHAVIORS — si
+ * alguien añade behavior nuevo al registry pero olvida darle validator
+ * (o marcarlo como pass-through), el test falla en CI. Red de seguridad
+ * contra drift entre el registry y este validador.
+ *
+ * Sincronizado con `Kromia_NodeJS/.../cardsZodBuilder.ts` donde los
+ * mismos behaviors son pass-through (el backend tampoco les aplica
+ * validación extra). Si se hace Fase 5 de KRO-86 (backend usa el SDK),
+ * esta lista deja de necesitar sincronización manual.
+ */
+export const PASS_THROUGH_BEHAVIORS = new Set([
+  'tags',            // array<string> base ya valida cada item
+  'markdown',        // textarea base ya valida string
+  'notes',           // textarea base ya valida string
+  'code',            // textarea base ya valida string
+  'html',            // textarea base ya valida string (sanitización en render)
+  'gallery',         // array<image> base ya valida cada item
+  'card_multiview',  // array<image> base ya valida cada item
+  'slideshow',       // array<image> base ya valida cada item
+  'card_code_list',  // array<string> — validación de existencia en capa servicio
+  // KRO-69 nota: avatar / banner / cover / thumbnail YA NO están aquí
+  // porque se eliminaron del registry del SDK (la forma/aspect viven en
+  // SlotAppearance). El backend NodeJS aún los registra por compat con
+  // álbumes existentes — drift documentado, se cerrará en Fase 5 cuando
+  // backend importe del SDK.
+]);
+
+/**
+ * Re-export del map de validators — útil para el test de cobertura.
+ * NO USAR desde código de producción: usa `validateAlbumData()` que es
+ * la API pública. Este export es para introspección/tests.
+ */
+export const _BEHAVIOR_VALIDATORS_INTERNAL = BEHAVIOR_VALIDATORS;
 
 // ─────────────────────────────────────────────────────────────────────
 // Helpers internos
