@@ -182,6 +182,31 @@ Los tests de `@kromia/core` corren con Vitest en Node. No imports de React, no J
 
 ---
 
+## Docs del SDK (sitio Material for MkDocs)
+
+Las docs orientadas a CONSUMER (overview + concepts + quickstart) viven en [`docs/`](docs/) y se sirven como sitio estático con [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).
+
+**Levantar localmente** (preview en `http://localhost:8000`):
+
+```bash
+pip install mkdocs-material
+mkdocs serve
+```
+
+**Build estático** (output en `site/`, ya en `.gitignore`):
+
+```bash
+mkdocs build --strict
+```
+
+**Deploy a GitHub Pages**: automático vía `.github/workflows/docs.yml` en cada push a `main` que toque `docs/**`, `mkdocs.yml` o el propio workflow. Sitio público en `https://luishidalgoa.github.io/kromia-sdk/`.
+
+**Editar contenido**: solo añadir/editar `docs/**/*.md`. El frontmatter mínimo es `title`. Para que aparezca en el sidebar lateral añadir entry en `nav:` de `mkdocs.yml`. Para temas avanzados (admonitions, code blocks con anotaciones, tabs, dark mode) ver [docs de Material](https://squidfunk.github.io/mkdocs-material/reference/).
+
+**NO confundir** con este AGENTS.md o los READMEs de package — la doc en `docs/` es para gente que va a CONSUMIR el SDK. El mantenimiento interno (este archivo + playbooks + READMEs de package) sigue siendo markdown crudo en GitHub.
+
+---
+
 ## Cuándo usar cada playbook
 
 Tabla rápida → ver [`playbooks/INDEX.md`](playbooks/INDEX.md) para enlaces completos.

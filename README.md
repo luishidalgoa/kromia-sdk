@@ -1,11 +1,20 @@
 # kromia-sdk
 
-Repositorio central de **contratos** y **playbooks** del ecosistema Kromia.
+Repositorio central de **contratos**, **paquetes** y **playbooks** del ecosistema Kromia.
 Lo consumen los proyectos cliente como **submodule**:
 
 - `kromia-studio` (Next.js, editor web)
 - `kromia-flutter` (Flutter, renderer móvil — futuro)
 - `Kromia_NodeJS` (backend, opcional)
+
+## 📖 Documentación
+
+| Para qué | Dónde |
+|---|---|
+| **Consumir el SDK** (qué es Kromia, conceptos, quick start) | [Sitio docs](https://luishidalgoa.github.io/kromia-sdk/) (MkDocs Material) |
+| **Mantener el SDK desde dentro** (workflow, gotchas, qué helper para qué) | [`AGENTS.md`](AGENTS.md) |
+| **Añadir behavior / recipe / action / playbook nuevo** | [`playbooks/INDEX.md`](playbooks/INDEX.md) |
+| **API por paquete** | [`packages/core/README.md`](packages/core/README.md) · [`packages/react/README.md`](packages/react/README.md) |
 
 ## Estructura
 

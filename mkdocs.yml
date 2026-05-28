@@ -1,0 +1,133 @@
+# KRO-87 V3 — Material for MkDocs config para kromia-sdk.
+#
+# Sirve los markdowns de docs/ como sitio estático profesional con
+# theme Material, search built-in, dark mode y deploy a GH Pages.
+#
+# Levantar localmente:
+#   pip install mkdocs-material
+#   mkdocs serve   # http://localhost:8000
+#
+# Build estático:
+#   mkdocs build   # → site/
+#
+# Deploy (manual o via GH Action en .github/workflows/docs.yml):
+#   mkdocs gh-deploy --force
+
+site_name: Kromia SDK
+site_description: Documentación del SDK polyglot de Kromia — modelo de coleccionables, recipes y validadores compartidos cross-plataforma.
+site_url: https://luishidalgoa.github.io/kromia-sdk/
+site_author: Luis Hidalgo
+
+repo_name: luishidalgoa/kromia-sdk
+repo_url: https://github.com/luishidalgoa/kromia-sdk
+edit_uri: edit/main/docs/
+
+# El submodule vive como subdir dentro de kromia-studio en local. En CI
+# del SDK standalone, el path es directo. Esta config funciona en ambos.
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  language: es
+  features:
+    # Navegación
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    # Búsqueda
+    - search.highlight
+    - search.share
+    - search.suggest
+    # Code blocks
+    - content.code.copy
+    - content.code.annotate
+    # Enlaces
+    - content.action.edit
+
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Cambiar a modo oscuro
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Cambiar a modo claro
+
+  font:
+    text: Inter
+    code: JetBrains Mono
+
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search:
+      lang:
+        - es
+        - en
+
+markdown_extensions:
+  # Markdown básico extendido
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      permalink_title: Enlace permanente a esta sección
+  # PyMdown
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+nav:
+  - Inicio: index.md
+  - Empezar aquí:
+      - Visión general: 01-overview.md
+      - Conceptos clave: 02-concepts.md
+      - Quick start: 03-quickstart.md
+  - Repositorio: https://github.com/luishidalgoa/kromia-sdk
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/luishidalgoa/kromia-sdk
+      name: SDK en GitHub
+
+  generator: false  # Quitar el "Made with Material for MkDocs" del footer
+
+copyright: Copyright &copy; 2026 Kromia — privado, uso interno.

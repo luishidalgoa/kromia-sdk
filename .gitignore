@@ -3,3 +3,7 @@ dist/
 .turbo/
 *.tsbuildinfo
 .DS_Store
+
+# MkDocs build output (KRO-87 V3)
+site/
+.mkdocs_cache/

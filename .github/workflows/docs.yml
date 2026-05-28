@@ -1,0 +1,60 @@
+# KRO-87 V3 — Build + deploy de las docs MkDocs Material a GitHub Pages.
+#
+# Trigger: push a main que toque docs/, mkdocs.yml o este workflow.
+# Output: site/ buildeado y publicado en la branch gh-pages.
+#
+# Setup inicial requerido en GitHub (una sola vez):
+#   1. Settings → Pages → Source: "Deploy from a branch" → gh-pages / root
+#   2. Permissions → Actions → "Read and write permissions" (para que la
+#      action pueda crear/empujar la branch gh-pages)
+#
+# Tras el primer run, el sitio está disponible en:
+#   https://luishidalgoa.github.io/kromia-sdk/
+
+name: Deploy MkDocs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/docs.yml'
+  # Permite trigger manual desde la UI de Actions.
+  workflow_dispatch:
+
+permissions:
+  contents: write  # necesario para empujar a gh-pages
+
+concurrency:
+  group: docs-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # fetch-depth: 0 daría el git-revision-date-localized plugin
+          # toda la historia si lo añadimos en el futuro. Por ahora 1.
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install MkDocs Material
+        run: |
+          pip install --upgrade pip
+          pip install mkdocs-material
+
+      - name: Build
+        run: mkdocs build --strict
+
+      - name: Deploy to GitHub Pages
+        run: mkdocs gh-deploy --force --no-history
