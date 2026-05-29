@@ -85,6 +85,9 @@ const EXPECTED_EXPORTS = [
   'getFieldTypeDescriptions',
   // KRO-86 — pre-flight validation de cards + sectionsData
   'validateAlbumData',
+  // KRO-84 — helpers del behavior incremental (auto-asignación + duplicados)
+  'nextIncrementalValue',
+  'findDuplicateIncrementalValues',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {

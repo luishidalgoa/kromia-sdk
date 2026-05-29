@@ -186,6 +186,17 @@ export {
   miniRefGridColumns,
   // Field type descriptions helper
   getFieldTypeDescriptions,
+} from './options';
+
+// ── Incremental behavior helpers (KRO-84) ───────────────────────────────
+// Auto-asignación (max+1) + detección de duplicados para el behavior
+// `incremental`. Puros, consumidos por el editor de Studio y el futuro Flutter.
+export {
+  nextIncrementalValue,
+  findDuplicateIncrementalValues,
+} from './incremental';
+
+export {
   // Tipos
   type CatalogOption,
   type AppearancePreset,
