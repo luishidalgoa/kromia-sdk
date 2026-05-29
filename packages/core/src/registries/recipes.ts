@@ -19,6 +19,7 @@
  */
 
 import type { RecipeId, SlotKind, SlotAcceptKind } from '../types';
+import type { EncyclopediaDoc } from './encyclopedia-doc';
 
 /** Definición de un slot dentro de una receta. */
 export interface SlotDefinition {
@@ -44,7 +45,7 @@ export interface SlotDefinition {
 }
 
 /** Metadata completa de una receta. */
-export interface RecipeManifest {
+export interface RecipeManifest extends EncyclopediaDoc {
   id:          RecipeId;
   /**
    * - "list":   item dentro de la sección.
@@ -66,6 +67,23 @@ export const RECIPE_REGISTRY: Partial<Record<RecipeId, RecipeManifest>> = {
     kind:        'list',
     displayName: 'Avatar compacto',
     description: 'Imagen circular + nombre + texto secundario. Ideal para listas de personas/entidades.',
+    whenToUse:
+      'Para listas donde quieres ver muchas filas a la vez con su foto identificadora: jugadores de un equipo, hermanas de una hermandad, capítulos de un libro. Si necesitas más jerarquía visual, usa CompactCard o Hero.',
+    long: `Slots:
+- \`avatar\` (image-avatar, circular) — foto principal
+- \`title\` (text-short) — nombre
+- \`subtitle\` (text-short, opcional) — dato secundario
+- \`badge\` (badge, opcional) — rareza/categoría
+
+Layout: avatar a la izquierda (40-56px según size), texto a la derecha. Una fila por carta. **Densidad alta**: caben 8-12 cartas en una pantalla móvil.
+
+El accent del card es la línea izquierda (cuando \`accentPosition: 'auto'\`).`,
+    examples: [
+      { title: 'Plantilla de equipo', description: 'Lista de 25 jugadores con foto + dorsal + posición.' },
+      { title: 'Hermanas de la cofradía', description: 'Foto circular + nombre + año de ingreso.' },
+    ],
+    related: ['recipe:compact_card', 'recipe:row_text', 'kind:image-avatar', 'concept:accent'],
+    aliases: ['avatar compacto', 'lista de avatares', 'compact avatar'],
     slots: [
       { id: 'avatar',   label: 'Avatar',         kind: 'single',     accepts: ['image'] },
       { id: 'title',    label: 'Título',         kind: 'single',     accepts: ['text-short'] },
@@ -81,6 +99,20 @@ export const RECIPE_REGISTRY: Partial<Record<RecipeId, RecipeManifest>> = {
     kind:        'list',
     displayName: 'Mini card',
     description: 'Thumb cuadrada + nombre + subtítulo + badge de rareza/categoría.',
+    whenToUse:
+      'Cuando la imagen importa más que el texto (logos, escudos, covers). Renderiza como **grid de N columnas** en lugar de lista vertical. Si el contenido necesita mucho texto, usa Editorial o Hero.',
+    long: `Slots:
+- \`image\` (image-avatar, cuadrado por defecto) — visual principal
+- \`title\` (text-short) — texto bajo la imagen
+- \`badge\` (badge, opcional) — etiqueta superpuesta
+
+Layout: grid responsive (2-4 cols según ancho). Cada celda es un mini-card cuadrado con la imagen ocupando ~70% y el texto debajo.`,
+    examples: [
+      { title: 'Escudos de equipos', description: 'Grid 3x3 con escudos cuadrados + nombre del club.' },
+      { title: 'Covers de álbumes', description: 'Grid 2x4 con portada + título + año.' },
+    ],
+    related: ['recipe:compact_avatar', 'recipe:hero_protagonico', 'kind:image-avatar'],
+    aliases: ['mini card', 'carta compacta', 'grid card'],
     slots: [
       { id: 'thumb',    label: 'Imagen',         kind: 'single',     accepts: ['image'] },
       { id: 'title',    label: 'Título',         kind: 'single',     accepts: ['text-short'] },
@@ -95,6 +127,24 @@ export const RECIPE_REGISTRY: Partial<Record<RecipeId, RecipeManifest>> = {
     kind:        'detail',
     displayName: 'Hero protagónico',
     description: 'Banner + avatar central + título + stats + body + galería. Para vistas hero al abrir un item.',
+    whenToUse:
+      'Como **vista de detalle** principal de una carta importante: jugador estrella, capítulo destacado, equipo de la jornada. Render grande con imagen panorámica. **No usar en lista** — está pensado para una carta a pantalla completa.',
+    long: `Slots:
+- \`banner\` (image-avatar, 16:9 o 3:4) — imagen principal
+- \`title\` (text-short, grande) — nombre
+- \`subtitle\` (text-short) — dato breve
+- \`description\` (text-short con behavior markdown) — bio o texto largo
+- \`badges\` (array, opcional) — chips de stats
+- \`accent\` (color, opcional) — color del equipo/hermandad
+- \`miniCards\` (card-ref, opcional) — grid de cartas hijas (plantilla, capítulos, …)
+
+Es la receta más rica visualmente. Suele acompañarse de una receta de lista para sus mini-cards (CompactAvatar para plantilla, Editorial para capítulos).`,
+    examples: [
+      { title: 'Detalle del jugador', description: 'Banner 16:9 + nombre + posición + dorsal + bio.' },
+      { title: 'Detalle del equipo', description: 'Escudo grande + nombre + estadio + grid 4 cols de jugadores.' },
+    ],
+    related: ['recipe:editorial', 'recipe:compact_avatar', 'kind:card-ref', 'concept:nested-recipe'],
+    aliases: ['hero protagónico', 'hero protagonico', 'detalle hero'],
     slots: [
       { id: 'banner',   label: 'Banner superior',     kind: 'single',     accepts: ['image'] },
       { id: 'avatar',   label: 'Avatar',              kind: 'single',     accepts: ['image'] },
@@ -116,6 +166,20 @@ export const RECIPE_REGISTRY: Partial<Record<RecipeId, RecipeManifest>> = {
     kind:        'list',
     displayName: 'Fila de texto',
     description: 'Una sola línea: título + subtítulo a la derecha. Sin imagen. Para listas densas (FAQs, días, partidos).',
+    whenToUse:
+      'Cuando la imagen no aporta y necesitas máxima densidad: estadísticas, listas de eventos, partidos jugados. Cada fila = una línea de texto con badges opcionales.',
+    long: `Slots:
+- \`title\` (text-short) — texto principal de la fila
+- \`subtitle\` (text-short, opcional) — dato secundario alineado a la derecha
+- \`badge\` (badge, opcional) — pill al final
+
+Sin imagen ni avatar. **Densidad máxima**: 15-20 filas en pantalla móvil.`,
+    examples: [
+      { title: 'Goles del partido', description: 'Minuto + jugador + tipo de gol en una fila.' },
+      { title: 'Capítulos del libro', description: 'Número + título + páginas.' },
+    ],
+    related: ['recipe:compact_avatar', 'recipe:accordion_simple'],
+    aliases: ['fila de texto', 'row text', 'lista densa'],
     slots: [
       { id: 'title',    label: 'Título',     kind: 'single',     accepts: ['text-short'] },
       { id: 'subtitle', label: 'Subtítulo',  kind: 'composable', accepts: ['text-short', 'date', 'number'], optional: true,
@@ -128,6 +192,22 @@ export const RECIPE_REGISTRY: Partial<Record<RecipeId, RecipeManifest>> = {
     kind:        'detail',
     displayName: 'Editorial',
     description: 'Artículo con cover + título grande + meta + body markdown + galería. Para historias largas.',
+    whenToUse:
+      'Para contenido narrativo: artículos, biografías largas, momentos con descripción. Equilibrio entre Hero (más visual) y RowText (puro texto).',
+    long: `Slots:
+- \`cover\` (image-avatar, 16:9 o 4:3) — imagen del artículo
+- \`title\` (text-short, grande) — titular
+- \`excerpt\` (text-short, 2-3 líneas) — entradilla
+- \`meta\` (text-short) — autor / fecha / categoría
+- \`badge\` (badge, opcional) — categoría destacada
+
+Layout: imagen arriba (ratio 4:3 por defecto), texto debajo. Soporta truncado largo del extracto.`,
+    examples: [
+      { title: 'Biografía de la hermandad', description: 'Foto del paso + historia + año fundación.' },
+      { title: 'Crónica del partido', description: 'Foto + resumen + autor + fecha.' },
+    ],
+    related: ['recipe:momento', 'recipe:hero_protagonico'],
+    aliases: ['editorial', 'artículo', 'articulo'],
     slots: [
       { id: 'cover',    label: 'Imagen de cabecera', kind: 'single',     accepts: ['image'] },
       { id: 'title',    label: 'Título',             kind: 'single',     accepts: ['text-short'] },
@@ -143,6 +223,20 @@ export const RECIPE_REGISTRY: Partial<Record<RecipeId, RecipeManifest>> = {
     kind:        'detail',
     displayName: 'Momento',
     description: 'Fecha prominente + título + subtítulo + body + slideshow. Para efemérides, días, momentos clave.',
+    whenToUse:
+      'Para hitos puntuales con foto: una jugada, una salida procesional, un highlight. Más visual que Editorial, más compacto que Hero.',
+    long: `Slots:
+- \`image\` (image-avatar, 1:1) — foto cuadrada
+- \`caption\` (text-short, 2 líneas) — descripción corta
+- \`meta\` (text-short) — fecha / lugar / autor
+
+Layout: imagen cuadrada arriba (ocupa ancho completo), texto compacto debajo.`,
+    examples: [
+      { title: 'Gol histórico', description: 'Foto de la jugada + descripción + minuto.' },
+      { title: 'Salida del paso', description: 'Foto + año + comentario corto.' },
+    ],
+    related: ['recipe:editorial', 'recipe:hero_protagonico'],
+    aliases: ['momento', 'instante', 'highlight'],
     slots: [
       { id: 'date',      label: 'Fecha',     kind: 'single', accepts: ['date'],
         description:     'Fecha o año destacado tipográficamente en la cabecera.' },
@@ -161,6 +255,20 @@ export const RECIPE_REGISTRY: Partial<Record<RecipeId, RecipeManifest>> = {
     kind:        'expand',
     displayName: 'Accordion simple',
     description: 'Solo cuerpo de texto. Se despliega bajo la card al tap (action=expand_inline).',
+    whenToUse:
+      'Para FAQs, secciones expandibles, datos que el publisher quiere ocultar por defecto y revelar a demanda. Si necesitas acciones (botones) dentro del contenido expandido, usa AccordionWithActions.',
+    long: `Slots:
+- \`header\` (text-short) — texto siempre visible
+- \`body\` (text-short con markdown, oculto hasta el click) — contenido expandible
+- \`badge\` (badge, opcional) — pill en la cabecera
+
+La acción del slot debe ser \`expand_inline\` para que el accordion abra/cierre. Otras acciones (modal, navigate) lo convierten en una lista normal.`,
+    examples: [
+      { title: 'Reglas del juego', description: 'Cada pregunta es una fila colapsable.' },
+      { title: 'Cápitulos con resumen', description: 'Título visible, resumen al expandir.' },
+    ],
+    related: ['recipe:accordion_with_actions', 'action:expand_inline', 'recipe:row_text'],
+    aliases: ['accordion simple', 'acordeón simple', 'acordeon simple'],
     slots: [
       { id: 'body', label: 'Cuerpo', kind: 'single', accepts: ['text-long'],
         description: 'Texto largo (markdown / notes / html) que aparece desplegado.' },
@@ -172,6 +280,10 @@ export const RECIPE_REGISTRY: Partial<Record<RecipeId, RecipeManifest>> = {
     kind:        'expand',
     displayName: 'Accordion con acciones',
     description: 'Cuerpo de texto + botones con enlaces. Para items con CTAs (redes, descargas, recursos).',
+    whenToUse:
+      'Cuando el contenido expandible necesita CTAs (compartir, abrir detalle, link externo). Para FAQs sin acción, usa AccordionSimple.',
+    related: ['recipe:accordion_simple', 'action:navigate_to_detail', 'action:external_link'],
+    aliases: ['accordion con acciones', 'acordeón con acciones', 'acordeon con botones'],
     slots: [
       { id: 'body',    label: 'Cuerpo',  kind: 'single',     accepts: ['text-long'] },
       { id: 'actions', label: 'Botones', kind: 'composable', accepts: ['url'],

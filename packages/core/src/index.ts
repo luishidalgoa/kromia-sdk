@@ -47,6 +47,11 @@ export {
   type FieldTypeDefinition,
 } from './registries/field-types';
 
+// ── Encyclopedia (doc rica compartida por los registries) — KRO-70 ──────
+// Mixin que cada *Definition incluye (whenToUse/long/examples/related/aliases).
+// El host (Studio, Flutter) deriva su enciclopedia desde los registries.
+export type { EncyclopediaDoc, EncyclopediaExample } from './registries/encyclopedia-doc';
+
 // ── Actions ────────────────────────────────────────────────────────────
 export {
   allActions,

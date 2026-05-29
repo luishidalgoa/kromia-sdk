@@ -24,8 +24,9 @@
  */
 
 import type { SlotAcceptKind } from '../types';
+import type { EncyclopediaDoc } from './encyclopedia-doc';
 
-export interface BehaviorDefinition {
+export interface BehaviorDefinition extends EncyclopediaDoc {
   /** ID técnico, snake_case. Lo que se almacena en BD. */
   id: string;
   /** Nombre castellano que ve el editor en el dropdown del Studio. */
@@ -54,6 +55,10 @@ const BEHAVIORS: BehaviorDefinition[] = [
     description:     'Lista de cartas del álbum referenciadas por su número. Útil para "cartas relacionadas", "cartas del mismo set", etc.',
     applicableTypes: ['array<number>'],
     renderAsSlotKind: 'card-ref',
+    whenToUse:
+      'Cuando un field apunta a otras cartas del álbum (jugadores de un equipo, episodios de un capítulo). Se usa con slots `card-ref`. La receta hija se define en `targetRecipe`.',
+    related: ['kind:card-ref', 'concept:nested-recipe'],
+    aliases: ['referencias a carta', 'lista de cartas', 'card list'],
   },
   {
     id:              'url',
@@ -61,6 +66,10 @@ const BEHAVIORS: BehaviorDefinition[] = [
     description:     'Dirección web (https://…). Se muestra como enlace clicable que abre en una pestaña nueva.',
     applicableTypes: ['text'],
     renderAsSlotKind: 'url',
+    whenToUse:
+      'Para enlaces a webs externas, perfiles, fichas. Se suele combinar con la acción `external_link` en el slot.',
+    related: ['behavior:url_list', 'action:external_link', 'type:text'],
+    aliases: ['enlace', 'link', 'web', 'sitio web'],
   },
   {
     id:              'tags',
@@ -75,6 +84,9 @@ const BEHAVIORS: BehaviorDefinition[] = [
     description:     'Dirección de correo electrónico. Se muestra con icono y al pulsarla abre el cliente de correo del usuario.',
     applicableTypes: ['text'],
     renderAsSlotKind: 'url',
+    whenToUse: 'Datos de contacto en cartas de personas o entidades.',
+    related: ['behavior:url', 'behavior:phone'],
+    aliases: ['correo', 'correo electrónico', 'mail'],
   },
   {
     id:              'phone',
@@ -82,6 +94,9 @@ const BEHAVIORS: BehaviorDefinition[] = [
     description:     'Número de teléfono. Se muestra con icono y al pulsarlo el móvil ofrece llamar directamente.',
     applicableTypes: ['text'],
     renderAsSlotKind: 'url',
+    whenToUse: 'Contacto telefónico. La validación es laxa — acepta formatos internacionales.',
+    related: ['behavior:email', 'behavior:url'],
+    aliases: ['teléfono', 'tel', 'móvil', 'celular'],
   },
   {
     id:              'year',
@@ -89,12 +104,19 @@ const BEHAVIORS: BehaviorDefinition[] = [
     description:     'Año concreto (4 dígitos). Útil para ediciones, temporadas, año de fundación de un equipo, etc.',
     applicableTypes: ['number'],
     renderAsSlotKind: 'date',
+    whenToUse:
+      'Cuando el campo es un año (de nacimiento, de fundación, de cierre). Distingue del behavior `iso_date` que necesita día/mes/año completos.',
+    related: ['behavior:iso_date', 'type:number'],
+    aliases: ['año', 'temporada', 'edición'],
   },
   {
     id:              'currency',
     displayName:     'Precio',
     description:     'Cantidad de dinero. El editor pone el símbolo de moneda delante (€, $, £). Útil para valor de mercado, precio de venta, etc.',
     applicableTypes: ['number'],
+    whenToUse: 'Precios, valor de mercado del cromo, cuotas. Configurable por código ISO de moneda.',
+    related: ['behavior:measurement', 'behavior:percentage'],
+    aliases: ['moneda', 'precio', 'importe'],
   },
   // Fase D.2
   {
@@ -103,6 +125,10 @@ const BEHAVIORS: BehaviorDefinition[] = [
     description:     'Texto largo donde puedes usar **negrita**, listas, enlaces, etc. La app pública lo muestra con el formato aplicado.',
     applicableTypes: ['textarea'],
     renderAsSlotKind: 'text-long',
+    whenToUse:
+      'Para textos largos con formato: biografías, descripciones, notas. **Solo en slots de texto largo** — los slots cortos (text-short) renderizan literal sin parsear.',
+    related: ['type:text', 'recipe:editorial', 'recipe:hero_protagonico'],
+    aliases: ['markdown', 'formato', 'texto enriquecido'],
   },
   {
     id:              'enum',
@@ -110,6 +136,10 @@ const BEHAVIORS: BehaviorDefinition[] = [
     description:     'Una o varias opciones de una lista que tú decides previamente. Útil para "rareza" (común / rara / épica / legendaria), "tipo", etc.',
     applicableTypes: ['array<string>'],
     renderAsSlotKind: 'badge',
+    whenToUse:
+      'Categorías sin orden lógico: tipo de hermandad (penitencia/gloria), posición del jugador (portero/delantero), rareza (común/raro/mítico). Si hay orden, usa `ordinal_enum`.',
+    related: ['behavior:ordinal_enum', 'kind:badge'],
+    aliases: ['categorías', 'opciones', 'lista cerrada'],
   },
   {
     id:              'iso_date',
@@ -117,6 +147,10 @@ const BEHAVIORS: BehaviorDefinition[] = [
     description:     'Fecha concreta (día / mes / año). El editor abre un calendario para elegir. Útil para fecha de nacimiento, debut, lanzamiento, etc.',
     applicableTypes: ['text'],
     renderAsSlotKind: 'date',
+    whenToUse:
+      'Cuando el campo es una fecha completa: cumpleaños, día de un evento, fecha de publicación. Si solo necesitas el año, usa `year`.',
+    related: ['behavior:year', 'type:text'],
+    aliases: ['fecha', 'date', 'fecha ISO'],
   },
   // Fase D.3
   {
@@ -130,6 +164,9 @@ const BEHAVIORS: BehaviorDefinition[] = [
     displayName:     'Porcentaje',
     description:     'Porcentaje del 0 al 100. El editor añade el símbolo % automáticamente. Útil para descuentos, completitud, probabilidad de aparición, etc.',
     applicableTypes: ['number'],
+    whenToUse: 'Stats, ratios, completitud del álbum, % de victorias.',
+    related: ['behavior:measurement', 'behavior:rating', 'type:number'],
+    aliases: ['porcentaje', 'percent', 'ratio'],
   },
   {
     id:              'rating',
@@ -137,6 +174,10 @@ const BEHAVIORS: BehaviorDefinition[] = [
     description:     'Valoración con estrellas (de 0 a 5 por defecto). El editor las muestra clicables como en cualquier reseña.',
     applicableTypes: ['number'],
     renderAsSlotKind: 'badge',
+    whenToUse:
+      'Para valoraciones, dificultad, popularidad. El field debe ser numérico. El renderer pinta hasta 5 estrellas según el valor.',
+    related: ['behavior:ordinal_enum', 'type:number', 'kind:badge'],
+    aliases: ['valoración', 'estrellas', 'puntuación'],
   },
   {
     id:              'color_hex',
@@ -149,6 +190,10 @@ const BEHAVIORS: BehaviorDefinition[] = [
     // (tiene kind propio 'color').
     applicableTypes: ['text'],
     renderAsSlotKind: 'color',
+    whenToUse:
+      'Cuando el field representa un color asociado al ítem (color de hermandad, color de equipo). Suele alimentar slots de tipo `color` que se convierten en accent del card.',
+    related: ['kind:color', 'concept:accent'],
+    aliases: ['color', 'colour', 'color hex'],
   },
   // Fase D.4
   {
@@ -156,6 +201,10 @@ const BEHAVIORS: BehaviorDefinition[] = [
     displayName:     'Lista de enlaces',
     description:     'Lista de enlaces web. Útil para "enlaces relacionados", "redes sociales del jugador", etc. Cada uno se muestra clicable.',
     applicableTypes: ['array<string>'],
+    whenToUse:
+      'Para múltiples enlaces asociados a un ítem (redes sociales del jugador, webs de la hermandad). Si solo es una URL, usa `url`.',
+    related: ['behavior:url', 'action:external_link'],
+    aliases: ['lista de enlaces', 'links', 'redes sociales'],
   },
   {
     id:              'email_list',
@@ -168,6 +217,10 @@ const BEHAVIORS: BehaviorDefinition[] = [
     displayName:     'Medida con unidad',
     description:     'Medida con unidad: peso, altura, volumen, duración… El editor añade la unidad que elijas (cm, kg, ml, min…).',
     applicableTypes: ['number'],
+    whenToUse:
+      'Altura, peso, distancia, peso de cromo. Mantiene la unidad como sufijo visual fijo en el render.',
+    related: ['behavior:percentage', 'type:number'],
+    aliases: ['medida', 'unidad', 'magnitud'],
   },
   {
     id:              'notes',
@@ -238,6 +291,10 @@ const BEHAVIORS: BehaviorDefinition[] = [
     description:     'Una opción de una lista cuyo orden importa. Útil para rareza (común → legendaria), niveles, categorías escalonadas. Declara las opciones en el campo "options" del field, ordenadas de menor a mayor.',
     applicableTypes: ['text', 'select'],
     renderAsSlotKind: 'badge',
+    whenToUse:
+      'Para enums donde el orden importa visualmente: rareza, dificultad, nivel. La rampa de color se aplica automáticamente.',
+    related: ['behavior:enum', 'behavior:rating', 'kind:badge'],
+    aliases: ['rareza', 'jerarquía', 'nivel', 'enum ordenado'],
   },
   // Bug 2 (sesión 2026-05-28) — request del user durante verificación KRO-70 V1.
   // Counter auto-incrementable. Reside aquí como behavior puro (no toca el
@@ -248,6 +305,20 @@ const BEHAVIORS: BehaviorDefinition[] = [
     displayName:     'Contador / dorsal',
     description:     'Número auto-incrementable o secuencial. Útil para dorsales (1, 2, 3…), ediciones numeradas, índices ordinales de cromo, números de serie. El editor lo trata como número plano; el formateo opcional (zero-padding, prefijo) se configurará en una iteración futura.',
     applicableTypes: ['number'],
+    whenToUse:
+      'Cuando el campo es un número que identifica al cromo dentro de una serie: dorsal del jugador (1-99), número de cromo (#001-#250), número de edición. Si solo es un año, usa `year`.',
+    long: `Auto-sugerido por keys: \`dorsal\`, \`numero\`, \`num\`, \`serie\`, \`series\`, \`index\`, \`indice\`, \`orden\`, \`order\`, \`seq\`, \`sequence\`.
+
+V1 trata el valor como número plano. Iteraciones futuras añadirán:
+- Zero-padding configurable (\`001\` vs \`1\`)
+- Prefijo opcional (\`HC-\` → \`HC-001\`)
+- Auto-asignación al crear cromos nuevos (siguiente disponible en la sección)`,
+    examples: [
+      { title: 'Dorsal del jugador', description: 'Mundial 2026 — número de dorsal 1-99 fijo por jugador.' },
+      { title: 'Número de cromo', description: 'Holy Cards — cada hermandad lleva un código incremental (#001, #002…).' },
+    ],
+    related: ['type:number', 'behavior:year'],
+    aliases: ['dorsal', 'contador', 'número de serie'],
   },
 ];
 

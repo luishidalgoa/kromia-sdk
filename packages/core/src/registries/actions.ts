@@ -22,7 +22,9 @@
  *  - `kromia-sdk/playbooks/add-action.md`.
  */
 
-export interface ActionDefinition {
+import type { EncyclopediaDoc } from './encyclopedia-doc';
+
+export interface ActionDefinition extends EncyclopediaDoc {
   /** ID técnico, lo que se almacena en BD como `composition.action`. */
   id: string;
   /** Nombre castellano para el dropdown del Studio. */
@@ -47,6 +49,10 @@ const ACTIONS: ActionDefinition[] = [
     displayName: 'Ninguna',
     description: 'El item es informativo, no responde al tap.',
     transition:  'static',
+    whenToUse:
+      'Para datos que no tienen "siguiente paso" (el nombre, una estadística, una bio). Si el slot necesita abrir algo, elige otra acción.',
+    related: ['action:navigate_to_detail', 'action:modal'],
+    aliases: ['sin acción', 'informativo', 'estático'],
   },
   {
     id:                   'navigate_to_detail',
@@ -55,6 +61,11 @@ const ACTIONS: ActionDefinition[] = [
     transition:           'push',
     requiresTargetRecipe: true,
     targetRecipeKind:     'detail',
+    whenToUse:
+      'En recetas de lista (CompactAvatar, CompactCard, RowText) cuando quieres que el publisher abra la carta completa al tocarla. La receta de detalle se elige en `targetRecipe`.',
+    long: `Requiere \`targetRecipe\` definido en el slot. Sin él, la validación devuelve error en \`/albums/new\`.`,
+    related: ['action:modal', 'recipe:hero_protagonico', 'concept:nested-recipe'],
+    aliases: ['abrir detalle', 'push', 'navegar'],
   },
   {
     id:                   'modal',
@@ -63,6 +74,10 @@ const ACTIONS: ActionDefinition[] = [
     transition:           'modal',
     requiresTargetRecipe: true,
     targetRecipeKind:     'detail',
+    whenToUse:
+      'Cuando quieres que el publisher vea el detalle sin perder la lista de fondo (quick view, vista rápida). Para una experiencia "full page", usa `navigate_to_detail`.',
+    related: ['action:navigate_to_detail', 'action:expand_inline'],
+    aliases: ['overlay', 'bottom sheet', 'vista rápida'],
   },
   {
     id:                   'expand_inline',
@@ -70,6 +85,10 @@ const ACTIONS: ActionDefinition[] = [
     description:          'Mini-receta (accordion) desplegada bajo el item — la composition debe declarar `expand`.',
     transition:           'inline',
     requiresExpandRecipe: true,
+    whenToUse:
+      'Para acordeones, FAQs, datos que conviven en la misma pantalla. Se usa con recetas AccordionSimple/AccordionWithActions.',
+    related: ['recipe:accordion_simple', 'recipe:accordion_with_actions', 'action:modal'],
+    aliases: ['accordion', 'acordeón', 'expandir'],
   },
   {
     id:                'external_link',
@@ -77,6 +96,11 @@ const ACTIONS: ActionDefinition[] = [
     description:       'Abre la URL contenida en el field declarado en linkField (behavior url/email/phone).',
     transition:        'external',
     requiresLinkField: true,
+    whenToUse:
+      'Para enlaces a webs oficiales, perfiles de redes, fichas externas. El field referenciado debe ser una URL válida (behavior `url`).',
+    long: `En el AppPreview se muestra como un **toast in-frame** ("Abriría enlace: …") para no abrir window.open durante el editing — la app cliente real (Flutter) sí abre el navegador del sistema.`,
+    related: ['behavior:url', 'action:navigate_to_detail'],
+    aliases: ['enlace externo', 'link externo', 'url'],
   },
 ];
 

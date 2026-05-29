@@ -72,10 +72,10 @@ interface ProtocolJson {
     note:          string;
   };
   recipes:             RecipeJson[];
-  actions:             ActionDefinition[];
+  actions:             ActionJson[];
   behaviors:           BehaviorJson[];
   slotAcceptKinds:     SlotKindJson[];
-  fieldTypes:          FieldTypeDefinition[];
+  fieldTypes:          FieldTypeJson[];
   compatibilityMatrix: Record<string, CompatibilityEntry>;
   connections:         ConnectionsSection;
 }
@@ -129,6 +129,33 @@ interface SlotKindJson {
   behaviorIds:    string[];
 }
 
+/**
+ * Shape del CONTRATO para una action — solo los campos funcionales que un
+ * renderer necesita. La doc rica (whenToUse/long/examples/related/aliases)
+ * NO entra al .json: es metadata del SDK source que los hosts consumen vía
+ * paquete (@kromia/react, @kromia/flutter). Así editar doc no bumpea el
+ * contrato. Espejo de los campos no-doc de ActionDefinition.
+ */
+interface ActionJson {
+  id:                    string;
+  displayName:           string;
+  description:           string;
+  transition:            'static' | 'push' | 'modal' | 'inline' | 'external';
+  requiresTargetRecipe?: boolean;
+  targetRecipeKind?:     'detail';
+  requiresExpandRecipe?: boolean;
+  requiresLinkField?:    boolean;
+}
+
+/** Shape del CONTRATO para un field type (sin doc rica — ver ActionJson). */
+interface FieldTypeJson {
+  id:           string;
+  displayName:  string;
+  description:  string;
+  cardinality:  'scalar' | 'array';
+  elementType?: string;
+}
+
 interface CompatibilityEntry {
   kindRole:             'list-source' | 'detail-target' | 'expand-target';
   allowedActions:       string[];
@@ -167,6 +194,29 @@ function serializeBehavior(b: BehaviorDefinition): BehaviorJson {
     description:     b.description,
     applicableTypes: [...b.applicableTypes],
     renderAs:        b.renderAsSlotKind ?? null,
+  };
+}
+
+function serializeAction(a: ActionDefinition): ActionJson {
+  return {
+    id:                   a.id,
+    displayName:          a.displayName,
+    description:          a.description,
+    transition:           a.transition,
+    requiresTargetRecipe: a.requiresTargetRecipe,
+    targetRecipeKind:     a.targetRecipeKind,
+    requiresExpandRecipe: a.requiresExpandRecipe,
+    requiresLinkField:    a.requiresLinkField,
+  };
+}
+
+function serializeFieldType(t: FieldTypeDefinition): FieldTypeJson {
+  return {
+    id:          t.id,
+    displayName: t.displayName,
+    description: t.description,
+    cardinality: t.cardinality,
+    elementType: t.elementType,
   };
 }
 
@@ -288,10 +338,10 @@ export function buildPayload(version: string, generatedAt?: string): ProtocolJso
       note:        'JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo.',
     },
     recipes,
-    actions: [...actions],
+    actions: actions.map(serializeAction),
     behaviors,
     slotAcceptKinds,
-    fieldTypes: [...fieldTypes],
+    fieldTypes: fieldTypes.map(serializeFieldType),
     compatibilityMatrix,
     connections,
   };
