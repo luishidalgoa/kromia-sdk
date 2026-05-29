@@ -268,6 +268,13 @@ export interface FieldDefLike {
   type:      string;
   behavior?: string;
   options?:  string[];
+  /**
+   * Config opcional del behavior, consumida por el formatter / validador.
+   * Ej.: `incremental` → `{ pad, prefix, suffix }` (KRO-84); `rating` →
+   * `{ max }`; `measurement` → `{ unit }`. Solo presentación / validación —
+   * en BD se guarda el valor crudo.
+   */
+  behaviorConfig?: Record<string, unknown>;
 }
 
 /**

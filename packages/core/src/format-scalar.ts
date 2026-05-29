@@ -82,6 +82,20 @@ export function formatScalar(
   // editor, no la receta).
   if (b === 'measurement') return String(value);
 
+  // Incremental (contador / dorsal) — KRO-84 V2: zero-padding + prefijo/sufijo
+  // OPCIONALES vía behaviorConfig. Solo PRESENTACIÓN: en BD se guarda el number
+  // puro y el sort/búsqueda siguen sobre el número real. Sin config → número
+  // plano (compat V1). Ej.: 7 + {pad:3, prefix:'HC-'} → "HC-007".
+  if (b === 'incremental' && typeof value === 'number') {
+    const cfg    = (def?.behaviorConfig ?? {}) as Record<string, unknown>;
+    const pad    = typeof cfg.pad === 'number' && cfg.pad > 0 ? Math.trunc(cfg.pad) : 0;
+    const prefix = typeof cfg.prefix === 'string' ? cfg.prefix : '';
+    const suffix = typeof cfg.suffix === 'string' ? cfg.suffix : '';
+    const n      = Math.trunc(value);
+    const body   = pad > 0 ? String(Math.abs(n)).padStart(pad, '0') : String(Math.abs(n));
+    return `${n < 0 ? '-' : ''}${prefix}${body}${suffix}`;
+  }
+
   // ordinal_enum / enum: el valor ya es un string del catálogo.
   if (typeof value === 'string')  return value;
   if (typeof value === 'number')  return String(value);

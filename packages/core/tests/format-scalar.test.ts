@@ -138,3 +138,52 @@ describe('formatScalar — sin FieldDefLike', () => {
     expect(formatScalar('foo')).toBe('foo');
   });
 });
+
+describe('formatScalar — incremental (KRO-84 V2)', () => {
+  const inc = (config?: Record<string, unknown>): FieldDefLike => ({
+    key: 'dorsal', type: 'number', behavior: 'incremental', behaviorConfig: config,
+  });
+
+  it('sin config → número plano (compat V1)', () => {
+    expect(formatScalar(7, inc())).toBe('7');
+    expect(formatScalar(100, inc({}))).toBe('100');
+  });
+
+  it('pad → zero-padding por la izquierda', () => {
+    expect(formatScalar(7, inc({ pad: 3 }))).toBe('007');
+    expect(formatScalar(42, inc({ pad: 3 }))).toBe('042');
+  });
+
+  it('pad NO trunca cuando el número es más largo que el pad', () => {
+    expect(formatScalar(100, inc({ pad: 2 }))).toBe('100');
+  });
+
+  it('prefix + suffix (solo presentación)', () => {
+    expect(formatScalar(7, inc({ prefix: 'HC-' }))).toBe('HC-7');
+    expect(formatScalar(7, inc({ suffix: '-2025' }))).toBe('7-2025');
+    expect(formatScalar(7, inc({ prefix: 'HC-', suffix: '-2025' }))).toBe('HC-7-2025');
+  });
+
+  it('pad + prefix + suffix combinados', () => {
+    expect(formatScalar(7, inc({ pad: 3, prefix: 'HC-', suffix: '-25' }))).toBe('HC-007-25');
+  });
+
+  it('pad <= 0 o no-número → sin padding', () => {
+    expect(formatScalar(7, inc({ pad: 0 }))).toBe('7');
+    expect(formatScalar(7, inc({ pad: -2 }))).toBe('7');
+    expect(formatScalar(7, inc({ pad: 'x' as unknown as number }))).toBe('7');
+  });
+
+  it('valor decimal se trunca a entero antes de formatear', () => {
+    expect(formatScalar(7.9, inc({ pad: 3 }))).toBe('007');
+  });
+
+  it('0 es valor válido (no vacío) → se formatea', () => {
+    expect(formatScalar(0, inc({ pad: 3 }))).toBe('000');
+    expect(formatScalar(null, inc({ pad: 3 }))).toBe('');
+  });
+
+  it('value no-numérico con behavior incremental → fallback string', () => {
+    expect(formatScalar('7', inc({ pad: 3 }))).toBe('7');
+  });
+});
