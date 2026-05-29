@@ -79,6 +79,9 @@ const EXPECTED_EXPORTS = [
   'OPTIONS_CARD_ASPECT_LABELS',
   'OPTIONS_CARD_SIZE_LABELS',
   'aspectToRatio',
+  // KRO-78 — grid de mini-cards relacionadas derivado del cardFormat
+  'MINI_REF_GRID_SIZE_MULTIPLIER',
+  'miniRefGridColumns',
   'getFieldTypeDescriptions',
   // KRO-86 — pre-flight validation de cards + sectionsData
   'validateAlbumData',

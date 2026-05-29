@@ -41,7 +41,7 @@ import {
   type FieldDefLike,
 } from '../recipe-utils';
 import { NestedRecipeRenderer } from './NestedRecipeRenderer';
-import { aspectToRatio, DEFAULT_CARD_FORMAT, type CardFormat } from '@kromia/core';
+import { aspectToRatio, DEFAULT_CARD_FORMAT, miniRefGridColumns, type CardFormat } from '@kromia/core';
 import type { ViewComposition } from '@kromia/core';
 
 export interface HeroProtagonicoRecipeProps {
@@ -401,25 +401,11 @@ function MiniCardRefs({
   // serán cuadradas; etc.
   const ratio = aspectToRatio(cardFormat.aspect);
 
-  // Columnas según ASPECT + SIZE del cardFormat:
-  //
-  // Iteración 2 (post review): los step-jumps anteriores (1.4/1.0/0.8/0.5
-  // con baseCols=4) daban diferencias muy sutiles entre standard y large
-  // (4 vs 3 cols), y standard parecía "mini" en el viewport reducido del
-  // PhoneFrame. Bajamos baseCols + multiplicadores más agresivos → cada
-  // tamaño una columna menos que el anterior. Diferencia perceptible.
-  //
-  // Matriz final (clamp 1-6):
-  //              mini   standard   large   poster
-  //   2:3 / 1:1  4 col  3 col      2 col   1 col
-  //   3:2 / 16:9 3 col  2 col      1 col   1 col
-  //
-  // El publisher entiende intuitivamente: poster → carta enorme dominante;
-  // mini → 4 cards apretadas por fila; standard → 3 cards cómodas.
-  const isWide          = ratio > 1.2;
-  const baseCols        = isWide ? 2 : 3;
-  const sizeMultiplier  = SIZE_COLS_MULTIPLIER[cardFormat.size] ?? 1;
-  const cols            = Math.max(1, Math.min(6, Math.round(baseCols * sizeMultiplier)));
+  // KRO-78 — columnas derivadas del cardFormat (aspect + size) por el helper
+  // puro `miniRefGridColumns` de `@kromia/core`. Antes era un `grid-cols-4` a
+  // fuego; ahora React y el futuro Flutter derivan el MISMO nº de columnas
+  // desde el mismo sitio (la matriz y el rationale viven en core). Clamp 1-6.
+  const cols            = miniRefGridColumns(cardFormat);
   const visibleCount    = Math.max(1, cols - 1);  // un slot reservado para "+N"
   const visible         = refs.slice(0, visibleCount);
   const overflow        = refs.length - visible.length;
@@ -489,30 +475,3 @@ function simpleHash(s: string): number {
   return Math.abs(h);
 }
 
-/**
- * Multiplicador de columnas para mini-cards según el tamaño físico del
- * cardFormat. Cards más grandes ocupan más → menos columnas por fila.
- *
- * Iteración 2 (post review user "el grande se ve como un estandar y un
- * estandar como un mini"): bajamos baseCols a 3 y multiplicadores más
- * agresivos para que la diferencia entre tamaños sea perceptible. Cada
- * tier salta una columna menos.
- *
- * Con baseCols=3 (vertical/cuadrada):
- *   mini × 1.3  ≈ 4 cols  (cards pequeñas, 4 visibles + "+N")
- *   standard ×1 = 3 cols  (base)
- *   large × 0.7 ≈ 2 cols  (cards grandes, 1 visible + "+N")
- *   poster × 0.4 ≈ 1 col  (carta enorme, dominante)
- *
- * Con baseCols=2 (horizontal/panorámica):
- *   mini × 1.3  ≈ 3 cols
- *   standard ×1 = 2 cols
- *   large × 0.7 ≈ 1 col
- *   poster × 0.4 ≈ 1 col (clamp)
- */
-const SIZE_COLS_MULTIPLIER: Record<import('@kromia/core').CardSize, number> = {
-  mini:     1.3,
-  standard: 1.0,
-  large:    0.7,
-  poster:   0.4,
-};

@@ -181,6 +181,9 @@ export {
   OPTIONS_CARD_ASPECT_LABELS,
   OPTIONS_CARD_SIZE_LABELS,
   aspectToRatio,
+  // KRO-78 — grid de mini-cards relacionadas derivado del cardFormat
+  MINI_REF_GRID_SIZE_MULTIPLIER,
+  miniRefGridColumns,
   // Field type descriptions helper
   getFieldTypeDescriptions,
   // Tipos

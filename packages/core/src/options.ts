@@ -236,6 +236,46 @@ export function aspectToRatio(a: CardAspect): number {
   return w / h;
 }
 
+/**
+ * KRO-78 — Multiplicador de columnas para el grid de mini-cards relacionadas
+ * (MiniCardRefs) según el tamaño físico del cardFormat. Cards más grandes
+ * ocupan más → menos columnas por fila.
+ *
+ * Vive en `@kromia/core` (no en `@kromia/react`) para que el renderer React y
+ * el futuro `@kromia/flutter` deriven EXACTAMENTE las mismas columnas — sin
+ * número mágico duplicado por plataforma (anti-drift, pattern KRO-75/76).
+ */
+export const MINI_REF_GRID_SIZE_MULTIPLIER: Record<CardSize, number> = {
+  mini:     1.3,
+  standard: 1.0,
+  large:    0.7,
+  poster:   0.4,
+};
+
+/**
+ * KRO-78 — Nº de columnas del grid de mini-cards relacionadas, derivado del
+ * `cardFormat` del álbum (aspect + size). Reemplaza el `grid-cols-4` a fuego.
+ *
+ * Lógica (clamp 1-6):
+ *   baseCols = aspect panorámico/horizontal (ratio > 1.2) ? 2 : 3
+ *   cols     = round(baseCols × multiplicador-por-size)
+ *
+ * Matriz resultante:
+ *                mini   standard   large   poster
+ *   2:3 / 1:1     4       3          2       1
+ *   3:2 / 16:9    3       2          1       1
+ *
+ * Pensado para el ancho del PhoneFrame del AppPreview (y el viewport móvil de
+ * Flutter): un nº de columnas fijo y legible por tier, no un auto-fit que se
+ * descuadra en frames estrechos.
+ */
+export function miniRefGridColumns(cardFormat: CardFormat): number {
+  const isWide         = aspectToRatio(cardFormat.aspect) > 1.2;
+  const baseCols       = isWide ? 2 : 3;
+  const sizeMultiplier = MINI_REF_GRID_SIZE_MULTIPLIER[cardFormat.size] ?? 1;
+  return Math.max(1, Math.min(6, Math.round(baseCols * sizeMultiplier)));
+}
+
 // ─────────────────────────────────────────────────────────────────────────
 // 5. Field type descriptions — descripciones es-ES por field type id
 // ─────────────────────────────────────────────────────────────────────────
