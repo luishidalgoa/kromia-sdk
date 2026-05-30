@@ -1,0 +1,7 @@
+# Dart/Flutter — artefactos generados (este es un PAQUETE/librería, no app:
+# no se commitea pubspec.lock; se regenera con `dart pub get`).
+.dart_tool/
+build/
+pubspec.lock
+.packages
+doc/api/
