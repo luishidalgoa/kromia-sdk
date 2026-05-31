@@ -25,3 +25,8 @@ export 'src/recipes.dart';
 export 'src/slot_kinds.dart';
 export 'src/composition.dart';
 export 'src/slot_overrides.dart';
+export 'src/field_def.dart';
+export 'src/format_scalar.dart';
+export 'src/compose_slot.dart';
+export 'src/auto_detail.dart';
+export 'src/synth.dart';
