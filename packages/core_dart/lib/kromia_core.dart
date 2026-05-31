@@ -30,3 +30,4 @@ export 'src/format_scalar.dart';
 export 'src/compose_slot.dart';
 export 'src/auto_detail.dart';
 export 'src/synth.dart';
+export 'src/extract_accent.dart';
