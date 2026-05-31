@@ -195,6 +195,16 @@ export interface ViewComposition {
    * valor se usa como tinte del strip lateral/superior/etc.
    */
   accentPosition?: 'top' | 'right' | 'bottom' | 'left' | 'none' | 'auto';
+
+  /**
+   * KRO-108 — versión del protocolo (KRP) con la que se creó/guardó esta
+   * composición. La estampa `injectProtocolVersion` (KRO-63) y el backend la
+   * persiste en `viewCompositionSchema`. **Opcional**: las composiciones legacy
+   * no la traen. El cliente (Flutter) la lee para su gate de compatibilidad
+   * runtime (`isCompatible`) — es por-composición, no por-álbum. Declarada aquí
+   * para paridad TS↔persistido↔Dart (el espejo Dart ya la parsea en `fromJson`).
+   */
+  protocolVersion?: string;
 }
 
 /**
