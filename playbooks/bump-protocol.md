@@ -114,7 +114,45 @@ archivos. Útil antes de commit para confirmar el verdict.
 - **`pnpm install` no refresca el SDK en Studio**: usa `pnpm add` con
   el path completo del paquete (ver sección "kromia-studio" arriba).
 
+## Drift CI (KRO-64) — qué se dispara y cómo se resuelve
+
+`.github/workflows/krp-drift.yml` vigila la paridad TS↔Dart en cada push/PR que
+toque `packages/core/package.json`, `packages/core_dart/**` o `contracts/**`
+(también `workflow_dispatch` para correrlo a mano). Dos capas:
+
+- **corpus-parity**: corre `dart test` del paquete Dart. Caza drift de
+  COMPORTAMIENTO (cambios de lógica runtime, p.ej. `classify.ts`) que el número
+  de versión NO refleja — esa lógica no viaja entera en el `.json`, así que el
+  auto-bumper de KRO-63 no la ve. Esta es la red que cubre ese hueco.
+- **version-drift**: compara `core/package.json#version` (TS, source) vs
+  `core_dart/pubspec.yaml#version` (Dart, mirror):
+  - iguales → ✅ sin drift.
+  - mismo major, TS minor/patch mayor → ⚠️ aviso (aditivo, NO bloquea: el
+    cliente ignora entidades desconocidas). Alinear el Dart cuando el render lo
+    necesite.
+  - **TS major > Dart major → ❌ falla el check + abre issue Jira** automática
+    (label `drift`, status `Drift Sync`, parent `KRO-61`) con el changeset de
+    `contracts/` y el commit. Idempotente: no duplica si ya hay una abierta para
+    esa versión.
+  - Dart major > TS (improbable) → ⚠️ aviso para revisar a mano.
+
+### Cuando se abre un drift issue (qué haces)
+
+1. Lee el changeset de la issue (qué entidades cambiaron en `contracts/`).
+2. Alinea `packages/core_dart` (registries / classify / types) con el TS.
+3. Traduce/actualiza el corpus de tests; `dart test` verde.
+4. Sube `core_dart/pubspec.yaml#version` a la versión del TS.
+5. Cierra la issue (Completado). El próximo push verifica que el drift desapareció.
+
+### Secrets necesarios para la auto-issue
+
+`JIRA_BASE_URL`, `JIRA_USER_EMAIL`, `JIRA_API_TOKEN` en repo Settings → Secrets →
+Actions. Sin ellos, el detector sigue **fallando** en major drift (visible) pero
+no crea la issue.
+
 ## Last verified
 
+2026-05-31 — KRO-64 drift CI añadido (`krp-drift.yml`): version-drift +
+corpus-parity. Paridad doble (versión + comportamiento).
 2026-05-27 — KRO-63 shipped. Auto-bump activo desde v1.3.0. Antes (v1.0.0
 → v1.2.0) el bump era manual; el playbook describe ahora el flow nuevo.

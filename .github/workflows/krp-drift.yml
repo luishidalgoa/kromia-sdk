@@ -1,0 +1,232 @@
+# KRP Drift CI (KRO-64) — paridad TS↔Dart garantizada por construcción.
+#
+# Dos capas de defensa (ver KRO-64 + playbooks/bump-protocol.md):
+#   1. version-drift : compara packages/core/package.json#version (TS, productor)
+#      contra packages/core_dart/pubspec.yaml#version (Dart, mirror). Si el TS
+#      adelanta un MAJOR -> abre issue Jira (label drift, status Drift Sync) y
+#      falla el check (señal ruidosa, no silenciosa). minor/patch -> aviso.
+#   2. corpus-parity : corre `dart test` del paquete Dart en cada push. Caza el
+#      drift de COMPORTAMIENTO (p.ej. cambios en classify.ts) que el número de
+#      versión NO refleja — porque la lógica runtime no viaja entera en el .json.
+#
+# Por qué las dos: el auto-bumper (KRO-63) detecta cambios mirando el .json
+# generado; un cambio de lógica que no altera el .json no bumpea versión. El
+# corpus es la red que cubre ese hueco. Juntas, la paridad no depende de que
+# nadie se acuerde de nada.
+#
+# Secrets necesarios (repo Settings -> Secrets -> Actions) para la auto-issue:
+#   JIRA_BASE_URL     p.ej. https://luishidalgoa.atlassian.net
+#   JIRA_USER_EMAIL   email de la cuenta Atlassian
+#   JIRA_API_TOKEN    token de https://id.atlassian.com/manage-profile/security/api-tokens
+# Sin secrets, el detector sigue funcionando y FALLA en drift major (visible),
+# solo se salta la creación de la issue.
+
+name: KRP Drift CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/core/package.json'
+      - 'packages/core_dart/pubspec.yaml'
+      - 'packages/core_dart/**'
+      - 'contracts/**'
+      - '.github/workflows/krp-drift.yml'
+  pull_request:
+    paths:
+      - 'packages/core/package.json'
+      - 'packages/core_dart/pubspec.yaml'
+      - 'packages/core_dart/**'
+      - 'contracts/**'
+  workflow_dispatch: {}  # ejecución manual para testear (AC de KRO-64)
+
+permissions:
+  contents: read
+
+jobs:
+  # ── Capa 2: paridad por COMPORTAMIENTO ──────────────────────────────────────
+  corpus-parity:
+    name: Corpus Dart (paridad de comportamiento)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: '3.12.0'
+      - name: dart pub get
+        working-directory: packages/core_dart
+        run: dart pub get
+      - name: dart test (corpus cross-language)
+        working-directory: packages/core_dart
+        run: dart test
+
+  # ── Capa 1: drift por NÚMERO DE VERSIÓN ─────────────────────────────────────
+  version-drift:
+    name: Drift de versión TS↔Dart
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # historia completa para el changeset de contracts/
+
+      - name: Leer versiones TS y Dart
+        id: versions
+        run: |
+          set -euo pipefail
+          TS_PKG="packages/core/package.json"
+          DART_PUBSPEC="packages/core_dart/pubspec.yaml"
+
+          if [ ! -f "$TS_PKG" ]; then
+            echo "::error::No existe $TS_PKG — ¿se renombró el paquete TS?"
+            exit 1
+          fi
+          TS_VERSION="$(jq -r '.version' "$TS_PKG")"
+
+          if [ ! -f "$DART_PUBSPEC" ]; then
+            echo "::notice::$DART_PUBSPEC no existe todavía — detector DORMANT (KRO-65 aún no shipped). Sin comparación."
+            echo "dormant=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # 'version: X.Y.Z' (primera ocurrencia, sin comentarios)
+          DART_VERSION="$(grep -E '^version:' "$DART_PUBSPEC" | head -1 | sed -E 's/^version:[[:space:]]*//; s/[[:space:]]*(#.*)?$//')"
+
+          echo "TS=$TS_VERSION  DART=$DART_VERSION"
+          echo "ts_version=$TS_VERSION"   >> "$GITHUB_OUTPUT"
+          echo "dart_version=$DART_VERSION" >> "$GITHUB_OUTPUT"
+          echo "ts_major=$(echo "$TS_VERSION" | cut -d. -f1)"   >> "$GITHUB_OUTPUT"
+          echo "dart_major=$(echo "$DART_VERSION" | cut -d. -f1)" >> "$GITHUB_OUTPUT"
+          echo "dormant=false" >> "$GITHUB_OUTPUT"
+
+      - name: Comparar y clasificar el drift
+        if: steps.versions.outputs.dormant == 'false'
+        id: classify
+        run: |
+          set -euo pipefail
+          TS="${{ steps.versions.outputs.ts_version }}"
+          DART="${{ steps.versions.outputs.dart_version }}"
+          TS_MAJOR="${{ steps.versions.outputs.ts_major }}"
+          DART_MAJOR="${{ steps.versions.outputs.dart_major }}"
+
+          KIND="ok"
+          if [ "$TS" = "$DART" ]; then
+            KIND="ok"
+          elif [ "$TS_MAJOR" -gt "$DART_MAJOR" ]; then
+            KIND="major"   # TS rompió compat; el Dart DEBE alinearse -> issue + fail
+          elif [ "$TS_MAJOR" -lt "$DART_MAJOR" ]; then
+            KIND="dart_ahead"  # improbable: el mirror adelanta al source
+          else
+            KIND="minor_patch"  # aditivo: cliente ignora lo desconocido, no bloquea
+          fi
+          echo "kind=$KIND" >> "$GITHUB_OUTPUT"
+          echo "Drift kind: $KIND (TS=$TS, Dart=$DART)"
+
+      - name: Construir changeset de contracts/
+        if: steps.classify.outputs.kind == 'major'
+        id: changeset
+        run: |
+          set -euo pipefail
+          # Diff de los contracts entre el commit anterior y este. Resumen para
+          # que el dev Dart sepa qué entidades cambiaron.
+          DIFF="$(git diff --stat HEAD~1 HEAD -- contracts/ 2>/dev/null || echo '(sin diff de contracts/ en este commit)')"
+          MSG="$(git log -1 --pretty=format:'%h — %s')"
+          {
+            echo "changeset<<EOF"
+            echo "Commit: $MSG"
+            echo ""
+            echo "Diff de contracts/:"
+            echo "$DIFF"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Abrir issue Jira en drift MAJOR (idempotente)
+        if: steps.classify.outputs.kind == 'major'
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          TS: ${{ steps.versions.outputs.ts_version }}
+          DART: ${{ steps.versions.outputs.dart_version }}
+          CHANGESET: ${{ steps.changeset.outputs.changeset }}
+          COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+        run: |
+          set -uo pipefail
+          if [ -z "${JIRA_API_TOKEN:-}" ] || [ -z "${JIRA_BASE_URL:-}" ]; then
+            echo "::warning::Secrets de Jira no configurados — no se crea issue. (El step de fallo de abajo deja el drift visible igualmente.)"
+            exit 0
+          fi
+
+          SUMMARY="KRP drift: @kromia/core v$TS > kromia_core (Dart) v$DART (major)"
+
+          # Idempotencia: ¿ya hay una issue de drift abierta para esta versión TS?
+          JQL="project = KRO AND labels = drift AND statusCategory != Done AND summary ~ \"v$TS\""
+          EXISTING="$(curl -s -G "$JIRA_BASE_URL/rest/api/2/search" \
+            -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
+            --data-urlencode "jql=$JQL" \
+            --data-urlencode "maxResults=1" | jq -r '.issues[0].key // empty')"
+
+          if [ -n "$EXISTING" ]; then
+            echo "::notice::Ya existe issue de drift abierta ($EXISTING) para v$TS — no se duplica."
+            exit 0
+          fi
+
+          DESC="Drift de protocolo detectado automáticamente (KRO-64).
+
+          TS (source of truth) : @kromia/core v$TS
+          Dart (mirror)        : kromia_core v$DART
+          Bump                 : MAJOR (breaking) — el cliente Flutter NO puede ignorar el cambio en silencio.
+
+          $CHANGESET
+
+          Commit: $COMMIT_URL
+
+          Acción requerida: alinear packages/core_dart con los cambios del TS (registries/classify/types afectados), actualizar el corpus de tests, y subir pubspec.yaml#version a v$TS. Ver playbooks/bump-protocol.md."
+
+          PAYLOAD="$(jq -n \
+            --arg summary "$SUMMARY" \
+            --arg desc "$DESC" \
+            '{fields: {
+                project: {key: "KRO"},
+                parent: {key: "KRO-61"},
+                issuetype: {id: "10043"},
+                summary: $summary,
+                labels: ["drift"],
+                description: $desc
+            }}')"
+
+          RESP="$(curl -s -X POST "$JIRA_BASE_URL/rest/api/2/issue" \
+            -H "Content-Type: application/json" \
+            -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
+            -d "$PAYLOAD")"
+
+          KEY="$(echo "$RESP" | jq -r '.key // empty')"
+          if [ -z "$KEY" ]; then
+            echo "::error::No se pudo crear la issue Jira. Respuesta: $RESP"
+            exit 1
+          fi
+          echo "::notice::Issue de drift creada: $KEY"
+
+          # Mover a 'Drift Sync' (transición id 10091).
+          curl -s -X POST "$JIRA_BASE_URL/rest/api/2/issue/$KEY/transitions" \
+            -H "Content-Type: application/json" \
+            -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
+            -d '{"transition": {"id": "10091"}}' >/dev/null
+          echo "::notice::$KEY movida a Drift Sync."
+
+      - name: Veredicto
+        if: steps.versions.outputs.dormant == 'false'
+        run: |
+          set -euo pipefail
+          KIND="${{ steps.classify.outputs.kind }}"
+          TS="${{ steps.versions.outputs.ts_version }}"
+          DART="${{ steps.versions.outputs.dart_version }}"
+          case "$KIND" in
+            ok)
+              echo "✅ Sin drift — TS y Dart en v$TS." ;;
+            minor_patch)
+              echo "::warning::Drift minor/patch (TS=$TS, Dart=$DART). Aditivo y no bloqueante: el cliente ignora entidades desconocidas. Alinear cuando el render lo necesite." ;;
+            dart_ahead)
+              echo "::warning::El mirror Dart ($DART) adelanta al source TS ($TS). Improbable — revisar manualmente." ;;
+            major)
+              echo "::error::Drift MAJOR (TS=$TS, Dart=$DART). El mirror Dart debe alinearse antes de publicar. Issue de drift abierta (si los secrets de Jira están configurados)."
+              exit 1 ;;
+          esac
