@@ -298,12 +298,13 @@ const BEHAVIORS: BehaviorDefinition[] = [
   },
   // Bug 2 (sesión 2026-05-28) — request del user durante verificación KRO-70 V1.
   // Counter auto-incrementable. Reside aquí como behavior puro (no toca el
-  // renderer base) — la app cliente puede tratarlo como int normal y solo
-  // diferenciarse por el formateo en futuras versiones (zero-padding, prefijo).
+  // renderer base) — la app cliente puede tratarlo como int normal; el formateo
+  // opcional (zero-padding, prefijo/sufijo) vive en `behaviorConfig` y es solo
+  // presentación (en BD se guarda el número plano). Shipped en KRO-84.
   {
     id:              'incremental',
     displayName:     'Contador / dorsal',
-    description:     'Número auto-incrementable o secuencial. Útil para dorsales (1, 2, 3…), ediciones numeradas, índices ordinales de cromo, números de serie. El editor lo trata como número plano; el formateo opcional (zero-padding, prefijo) se configurará en una iteración futura.',
+    description:     'Número auto-incrementable o secuencial. Útil para dorsales (1, 2, 3…), ediciones numeradas, índices ordinales de cromo, números de serie. Soporta formateo opcional configurable: ceros a la izquierda (zero-padding), prefijo y sufijo, y auto-asignación del siguiente número al añadir cromos. En BD se guarda el número plano; el formato es solo presentación.',
     applicableTypes: ['number'],
     whenToUse:
       'Cuando el campo es un número que identifica al cromo dentro de una serie: dorsal del jugador (1-99), número de cromo (#001-#250), número de edición. Si solo es un año, usa `year`.',

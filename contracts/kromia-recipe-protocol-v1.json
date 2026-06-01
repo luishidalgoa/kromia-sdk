@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
-  "protocolVersion": "2.2.1",
-  "generatedAt": "2026-05-28T12:10:23.371Z",
+  "protocolVersion": "2.2.2",
+  "generatedAt": "2026-06-01T21:51:04.815Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -700,7 +700,7 @@
     {
       "id": "incremental",
       "displayName": "Contador / dorsal",
-      "description": "Número auto-incrementable o secuencial. Útil para dorsales (1, 2, 3…), ediciones numeradas, índices ordinales de cromo, números de serie. El editor lo trata como número plano; el formateo opcional (zero-padding, prefijo) se configurará en una iteración futura.",
+      "description": "Número auto-incrementable o secuencial. Útil para dorsales (1, 2, 3…), ediciones numeradas, índices ordinales de cromo, números de serie. Soporta formateo opcional configurable: ceros a la izquierda (zero-padding), prefijo y sufijo, y auto-asignación del siguiente número al añadir cromos. En BD se guarda el número plano; el formato es solo presentación.",
       "applicableTypes": [
         "number"
       ],
