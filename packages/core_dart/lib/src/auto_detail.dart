@@ -75,3 +75,54 @@ ViewComposition buildAutoDetailComposition(List<FieldDefLike> fields) {
   return ViewComposition(
       recipe: 'hero_protagonico', action: 'none', slots: slots);
 }
+
+/// Build una `ViewComposition` automática para la LISTA de una sección sin
+/// composition — espejo 1:1 de `buildAutoListComposition` (auto-detail.ts).
+///
+/// La lista DEBE usar una recipe `kind:'list'` (cada item inline), NUNCA un hero
+/// (`kind:'detail'`, que solo es destino de una acción). Heurística:
+///  - Si hay imagen (behavior avatar/cover/thumbnail/banner o type image) →
+///    `compact_avatar` (avatar + title + subtitle).
+///  - Si no → `row_text` (title + subtitle).
+/// `action: 'none'`. Determinística, sin side effects.
+ViewComposition buildAutoListComposition(List<FieldDefLike> fields) {
+  final slots = <String, SlotComposition>{};
+
+  String? pickFirst(bool Function(FieldDefLike) pred) {
+    for (final f in fields) {
+      if (pred(f)) return f.key;
+    }
+    return null;
+  }
+
+  final imageKey = pickFirst((f) =>
+      f.behavior == 'avatar' ||
+      f.behavior == 'cover' ||
+      f.behavior == 'thumbnail' ||
+      f.behavior == 'banner' ||
+      f.type == 'image');
+
+  final titleKey = pickFirst((f) =>
+      (f.type == 'text' || f.type == 'select') &&
+      !['url', 'email', 'phone'].contains(f.behavior ?? ''));
+
+  final subtitleKey = pickFirst((f) =>
+      f.behavior == 'year' || f.behavior == 'iso_date' || f.type == 'number');
+
+  // Con imagen → compact_avatar.
+  if (imageKey != null) {
+    slots['avatar'] = SlotComposition(fields: [imageKey]);
+    if (titleKey != null) slots['title'] = SlotComposition(fields: [titleKey]);
+    if (subtitleKey != null && subtitleKey != titleKey) {
+      slots['subtitle'] = SlotComposition(fields: [subtitleKey]);
+    }
+    return ViewComposition(recipe: 'compact_avatar', action: 'none', slots: slots);
+  }
+
+  // Sin imagen → row_text.
+  if (titleKey != null) slots['title'] = SlotComposition(fields: [titleKey]);
+  if (subtitleKey != null && subtitleKey != titleKey) {
+    slots['subtitle'] = SlotComposition(fields: [subtitleKey]);
+  }
+  return ViewComposition(recipe: 'row_text', action: 'none', slots: slots);
+}

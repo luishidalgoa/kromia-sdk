@@ -134,4 +134,49 @@ void main() {
       expect(r.slots['gallery']!.fields, ['fotos']);
     });
   });
+
+  group('buildAutoListComposition — recipe de LISTA (kind:list, nunca hero)', () {
+    test('sección vacía → row_text + slots vacíos + action none', () {
+      final r = buildAutoListComposition([]);
+      expect(r.recipe, 'row_text');
+      expect(r.action, 'none');
+      expect(r.slots, isEmpty);
+    });
+
+    test('con imagen (avatar) → compact_avatar (NO hero_protagonico)', () {
+      final r = buildAutoListComposition([fd('pic', 'image', 'avatar'), fd('nombre', 'text')]);
+      expect(r.recipe, 'compact_avatar');
+      expect(r.slots['avatar']!.fields, ['pic']);
+      expect(r.slots['title']!.fields, ['nombre']);
+    });
+
+    test('image plano (sin behavior) también dispara compact_avatar', () {
+      final r = buildAutoListComposition([fd('foto', 'image'), fd('nombre', 'text')]);
+      expect(r.recipe, 'compact_avatar');
+      expect(r.slots['avatar']!.fields, ['foto']);
+    });
+
+    test('sin imagen → row_text con title + subtitle', () {
+      final r = buildAutoListComposition([fd('nombre', 'text'), fd('anio', 'number', 'year')]);
+      expect(r.recipe, 'row_text');
+      expect(r.slots['title']!.fields, ['nombre']);
+      expect(r.slots['subtitle']!.fields, ['anio']);
+    });
+
+    test('NUNCA devuelve una recipe kind:detail', () {
+      final r = buildAutoListComposition([
+        fd('banner', 'image', 'banner'),
+        fd('titulo', 'text'),
+        fd('cuerpo', 'textarea'),
+      ]);
+      expect(['compact_avatar', 'compact_card', 'row_text'], contains(r.recipe));
+      expect(r.recipe, isNot('hero_protagonico'));
+    });
+
+    test('title y subtitle no colisionan (subtitle != title)', () {
+      final r = buildAutoListComposition([fd('nombre', 'text')]);
+      expect(r.slots['title']!.fields, ['nombre']);
+      expect(r.slots['subtitle'], isNull);
+    });
+  });
 }
