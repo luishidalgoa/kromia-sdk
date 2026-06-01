@@ -38,7 +38,7 @@
  */
 import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execSync } from 'node:child_process';
 
 import { allRecipes, type RecipeManifest } from './registries/recipes';
@@ -463,4 +463,15 @@ function main(): void {
   }
 }
 
-main();
+// KRO-114 — solo auto-ejecuta cuando se corre como script (`tsx src/generate.ts`).
+// Al importar `buildPayload` desde un test (contract-drift) NO debe regenerar ni
+// escribir nada en disco. Idiom ESM (el módulo ya usa import.meta.url para los
+// paths): comparamos la URL del módulo con la del entrypoint (argv[1]).
+const isMainModule =
+  typeof process !== 'undefined' &&
+  Array.isArray(process.argv) &&
+  process.argv[1] != null &&
+  import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isMainModule) {
+  main();
+}
