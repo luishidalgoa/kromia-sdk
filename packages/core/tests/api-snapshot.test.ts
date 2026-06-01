@@ -58,6 +58,7 @@ const EXPECTED_EXPORTS = [
   'formatScalar',
   'buildAutoDetailComposition',
   'buildAutoListComposition',
+  'isSchemaOutdated',
   'extractAccentSettings',
   'composeSlotValues',
   // Options catalogs — KRO-75

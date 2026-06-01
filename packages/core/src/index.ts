@@ -144,6 +144,7 @@ export {
 export type { FieldDefLike, AccentSettings } from './types';
 export { formatScalar } from './format-scalar';
 export { buildAutoDetailComposition, buildAutoListComposition } from './auto-detail';
+export { isSchemaOutdated } from './schema-version';
 export { extractAccentSettings } from './extract-accent';
 export {
   composeSlotValues,
