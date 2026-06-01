@@ -110,3 +110,59 @@ export function buildAutoDetailComposition(
     slots,
   };
 }
+
+/**
+ * Build una `ViewComposition` automática para la LISTA de una sección cuyo
+ * publisher no declaró composition. Cierra el hueco frente a
+ * `buildAutoDetailComposition`: la LISTA debe usar una recipe `kind:'list'`
+ * (cada item inline), NO una `kind:'detail'` (hero), que solo es destino de
+ * una acción. Sin esto, un cliente que auto-defaultee con el de detalle pinta
+ * un hero inline por cada item — bug visual.
+ *
+ * Heurística:
+ *  - Si hay imagen (behavior avatar/cover/thumbnail/banner o type image) →
+ *    recipe `compact_avatar` (slots avatar + title + subtitle).
+ *  - Si no → recipe `row_text` (title + subtitle).
+ *
+ * `action: 'none'` (suelo: la lista renderiza sin navegación). El cliente puede
+ * subir a `navigate_to_detail`/`modal` + `buildAutoDetailComposition` como
+ * destino cuando implemente la navegación al detalle.
+ *
+ * Pure: `(fields) => ViewComposition`. Determinístico, sin side effects.
+ */
+export function buildAutoListComposition(
+  fields: FieldDefLike[],
+): ViewComposition {
+  const slots: Record<string, SlotComposition> = {};
+
+  const pickFirst = (predicate: (f: FieldDefLike) => boolean): string | undefined =>
+    fields.find(predicate)?.key;
+
+  const imageKey = pickFirst(f =>
+    f.behavior === 'avatar' || f.behavior === 'cover' ||
+    f.behavior === 'thumbnail' || f.behavior === 'banner' ||
+    f.type === 'image',
+  );
+
+  const titleKey = pickFirst(f =>
+    (f.type === 'text' || f.type === 'select') &&
+    !['url', 'email', 'phone'].includes(f.behavior ?? ''),
+  );
+
+  const subtitleKey = pickFirst(f =>
+    f.behavior === 'year' || f.behavior === 'iso_date' || f.type === 'number',
+  );
+
+  // Con imagen → compact_avatar (avatar + title + subtitle).
+  if (imageKey) {
+    slots.avatar = { fields: [imageKey] };
+    if (titleKey) slots.title = { fields: [titleKey] };
+    if (subtitleKey && subtitleKey !== titleKey) slots.subtitle = { fields: [subtitleKey] };
+    return { recipe: 'compact_avatar', action: 'none', slots };
+  }
+
+  // Sin imagen → row_text (title + subtitle).
+  if (titleKey) slots.title = { fields: [titleKey] };
+  if (subtitleKey && subtitleKey !== titleKey) slots.subtitle = { fields: [subtitleKey] };
+  return { recipe: 'row_text', action: 'none', slots };
+}

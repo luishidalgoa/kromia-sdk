@@ -143,7 +143,7 @@ export {
 // la lógica que precede al render.
 export type { FieldDefLike, AccentSettings } from './types';
 export { formatScalar } from './format-scalar';
-export { buildAutoDetailComposition } from './auto-detail';
+export { buildAutoDetailComposition, buildAutoListComposition } from './auto-detail';
 export { extractAccentSettings } from './extract-accent';
 export {
   composeSlotValues,

@@ -57,6 +57,7 @@ const EXPECTED_EXPORTS = [
   // Presentation helpers — KRO-73 (B+)
   'formatScalar',
   'buildAutoDetailComposition',
+  'buildAutoListComposition',
   'extractAccentSettings',
   'composeSlotValues',
   // Options catalogs — KRO-75

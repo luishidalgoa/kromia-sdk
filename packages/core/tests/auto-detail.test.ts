@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { buildAutoDetailComposition } from '../src/auto-detail';
+import { buildAutoDetailComposition, buildAutoListComposition } from '../src/auto-detail';
 import type { FieldDefLike } from '../src/types';
 
 describe('buildAutoDetailComposition — defaults base', () => {
@@ -197,5 +197,61 @@ describe('buildAutoDetailComposition — composition completa', () => {
     expect(r.slots.stats?.fields).toEqual(['year', 'edad', 'rating']);
     expect(r.slots.body?.fields).toEqual(['desc']);
     expect(r.slots.gallery?.fields).toEqual(['fotos']);
+  });
+});
+
+describe('buildAutoListComposition — recipe de LISTA (kind:list, nunca hero)', () => {
+  it('sección vacía → row_text + slots vacíos + action none', () => {
+    const r = buildAutoListComposition([]);
+    expect(r.recipe).toBe('row_text');
+    expect(r.action).toBe('none');
+    expect(r.slots).toEqual({});
+  });
+
+  it('con imagen (avatar) → compact_avatar (NO hero_protagonico)', () => {
+    const r = buildAutoListComposition([
+      { key: 'pic',    type: 'image', behavior: 'avatar' },
+      { key: 'nombre', type: 'text' },
+    ]);
+    expect(r.recipe).toBe('compact_avatar');
+    expect(r.slots.avatar).toEqual({ fields: ['pic'] });
+    expect(r.slots.title).toEqual({ fields: ['nombre'] });
+  });
+
+  it('image plano (sin behavior) también dispara compact_avatar', () => {
+    const r = buildAutoListComposition([
+      { key: 'foto',   type: 'image' },
+      { key: 'nombre', type: 'text' },
+    ]);
+    expect(r.recipe).toBe('compact_avatar');
+    expect(r.slots.avatar).toEqual({ fields: ['foto'] });
+  });
+
+  it('sin imagen → row_text con title + subtitle', () => {
+    const r = buildAutoListComposition([
+      { key: 'nombre', type: 'text' },
+      { key: 'anio',   type: 'number', behavior: 'year' },
+    ]);
+    expect(r.recipe).toBe('row_text');
+    expect(r.slots.title).toEqual({ fields: ['nombre'] });
+    expect(r.slots.subtitle).toEqual({ fields: ['anio'] });
+  });
+
+  it('NUNCA devuelve una recipe kind:detail (hero/editorial/momento)', () => {
+    const r = buildAutoListComposition([
+      { key: 'banner', type: 'image', behavior: 'banner' },
+      { key: 'titulo', type: 'text' },
+      { key: 'cuerpo', type: 'textarea' },
+    ]);
+    expect(['compact_avatar', 'compact_card', 'row_text']).toContain(r.recipe);
+    expect(r.recipe).not.toBe('hero_protagonico');
+  });
+
+  it('title y subtitle no colisionan (subtitle != title)', () => {
+    const r = buildAutoListComposition([
+      { key: 'nombre', type: 'text' },  // title
+    ]);
+    expect(r.slots.title).toEqual({ fields: ['nombre'] });
+    expect(r.slots.subtitle).toBeUndefined();
   });
 });
