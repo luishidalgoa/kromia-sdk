@@ -42,6 +42,11 @@ const MUST_MIRROR = [
   'resolveTargetChain', 'targetChainDepth', 'MAX_TARGET_DEPTH',
   // Tipos / campos clave (no son exports de valor, se comprueban por nombre)
   'TargetComposition', 'ResolvedHop', 'targetComposition',
+  // KRO-74 — decisor de interactividad (qué pasa al tocar un item)
+  'resolveTapAction', 'resolveDetailComposition',
+  'resolveTargetRecipe', 'resolveExpandRecipe',
+  'isTappable', 'opensNewScreen',
+  'TapResolution',
 ];
 
 /** Lee recursivamente todo el .dart de un directorio y lo concatena. */
