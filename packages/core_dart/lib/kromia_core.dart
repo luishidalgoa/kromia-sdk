@@ -35,3 +35,5 @@ export 'src/schema_version.dart';
 export 'src/target_chain.dart';
 export 'src/interaction.dart';
 export 'src/validate.dart';
+export 'src/visual_effects.dart';
+export 'src/tag_styles.dart';

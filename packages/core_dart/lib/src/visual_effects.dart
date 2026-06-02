@@ -1,0 +1,224 @@
+/// `visual_effects.dart` — KRO-30. Catálogo de efectos visuales por valor de tag.
+///
+/// Espejo del registry TS `visual-effects.ts`. A DIFERENCIA del resto de
+/// registries (recipes/behaviors, que son const Dart), el catálogo NO se
+/// hardcodea: se lee del array `visualEffects[]` del `.json` del KRP, embebido
+/// aquí como string (`_visualEffectsJson`) y parseado en frío (lazy). Mirror
+/// desde el contrato — no re-tipado a mano → cero drift de datos. Para alinear
+/// tras un cambio del contrato basta reemplazar el bloque embebido.
+///
+/// El RENDER del efecto (widget/overlay) NO vive aquí: es kromia-flutter
+/// (`lib/widgets/visual-effects/<id>.dart`). core_dart solo declara el catálogo
+/// + el contrato de config + el lookup para el dispatcher effect→widget.
+///
+/// Nota: el `.json` NO incluye `label` de cada config param (es editor-only de
+/// Studio, no entra al contrato) ni la doc rica — por eso no están en el modelo.
+library;
+
+import 'dart:convert';
+
+/// Capa que el efecto aplica sobre la carta. Orienta al renderer.
+const Set<String> visualEffectLayers = {'overlay', 'badge', 'filter', 'border'};
+
+/// Un parámetro de config de un efecto. Espacio de valores CERRADO (enum con
+/// `options`, o number acotado por `min`/`max`); `string` se reserva para
+/// refs/urls. Opcional salvo que `optional == false`.
+class VisualEffectConfigParam {
+  /// Key técnica — lo que se almacena en `TagStyle.config[key]`. Estable.
+  final String key;
+
+  /// Tipo del valor admitido: 'enum' | 'number' | 'string'.
+  final String type;
+
+  /// Para `type: 'enum'` — valores admitidos (cerrado).
+  final List<String>? options;
+
+  /// Valor por defecto si el publisher no lo configura (String | num).
+  final Object? defaultValue;
+
+  /// Para `type: 'number'` — mínimo inclusivo.
+  final num? min;
+
+  /// Para `type: 'number'` — máximo inclusivo.
+  final num? max;
+
+  /// Si `false`, el publisher DEBE proveer un valor. Default: true.
+  final bool optional;
+
+  const VisualEffectConfigParam({
+    required this.key,
+    required this.type,
+    this.options,
+    this.defaultValue,
+    this.min,
+    this.max,
+    this.optional = true,
+  });
+
+  factory VisualEffectConfigParam.fromJson(Map<String, dynamic> json) =>
+      VisualEffectConfigParam(
+        key: json['key'] as String,
+        type: json['type'] as String,
+        options: (json['options'] as List?)?.map((e) => e.toString()).toList(),
+        defaultValue: json['default'],
+        min: json['min'] as num?,
+        max: json['max'] as num?,
+        optional: json['optional'] as bool? ?? true,
+      );
+}
+
+/// Definición de un efecto visual del catálogo.
+class VisualEffectDefinition {
+  /// ID técnico, lo que se almacena en `TagStyle.effect`. Estable.
+  final String id;
+  final String displayName;
+  final String description;
+
+  /// overlay | badge | filter | border.
+  final String layer;
+
+  /// Params de config ajustables. `[]` si el efecto no se configura.
+  final List<VisualEffectConfigParam> config;
+
+  const VisualEffectDefinition({
+    required this.id,
+    required this.displayName,
+    required this.description,
+    required this.layer,
+    required this.config,
+  });
+
+  factory VisualEffectDefinition.fromJson(Map<String, dynamic> json) =>
+      VisualEffectDefinition(
+        id: json['id'] as String,
+        displayName: (json['displayName'] as String?) ?? '',
+        description: (json['description'] as String?) ?? '',
+        layer: (json['layer'] as String?) ?? '',
+        config: ((json['config'] as List?) ?? const [])
+            .map((e) =>
+                VisualEffectConfigParam.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList(growable: false),
+      );
+}
+
+/// MIRROR EMBEBIDO del array `visualEffects[]` del `.json` del KRP (KRO-30).
+/// Copia verbatim de `contracts/kromia-recipe-protocol-v1.json` → NO editar a
+/// mano la semántica; para alinear, regenerar/copiar desde el contrato.
+const String _visualEffectsJson = r'''
+[
+  {
+    "id": "holographic_effect",
+    "displayName": "Holográfico",
+    "description": "Capa animada arcoíris superpuesta sobre la imagen principal de la carta.",
+    "layer": "overlay",
+    "config": [
+      {
+        "key": "intensity",
+        "type": "enum",
+        "options": ["low", "medium", "high"],
+        "default": "medium"
+      }
+    ]
+  },
+  {
+    "id": "crown_badge",
+    "displayName": "Insignia de corona",
+    "description": "Corona / icono distintivo en una esquina de la carta.",
+    "layer": "badge",
+    "config": [
+      {
+        "key": "color",
+        "type": "enum",
+        "options": ["gold", "silver", "bronze"],
+        "default": "gold"
+      },
+      {
+        "key": "position",
+        "type": "enum",
+        "options": ["top-left", "top-right", "bottom-left", "bottom-right"],
+        "default": "top-right"
+      }
+    ]
+  },
+  {
+    "id": "vintage_filter",
+    "displayName": "Filtro vintage",
+    "description": "Filtro sepia / desaturado que envejece la imagen de la carta.",
+    "layer": "filter",
+    "config": [
+      {
+        "key": "strength",
+        "type": "enum",
+        "options": ["low", "medium", "high"],
+        "default": "medium"
+      }
+    ]
+  },
+  {
+    "id": "glow_border",
+    "displayName": "Borde luminoso",
+    "description": "Borde luminoso pulsante alrededor de la carta.",
+    "layer": "border",
+    "config": [
+      {
+        "key": "color",
+        "type": "enum",
+        "options": ["gold", "blue", "green", "red", "purple"],
+        "default": "gold"
+      }
+    ]
+  },
+  {
+    "id": "frozen",
+    "displayName": "Congelado",
+    "description": "Capa de hielo + partículas superpuesta sobre la carta.",
+    "layer": "overlay",
+    "config": []
+  },
+  {
+    "id": "signed",
+    "displayName": "Firmada",
+    "description": "Firma estilizada superpuesta sobre la carta.",
+    "layer": "overlay",
+    "config": [
+      {
+        "key": "signature_url",
+        "type": "string",
+        "optional": true
+      }
+    ]
+  }
+]
+''';
+
+List<VisualEffectDefinition>? _catalog;
+Map<String, VisualEffectDefinition>? _byId;
+
+void _ensureLoaded() {
+  if (_catalog != null) return;
+  final raw = jsonDecode(_visualEffectsJson) as List;
+  _catalog = raw
+      .map((e) =>
+          VisualEffectDefinition.fromJson(Map<String, dynamic>.from(e as Map)))
+      .toList(growable: false);
+  _byId = {for (final e in _catalog!) e.id: e};
+}
+
+/// Catálogo completo en orden de declaración (leído del `.json` embebido).
+List<VisualEffectDefinition> allVisualEffects() {
+  _ensureLoaded();
+  return _catalog!;
+}
+
+/// Lookup por id → `null` si el efecto no está en el catálogo. Necesario para
+/// el dispatcher effect→widget del cliente.
+VisualEffectDefinition? getVisualEffect(String id) {
+  _ensureLoaded();
+  return _byId![id];
+}
+
+/// Lista de IDs en orden de declaración (espejo de `VISUAL_EFFECT_IDS`).
+List<String> get visualEffectIds {
+  _ensureLoaded();
+  return _catalog!.map((e) => e.id).toList(growable: false);
+}
