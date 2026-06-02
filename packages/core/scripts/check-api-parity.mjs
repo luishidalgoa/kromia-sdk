@@ -86,6 +86,20 @@ const SYMBOL_META = {
     note: 'Sealed class / union Dart: none | navigate | modal | expand | external.' },
   ResolveTapOptions:           { src: 'src/interaction.ts',   tests: 'tests/interaction.test.ts',
     note: 'Clase/typedef con fieldDefs: List<FieldDefLike>? — necesaria para resolveTapAction.' },
+
+  // ── Efectos visuales por valor de tag (KRO-30) ──────────────────────────
+  TagStyle:                    { src: 'src/types.ts',                    tests: 'tests/visual-effects.test.ts',
+    note: 'Mapeo valor-de-tag → efecto: { value, effect, config? }. Vive en albumSchema.tagStyles. Parsear en fromJson.' },
+  VisualEffectDefinition:      { src: 'src/registries/visual-effects.ts', tests: 'tests/visual-effects.test.ts',
+    note: 'Shape del catálogo: { id, displayName, description, layer, config[] }. layer ∈ overlay|badge|filter|border. El catálogo (6 efectos V1) está en visualEffects[] del .json del KRP — mirror desde ahí, NO hardcodear. El render del widget vive en kromia-flutter (lib/widgets/visual-effects/<id>.dart), NO en core_dart.' },
+  allVisualEffects:            { src: 'src/registries/visual-effects.ts', tests: 'tests/visual-effects.test.ts',
+    note: 'Accessor del catálogo. En Dart: leer visualEffects[] del .json embebido.' },
+  getVisualEffect:             { src: 'src/registries/visual-effects.ts', tests: 'tests/visual-effects.test.ts',
+    note: 'Lookup por id → VisualEffectDefinition | null. Necesario para el dispatcher effect→widget.' },
+  isTagStyleValid:             { src: 'src/tag-styles.ts',                tests: 'tests/visual-effects.test.ts',
+    note: 'Valida un TagStyle contra el catálogo (effect existe, config dentro del espacio del param). Pure.' },
+  validateTagStyles:           { src: 'src/tag-styles.ts',                tests: 'tests/visual-effects.test.ts',
+    note: 'Valida el array completo + avisa de valores de tag duplicados (warn). Devuelve { valid, issues[] }.' },
 };
 
 /** Todos los símbolos must-mirror (orden de SYMBOL_META). */

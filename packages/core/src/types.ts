@@ -251,6 +251,29 @@ export interface ViewComposition {
 }
 
 /**
+ * KRO-30 — Mapeo VALOR-de-tag → efecto visual. El publisher declara, a nivel
+ * álbum (`albumSchema.tagStyles`), qué valores concretos de tag disparan qué
+ * efecto al renderizar la carta. Es behavior-on-VALUE, no behavior-on-FIELD:
+ * vive aparte de los field-behaviors y referencia el catálogo de
+ * `visual-effects.ts` (NO `behaviors.ts`).
+ *
+ * Una carta con una tag cuyo valor NO tiene `TagStyle` sigue siendo válida —
+ * el render simplemente no aplica efecto (fallback: chip neutro). No-destructivo.
+ *
+ * `config` lleva los params del efecto (ver `VisualEffectDefinition.config`):
+ * keys según el efecto, valores dentro del espacio cerrado que declara cada
+ * param. `isTagStyleValid` (`tag-styles.ts`) lo valida.
+ */
+export interface TagStyle {
+  /** Valor EXACTO de la tag que dispara el efecto (ej. "Holográfica"). */
+  value: string;
+  /** ID del efecto del catálogo `visual-effects.ts` (ej. "holographic_effect"). */
+  effect: string;
+  /** Config opcional del efecto. Keys + espacio de valores los define el efecto. */
+  config?: Record<string, string | number>;
+}
+
+/**
  * KRO-58 V5 — Tipos compartidos. SlotKind define si un slot acepta 1 field
  * o N fields composables.
  */

@@ -84,7 +84,7 @@ const IGNORED_TOP_LEVEL_FIELDS = new Set<string>([
  * resultado del detector (el max wins), pero sí condiciona el orden
  * de los `reasons` en el output.
  */
-const COLLECTIONS = ['recipes', 'actions', 'behaviors', 'slotAcceptKinds', 'fieldTypes'] as const;
+const COLLECTIONS = ['recipes', 'actions', 'behaviors', 'slotAcceptKinds', 'fieldTypes', 'visualEffects'] as const;
 
 // ── API pública ────────────────────────────────────────────────────
 

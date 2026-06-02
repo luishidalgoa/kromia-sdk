@@ -47,6 +47,7 @@ import { SLOT_ACCEPT_KIND_META } from './registries/slot-kinds';
 import { allBehaviors, type BehaviorDefinition } from './registries/behaviors';
 import { allActions, type ActionDefinition } from './registries/actions';
 import { allFieldTypes, type FieldTypeDefinition } from './registries/field-types';
+import { allVisualEffects, type VisualEffectDefinition } from './registries/visual-effects';
 import type { SlotAcceptKind } from './types';
 import { detectBumpKind, applyBump, type BumpKind } from './version-bump';
 
@@ -76,6 +77,7 @@ interface ProtocolJson {
   behaviors:           BehaviorJson[];
   slotAcceptKinds:     SlotKindJson[];
   fieldTypes:          FieldTypeJson[];
+  visualEffects:       VisualEffectJson[];
   compatibilityMatrix: Record<string, CompatibilityEntry>;
   connections:         ConnectionsSection;
 }
@@ -156,6 +158,30 @@ interface FieldTypeJson {
   elementType?: string;
 }
 
+/**
+ * Shape del CONTRATO para un efecto visual — KRO-30. Sin doc rica (ver
+ * ActionJson). El `config` lleva el ESPACIO de valores válidos (lo que un
+ * cliente/validador necesita), pero NO el `label` de cada param: ese es
+ * editor-only (source) y se excluye igual que la doc → editarlo no bumpea.
+ */
+interface VisualEffectJson {
+  id:          string;
+  displayName: string;
+  description: string;
+  layer:       'overlay' | 'badge' | 'filter' | 'border';
+  config:      VisualEffectConfigJson[];
+}
+
+interface VisualEffectConfigJson {
+  key:       string;
+  type:      'enum' | 'number' | 'string';
+  options?:  string[];
+  default?:  string | number;
+  min?:      number;
+  max?:      number;
+  optional?: boolean;
+}
+
 interface CompatibilityEntry {
   kindRole:             'list-source' | 'detail-target' | 'expand-target';
   allowedActions:       string[];
@@ -217,6 +243,25 @@ function serializeFieldType(t: FieldTypeDefinition): FieldTypeJson {
     description: t.description,
     cardinality: t.cardinality,
     elementType: t.elementType,
+  };
+}
+
+function serializeVisualEffect(e: VisualEffectDefinition): VisualEffectJson {
+  return {
+    id:          e.id,
+    displayName: e.displayName,
+    description: e.description,
+    layer:       e.layer,
+    // `label` se omite a propósito (editor-only, como la doc rica).
+    config: e.config.map(p => ({
+      key:      p.key,
+      type:     p.type,
+      options:  p.options,
+      default:  p.default,
+      min:      p.min,
+      max:      p.max,
+      optional: p.optional,
+    })),
   };
 }
 
@@ -325,6 +370,7 @@ export function buildPayload(version: string, generatedAt?: string): ProtocolJso
   const behaviors           = allBehaviors().map(serializeBehavior);
   const actions             = allActions().slice();
   const fieldTypes          = allFieldTypes();
+  const visualEffects       = allVisualEffects().map(serializeVisualEffect);
   const slotAcceptKinds     = buildSlotKinds(behaviors);
   const compatibilityMatrix = buildCompatibilityMatrix(recipes, actions);
   const connections         = buildConnections(fieldTypes, behaviors, slotAcceptKinds, recipes, actions, compatibilityMatrix);
@@ -342,6 +388,7 @@ export function buildPayload(version: string, generatedAt?: string): ProtocolJso
     behaviors,
     slotAcceptKinds,
     fieldTypes: fieldTypes.map(serializeFieldType),
+    visualEffects,
     compatibilityMatrix,
     connections,
   };
@@ -457,6 +504,7 @@ function main(): void {
   console.log(`  behaviors:       ${finalPayload.behaviors.length}`);
   console.log(`  slotAcceptKinds: ${finalPayload.slotAcceptKinds.length}`);
   console.log(`  fieldTypes:      ${finalPayload.fieldTypes.length}`);
+  console.log(`  visualEffects:   ${finalPayload.visualEffects.length}`);
   console.log(`  connections:     ${finalPayload.connections.nodes.length} nodes, ${finalPayload.connections.edges.length} edges`);
   if (finalVersion !== currentVersion) {
     console.log(`✓ package.json#version actualizado: ${currentVersion} → ${finalVersion}`);

@@ -38,6 +38,7 @@ export type {
   ViewComposition,
   SlotOverrides,
   CustomSlotDefinition,
+  TagStyle,
 } from './types';
 
 // ── Field types ────────────────────────────────────────────────────────
@@ -88,6 +89,29 @@ export {
   getAvailableAppearanceProps,
   type AppearanceProp,
 } from './registries/slot-kinds';
+
+// ── Visual effects (efectos por VALOR de tag) — KRO-30 ──────────────────
+// Catálogo de efectos que se superponen a la carta según el valor de una tag
+// (holographic_effect, crown_badge…). Categoría SEPARADA de los field-behaviors.
+// El editor de tag-styles de Studio + el renderer de Flutter consumen el catálogo;
+// `tag-styles.ts` valida los TagStyle contra él.
+export {
+  allVisualEffects,
+  getVisualEffect,
+  VISUAL_EFFECT_IDS,
+  type VisualEffectDefinition,
+  type VisualEffectConfigParam,
+  type VisualEffectLayer,
+} from './registries/visual-effects';
+
+// ── Tag styles validator — KRO-30 ───────────────────────────────────────
+// Valida `TagStyle[]` (mapeo valor-de-tag → efecto) contra el catálogo.
+export {
+  isTagStyleValid,
+  validateTagStyles,
+  type TagStyleValidationIssue,
+  type TagStyleValidationResult,
+} from './tag-styles';
 
 // ── Classification / validation ────────────────────────────────────────
 export {

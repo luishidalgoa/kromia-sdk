@@ -19,6 +19,7 @@ import { allActions } from '../src/registries/actions';
 import { allFieldTypes } from '../src/registries/field-types';
 import { allRecipes } from '../src/registries/recipes';
 import { SLOT_ACCEPT_KIND_META } from '../src/registries/slot-kinds';
+import { allVisualEffects } from '../src/registries/visual-effects';
 
 type ContractType = {
   $schema:         string;
@@ -30,6 +31,7 @@ type ContractType = {
   behaviors:           Array<{ id: string; renderAs: string | null; applicableTypes: string[] }>;
   slotAcceptKinds:     Array<{ id: string; behaviorIds: string[] }>;
   fieldTypes:          Array<{ id: string; cardinality: string }>;
+  visualEffects:       Array<{ id: string; layer: string; config: Array<{ key: string; type: string; options?: string[] }> }>;
   compatibilityMatrix: Record<string, { kindRole: string; allowedActions: string[]; allowedTargetRecipes: string[]; allowedExpandRecipes: string[] }>;
   connections: {
     nodes: Array<{ id: string; category: string; label: string }>;
@@ -49,6 +51,7 @@ describe('Contract shape: top-level', () => {
     expect(Array.isArray(c.behaviors)).toBe(true);
     expect(Array.isArray(c.slotAcceptKinds)).toBe(true);
     expect(Array.isArray(c.fieldTypes)).toBe(true);
+    expect(Array.isArray(c.visualEffects)).toBe(true);
     expect(typeof c.compatibilityMatrix).toBe('object');
     expect(typeof c.connections).toBe('object');
     expect(Array.isArray(c.connections.nodes)).toBe(true);
@@ -81,6 +84,42 @@ describe('Contract counts: matchean los registries en memoria', () => {
 
   it('slotAcceptKinds.length === keys(SLOT_ACCEPT_KIND_META).length', () => {
     expect(c.slotAcceptKinds.length).toBe(Object.keys(SLOT_ACCEPT_KIND_META).length);
+  });
+
+  it('visualEffects.length === allVisualEffects().length', () => {
+    expect(c.visualEffects.length).toBe(allVisualEffects().length);
+  });
+});
+
+describe('Contract: visualEffects (KRO-30)', () => {
+  it('cada efecto tiene id, layer válido y config bien tipada', () => {
+    const validLayers = new Set(['overlay', 'badge', 'filter', 'border']);
+    const validTypes   = new Set(['enum', 'number', 'string']);
+    c.visualEffects.forEach(e => {
+      expect(e.id).toMatch(/^[a-z_]+$/);
+      expect(validLayers.has(e.layer), `layer=${e.layer}`).toBe(true);
+      expect(Array.isArray(e.config)).toBe(true);
+      e.config.forEach(p => {
+        expect(p.key).toBeTruthy();
+        expect(validTypes.has(p.type), `config type=${p.type}`).toBe(true);
+        if (p.type === 'enum') {
+          expect(Array.isArray(p.options) && p.options.length > 0, `enum ${e.id}.${p.key} sin options`).toBe(true);
+        }
+      });
+    });
+  });
+
+  it('config NO serializa el `label` (editor-only, no es contrato)', () => {
+    c.visualEffects.forEach(e => {
+      e.config.forEach(p => {
+        expect(p).not.toHaveProperty('label');
+      });
+    });
+  });
+
+  it('IDs únicos', () => {
+    const ids = c.visualEffects.map(e => e.id);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 });
 

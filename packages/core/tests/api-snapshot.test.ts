@@ -101,6 +101,12 @@ const EXPECTED_EXPORTS = [
   'resolveExpandRecipe',
   'isTappable',
   'opensNewScreen',
+  // KRO-30 — efectos visuales por valor de tag + validador de tag styles
+  'allVisualEffects',
+  'getVisualEffect',
+  'VISUAL_EFFECT_IDS',
+  'isTagStyleValid',
+  'validateTagStyles',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
@@ -156,6 +162,12 @@ import type {
   ViewComposition,
   SlotOverrides,
   CustomSlotDefinition,
+  TagStyle,
+  VisualEffectDefinition,
+  VisualEffectConfigParam,
+  VisualEffectLayer,
+  TagStyleValidationIssue,
+  TagStyleValidationResult,
   ResolvedHop,
   FieldTypeDefinition,
   ActionDefinition,
@@ -196,6 +208,12 @@ describe('Type exports compile-check', () => {
       null as unknown as ViewComposition,
       null as unknown as SlotOverrides,
       null as unknown as CustomSlotDefinition,
+      null as unknown as TagStyle,
+      null as unknown as VisualEffectDefinition,
+      null as unknown as VisualEffectConfigParam,
+      null as unknown as VisualEffectLayer,
+      null as unknown as TagStyleValidationIssue,
+      null as unknown as TagStyleValidationResult,
       null as unknown as ResolvedHop,
       null as unknown as FieldTypeDefinition,
       null as unknown as ActionDefinition,
@@ -221,6 +239,6 @@ describe('Type exports compile-check', () => {
       null as unknown as import('../src/interaction').TapResolution,
       null as unknown as import('../src/interaction').ResolveTapOptions,
     ];
-    expect(_checks.length).toBe(35);
+    expect(_checks.length).toBe(41);
   });
 });
