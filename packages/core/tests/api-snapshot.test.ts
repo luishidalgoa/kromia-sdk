@@ -94,6 +94,13 @@ const EXPECTED_EXPORTS = [
   'resolveTargetChain',
   'targetChainDepth',
   'MAX_TARGET_DEPTH',
+  // KRO-74 — decisor de interactividad (qué pasa al tocar un item)
+  'resolveTapAction',
+  'resolveDetailComposition',
+  'resolveTargetRecipe',
+  'resolveExpandRecipe',
+  'isTappable',
+  'opensNewScreen',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
@@ -211,7 +218,9 @@ describe('Type exports compile-check', () => {
       null as unknown as ValidationIssue,
       null as unknown as ValidationResult,
       null as unknown as ValidateCompositionOptions,
+      null as unknown as import('../src/interaction').TapResolution,
+      null as unknown as import('../src/interaction').ResolveTapOptions,
     ];
-    expect(_checks.length).toBe(33);
+    expect(_checks.length).toBe(35);
   });
 });

@@ -202,6 +202,21 @@ export {
   getFieldTypeDescriptions,
 } from './options';
 
+// ── Interactividad — decisor de tap (KRO-74) ────────────────────────────
+// Función pura que, dado una ViewComposition + item, devuelve QUÉ hacer al tap.
+// Studio la usa para sus animaciones in-frame; Flutter para Navigator/Modal/etc.
+// Cierra el ciclo: Modelo → Datos → Presentación → Interactividad, todo en SDK.
+export {
+  resolveTapAction,
+  resolveDetailComposition,
+  resolveTargetRecipe,
+  resolveExpandRecipe,
+  isTappable,
+  opensNewScreen,
+  type TapResolution,
+  type ResolveTapOptions,
+} from './interaction';
+
 // ── Incremental behavior helpers (KRO-84) ───────────────────────────────
 // Auto-asignación (max+1) + detección de duplicados para el behavior
 // `incremental`. Puros, consumidos por el editor de Studio y el futuro Flutter.
