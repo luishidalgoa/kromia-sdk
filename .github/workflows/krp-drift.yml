@@ -1,6 +1,6 @@
 # KRP Drift CI (KRO-64) — paridad TS↔Dart garantizada por construcción.
 #
-# Dos capas de defensa (ver KRO-64 + playbooks/bump-protocol.md):
+# Tres capas de defensa (ver KRO-64/KRO-118 + playbooks/bump-protocol.md):
 #   1. version-drift : compara packages/core/package.json#version (TS, productor)
 #      contra packages/core_dart/pubspec.yaml#version (Dart, mirror). Si el TS
 #      adelanta un MAJOR -> abre issue Jira (label drift, status Drift Sync) y
@@ -8,6 +8,11 @@
 #   2. corpus-parity : corre `dart test` del paquete Dart en cada push. Caza el
 #      drift de COMPORTAMIENTO (p.ej. cambios en classify.ts) que el número de
 #      versión NO refleja — porque la lógica runtime no viaja entera en el .json.
+#   3. api-parity (KRO-118) : comprueba que cada símbolo contract-crítico del SDK
+#      TS tiene contraparte en core_dart. Cubre el hueco de las features ADDITIVE
+#      solo-TS (export/campo nuevo SIN bump): version-drift las ve "ok" y el
+#      corpus solo cubre lo ya espejado. Modo WARN (no bloquea); KRP_PARITY_STRICT
+#      lo vuelve gate duro.
 #
 # Por qué las dos: el auto-bumper (KRO-63) detecta cambios mirando el .json
 # generado; un cambio de lógica que no altera el .json no bumpea versión. El
@@ -28,6 +33,8 @@ on:
     branches: [main]
     paths:
       - 'packages/core/package.json'
+      - 'packages/core/src/**'        # KRO-118: capacidades additive viven en el source
+      - 'packages/core/scripts/**'    # KRO-118: el propio detector de paridad
       - 'packages/core_dart/pubspec.yaml'
       - 'packages/core_dart/**'
       - 'contracts/**'
@@ -35,6 +42,8 @@ on:
   pull_request:
     paths:
       - 'packages/core/package.json'
+      - 'packages/core/src/**'
+      - 'packages/core/scripts/**'
       - 'packages/core_dart/pubspec.yaml'
       - 'packages/core_dart/**'
       - 'contracts/**'
@@ -230,3 +239,17 @@ jobs:
               echo "::error::Drift MAJOR (TS=$TS, Dart=$DART). El mirror Dart debe alinearse antes de publicar. Issue de drift abierta (si los secrets de Jira están configurados)."
               exit 1 ;;
           esac
+
+  # ── Capa 3: paridad de SUPERFICIE DE API (KRO-118) ──────────────────────────
+  api-parity:
+    name: Paridad de API TS↔Dart (capacidades additive sin espejar)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Comprobar paridad de superficie de API
+        # Modo WARN por defecto (no bloquea main mientras Flutter se pone al día).
+        # Para gate duro: env KRP_PARITY_STRICT=1.
+        run: node packages/core/scripts/check-api-parity.mjs
