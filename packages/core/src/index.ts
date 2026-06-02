@@ -34,6 +34,7 @@ export type {
   SlotComposition,
   SlotAppearance,
   NestedViewComposition,
+  TargetComposition,
   ViewComposition,
   SlotOverrides,
   CustomSlotDefinition,
@@ -108,6 +109,18 @@ export {
   type ValidationResult,
   type ValidateCompositionOptions,
 } from './validate';
+
+// ── Cadena de navegación multi-salto — KRO-94 Fase B ───────────────────
+// Resolver puro que normaliza una ViewComposition a su cadena ordenada de
+// pantallas destino (legacy single-hop + nuevo targetComposition recursivo).
+// El canvas de Studio y el renderer de Flutter (cuando lo espeje) recorren la
+// cadena con esta misma función.
+export {
+  resolveTargetChain,
+  targetChainDepth,
+  MAX_TARGET_DEPTH,
+  type ResolvedHop,
+} from './target-chain';
 
 // ── Album data validator — KRO-86 ─────────────────────────────────────
 // Función pura que valida cards + sectionsData de un álbum antes del POST.

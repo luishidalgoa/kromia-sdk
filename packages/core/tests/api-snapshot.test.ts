@@ -90,6 +90,10 @@ const EXPECTED_EXPORTS = [
   // KRO-84 — helpers del behavior incremental (auto-asignación + duplicados)
   'nextIncrementalValue',
   'findDuplicateIncrementalValues',
+  // KRO-94 Fase B — cadena de navegación multi-salto
+  'resolveTargetChain',
+  'targetChainDepth',
+  'MAX_TARGET_DEPTH',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
@@ -141,9 +145,11 @@ import type {
   SlotComposition,
   SlotAppearance,
   NestedViewComposition,
+  TargetComposition,
   ViewComposition,
   SlotOverrides,
   CustomSlotDefinition,
+  ResolvedHop,
   FieldTypeDefinition,
   ActionDefinition,
   BehaviorDefinition,
@@ -179,9 +185,11 @@ describe('Type exports compile-check', () => {
       null as unknown as SlotComposition,
       null as unknown as SlotAppearance,
       null as unknown as NestedViewComposition,
+      null as unknown as TargetComposition,
       null as unknown as ViewComposition,
       null as unknown as SlotOverrides,
       null as unknown as CustomSlotDefinition,
+      null as unknown as ResolvedHop,
       null as unknown as FieldTypeDefinition,
       null as unknown as ActionDefinition,
       null as unknown as BehaviorDefinition,
@@ -204,6 +212,6 @@ describe('Type exports compile-check', () => {
       null as unknown as ValidationResult,
       null as unknown as ValidateCompositionOptions,
     ];
-    expect(_checks.length).toBe(31);
+    expect(_checks.length).toBe(33);
   });
 });

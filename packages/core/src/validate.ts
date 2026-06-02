@@ -16,9 +16,10 @@
  *             debería ser advertido.
  */
 
-import type { ViewComposition, SlotComposition, SlotAppearance, FieldDefLike, NestedViewComposition } from './types';
+import type { ViewComposition, SlotComposition, SlotAppearance, FieldDefLike, NestedViewComposition, TargetComposition } from './types';
 import { RECIPE_REGISTRY, getRecipeManifest, allRecipesByKind } from './registries/recipes';
 import { ACTION_IDS } from './registries/actions';
+import { MAX_TARGET_DEPTH } from './target-chain';
 import { classifyField, isFieldCompatibleWithSlot } from './classify';
 import {
   OPTIONS_APPEARANCE_SHAPE,
@@ -255,6 +256,75 @@ function validateSlot(
   }
 }
 
+/**
+ * KRO-94 Fase B — Valida un eslabón de la cadena de navegación multi-salto
+ * (`TargetComposition`) y, recursivamente, sus saltos siguientes.
+ *
+ * Reglas:
+ *  - `recipe` debe existir.
+ *  - `action` debe ser válida.
+ *  - slots well-formed contra el manifest del recipe. Las **referencias a
+ *    fields NO se validan** (`fieldDefs` deliberadamente omitido): una pantalla
+ *    destino puede renderizar otra sección (cross-section), como en `validateNested`.
+ *  - `expand` (si presente) debe ser kind=expand.
+ *  - profundidad acotada a `MAX_TARGET_DEPTH` (error si se excede).
+ */
+function validateTargetChain(
+  node:   TargetComposition,
+  depth:  number,
+  path:   string,
+  issues: ValidationIssue[],
+): void {
+  if (depth > MAX_TARGET_DEPTH) {
+    issues.push({
+      path,
+      level:   'error',
+      message: `cadena de navegación excede la profundidad máxima (${MAX_TARGET_DEPTH})`,
+    });
+    return;
+  }
+  if (typeof node !== 'object' || node === null || Array.isArray(node)) {
+    issues.push({ path, level: 'error', message: 'targetComposition no es un objeto' });
+    return;
+  }
+
+  const manifest = getRecipeManifest(node.recipe);
+  if (!manifest) {
+    issues.push({ path: `${path}.recipe`, level: 'error', message: `recipe "${node.recipe}" no existe` });
+  }
+
+  if (!ACTION_IDS.includes(node.action)) {
+    issues.push({
+      path:    `${path}.action`,
+      level:   'error',
+      message: `action "${node.action}" no es válida (esperaba: ${ACTION_IDS.join('|')})`,
+    });
+  }
+
+  const slotsByid = new Map((manifest?.slots ?? []).map(s => [s.id, s]));
+  for (const [slotId, slot] of Object.entries(node.slots ?? {})) {
+    // fieldDefs omitido a propósito (cross-section): solo well-formedness.
+    validateSlot(slotId, slot, slotsByid.get(slotId), undefined, `${path}.slots.${slotId}`, issues);
+  }
+
+  if (node.expand) {
+    const expandManifest = getRecipeManifest(node.expand.recipe);
+    if (!expandManifest) {
+      issues.push({ path: `${path}.expand.recipe`, level: 'error', message: `expand.recipe "${node.expand.recipe}" no existe` });
+    } else if (expandManifest.kind !== 'expand') {
+      issues.push({ path: `${path}.expand.recipe`, level: 'error', message: `expand.recipe "${node.expand.recipe}" no es de kind=expand (es "${expandManifest.kind}")` });
+    }
+    const expandSlotsByid = new Map((expandManifest?.slots ?? []).map(s => [s.id, s]));
+    for (const [slotId, slot] of Object.entries(node.expand.slots ?? {})) {
+      validateSlot(slotId, slot, expandSlotsByid.get(slotId), undefined, `${path}.expand.slots.${slotId}`, issues);
+    }
+  }
+
+  if (node.targetComposition) {
+    validateTargetChain(node.targetComposition, depth + 1, `${path}.targetComposition`, issues);
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────
 // API pública
 // ─────────────────────────────────────────────────────────────────────────
@@ -385,6 +455,18 @@ export function validateComposition(
         message: `targetRecipe "${composition.targetRecipe}" no es kind=detail (es "${target.kind}")`,
       });
     }
+  }
+
+  // ── 7b. targetComposition (KRO-94 Fase B — cadena multi-salto) ────
+  if (composition.targetComposition) {
+    if (composition.targetRecipe !== undefined) {
+      issues.push({
+        path:    'targetComposition',
+        level:   'warn',
+        message: 'targetComposition y targetRecipe ambos presentes; el cliente usa targetComposition',
+      });
+    }
+    validateTargetChain(composition.targetComposition, 1, 'targetComposition', issues);
   }
 
   // ── 8. slotOverrides ──────────────────────────────────────────────

@@ -175,6 +175,37 @@ export interface NestedViewComposition {
 }
 
 /**
+ * KRO-94 Fase B — Pantalla destino de una cadena de navegación MULTI-SALTO.
+ *
+ * Hoy una vista navega a UNA pantalla destino-hoja (`ViewComposition.targetRecipe`,
+ * sin acción propia → single-hop). `TargetComposition` permite que la pantalla
+ * destino lleve su PROPIA `action` → encadenar (lista → detalle → modal → …).
+ *
+ * Additive: `ViewComposition.targetRecipe` (hoja) se mantiene por compat retro;
+ * las composiciones nuevas usan `ViewComposition.targetComposition`. La cadena
+ * está acotada a `MAX_TARGET_DEPTH` (impuesto por el validador) para evitar
+ * profundidades absurdas o loops. A diferencia de `NestedViewComposition` (que
+ * es una mini-receta INLINE dentro de un slot, no interactiva), cada
+ * `TargetComposition` es una PANTALLA navegable.
+ *
+ * Por hop: `recipe` = la receta de esa pantalla; `action` = la que dispara el
+ * SIGUIENTE salto; `slots` (opcional) = composición de la pantalla; `expand`/
+ * `linkField` cuando su action es expand_inline/external_link; y su propio
+ * `targetComposition` cuando su action es navigate_to_detail/modal.
+ */
+export interface TargetComposition {
+  recipe: RecipeId;
+  action: ActionId;
+  slots?: Record<string, SlotComposition>;
+  expand?: {
+    recipe: RecipeId;
+    slots:  Record<string, SlotComposition>;
+  };
+  linkField?: string;
+  targetComposition?: TargetComposition;
+}
+
+/**
  * Composición completa de una vista (sección o card) con receta + acción +
  * map de slots. Persistido dentro de SectionDefinition.viewComposition.
  */
@@ -188,6 +219,18 @@ export interface ViewComposition {
   };
   linkField?: string;
   targetRecipe?: RecipeId;
+  /**
+   * KRO-94 Fase B — Cadena de navegación MULTI-SALTO. Cuando la action es
+   * `navigate_to_detail`/`modal`, la pantalla destino puede llevar su propia
+   * `action` y encadenar (lista → detalle → modal → …) en vez de ser una hoja.
+   *
+   * Additive sobre `targetRecipe`: si está presente, gana sobre `targetRecipe`
+   * (que queda como forma-hoja legacy). Profundidad acotada a `MAX_TARGET_DEPTH`
+   * (validador). Las composiciones single-hop existentes no lo traen → render
+   * idéntico. Los clientes que aún no soportan multi-salto (Flutter previo)
+   * ignoran el campo y renderizan el primer destino — degradación elegante.
+   */
+  targetComposition?: TargetComposition;
   slotOverrides?: SlotOverrides;
   /**
    * KRO-69 follow-up — Personalización del accent (border de color del
