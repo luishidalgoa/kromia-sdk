@@ -126,6 +126,41 @@ class NestedViewComposition {
       );
 }
 
+/// Pantalla destino navegable (KRO-94 Fase B). Recursiva: cada destino lleva su
+/// propia `action` y puede encadenar otra (`targetComposition`). Espejo de
+/// `TargetComposition` (types.ts).
+class TargetComposition {
+  final String recipe;
+  final String action;
+  final Map<String, SlotComposition>? slots;
+  final NestedViewComposition? expand;
+  final String? linkField;
+  final TargetComposition? targetComposition;
+
+  const TargetComposition({
+    required this.recipe,
+    required this.action,
+    this.slots,
+    this.expand,
+    this.linkField,
+    this.targetComposition,
+  });
+
+  factory TargetComposition.fromJson(Map<String, dynamic> json) => TargetComposition(
+        recipe: (json['recipe'] as String?) ?? '',
+        action: (json['action'] as String?) ?? 'none',
+        slots: json['slots'] == null ? null : _parseSlots(json['slots']),
+        expand: json['expand'] == null
+            ? null
+            : NestedViewComposition.fromJson(json['expand'] as Map<String, dynamic>),
+        linkField: json['linkField'] as String?,
+        targetComposition: json['targetComposition'] == null
+            ? null
+            : TargetComposition.fromJson(
+                json['targetComposition'] as Map<String, dynamic>),
+      );
+}
+
 /// Composición completa de una vista (sección o card).
 class ViewComposition {
   final String recipe;
@@ -134,6 +169,12 @@ class ViewComposition {
   final NestedViewComposition? expand;
   final String? linkField;
   final String? targetRecipe;
+
+  /// KRO-94 Fase B — cadena de navegación MULTI-SALTO. Si está presente, gana
+  /// sobre `targetRecipe` (forma-hoja legacy). Aditivo: un cliente que lo ignore
+  /// renderiza solo el primer destino (degradación elegante).
+  final TargetComposition? targetComposition;
+
   final SlotOverrides? slotOverrides;
   final String? accentPosition;
 
@@ -150,6 +191,7 @@ class ViewComposition {
     this.expand,
     this.linkField,
     this.targetRecipe,
+    this.targetComposition,
     this.slotOverrides,
     this.accentPosition,
     this.protocolVersion,
@@ -164,6 +206,10 @@ class ViewComposition {
             : NestedViewComposition.fromJson(json['expand'] as Map<String, dynamic>),
         linkField: json['linkField'] as String?,
         targetRecipe: json['targetRecipe'] as String?,
+        targetComposition: json['targetComposition'] == null
+            ? null
+            : TargetComposition.fromJson(
+                json['targetComposition'] as Map<String, dynamic>),
         slotOverrides: json['slotOverrides'] == null
             ? null
             : SlotOverrides.fromJson(json['slotOverrides'] as Map<String, dynamic>),
