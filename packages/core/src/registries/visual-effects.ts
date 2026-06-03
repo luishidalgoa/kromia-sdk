@@ -30,7 +30,7 @@
  *    `.json` (igual que la doc rica): editarlo no bumpea el contrato.
  *
  * Lo que NO vive aquí: los widgets/overlays que pintan el efecto. Eso es
- * `kromia-flutter` (`lib/widgets/visual-effects/<id>.dart`) y `kromia-studio`
+ * `kromia-mobile` (`lib/widgets/visual-effects/<id>.dart`) y `kromia-studio`
  * (`src/components/album/visual-effects/<Id>Layer.tsx`). El SDK declara el
  * catálogo + el contrato de config; los clientes implementan el render.
  */

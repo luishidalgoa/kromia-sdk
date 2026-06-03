@@ -5,7 +5,7 @@
  * fichero JSON serializado, versionado y portable que consumen los
  * clientes downstream:
  *
- *   - kromia-flutter (KRO-65)        → renderiza el catálogo desde el .json
+ *   - kromia-mobile (KRO-65)        → renderiza el catálogo desde el .json
  *                                      (mejor: importa el package Dart
  *                                      espejo, futuro `protocol-dart`).
  *   - Wiki auto-mantenible (KRO-46)  → render markdown desde el .json

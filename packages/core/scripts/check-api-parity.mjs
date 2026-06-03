@@ -91,7 +91,7 @@ const SYMBOL_META = {
   TagStyle:                    { src: 'src/types.ts',                    tests: 'tests/visual-effects.test.ts',
     note: 'Mapeo valor-de-tag → efecto: { value, effect, config? }. Vive en albumSchema.tagStyles. Parsear en fromJson.' },
   VisualEffectDefinition:      { src: 'src/registries/visual-effects.ts', tests: 'tests/visual-effects.test.ts',
-    note: 'Shape del catálogo: { id, displayName, description, layer, config[] }. layer ∈ overlay|badge|filter|border. El catálogo (6 efectos V1) está en visualEffects[] del .json del KRP — mirror desde ahí, NO hardcodear. El render del widget vive en kromia-flutter (lib/widgets/visual-effects/<id>.dart), NO en core_dart.' },
+    note: 'Shape del catálogo: { id, displayName, description, layer, config[] }. layer ∈ overlay|badge|filter|border. El catálogo (6 efectos V1) está en visualEffects[] del .json del KRP — mirror desde ahí, NO hardcodear. El render del widget vive en kromia-mobile (lib/widgets/visual-effects/<id>.dart), NO en core_dart.' },
   allVisualEffects:            { src: 'src/registries/visual-effects.ts', tests: 'tests/visual-effects.test.ts',
     note: 'Accessor del catálogo. En Dart: leer visualEffects[] del .json embebido.' },
   getVisualEffect:             { src: 'src/registries/visual-effects.ts', tests: 'tests/visual-effects.test.ts',
