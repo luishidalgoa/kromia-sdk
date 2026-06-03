@@ -265,12 +265,25 @@ export interface ViewComposition {
  * param. `isTagStyleValid` (`tag-styles.ts`) lo valida.
  */
 export interface TagStyle {
-  /** Valor EXACTO de la tag que dispara el efecto (ej. "Holográfica"). */
+  /** Valor EXACTO que dispara el efecto (ej. "Holográfica", "legend"). */
   value: string;
   /** ID del efecto del catálogo `visual-effects.ts` (ej. "holographic_effect"). */
   effect: string;
   /** Config opcional del efecto. Keys + espacio de valores los define el efecto. */
   config?: Record<string, string | number>;
+  /**
+   * KRO-120 — Campo al que se ANCLA el efecto (opcional, additive):
+   *  - Con `fieldKey`: el efecto aplica cuando el valor de ESE campo coincide
+   *    con `value`. Permite ligar efectos a un campo concreto, incluido el de
+   *    rareza (`rating`/`enum`/`ordinal_enum`): p.ej. `{fieldKey:'rareza',
+   *    value:'legend', effect:'holographic_effect'}`.
+   *  - Sin `fieldKey`: comportamiento clásico (standalone) — matchea el `value`
+   *    contra cualquier campo con behavior `tags` de la carta.
+   * Varios efectos pueden compartir `(fieldKey, value)` (relación 1:N). No
+   * entra al `.json` del contrato (igual que el resto del shape de álbum): es
+   * data de álbum, no catálogo → no bumpea PROTOCOL_VERSION.
+   */
+  fieldKey?: string;
 }
 
 /**
