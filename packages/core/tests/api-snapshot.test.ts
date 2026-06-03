@@ -107,6 +107,11 @@ const EXPECTED_EXPORTS = [
   'VISUAL_EFFECT_IDS',
   'isTagStyleValid',
   'validateTagStyles',
+  // KRO-28 — fuente de rareza (validador + helpers)
+  'isFieldEligibleForRarity',
+  'validateRaritySource',
+  'rarityBucketForValue',
+  'normalizeRarityWeights',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
@@ -168,6 +173,8 @@ import type {
   VisualEffectLayer,
   TagStyleValidationIssue,
   TagStyleValidationResult,
+  RaritySource,
+  RarityBucket,
   ResolvedHop,
   FieldTypeDefinition,
   ActionDefinition,
@@ -214,6 +221,10 @@ describe('Type exports compile-check', () => {
       null as unknown as VisualEffectLayer,
       null as unknown as TagStyleValidationIssue,
       null as unknown as TagStyleValidationResult,
+      null as unknown as RaritySource,
+      null as unknown as RarityBucket,
+      null as unknown as import('../src/rarity').RarityValidationIssue,
+      null as unknown as import('../src/rarity').RarityValidationResult,
       null as unknown as ResolvedHop,
       null as unknown as FieldTypeDefinition,
       null as unknown as ActionDefinition,
@@ -239,6 +250,6 @@ describe('Type exports compile-check', () => {
       null as unknown as import('../src/interaction').TapResolution,
       null as unknown as import('../src/interaction').ResolveTapOptions,
     ];
-    expect(_checks.length).toBe(41);
+    expect(_checks.length).toBe(45);
   });
 });

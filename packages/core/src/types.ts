@@ -274,6 +274,29 @@ export interface TagStyle {
 }
 
 /**
+ * KRO-28 — Fuente de rareza: un field `rating`/`enum`/`ordinal_enum` del
+ * cardSchema marcado como "fuente de rareza" + la distribución de probabilidad
+ * de aparición por valor o por rango. Vive a nivel `cardSchema.raritySource`.
+ * La app cliente usa estos pesos al repartir cartas (sobres/pulls). Es metadata
+ * del schema — no toca la carta individual.
+ */
+export interface RarityBucket {
+  /** Para `enum`/`ordinal_enum`: valor exacto del field. */
+  value?: string;
+  /** Para `rating` (numérico): rango inclusivo `[min, max]`. */
+  range?: [number, number];
+  /** Peso de aparición. Convención 0..100 (se normaliza al repartir). */
+  weight: number;
+}
+
+export interface RaritySource {
+  /** Key del field (rating/enum/ordinal_enum) que define la rareza. */
+  fieldKey: string;
+  /** Distribución por valor (enum) o por rango (rating). */
+  buckets: RarityBucket[];
+}
+
+/**
  * KRO-58 V5 — Tipos compartidos. SlotKind define si un slot acepta 1 field
  * o N fields composables.
  */

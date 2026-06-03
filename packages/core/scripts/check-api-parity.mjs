@@ -100,6 +100,20 @@ const SYMBOL_META = {
     note: 'Valida un TagStyle contra el catálogo (effect existe, config dentro del espacio del param). Pure.' },
   validateTagStyles:           { src: 'src/tag-styles.ts',                tests: 'tests/visual-effects.test.ts',
     note: 'Valida el array completo + avisa de valores de tag duplicados (warn). Devuelve { valid, issues[] }.' },
+
+  // ── Fuente de rareza (KRO-28) ───────────────────────────────────────────
+  RaritySource:                { src: 'src/types.ts',   tests: 'tests/rarity.test.ts',
+    note: 'Vive en cardSchema.raritySource: { fieldKey, buckets: RarityBucket[] }. Parsear en fromJson.' },
+  RarityBucket:                { src: 'src/types.ts',   tests: 'tests/rarity.test.ts',
+    note: '{ value?: string (enum) | range?: [number,number] (rating), weight: number }.' },
+  isFieldEligibleForRarity:    { src: 'src/rarity.ts',  tests: 'tests/rarity.test.ts',
+    note: 'true si behavior ∈ rating|enum|ordinal_enum. Pure.' },
+  validateRaritySource:        { src: 'src/rarity.ts',  tests: 'tests/rarity.test.ts',
+    note: 'Valida raritySource vs fieldDefs (field existe+elegible, buckets, value xor range, weights). Devuelve { valid, issues[] }.' },
+  rarityBucketForValue:        { src: 'src/rarity.ts',  tests: 'tests/rarity.test.ts',
+    note: 'Dado un valor de carta → el bucket (por value enum o range rating). Necesario para el reparto ponderado en el cliente.' },
+  normalizeRarityWeights:      { src: 'src/rarity.ts',  tests: 'tests/rarity.test.ts',
+    note: 'Escala pesos a sumar 100 (equitativo si todos 0). Pure.' },
 };
 
 /** Todos los símbolos must-mirror (orden de SYMBOL_META). */

@@ -39,6 +39,8 @@ export type {
   SlotOverrides,
   CustomSlotDefinition,
   TagStyle,
+  RaritySource,
+  RarityBucket,
 } from './types';
 
 // ── Field types ────────────────────────────────────────────────────────
@@ -112,6 +114,18 @@ export {
   type TagStyleValidationIssue,
   type TagStyleValidationResult,
 } from './tag-styles';
+
+// ── Rareza (fuente de rareza) — KRO-28 ───────────────────────────────────
+// Field rating/enum/ordinal_enum marcado como fuente de rareza + distribución
+// de pesos. Validador + helpers puros; el reparto ponderado real es del cliente.
+export {
+  isFieldEligibleForRarity,
+  validateRaritySource,
+  rarityBucketForValue,
+  normalizeRarityWeights,
+  type RarityValidationIssue,
+  type RarityValidationResult,
+} from './rarity';
 
 // ── Classification / validation ────────────────────────────────────────
 export {

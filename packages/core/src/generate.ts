@@ -253,15 +253,20 @@ function serializeVisualEffect(e: VisualEffectDefinition): VisualEffectJson {
     description: e.description,
     layer:       e.layer,
     // `label` se omite a propósito (editor-only, como la doc rica).
-    config: e.config.map(p => ({
-      key:      p.key,
-      type:     p.type,
-      options:  p.options,
-      default:  p.default,
-      min:      p.min,
-      max:      p.max,
-      optional: p.optional,
-    })),
+    // IMPORTANTE: omitir las keys `undefined` (no pasarlas como `undefined`).
+    // `JSON.stringify` las dropea del .json, pero `buildPayload` las mantendría
+    // en memoria → el detector de bump (deepEqual sobre objetos anidados en
+    // arrays cuenta keys) vería un mismatch y bumpearía MAJOR en falso en cada
+    // `pnpm gen` posterior. Construir solo con las keys definidas evita ese drift.
+    config: e.config.map(p => {
+      const out: VisualEffectConfigJson = { key: p.key, type: p.type };
+      if (p.options  !== undefined) out.options  = p.options;
+      if (p.default  !== undefined) out.default  = p.default;
+      if (p.min      !== undefined) out.min      = p.min;
+      if (p.max      !== undefined) out.max      = p.max;
+      if (p.optional !== undefined) out.optional = p.optional;
+      return out;
+    }),
   };
 }
 
