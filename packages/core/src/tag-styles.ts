@@ -66,12 +66,16 @@ function collectTagStyleIssues(
   // propias. Se valida que haya al menos una capa y que cada una tenga textura.
   if (ts.effect === 'custom_foil' || (ts.customLayers && ts.customLayers.length > 0)) {
     const layers = ts.customLayers ?? [];
+    // Un foil INCOMPLETO (sin capas / sin textura) es un estado "a medio hacer",
+    // no algo roto: al render simplemente NO se pinta esa capa. Por eso es `warn`
+    // (ámbar, no bloquea el guardado ni salta como error rojo mientras lo montas),
+    // no `error`. El publisher ve el aviso y completa la textura cuando quiera.
     if (layers.length === 0) {
-      issues.push({ index, path: `${prefix}.customLayers`, level: 'error', message: 'el foil personalizado necesita al menos una capa' });
+      issues.push({ index, path: `${prefix}.customLayers`, level: 'warn', message: 'el foil personalizado aún no tiene capas (no se aplicará hasta que añadas una)' });
     }
     layers.forEach((l, li) => {
       if (typeof l.textureUrl !== 'string' || l.textureUrl.trim() === '') {
-        issues.push({ index, path: `${prefix}.customLayers[${li}].textureUrl`, level: 'error', message: 'la capa de foil necesita una textura (URL)' });
+        issues.push({ index, path: `${prefix}.customLayers[${li}].textureUrl`, level: 'warn', message: 'esta capa de foil aún no tiene textura (no se pintará hasta que la añadas)' });
       }
     });
     return;

@@ -144,3 +144,27 @@ describe('validateTagStyles', () => {
     expect(validateTagStyles([])).toEqual({ valid: true, issues: [] });
   });
 });
+
+describe('validateTagStyles — foil incompleto = warn, no error (KRO-123)', () => {
+  it('foil personalizado sin textura → warn (no error, no bloquea guardado)', () => {
+    const ts: TagStyle = { value: 'comun', effect: 'custom_foil', customLayers: [{ kind: 'foil', textureUrl: '', blend: 'color-dodge' }] };
+    const r = validateTagStyles([ts]);
+    expect(r.valid).toBe(true); // warnings no invalidan
+    const issue = r.issues.find(i => i.path.includes('textureUrl'));
+    expect(issue?.level).toBe('warn');
+    expect(isTagStyleValid(ts)).toBe(true);
+  });
+
+  it('foil personalizado sin capas → warn', () => {
+    const ts: TagStyle = { value: 'comun', effect: 'custom_foil', customLayers: [] };
+    const r = validateTagStyles([ts]);
+    expect(r.valid).toBe(true);
+    expect(r.issues.find(i => i.path.endsWith('customLayers'))?.level).toBe('warn');
+  });
+
+  it('foil con textura → sin issues de foil', () => {
+    const ts: TagStyle = { value: 'comun', effect: 'custom_foil', customLayers: [{ kind: 'foil', textureUrl: 'http://x/foil.png', blend: 'color-dodge' }] };
+    const r = validateTagStyles([ts]);
+    expect(r.issues.filter(i => i.path.includes('customLayers'))).toHaveLength(0);
+  });
+});
