@@ -27,7 +27,7 @@
 import { cn } from '../lib/cn';
 import {
   BannerBox, ComposableSlot, ScalarText,
-  resolveSlot, isSlotDisabled,
+  resolveSlot, isSlotDisabled, MarkdownText,
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass,
   applyAppearanceTruncate, imageFocusStyle, slotDebugAttrs, extractAccentSettings, AccentFrame,
   type FieldDefLike,
@@ -114,7 +114,9 @@ export function EditorialRecipe({
             )}
             {...slotDebugAttrs('body', body)}
           >
-            {applyAppearanceTruncate(String(bodyField.value), body?.appearance)}
+            {bodyField.def?.behavior === 'markdown'
+              ? <MarkdownText text={applyAppearanceTruncate(String(bodyField.value), body?.appearance)} />
+              : applyAppearanceTruncate(String(bodyField.value), body?.appearance)}
           </div>
         )}
 

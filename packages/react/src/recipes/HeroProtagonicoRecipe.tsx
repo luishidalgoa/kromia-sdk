@@ -35,7 +35,7 @@
 import { cn } from '../lib/cn';
 import {
   AvatarBox, BannerBox, ComposableSlot, ScalarText,
-  resolveSlot, formatScalar,
+  resolveSlot, formatScalar, MarkdownText,
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass,
   applyAppearanceTruncate, imageFocusStyle, slotDebugAttrs, extractAccentSettings, AccentFrame,
   type FieldDefLike,
@@ -143,7 +143,9 @@ export function HeroProtagonicoRecipe({
           )}
           {...slotDebugAttrs('body', body)}
         >
-          {applyAppearanceTruncate(String(bodyField.value), body.appearance)}
+          {bodyField.def?.behavior === 'markdown'
+            ? <MarkdownText text={applyAppearanceTruncate(String(bodyField.value), body.appearance)} />
+            : applyAppearanceTruncate(String(bodyField.value), body.appearance)}
         </div>
       ),
     });
