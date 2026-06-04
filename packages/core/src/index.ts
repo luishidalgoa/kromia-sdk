@@ -39,6 +39,10 @@ export type {
   SlotOverrides,
   CustomSlotDefinition,
   TagStyle,
+  EffectLayer,
+  EffectLayerKind,
+  EffectBlendMode,
+  CardEffect3D,
   RaritySource,
   RarityBucket,
 } from './types';

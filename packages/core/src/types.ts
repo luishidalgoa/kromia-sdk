@@ -251,6 +251,44 @@ export interface ViewComposition {
 }
 
 /**
+ * KRO-122 — Foil IMPORTABLE por el creador. Un efecto holográfico custom no es
+ * un id de catálogo: es una PILA DE CAPAS que el diseñador aporta. Cada capa =
+ * una textura (lámina tornasolada / glitter / patrón) + una máscara opcional
+ * (grises: dónde brilla) + un modo de fusión. El glare y el tilt 3D los pone el
+ * renderer (no se autoran). Render-agnóstico: Studio (CSS) y Flutter (shader)
+ * lo espejan. NO entra al `.json` del contrato (es data de álbum) → sin bump.
+ */
+export type EffectLayerKind = 'foil' | 'glitter' | 'pattern';
+export type EffectBlendMode =
+  | 'color-dodge' | 'overlay' | 'screen' | 'soft-light' | 'hard-light';
+
+export interface EffectLayer {
+  /** Naturaleza de la capa (orienta el render por defecto). */
+  kind: EffectLayerKind;
+  /** URL de la textura/patrón (la lámina que se superpone). */
+  textureUrl: string;
+  /** URL de la máscara en grises (blanco = brilla, negro = no). Opcional. */
+  maskUrl?: string;
+  /** Modo de fusión de la capa sobre la imagen. */
+  blend: EffectBlendMode;
+  /** Intensidad 0..1 (opacidad efectiva). */
+  intensity?: number;
+  /** Cuánto se desplaza/cambia la capa con el ángulo/tilt. 0..1. */
+  motion?: number;
+}
+
+/**
+ * KRO-122 — Efecto 3D/foil completo de una carta: pila de capas + profundidad
+ * del relieve (parallax). Usado para el foil importable. El render lo consume
+ * (Studio `HoloCard`/`VisualEffectLayers`, Flutter su equivalente).
+ */
+export interface CardEffect3D {
+  layers: EffectLayer[];
+  /** Fuerza del tilt/parallax 0..1. Default render-defined. */
+  depth?: number;
+}
+
+/**
  * KRO-30 — Mapeo VALOR-de-tag → efecto visual. El publisher declara, a nivel
  * álbum (`albumSchema.tagStyles`), qué valores concretos de tag disparan qué
  * efecto al renderizar la carta. Es behavior-on-VALUE, no behavior-on-FIELD:
@@ -284,6 +322,12 @@ export interface TagStyle {
    * data de álbum, no catálogo → no bumpea PROTOCOL_VERSION.
    */
   fieldKey?: string;
+  /**
+   * KRO-122 — Foil PERSONALIZADO (importado por el creador): pila de capas
+   * propias. Si está presente, el render usa estas capas en vez del efecto de
+   * catálogo (`effect` se usa como id estable, p.ej. `'custom_foil'`). additive.
+   */
+  customLayers?: EffectLayer[];
 }
 
 /**
