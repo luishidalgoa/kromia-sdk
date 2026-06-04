@@ -373,3 +373,53 @@ describe('detectBumpKind — smoke check con KRP real', () => {
     expect(r.reasons).toHaveLength(0);
   });
 });
+
+// ── visualEffects.config — KRO-123 (añadir params opcionales = minor) ──
+
+function visualEffect(id: string, config: unknown[] = [], extras: Record<string, unknown> = {}): Record<string, unknown> {
+  return { id, displayName: id, description: `Effect ${id}`, layer: 'overlay', config, ...extras };
+}
+
+describe('detectBumpKind — visualEffects.config', () => {
+  it('añadir un param OPCIONAL → minor', () => {
+    const a = baseJson({ visualEffects: [visualEffect('crown_badge', [{ key: 'color', type: 'enum', options: ['gold'], default: 'gold' }])] });
+    const b = baseJson({ visualEffects: [visualEffect('crown_badge', [
+      { key: 'color', type: 'enum', options: ['gold'], default: 'gold' },
+      { key: 'image_url', type: 'string', optional: true },
+    ])] });
+    const r = detectBumpKind(a, b);
+    expect(r.kind).toBe('minor');
+    expect(r.reasons[0].description).toMatch(/image_url.*opcional/);
+  });
+
+  it('añadir un param numérico con default → minor (no major)', () => {
+    const a = baseJson({ visualEffects: [visualEffect('crown_badge', [])] });
+    const b = baseJson({ visualEffects: [visualEffect('crown_badge', [{ key: 'padding_y', type: 'number', min: 0, max: 48, default: 4 }])] });
+    expect(detectBumpKind(a, b).kind).toBe('minor');
+  });
+
+  it('añadir un param REQUERIDO (optional:false) → major', () => {
+    const a = baseJson({ visualEffects: [visualEffect('crown_badge', [])] });
+    const b = baseJson({ visualEffects: [visualEffect('crown_badge', [{ key: 'mandatory', type: 'string', optional: false }])] });
+    expect(detectBumpKind(a, b).kind).toBe('major');
+  });
+
+  it('eliminar un param → major', () => {
+    const a = baseJson({ visualEffects: [visualEffect('crown_badge', [{ key: 'color', type: 'enum', options: ['gold'] }])] });
+    const b = baseJson({ visualEffects: [visualEffect('crown_badge', [])] });
+    expect(detectBumpKind(a, b).kind).toBe('major');
+  });
+
+  it('cambiar el shape de un param (options) → major', () => {
+    const a = baseJson({ visualEffects: [visualEffect('crown_badge', [{ key: 'color', type: 'enum', options: ['gold'] }])] });
+    const b = baseJson({ visualEffects: [visualEffect('crown_badge', [{ key: 'color', type: 'enum', options: ['gold', 'silver'] }])] });
+    expect(detectBumpKind(a, b).kind).toBe('major');
+  });
+
+  it('config idéntica → none', () => {
+    const cfg = [{ key: 'color', type: 'enum', options: ['gold'], default: 'gold' }];
+    const a = baseJson({ visualEffects: [visualEffect('crown_badge', cfg)] });
+    const b = baseJson({ visualEffects: [visualEffect('crown_badge', [...cfg])] });
+    expect(detectBumpKind(a, b).kind).toBe('none');
+  });
+});

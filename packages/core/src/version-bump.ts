@@ -256,6 +256,15 @@ function diffEntry(
       continue;
     }
 
+    // Tratamiento especial para `config` (visualEffects) — sub-colección de
+    // params con sus propias reglas (añadir un param OPCIONAL es aditivo =
+    // minor, no major). Sin esto, deepEqual marcaría cualquier cambio de
+    // config como major y rompería la compat de álbumes existentes en falso.
+    if (key === 'config' && coll === 'visualEffects') {
+      diffVisualEffectConfig(id, prev.config, next.config, reasons);
+      continue;
+    }
+
     if (!deepEqual(prev[key], next[key])) {
       if (COSMETIC_FIELDS.has(key)) {
         reasons.push({
@@ -347,6 +356,84 @@ function diffRecipeSlots(
             description: `recipes.${recipeId}.slots.${slotId}.${k} cambió (shape)`,
           });
         }
+      }
+    }
+  }
+}
+
+/**
+ * Compara el array `config` de un visualEffect (params), indexado por `key`.
+ * Mismas reglas que los slots de recipe, pero por param:
+ *   - param eliminado → major (un cliente que lo leía lo pierde).
+ *   - param añadido → minor si es opcional (default o `optional !== false`),
+ *     major si es REQUERIDO (`optional === false`): un álbum viejo sin ese
+ *     valor quedaría inválido.
+ *   - param modificado en shape (type/options/default/min/max) → major.
+ * El `label` no se serializa (editor-only) → nunca aparece aquí.
+ */
+function diffVisualEffectConfig(
+  effectId:   string,
+  prevConfig: unknown,
+  nextConfig: unknown,
+  reasons:    BumpReason[],
+): void {
+  if (!Array.isArray(prevConfig) || !Array.isArray(nextConfig)) {
+    reasons.push({
+      level:       'major',
+      collection:  'visualEffects',
+      entityId:    effectId,
+      description: `visualEffects.${effectId}.config: shape changed (no es array)`,
+    });
+    return;
+  }
+
+  const indexByKey = (arr: unknown[]): Map<string, Record<string, unknown>> => {
+    const out = new Map<string, Record<string, unknown>>();
+    for (const it of arr) if (isRecord(it) && typeof it.key === 'string') out.set(it.key, it);
+    return out;
+  };
+  const prevByKey = indexByKey(prevConfig);
+  const nextByKey = indexByKey(nextConfig);
+
+  // Param eliminado → major.
+  for (const k of prevByKey.keys()) {
+    if (!nextByKey.has(k)) {
+      reasons.push({
+        level:       'major',
+        collection:  'visualEffects',
+        entityId:    effectId,
+        description: `visualEffects.${effectId}.config: param "${k}" eliminado`,
+      });
+    }
+  }
+
+  // Param añadido → minor (opcional) / major (requerido).
+  for (const k of nextByKey.keys()) {
+    if (!prevByKey.has(k)) {
+      const required = nextByKey.get(k)!.optional === false;
+      reasons.push({
+        level:       required ? 'major' : 'minor',
+        collection:  'visualEffects',
+        entityId:    effectId,
+        description: `visualEffects.${effectId}.config: param "${k}" añadido${required ? ' (REQUERIDO)' : ' (opcional)'}`,
+      });
+    }
+  }
+
+  // Param modificado → major (cambia el espacio de valores / semántica).
+  for (const k of nextByKey.keys()) {
+    const prevParam = prevByKey.get(k);
+    if (!prevParam) continue;
+    const nextParam = nextByKey.get(k)!;
+    const fields = new Set<string>([...Object.keys(prevParam), ...Object.keys(nextParam)]);
+    for (const f of fields) {
+      if (!deepEqual(prevParam[f], nextParam[f])) {
+        reasons.push({
+          level:       'major',
+          collection:  'visualEffects',
+          entityId:    effectId,
+          description: `visualEffects.${effectId}.config.${k}.${f} cambió (shape)`,
+        });
       }
     }
   }

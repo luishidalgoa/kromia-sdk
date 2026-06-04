@@ -100,13 +100,13 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
   },
   {
     id:          'crown_badge',
-    displayName: 'Insignia de corona',
-    description: 'Corona / icono distintivo en una esquina de la carta.',
+    displayName: 'Insignia',
+    description: 'Corona (o tu imagen propia) como distintivo en una esquina, con separación ajustable.',
     layer:       'badge',
     config: [
       {
         key:     'color',
-        label:   'Color',
+        label:   'Color (corona por defecto)',
         type:    'enum',
         options: ['gold', 'silver', 'bronze'],
         default: 'gold',
@@ -118,11 +118,38 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
         options: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
         default: 'top-right',
       },
+      {
+        // Imagen propia de la insignia. Si se provee, sustituye a la corona por
+        // defecto (el `color` deja de aplicar). String = URL (igual que signature_url).
+        key:      'image_url',
+        label:    'Imagen personalizada (URL)',
+        type:     'string',
+        optional: true,
+      },
+      {
+        // Separación desde el borde horizontal de la esquina (px). Ajuste fino.
+        key:     'padding_x',
+        label:   'Separación horizontal (px)',
+        type:    'number',
+        min:     0,
+        max:     48,
+        default: 4,
+      },
+      {
+        // Separación desde el borde vertical de la esquina (px). En top empuja
+        // el icono hacia ABAJO; en bottom, hacia ARRIBA.
+        key:     'padding_y',
+        label:   'Separación vertical (px)',
+        type:    'number',
+        min:     0,
+        max:     48,
+        default: 4,
+      },
     ],
     whenToUse:
-      'Para destacar cartas "MVP", capitanes o ediciones premiadas con un distintivo visible sin tapar la imagen.',
+      'Para destacar cartas "MVP", capitanes o ediciones premiadas con un distintivo (corona o tu propio icono) visible sin tapar la imagen. Ajusta su posición exacta con la separación.',
     related: ['concept:tag-style', 'effect:signed'],
-    aliases: ['corona', 'badge', 'distintivo', 'mvp'],
+    aliases: ['corona', 'badge', 'distintivo', 'mvp', 'insignia'],
   },
   {
     id:          'vintage_filter',

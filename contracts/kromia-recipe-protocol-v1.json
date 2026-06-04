@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
-  "protocolVersion": "2.3.0",
-  "generatedAt": "2026-06-02T20:47:22.399Z",
+  "protocolVersion": "2.4.0",
+  "generatedAt": "2026-06-04T11:22:04.345Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -884,8 +884,8 @@
     },
     {
       "id": "crown_badge",
-      "displayName": "Insignia de corona",
-      "description": "Corona / icono distintivo en una esquina de la carta.",
+      "displayName": "Insignia",
+      "description": "Corona (o tu imagen propia) como distintivo en una esquina, con separación ajustable.",
       "layer": "badge",
       "config": [
         {
@@ -908,6 +908,25 @@
             "bottom-right"
           ],
           "default": "top-right"
+        },
+        {
+          "key": "image_url",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "key": "padding_x",
+          "type": "number",
+          "default": 4,
+          "min": 0,
+          "max": 48
+        },
+        {
+          "key": "padding_y",
+          "type": "number",
+          "default": 4,
+          "min": 0,
+          "max": 48
         }
       ]
     },
