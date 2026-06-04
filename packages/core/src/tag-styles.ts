@@ -62,6 +62,21 @@ function collectTagStyleIssues(
     issues.push({ index, path: `${prefix}.value`, level: 'error', message: 'el valor de la tag no puede estar vacío' });
   }
 
+  // KRO-122 — Foil PERSONALIZADO: no es un efecto de catálogo, sino capas
+  // propias. Se valida que haya al menos una capa y que cada una tenga textura.
+  if (ts.effect === 'custom_foil' || (ts.customLayers && ts.customLayers.length > 0)) {
+    const layers = ts.customLayers ?? [];
+    if (layers.length === 0) {
+      issues.push({ index, path: `${prefix}.customLayers`, level: 'error', message: 'el foil personalizado necesita al menos una capa' });
+    }
+    layers.forEach((l, li) => {
+      if (typeof l.textureUrl !== 'string' || l.textureUrl.trim() === '') {
+        issues.push({ index, path: `${prefix}.customLayers[${li}].textureUrl`, level: 'error', message: 'la capa de foil necesita una textura (URL)' });
+      }
+    });
+    return;
+  }
+
   // 2. effect existe en el catálogo.
   const effect = getVisualEffect(ts.effect);
   if (!effect) {
