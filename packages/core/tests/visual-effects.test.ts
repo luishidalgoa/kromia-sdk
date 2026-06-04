@@ -127,17 +127,15 @@ describe('validateTagStyles', () => {
     expect(err?.path).toBe('tagStyles[1].effect');
   });
 
-  it('valores de tag duplicados → warn (no invalida)', () => {
+  it('mismo valor con efectos DISTINTOS → combinan, sin aviso (KRO-127)', () => {
     const styles: TagStyle[] = [
       { value: 'Rara', effect: 'glow_border' },
       { value: 'Rara', effect: 'holographic_effect' },
     ];
     const r = validateTagStyles(styles);
-    expect(r.valid).toBe(true); // warn no invalida
-    const warn = r.issues.find(i => i.level === 'warn');
-    expect(warn).toBeDefined();
-    expect(warn?.index).toBe(1);
-    expect(warn?.message).toContain('duplicado');
+    expect(r.valid).toBe(true);
+    // efectos distintos sobre el mismo valor = combinación intencionada → sin warn
+    expect(r.issues.filter(i => i.level === 'warn')).toHaveLength(0);
   });
 
   it('array vacío → valid:true', () => {
@@ -166,5 +164,37 @@ describe('validateTagStyles — foil incompleto = warn, no error (KRO-123)', () 
     const ts: TagStyle = { value: 'comun', effect: 'custom_foil', customLayers: [{ kind: 'foil', textureUrl: 'http://x/foil.png', blend: 'color-dodge' }] };
     const r = validateTagStyles([ts]);
     expect(r.issues.filter(i => i.path.includes('customLayers'))).toHaveLength(0);
+  });
+});
+
+describe('validateTagStyles — combinar efectos en el mismo valor (KRO-127)', () => {
+  it('efectos DISTINTOS sobre el mismo valor → sin aviso de duplicado (combinan)', () => {
+    const styles: TagStyle[] = [
+      { value: 'legend', effect: 'holographic_effect', fieldKey: 'rareza' },
+      { value: 'legend', effect: 'signed',             fieldKey: 'rareza' },
+      { value: 'legend', effect: 'crown_badge',        fieldKey: 'rareza' },
+    ];
+    const r = validateTagStyles(styles);
+    expect(r.valid).toBe(true);
+    expect(r.issues.filter(i => /ya está aplicado/.test(i.message))).toHaveLength(0);
+  });
+
+  it('el MISMO efecto repetido sobre el mismo valor → warn (redundante)', () => {
+    const styles: TagStyle[] = [
+      { value: 'legend', effect: 'holographic_effect' },
+      { value: 'legend', effect: 'holographic_effect' },
+    ];
+    const r = validateTagStyles(styles);
+    expect(r.valid).toBe(true); // warn no invalida
+    const dup = r.issues.find(i => /ya está aplicado/.test(i.message));
+    expect(dup?.level).toBe('warn');
+  });
+
+  it('mismo efecto en valores DISTINTOS → sin aviso', () => {
+    const styles: TagStyle[] = [
+      { value: 'legend', effect: 'holographic_effect', fieldKey: 'rareza' },
+      { value: 'epic',   effect: 'holographic_effect', fieldKey: 'rareza' },
+    ];
+    expect(validateTagStyles(styles).issues.filter(i => /ya está aplicado/.test(i.message))).toHaveLength(0);
   });
 });

@@ -168,15 +168,20 @@ export function validateTagStyles(tagStyles: TagStyle[]): TagStyleValidationResu
     collectTagStyleIssues(ts, index, `tagStyles[${index}]`, issues);
   });
 
-  // Duplicados por `value` → warn (no bloquea, pero el render elegiría el primero).
+  // KRO-127 — COMBINAR varios efectos sobre el MISMO valor (p.ej. holográfico
+  // + firmado + corona) es INTENCIONADO: el resolver los recoge todos (dedup por
+  // id de efecto) y el cliente los apila. Por eso el aviso de duplicado es por
+  // (valor + efecto): solo el MISMO efecto repetido sobre el mismo valor es
+  // redundante (el resolver lo pinta una vez). Efectos DISTINTOS → sin aviso.
   const seen = new Map<string, number>();
   tagStyles.forEach((ts, index) => {
     if (typeof ts.value !== 'string' || ts.value.trim() === '') return;
-    const prev = seen.get(ts.value);
+    const key = `${ts.value}::${ts.effect}`;
+    const prev = seen.get(key);
     if (prev !== undefined) {
-      issues.push({ index, path: `tagStyles[${index}].value`, level: 'warn', message: `valor de tag "${ts.value}" duplicado (ya definido en tagStyles[${prev}]); se aplicaría el primero` });
+      issues.push({ index, path: `tagStyles[${index}].effect`, level: 'warn', message: `el efecto "${ts.effect}" ya está aplicado al valor "${ts.value}" (tagStyles[${prev}]); se aplica una sola vez` });
     } else {
-      seen.set(ts.value, index);
+      seen.set(key, index);
     }
   });
 
