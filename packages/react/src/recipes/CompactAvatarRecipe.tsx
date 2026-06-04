@@ -18,7 +18,7 @@
 
 import { cn } from '../lib/cn';
 import {
-  AvatarBox, ComposableSlot, ScalarText, StatusDot, resolveSlot,
+  AvatarBox, ComposableSlot, ScalarText, StatusDot, resolveSlot, isSlotDisabled,
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass,
   slotDebugAttrs, extractAccentSettings, AccentFrame,
   type FieldDefLike,
@@ -49,6 +49,11 @@ export function CompactAvatarRecipe({
   const titleField  = title?.fields[0];
   const metaField   = meta?.fields[0];
 
+  // KRO-58 V5 — si el publisher DESACTIVÓ el slot avatar, no lo pintamos
+  // (ni placeholder ni iniciales): la fila pasa a solo-texto. Honra
+  // `slotOverrides.disabled` en el render, no solo en el editor/validador.
+  const avatarDisabled = isSlotDisabled(composition, 'avatar');
+
   const clickable = !!onClick;
   // KRO-69 follow-up — accent color. AccentFrame se encarga de aplicar el
   // estilo (flat: style inline; rounded: outer wrapper bg color).
@@ -66,18 +71,21 @@ export function CompactAvatarRecipe({
     >
       {/* KRO-69: appearance per slot. paddingY del avatar va en su wrapper
           (no en el div interior del AvatarBox — no produciría espacio
-          alrededor sino dentro de un overflow-hidden). */}
-      <div
-        className={cn('shrink-0', appearancePaddingClass(avatar?.appearance))}
-        {...slotDebugAttrs('avatar', avatar)}
-      >
-        <AvatarBox
-          url={avatarUrl}
-          alt={titleField?.value as string ?? ''}
-          size={48}
-          appearance={avatar?.appearance}
-        />
-      </div>
+          alrededor sino dentro de un overflow-hidden).
+          KRO-58 V5: omitido entero si el slot está desactivado. */}
+      {!avatarDisabled && (
+        <div
+          className={cn('shrink-0', appearancePaddingClass(avatar?.appearance))}
+          {...slotDebugAttrs('avatar', avatar)}
+        >
+          <AvatarBox
+            url={avatarUrl}
+            alt={titleField?.value as string ?? ''}
+            size={48}
+            appearance={avatar?.appearance}
+          />
+        </div>
+      )}
 
       {/* KRO-69 fix: paddingY per-slot, no al wrapper compartido.
           Cada <p> lleva su propio appearancePaddingClass para que el

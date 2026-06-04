@@ -18,7 +18,7 @@
 
 import { cn } from '../lib/cn';
 import {
-  ThumbBox, ComposableSlot, ScalarText, BadgePill, resolveSlot,
+  ThumbBox, ComposableSlot, ScalarText, BadgePill, resolveSlot, isSlotDisabled,
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass,
   slotDebugAttrs, extractAccentSettings, AccentFrame,
   type FieldDefLike,
@@ -45,6 +45,9 @@ export function CompactCardRecipe({
   const titleField = title?.fields[0];
   const badgeField = badge?.fields[0];
 
+  // KRO-58 V5 — thumb desactivado → fila solo-texto (honra slotOverrides.disabled).
+  const thumbDisabled = isSlotDisabled(composition, 'thumb');
+
   const clickable = !!onClick;
   // KRO-69 follow-up — accent color via AccentFrame (flat o rounded).
   const accent = extractAccentSettings(composition, item, fieldDefs, 'top');
@@ -59,18 +62,21 @@ export function CompactCardRecipe({
         className,
       )}
     >
-      {/* KRO-69: paddingY del thumb al wrapper. */}
-      <div
-        className={cn('shrink-0', appearancePaddingClass(thumb?.appearance))}
-        {...slotDebugAttrs('thumb', thumb)}
-      >
-        <ThumbBox
-          url={thumbUrl}
-          alt={titleField?.value as string ?? ''}
-          size={64}
-          appearance={thumb?.appearance}
-        />
-      </div>
+      {/* KRO-69: paddingY del thumb al wrapper.
+          KRO-58 V5: omitido entero si el slot está desactivado. */}
+      {!thumbDisabled && (
+        <div
+          className={cn('shrink-0', appearancePaddingClass(thumb?.appearance))}
+          {...slotDebugAttrs('thumb', thumb)}
+        >
+          <ThumbBox
+            url={thumbUrl}
+            alt={titleField?.value as string ?? ''}
+            size={64}
+            appearance={thumb?.appearance}
+          />
+        </div>
+      )}
 
       {/* KRO-69 fix: paddingY per-slot, no al wrapper compartido. */}
       <div className="flex-1 min-w-0">

@@ -27,7 +27,7 @@
 import { cn } from '../lib/cn';
 import {
   BannerBox, ComposableSlot, ScalarText,
-  resolveSlot,
+  resolveSlot, isSlotDisabled,
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass,
   applyAppearanceTruncate, imageFocusStyle, slotDebugAttrs, extractAccentSettings, AccentFrame,
   type FieldDefLike,
@@ -66,10 +66,14 @@ export function EditorialRecipe({
         className,
       )}
     >
-      {/* Cover full-width 16:9. KRO-69: cover honra appearance shape/aspect. */}
-      <span {...slotDebugAttrs('cover', cover)} className="block">
-        <BannerBox url={coverUrl} alt="" className="rounded-none" appearance={cover?.appearance} />
-      </span>
+      {/* Cover full-width 16:9. KRO-69: cover honra appearance shape/aspect.
+          KRO-58 V5: omitido si el slot cover está desactivado → el detalle
+          arranca directo por el título (artículo sin cabecera). */}
+      {!isSlotDisabled(composition, 'cover') && (
+        <span {...slotDebugAttrs('cover', cover)} className="block">
+          <BannerBox url={coverUrl} alt="" className="rounded-none" appearance={cover?.appearance} />
+        </span>
+      )}
 
       <div className="px-5 py-5 space-y-3">
         {titleField && (

@@ -20,7 +20,7 @@ import type { ViewComposition, SlotComposition, SlotAppearance, FieldDefLike, Ne
 import { RECIPE_REGISTRY, getRecipeManifest, allRecipesByKind } from './registries/recipes';
 import { ACTION_IDS } from './registries/actions';
 import { MAX_TARGET_DEPTH } from './target-chain';
-import { classifyField, isFieldCompatibleWithSlot } from './classify';
+import { classifyField, isFieldCompatibleWithSlot, getEffectiveSlots } from './classify';
 import {
   OPTIONS_APPEARANCE_SHAPE,
   OPTIONS_APPEARANCE_ASPECT,
@@ -384,6 +384,31 @@ export function validateComposition(
       });
     }
     validateSlot(slotId, slot, recipeSlot, fieldDefs, `slots.${slotId}`, issues);
+  }
+
+  // ── 3b. Slots OBLIGATORIOS sin rellenar (paridad con el editor de Studio) ──
+  // Para cada slot EFECTIVO (manifest base − disabled + custom) que NO sea
+  // opcional, debe haber al menos 1 field asignado. Si el slot falta de la
+  // composition o tiene `fields: []`, se avisa. Es `warn` (no `error`): el
+  // renderer degrada (placeholder/iniciales), así que no bloquea crear/editar
+  // — pero cliente y servidor coinciden en señalar el hueco, igual que el chip
+  // rojo "required" del ViewCompositionTreeEditor. Los slots desactivados vía
+  // `slotOverrides.disabled` quedan EXCLUIDOS por getEffectiveSlots → no avisan
+  // (el publisher los ocultó a propósito).
+  if (manifest) {
+    const effectiveSlots = getEffectiveSlots(manifest, composition.slotOverrides);
+    for (const eslot of effectiveSlots) {
+      if (eslot.optional) continue;
+      const sc = composition.slots?.[eslot.id];
+      const filled = Array.isArray(sc?.fields) && sc!.fields.length > 0;
+      if (!filled) {
+        issues.push({
+          path:    `slots.${eslot.id}`,
+          level:   'warn',
+          message: `slot "${eslot.id}" es obligatorio en "${composition.recipe}" pero no tiene ningún field asignado`,
+        });
+      }
+    }
   }
 
   // ── 4. accentPosition (top-level) ─────────────────────────────────

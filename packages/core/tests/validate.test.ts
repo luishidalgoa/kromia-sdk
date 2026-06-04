@@ -15,10 +15,13 @@ import type { ViewComposition, FieldDefLike } from '../src/index';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
-/** Composition canónica simple: hero_protagonico con title=nombre. */
+/** Composition canónica simple y COMPLETA: `row_text` con title=nombre.
+ *  row_text solo tiene `title` como slot obligatorio (subtitle es opcional),
+ *  así que esta composición no dispara la regla 3b de "slot obligatorio sin
+ *  rellenar" — es un punto de partida genuinamente válido para los tests. */
 function makeValidComposition(): ViewComposition {
   return {
-    recipe: 'hero_protagonico',
+    recipe: 'row_text',
     action: 'none',
     slots: {
       title: { fields: ['nombre'] },
@@ -470,5 +473,70 @@ describe('validateComposition — semánticos', () => {
       expect(i.message).toBeTruthy();
       expect(['error', 'warn']).toContain(i.level);
     });
+  });
+});
+
+// ── slots OBLIGATORIOS sin rellenar (KRO-131) ──────────────────────
+//
+// Paridad con el chip rojo "required" del ViewCompositionTreeEditor de Studio:
+// un slot no-opcional del manifest (o un custom required) sin field asignado
+// debe avisarse (`warn`, no error — el renderer degrada). Los slots
+// desactivados vía `slotOverrides.disabled` quedan excluidos (intención del
+// publisher).
+describe('validateComposition — slots obligatorios sin rellenar', () => {
+  it('slot required sin field → warn (no invalida)', () => {
+    // compact_avatar requiere avatar + title. Solo rellenamos title → falta avatar.
+    const c: ViewComposition = {
+      recipe: 'compact_avatar',
+      action: 'none',
+      slots:  { title: { fields: ['nombre'] } },
+    };
+    const r = validateComposition(c);
+    const warns = r.issues.filter(i => i.path === 'slots.avatar' && i.level === 'warn');
+    expect(warns.length).toBe(1);
+    expect(warns[0].message).toContain('obligatorio');
+    expect(r.valid).toBe(true);
+  });
+
+  it('slot required DESACTIVADO (slotOverrides.disabled) → NO warn', () => {
+    const c: ViewComposition = {
+      recipe:        'compact_avatar',
+      action:        'none',
+      slots:         { title: { fields: ['nombre'] } },
+      slotOverrides: { disabled: ['avatar'] },
+    };
+    const r = validateComposition(c);
+    expect(r.issues.filter(i => i.path === 'slots.avatar')).toEqual([]);
+  });
+
+  it('slot required con fields:[] vacío → warn', () => {
+    const c: ViewComposition = {
+      recipe: 'compact_avatar',
+      action: 'none',
+      slots:  { avatar: { fields: [] }, title: { fields: ['nombre'] } },
+    };
+    const r = validateComposition(c);
+    expect(r.issues.some(i => i.path === 'slots.avatar' && i.level === 'warn')).toBe(true);
+  });
+
+  it('todos los slots required rellenos → sin warn de obligatorio', () => {
+    const c: ViewComposition = {
+      recipe: 'compact_avatar',
+      action: 'none',
+      slots:  { avatar: { fields: ['foto'] }, title: { fields: ['nombre'] } },
+    };
+    const r = validateComposition(c);
+    expect(r.issues.filter(i => i.message.includes('obligatorio'))).toEqual([]);
+  });
+
+  it('custom slot required (slotOverrides.custom) sin field → warn', () => {
+    const c: ViewComposition = {
+      recipe:        'row_text',
+      action:        'none',
+      slots:         { title: { fields: ['nombre'] } },
+      slotOverrides: { custom: [{ id: 'extra', label: 'Extra', kind: 'single', accepts: ['text-short'] }] },
+    };
+    const r = validateComposition(c);
+    expect(r.issues.some(i => i.path === 'slots.extra' && i.level === 'warn')).toBe(true);
   });
 });

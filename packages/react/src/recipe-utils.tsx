@@ -101,6 +101,23 @@ export function resolveSlot(
   };
 }
 
+/**
+ * True si el slot está DESACTIVADO per-instance vía `slotOverrides.disabled`
+ * (KRO-58 V5). Las recetas lo usan para NO renderizar un slot que el publisher
+ * ocultó conscientemente — incluso si es un slot "obligatorio" del manifest
+ * (avatar/thumb/cover, que de otro modo pintan un placeholder/iniciales aunque
+ * no haya datos). Cierra el bucle editor → validador → renderer:
+ *   - el editor permite desactivar incluso un slot required,
+ *   - `validateComposition` lo excluye (no avisa),
+ *   - y el renderer no lo pinta.
+ */
+export function isSlotDisabled(
+  composition: { slotOverrides?: { disabled?: string[] } } | undefined,
+  slotId:      string,
+): boolean {
+  return composition?.slotOverrides?.disabled?.includes(slotId) ?? false;
+}
+
 // ── KRO-69 V6 — Appearance → Tailwind classes ─────────────────────────────
 //
 // Helpers que traducen `SlotAppearance` (presets) a clases CSS Tailwind.
