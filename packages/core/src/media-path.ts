@@ -52,19 +52,31 @@ export function slugify(text: string): string {
 }
 
 /**
- * Slug base de un álbum a partir de su nombre + edición. El caller es
- * responsable de DEDUPLICAR dentro del namespace del dueño (sufijo `-2`, `-3`…)
- * antes de persistirlo. Si el resultado quedara vacío, cae a `'album'`.
+ * Slug de la carpeta de un álbum: la edición es una SUB-carpeta del nombre →
+ * `{nombre-slug}/{edición-slug}` (o solo `{nombre-slug}` si no hay edición). Así
+ * las ediciones del mismo álbum se agrupan bajo la carpeta del nombre. El caller
+ * deduplica dentro del namespace del dueño (sufijo `-2`, `-3`… en el último
+ * segmento). Si el nombre queda vacío, cae a `'album'`.
  *
  * @example
- *   slugifyAlbumName('Semana Santa Córdoba', '2025')  // 'semana-santa-cordoba-2025'
- *   slugifyAlbumName('Liga', '2024-25')               // 'liga-2024-25'
- *   slugifyAlbumName('★', '')                          // 'album'  (fallback)
+ *   slugifyAlbumName('Semana Santa Córdoba', '2025')  // 'semana-santa-cordoba/2025'
+ *   slugifyAlbumName('Liga', '2024-25')               // 'liga/2024-25'
+ *   slugifyAlbumName('Bestiario')                      // 'bestiario'  (sin edición)
+ *   slugifyAlbumName('★', '')                          // 'album'      (fallback)
  */
 export function slugifyAlbumName(name: string, edition?: string | null): string {
-  const base = slugify([name, edition ?? ''].filter(s => s && s.trim()).join(' '));
-  return base || 'album';
+  const nameSlug = slugify(name) || 'album';
+  const ed = edition && edition.trim() ? slugify(edition) : '';
+  return ed ? `${nameSlug}/${ed}` : nameSlug;
 }
+
+/**
+ * KRO-132 — slug RESERVADO de la carpeta de medios de un borrador del wizard.
+ * El prefijo `__` no lo puede producir `slugify`, así que NUNCA colisiona con un
+ * álbum real. Es de UN solo segmento (`{ns}/__draft/`) a propósito; al finalizar
+ * se renombra a `{nombre}/{edición}`. Compartido por backend y Studio.
+ */
+export const DRAFT_MEDIA_SLUG = '__draft';
 
 // ── Ruta del bucket ──────────────────────────────────────────────────────────
 

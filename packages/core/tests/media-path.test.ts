@@ -44,21 +44,22 @@ describe('slugify — determinista y sin acentos', () => {
   });
 });
 
-describe('slugifyAlbumName — nombre + edición', () => {
-  it('combina nombre y edición', () => {
-    expect(slugifyAlbumName('Semana Santa Córdoba', '2025')).toBe('semana-santa-cordoba-2025');
-    expect(slugifyAlbumName('Liga', '2024-25')).toBe('liga-2024-25');
+describe('slugifyAlbumName — nombre/edición (edición como sub-carpeta)', () => {
+  it('la edición es una sub-carpeta del nombre', () => {
+    expect(slugifyAlbumName('Semana Santa Córdoba', '2025')).toBe('semana-santa-cordoba/2025');
+    expect(slugifyAlbumName('Liga', '2024-25')).toBe('liga/2024-25');
   });
 
-  it('edición ausente/vacía → solo el nombre', () => {
+  it('edición ausente/vacía → solo el nombre (1 segmento)', () => {
     expect(slugifyAlbumName('Bestiario')).toBe('bestiario');
     expect(slugifyAlbumName('Bestiario', '')).toBe('bestiario');
     expect(slugifyAlbumName('Bestiario', '   ')).toBe('bestiario');
   });
 
-  it('fallback a "album" cuando no queda nada slugificable', () => {
+  it('fallback a "album" cuando el nombre no es slugificable', () => {
     expect(slugifyAlbumName('★', '')).toBe('album');
     expect(slugifyAlbumName('', '')).toBe('album');
+    expect(slugifyAlbumName('★', '2025')).toBe('album/2025');
   });
 });
 

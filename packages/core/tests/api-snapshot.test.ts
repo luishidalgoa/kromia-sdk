@@ -116,6 +116,7 @@ const EXPECTED_EXPORTS = [
   'ALBUM_MEDIA_QUOTA_BYTES',
   'OWNER_MEDIA_ALBUM_ALLOWANCE',
   'OWNER_MEDIA_QUOTA_BYTES',
+  'DRAFT_MEDIA_SLUG',
   'slugify',
   'slugifyAlbumName',
   'albumMediaNamespace',
