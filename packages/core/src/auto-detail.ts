@@ -25,6 +25,8 @@
 
 import type { ViewComposition, SlotComposition } from './types';
 import type { FieldDefLike } from './types';
+import { getRecipeManifest } from './registries/recipes';
+import { isFieldCompatibleWithSlot } from './classify';
 
 /**
  * Build una `ViewComposition` automática para el detail de una sección
@@ -43,6 +45,41 @@ import type { FieldDefLike } from './types';
  *                navegación en V1), y `slots` rellenos por heurística.
  */
 export function buildAutoDetailComposition(
+  fields: FieldDefLike[],
+  recipeId?: ViewComposition['recipe'],
+): ViewComposition {
+  // KRO-131 — recipe-aware: si el publisher eligió un `targetRecipe` que NO es
+  // hero_protagonico (p.ej. editorial/momento), mapeamos a los slots REALES de
+  // ESE recipe (vía manifest + compatibilidad), no a los de hero. Antes la
+  // heurística producía siempre slots de hero (banner/avatar) y, al cambiar la
+  // receta a editorial, su slot `cover` quedaba huérfano → portada vacía. Aquí
+  // cover ← primer field tipo imagen, title ← text-short, body ← text-long, etc.,
+  // por compatibilidad real del slot (incluye `type:image` SIN behavior).
+  if (recipeId && recipeId !== 'hero_protagonico') {
+    const m = getRecipeManifest(recipeId);
+    if (m) {
+      const out: Record<string, SlotComposition> = {};
+      const used = new Set<string>();
+      for (const slot of m.slots) {
+        if (slot.kind === 'composable') {
+          const ks = fields
+            .filter(f => !used.has(f.key) && isFieldCompatibleWithSlot(f, slot as any))
+            .slice(0, 4).map(f => f.key);
+          if (ks.length) { out[slot.id] = { fields: ks }; ks.forEach(k => used.add(k)); }
+        } else {
+          const f = fields.find(ff => !used.has(ff.key) && isFieldCompatibleWithSlot(ff, slot as any));
+          if (f) { out[slot.id] = { fields: [f.key] }; used.add(f.key); }
+        }
+      }
+      return { recipe: recipeId, action: 'none', slots: out };
+    }
+  }
+  return buildHeroLegacy(fields);
+}
+
+/** Heurística legacy `hero_protagonico` (KRO-44/73). Default cuando no hay
+ *  `targetRecipe` o es el propio hero. Se conserva intacta (los tests la fijan). */
+function buildHeroLegacy(
   fields: FieldDefLike[],
 ): ViewComposition {
   const slots: Record<string, SlotComposition> = {};

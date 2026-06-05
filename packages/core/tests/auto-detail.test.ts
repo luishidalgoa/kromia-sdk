@@ -18,6 +18,44 @@ describe('buildAutoDetailComposition — defaults base', () => {
   });
 });
 
+describe('buildAutoDetailComposition — recipe-aware (KRO-131)', () => {
+  const reinoFields: FieldDefLike[] = [
+    { key: 'nombre',      type: 'text' },
+    { key: 'estandarte',  type: 'image' },                           // type:image SIN behavior
+    { key: 'clima',       type: 'select',   behavior: 'ordinal_enum' },
+    { key: 'descripcion', type: 'textarea', behavior: 'markdown' },
+  ];
+
+  it('editorial: estandarte (type:image sin behavior) → slot cover', () => {
+    const r = buildAutoDetailComposition(reinoFields, 'editorial');
+    expect(r.recipe).toBe('editorial');
+    expect(r.slots.cover).toEqual({ fields: ['estandarte'] });
+    expect(r.slots.title).toEqual({ fields: ['nombre'] });
+    expect(r.slots.body).toEqual({ fields: ['descripcion'] });
+  });
+
+  it('momento: mapea date/title/body por compatibilidad del manifest', () => {
+    const fields: FieldDefLike[] = [
+      { key: 'titulo', type: 'text' },
+      { key: 'fecha',  type: 'text',     behavior: 'iso_date' },
+      { key: 'relato', type: 'textarea', behavior: 'markdown' },
+    ];
+    const r = buildAutoDetailComposition(fields, 'momento');
+    expect(r.recipe).toBe('momento');
+    expect(r.slots.date).toEqual({ fields: ['fecha'] });
+    expect(r.slots.title).toEqual({ fields: ['titulo'] });
+    expect(r.slots.body).toEqual({ fields: ['relato'] });
+  });
+
+  it('sin recipeId → hero legacy (backward-compat)', () => {
+    expect(buildAutoDetailComposition(reinoFields).recipe).toBe('hero_protagonico');
+  });
+
+  it('recipeId hero_protagonico → heurística legacy', () => {
+    expect(buildAutoDetailComposition(reinoFields, 'hero_protagonico').recipe).toBe('hero_protagonico');
+  });
+});
+
 describe('buildAutoDetailComposition — avatar / banner', () => {
   it('field con behavior=avatar → slot avatar', () => {
     const fields: FieldDefLike[] = [
