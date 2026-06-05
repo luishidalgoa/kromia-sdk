@@ -267,6 +267,22 @@ export {
   findDuplicateIncrementalValues,
 } from './incremental';
 
+// ── Almacenamiento de medios por-álbum (KRO-132) ─────────────────────────
+// Ruta canónica del bucket (raíz por usuario/organización + slug fijo) + slug
+// determinista + constantes de cuota. Puros, compartidos por el backend (ciclo
+// de vida del bucket) y Studio (subida/listado). Spec en tests/media-path.test.ts.
+export {
+  ALBUM_MEDIA_QUOTA_BYTES,
+  OWNER_MEDIA_ALBUM_ALLOWANCE,
+  OWNER_MEDIA_QUOTA_BYTES,
+  slugify,
+  slugifyAlbumName,
+  albumMediaNamespace,
+  albumMediaPrefix,
+  type AlbumMediaRoot,
+  type AlbumMediaPrefixInput,
+} from './media-path';
+
 export {
   // Tipos
   type CatalogOption,

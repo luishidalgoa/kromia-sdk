@@ -112,6 +112,14 @@ const EXPECTED_EXPORTS = [
   'validateRaritySource',
   'rarityBucketForValue',
   'normalizeRarityWeights',
+  // KRO-132 — almacenamiento de medios por-álbum (ruta + slug + cuota)
+  'ALBUM_MEDIA_QUOTA_BYTES',
+  'OWNER_MEDIA_ALBUM_ALLOWANCE',
+  'OWNER_MEDIA_QUOTA_BYTES',
+  'slugify',
+  'slugifyAlbumName',
+  'albumMediaNamespace',
+  'albumMediaPrefix',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
