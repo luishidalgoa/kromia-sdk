@@ -37,3 +37,5 @@ export 'src/interaction.dart';
 export 'src/validate.dart';
 export 'src/visual_effects.dart';
 export 'src/tag_styles.dart';
+export 'src/rarity.dart';
+export 'src/media_path.dart';
