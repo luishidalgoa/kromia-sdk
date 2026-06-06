@@ -289,6 +289,27 @@ export interface CardEffect3D {
 }
 
 /**
+ * KRO-130 — Capa de PROFUNDIDAD (parallax) de una carta premium. La ilustración
+ * se descompone en cutouts (PNG con transparencia) a distinta profundidad
+ * (fondo / medio / frente); al inclinar o girar la carta, cada capa se desplaza
+ * a distinto ritmo → 3D real (no un plano que se inclina). Es OPT-IN por carta y
+ * vive en el DATO de la carta (a diferencia del foil de KRO-122, que se comparte
+ * por tag en `TagStyle.customLayers`: el arte es ÚNICO por carta). El render lo
+ * consume (Studio `HoloCard`, Flutter su equivalente con giroscopio). NO entra al
+ * `.json` del contrato (es data de carta) → sin bump de PROTOCOL_VERSION.
+ */
+export type LayerDepth = 'back' | 'mid' | 'front';
+
+export interface CardDepthLayer {
+  /** URL del cutout (PNG con transparencia). */
+  url: string;
+  /** Profundidad relativa (preset cerrado): back=fondo (parallax suave) … front=partículas (parallax fuerte). */
+  depth: LayerDepth;
+  /** Foil propio OPCIONAL de esta capa (reusa el modelo de foil importable de KRO-122). */
+  foil?: EffectLayer;
+}
+
+/**
  * KRO-30 — Mapeo VALOR-de-tag → efecto visual. El publisher declara, a nivel
  * álbum (`albumSchema.tagStyles`), qué valores concretos de tag disparan qué
  * efecto al renderizar la carta. Es behavior-on-VALUE, no behavior-on-FIELD:

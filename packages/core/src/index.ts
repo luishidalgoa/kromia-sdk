@@ -43,6 +43,8 @@ export type {
   EffectLayerKind,
   EffectBlendMode,
   CardEffect3D,
+  LayerDepth,
+  CardDepthLayer,
   RaritySource,
   RarityBucket,
 } from './types';
@@ -292,3 +294,19 @@ export {
   type CardSize,
   type CardFormat,
 } from './options';
+
+// ── Capas de profundidad (parallax) por carta — KRO-130 ─────────────────
+// Cutouts a distinta profundidad (fondo/medio/frente) que hacen parallax al
+// inclinar la carta. Lógica pura (factor de parallax + lectura/validación del
+// dato + catálogo de profundidad) compartida por Studio (CSS) y Flutter
+// (Transform + giroscopio). Opt-in por carta, vive en el dato → sin bump.
+export {
+  DEPTH_LAYERS_KEY,
+  LAYER_DEPTH_ORDER,
+  OPTIONS_LAYER_DEPTH,
+  depthToParallaxFactor,
+  getCardDepthLayers,
+  validateCardDepthLayers,
+  type DepthLayerIssue,
+  type DepthLayerValidationResult,
+} from './card-layers';

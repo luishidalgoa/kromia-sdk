@@ -121,6 +121,13 @@ const EXPECTED_EXPORTS = [
   'slugifyAlbumName',
   'albumMediaNamespace',
   'albumMediaPrefix',
+  // KRO-130 — capas de profundidad (parallax) por carta
+  'DEPTH_LAYERS_KEY',
+  'LAYER_DEPTH_ORDER',
+  'OPTIONS_LAYER_DEPTH',
+  'depthToParallaxFactor',
+  'getCardDepthLayers',
+  'validateCardDepthLayers',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
