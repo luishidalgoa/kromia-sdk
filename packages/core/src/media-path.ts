@@ -98,7 +98,13 @@ export interface AlbumMediaRoot {
  */
 export function albumMediaNamespace(root: AlbumMediaRoot): string {
   const org = root.orgSlug?.trim();
-  return org ? org : root.ownerUsername;
+  const ns = org ? org : (root.ownerUsername ?? '');
+  // KRO-130 — normaliza el case SIEMPRE: el orgSlug ya es lowercase, pero el
+  // username NO se slugifica → un username con mayúsculas (p.ej. "Kromia") creaba
+  // una carpeta distinta en el bucket (S3 es case-sensitive) que el resto del
+  // sistema no encontraba. Lowercasear aquí lo hace consistente sin reformar el
+  // username (no usamos slugify completo para no colisionar usernames distintos).
+  return ns.trim().toLowerCase();
 }
 
 export interface AlbumMediaPrefixInput extends AlbumMediaRoot {

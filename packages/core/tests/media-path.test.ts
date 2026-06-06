@@ -74,6 +74,13 @@ describe('albumMediaNamespace — la organización gana la raíz', () => {
   it('de organización → slug de la org', () => {
     expect(albumMediaNamespace({ ownerUsername: 'ana', orgSlug: 'kromia' })).toBe('kromia');
   });
+
+  it('KRO-130 — normaliza el case del username (S3 es case-sensitive)', () => {
+    expect(albumMediaNamespace({ ownerUsername: 'Kromia' })).toBe('kromia');
+    expect(albumMediaNamespace({ ownerUsername: 'LuisHidalgo' })).toBe('luishidalgo');
+    // El orgSlug ya viene en minúscula; lowercasear es idempotente.
+    expect(albumMediaNamespace({ ownerUsername: 'Kromia', orgSlug: 'kromia' })).toBe('kromia');
+  });
 });
 
 describe('albumMediaPrefix — prefijo canónico con / final', () => {
