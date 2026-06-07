@@ -159,6 +159,12 @@ export interface SlotAppearance {
   size?:      'sm' | 'md' | 'lg' | 'xl';
   /** Padding vertical del wrapper del slot — separación con vecinos. */
   paddingY?:  'none' | 'sm' | 'md' | 'lg';
+  /**
+   * KRO-133 F3 — cómo se PRESENTA el contenido textual del slot:
+   * 'text' (default) = texto plano; 'badge' = pill/chip (como la rareza/tipo
+   * "Fuego"/"Agua" de las recetas). Solo aplica a slots de texto/número.
+   */
+  display?:   'text' | 'badge';
 }
 
 /**
@@ -349,6 +355,9 @@ export interface LayoutContainerNode {
   /** KRO-133 F3 — grid: nº de filas EXPLÍCITAS (1..6). Omitir = filas implícitas
    *  (auto). Útil para colocar por celda 2D con rowStart/rowSpan. */
   rows?: number;
+  /** KRO-133 F3 — dimensionado de las filas del grid: 'auto' (default) = cada
+   *  fila se ajusta a su contenido; 'equal' = todas iguales (1fr). */
+  rowSize?: 'auto' | 'equal';
   /** KRO-133 F3 — colocación de ESTE contenedor dentro de su grid padre. */
   place?: GridPlacement;
   /** KRO-133 F3 — decoración de la caja (fondo/borde/esquinas/sombra/padding). */

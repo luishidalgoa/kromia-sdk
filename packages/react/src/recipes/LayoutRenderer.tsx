@@ -23,7 +23,7 @@
 import { cn } from '../lib/cn';
 import {
   resolveSlot, isSlotDisabled, AccentFrame, extractAccentSettings,
-  ScalarText, ComposableSlot, ThumbBox, slotDebugAttrs, appearancePaddingClass,
+  ScalarText, ComposableSlot, ThumbBox, BadgePill, slotDebugAttrs, appearancePaddingClass,
   appearanceTextClasses, appearanceTruncateClass,
   type FieldDefLike,
 } from '../recipe-utils';
@@ -55,10 +55,6 @@ const GRID_COLS_CLASSES: Record<number, string> = {
   1: 'grid-cols-1', 2: 'grid-cols-2', 3: 'grid-cols-3',
   4: 'grid-cols-4', 5: 'grid-cols-5', 6: 'grid-cols-6',
 };
-const GRID_ROWS_CLASSES: Record<number, string> = {
-  1: 'grid-rows-1', 2: 'grid-rows-2', 3: 'grid-rows-3',
-  4: 'grid-rows-4', 5: 'grid-rows-5', 6: 'grid-rows-6',
-};
 const COL_SPAN_CLASSES: Record<number, string> = {
   1: 'col-span-1', 2: 'col-span-2', 3: 'col-span-3',
   4: 'col-span-4', 5: 'col-span-5', 6: 'col-span-6',
@@ -81,9 +77,13 @@ function containerClasses(node: LayoutContainerNode): string {
   const gap = GAP_CLASSES[node.gap ?? 'sm'];
   if (node.kind === 'grid') {
     const cols = GRID_COLS_CLASSES[node.columns ?? 2] ?? GRID_COLS_CLASSES[2];
-    const rows = node.rows ? GRID_ROWS_CLASSES[node.rows] : undefined;
+    // Filas AJUSTADAS AL CONTENIDO (auto), no iguales: cada fila mide lo que
+    // pide su contenido (un row de texto no se infla a la altura de la imagen).
+    // El rowSpan sigue funcionando (abarca varias filas implícitas). 'equal'
+    // fuerza filas iguales (1fr) cuando el publisher lo pide explícitamente.
+    const rowSizing = node.rowSize === 'equal' ? 'auto-rows-fr' : 'auto-rows-auto';
     return cn(
-      'grid min-w-0', cols, rows, gap,
+      'grid min-w-0', cols, rowSizing, gap,
       ALIGN_ITEMS_CLASSES[node.align ?? 'stretch'],
       node.justify && JUSTIFY_ITEMS_CLASSES[node.justify],
     );
@@ -199,6 +199,20 @@ export function SlotContent({ slot, composition, item, fieldDefs }: SlotContentP
 
   // Texto: composable (varios fields / vertical) vs escalar simple.
   const isComposable = resolved.fields.length > 1 || resolved.orientation === 'vertical';
+  const content = isComposable
+    ? <ComposableSlot slot={resolved} />
+    : <ScalarText value={first?.value} def={first?.def} appearance={resolved.appearance} />;
+
+  // display:'badge' → pill/chip (rareza/tipo "Fuego"/"Agua"). Honra el tamaño
+  // (appearance.size) vía appearanceTextClasses dentro del pill.
+  if (resolved.appearance?.display === 'badge') {
+    return (
+      <div className={appearancePaddingClass(resolved.appearance)} {...slotDebugAttrs(slot, resolved)}>
+        <BadgePill className={appearanceTextClasses(resolved.appearance)}>{content}</BadgePill>
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
@@ -210,9 +224,7 @@ export function SlotContent({ slot, composition, item, fieldDefs }: SlotContentP
       )}
       {...slotDebugAttrs(slot, resolved)}
     >
-      {isComposable
-        ? <ComposableSlot slot={resolved} />
-        : <ScalarText value={first?.value} def={first?.def} appearance={resolved.appearance} />}
+      {content}
     </div>
   );
 }
