@@ -98,13 +98,14 @@ export interface AlbumMediaRoot {
  */
 export function albumMediaNamespace(root: AlbumMediaRoot): string {
   const org = root.orgSlug?.trim();
-  const ns = org ? org : (root.ownerUsername ?? '');
-  // KRO-130 — normaliza el case SIEMPRE: el orgSlug ya es lowercase, pero el
-  // username NO se slugifica → un username con mayúsculas (p.ej. "Kromia") creaba
-  // una carpeta distinta en el bucket (S3 es case-sensitive) que el resto del
-  // sistema no encontraba. Lowercasear aquí lo hace consistente sin reformar el
-  // username (no usamos slugify completo para no colisionar usernames distintos).
-  return ns.trim().toLowerCase();
+  // KRO-130 — PRESERVA el case real: el orgSlug ya viene en minúscula (slugify),
+  // pero el username se respeta TAL CUAL (p.ej. "Kromia"). El almacenamiento de
+  // objetos es case-sensitive y lo admite sin problema; la consistencia write↔read
+  // NO se garantiza normalizando el case aquí (eso era un parche frágil), sino
+  // PERSISTIENDO el prefijo real por álbum (`Album.mediaPrefix`) como fuente única
+  // de verdad — así la ruta física y la que se lee nunca divergen aunque la base
+  // del namespace cambie (borrador→final, asignar publisher…).
+  return (org ? org : (root.ownerUsername ?? '')).trim();
 }
 
 export interface AlbumMediaPrefixInput extends AlbumMediaRoot {
