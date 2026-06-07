@@ -21,6 +21,7 @@ import { EditorialRecipe }             from './EditorialRecipe';
 import { MomentoRecipe }               from './MomentoRecipe';
 import { AccordionSimpleRecipe }       from './AccordionSimpleRecipe';
 import { AccordionWithActionsRecipe }  from './AccordionWithActionsRecipe';
+import { LayoutRenderer }              from './LayoutRenderer';
 import type { FieldDefLike } from '../recipe-utils';
 import type { RecipeId, SlotComposition, ViewComposition } from '@kromia/core';
 import type { CardFormat } from '@kromia/core';
@@ -70,6 +71,22 @@ export function RecipeRenderer({
   const safeComposition = ('action' in composition && composition.action)
     ? composition as ViewComposition
     : { ...composition, action: 'none' as const } as ViewComposition;
+
+  // KRO-133 F2 — si la composición trae un árbol de LAYOUT explícito (lo compuso
+  // el publisher en el canvas DnD, o es un preset de F5), lo renderiza el MOTOR
+  // GENÉRICO. Si no, caemos a los componentes de receta hardcodeados de siempre
+  // (backward-compat 100%: las composiciones existentes no traen `layout`).
+  if ('layout' in safeComposition && safeComposition.layout) {
+    return (
+      <LayoutRenderer
+        composition={safeComposition}
+        item={item}
+        fieldDefs={fieldDefs}
+        onClick={onClick}
+        className={className}
+      />
+    );
+  }
 
   switch (composition.recipe) {
     case 'compact_avatar':

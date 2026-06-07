@@ -64,3 +64,5 @@ export { AccordionWithActionsRecipe } from './recipes/AccordionWithActionsRecipe
 // ── Dispatchers ────────────────────────────────────────────────────────
 export { RecipeRenderer }       from './recipes/RecipeRenderer';
 export { NestedRecipeRenderer } from './recipes/NestedRecipeRenderer';
+// KRO-133 F2 — motor de render genérico del árbol de layout (flex/grid/stack).
+export { LayoutRenderer, type LayoutRendererProps } from './recipes/LayoutRenderer';
