@@ -36,10 +36,13 @@ export const LAYOUT_GAPS:            readonly LayoutGap[]            = ['none', 
 // Catálogos de decoración de contenedor (KRO-133 F3) — presets cerrados, ricos.
 export const SURFACE_BACKGROUNDS   = ['none', 'card', 'muted', 'accent', 'primary'] as const;
 export const SURFACE_BORDER_WIDTHS = ['thin', 'medium', 'thick'] as const;
-export const SURFACE_BORDER_SIDES  = ['all', 'top', 'bottom', 'left', 'right', 'x', 'y'] as const;
+/** Lados físicos del borde (multi-selección; vacío = los 4). */
+export const SURFACE_BORDER_SIDES  = ['top', 'right', 'bottom', 'left'] as const;
 export const SURFACE_BORDER_COLORS = ['border', 'muted', 'accent', 'primary', 'foreground'] as const;
 export const SURFACE_BORDER_STYLES = ['solid', 'dashed', 'dotted'] as const;
 export const SURFACE_RADII         = ['none', 'sm', 'md', 'lg', 'xl', 'full'] as const;
+/** Esquinas para el radius por-esquina (multi; vacío = las 4). */
+export const SURFACE_RADIUS_CORNERS = ['tl', 'tr', 'bl', 'br'] as const;
 export const SURFACE_SHADOWS       = ['none', 'sm', 'md', 'lg', 'xl'] as const;
 export const SURFACE_PADDINGS      = ['none', 'xs', 'sm', 'md', 'lg', 'xl'] as const;
 

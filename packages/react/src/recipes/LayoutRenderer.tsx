@@ -143,27 +143,41 @@ const SURFACE_PADDING_CLASSES: Record<NonNullable<ContainerSurface['padding']>, 
   none: 'p-0', xs: 'p-1', sm: 'p-2', md: 'p-3', lg: 'p-5', xl: 'p-8',
 };
 // Borde atómico: matriz lado × grosor (clases literales) + color + estilo.
-type BSide  = NonNullable<SurfaceBorder['side']>;
+type BSide  = 'all' | 'top' | 'right' | 'bottom' | 'left';
 type BWidth = NonNullable<SurfaceBorder['width']>;
 const BORDER_WIDTH_BY_SIDE: Record<BSide, Record<BWidth, string>> = {
   all:    { thin: 'border',   medium: 'border-2',   thick: 'border-4' },
   top:    { thin: 'border-t', medium: 'border-t-2', thick: 'border-t-4' },
+  right:  { thin: 'border-r', medium: 'border-r-2', thick: 'border-r-4' },
   bottom: { thin: 'border-b', medium: 'border-b-2', thick: 'border-b-4' },
   left:   { thin: 'border-l', medium: 'border-l-2', thick: 'border-l-4' },
-  right:  { thin: 'border-r', medium: 'border-r-2', thick: 'border-r-4' },
-  x:      { thin: 'border-x', medium: 'border-x-2', thick: 'border-x-4' },
-  y:      { thin: 'border-y', medium: 'border-y-2', thick: 'border-y-4' },
 };
 const BORDER_STYLE_CLASSES: Record<NonNullable<SurfaceBorder['style']>, string> = {
   solid: 'border-solid', dashed: 'border-dashed', dotted: 'border-dotted',
 };
 function borderClasses(b: SurfaceBorder | undefined): string | undefined {
   if (!b || !b.width) return undefined; // sin grosor → sin borde
+  // Multi-lado: una clase de grosor por cada lado elegido (vacío = los 4).
+  const sides: BSide[] = b.sides && b.sides.length ? b.sides : ['all'];
+  const widthCls = sides.map(s => BORDER_WIDTH_BY_SIDE[s][b.width!]).join(' ');
   return cn(
-    BORDER_WIDTH_BY_SIDE[b.side ?? 'all'][b.width],
+    widthCls,
     paletteClass(b.color ?? 'border', 'border'),  // color de la paleta amplia
     b.style && BORDER_STYLE_CLASSES[b.style],
   );
+}
+
+// Radius por-esquina: si hay `radiusCorners`, una clase `rounded-{esquina}-{size}`
+// por esquina (safelistadas en globals.css); si no, redondeo en las 4.
+const CORNER_PREFIX: Record<'tl' | 'tr' | 'bl' | 'br', string> = {
+  tl: 'rounded-tl', tr: 'rounded-tr', bl: 'rounded-bl', br: 'rounded-br',
+};
+function radiusClasses(s: ContainerSurface): string | undefined {
+  if (!s.radius) return undefined;
+  if (s.radiusCorners && s.radiusCorners.length) {
+    return s.radiusCorners.map(c => `${CORNER_PREFIX[c]}-${s.radius}`).join(' ');
+  }
+  return SURFACE_RADIUS_CLASSES[s.radius];
 }
 
 /**
@@ -178,7 +192,7 @@ function surfaceClasses(s: ContainerSurface | undefined): string | undefined {
   return cn(
     bg,
     borderClasses(s.border),
-    s.radius && SURFACE_RADIUS_CLASSES[s.radius],
+    radiusClasses(s),
     s.shadow && SURFACE_SHADOW_CLASSES[s.shadow],
     s.padding && SURFACE_PADDING_CLASSES[s.padding],
   );

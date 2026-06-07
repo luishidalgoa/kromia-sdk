@@ -325,8 +325,8 @@ export type SurfaceColor = 'border' | 'muted' | 'accent' | 'primary' | 'foregrou
 export interface SurfaceBorder {
   /** Grosor. Sin esto, no se pinta borde. */
   width?: 'thin' | 'medium' | 'thick';
-  /** Lado(s) donde aplica. Default 'all'. */
-  side?:  'all' | 'top' | 'bottom' | 'left' | 'right' | 'x' | 'y';
+  /** Lados CONCRETOS donde aplica (multi-selección). Vacío/undefined = los 4. */
+  sides?: Array<'top' | 'right' | 'bottom' | 'left'>;
   /** Color del borde — id de la paleta de `@kromia/core` (token de tema como
    *  'border'/'accent' o color como 'red-500'). Default 'border'. */
   color?: string;
@@ -349,6 +349,9 @@ export interface ContainerSurface {
   border?: SurfaceBorder;
   /** Redondeo de esquinas. */
   radius?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  /** KRO-133 F3 — esquinas CONCRETAS donde aplica el radius (multi). Vacío/
+   *  undefined = las 4. tl=sup-izq, tr=sup-der, bl=inf-izq, br=inf-der. */
+  radiusCorners?: Array<'tl' | 'tr' | 'bl' | 'br'>;
   /** Sombra/elevación. */
   shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   /** Relleno interno. */
