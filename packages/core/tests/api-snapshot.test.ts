@@ -167,6 +167,9 @@ const EXPECTED_EXPORTS = [
   'PALETTE_HUES',
   'PALETTE_SHADES',
   'paletteClass',
+  'colorFieldKey',
+  'resolveFieldColor',
+  'FIELD_COLOR_PREFIX',
   // KRO-133 F5 — recetas → presets de layout
   'recipeToComposition',
 ] as const;

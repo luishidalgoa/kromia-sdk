@@ -28,7 +28,7 @@ import {
   type FieldDefLike,
 } from '../recipe-utils';
 import {
-  migrateSlotsToLayout, paletteClass, gridColumnsTemplate, gridRowsTemplate,
+  migrateSlotsToLayout, paletteClass, resolveFieldColor, gridColumnsTemplate, gridRowsTemplate,
   type LayoutNode, type LayoutContainerNode, type LayoutGap, type LayoutAlign,
   type LayoutJustify, type GridPlacement, type ContainerSurface, type SurfaceBorder, type ViewComposition,
 } from '@kromia/core';
@@ -198,6 +198,31 @@ function surfaceClasses(s: ContainerSurface | undefined): string | undefined {
 }
 export { surfaceClasses as containerSurfaceClasses };
 
+// ── Colores VINCULADOS A CAMPO (color_hex) → estilo inline (KRO-147) ──────────
+// Las clases de paleta las ponen `surfaceClasses`/`appearanceTextClasses`; aquí
+// solo el valor dinámico leído del item para los ids `field:<key>`.
+type ColorStyle = { color?: string; backgroundColor?: string; borderColor?: string };
+
+/** Estilo inline de los colores de un contenedor vinculados a un campo color_hex. */
+function surfaceFieldColorStyle(s: ContainerSurface | undefined, item: Record<string, any>): ColorStyle | undefined {
+  if (!s) return undefined;
+  const backgroundColor = resolveFieldColor(s.bgColor, item);
+  const borderColor     = resolveFieldColor(s.border?.color, item);
+  if (!backgroundColor && !borderColor) return undefined;
+  return { ...(backgroundColor && { backgroundColor }), ...(borderColor && { borderColor }) };
+}
+
+/** Estilo inline de los colores de un slot (texto/fondo) vinculados a color_hex. */
+function slotFieldColorStyle(
+  ap: { textColor?: string; bgColor?: string } | undefined, item: Record<string, any>,
+): ColorStyle | undefined {
+  if (!ap) return undefined;
+  const color           = resolveFieldColor(ap.textColor, item);
+  const backgroundColor = resolveFieldColor(ap.bgColor, item);
+  if (!color && !backgroundColor) return undefined;
+  return { ...(color && { color }), ...(backgroundColor && { backgroundColor }) };
+}
+
 interface NodeCtx {
   composition: { slots: ViewComposition['slots']; slotOverrides?: ViewComposition['slotOverrides'] };
   item:        Record<string, any>;
@@ -246,12 +271,15 @@ export function SlotContent({ slot, composition, item, fieldDefs }: SlotContentP
     ? <ComposableSlot slot={resolved} />
     : <ScalarText value={first?.value} def={first?.def} appearance={resolved.appearance} />;
 
+  // Color dinámico desde un campo color_hex (texto/fondo vinculado a un slot).
+  const fieldColor = slotFieldColorStyle(resolved.appearance, item);
+
   // display:'badge' → pill/chip (rareza/tipo "Fuego"/"Agua"). Honra el tamaño
   // (appearance.size) vía appearanceTextClasses dentro del pill.
   if (resolved.appearance?.display === 'badge') {
     return (
       <div className={appearancePaddingClass(resolved.appearance)} {...slotDebugAttrs(slot, resolved)}>
-        <BadgePill className={appearanceTextClasses(resolved.appearance)}>{content}</BadgePill>
+        <BadgePill className={appearanceTextClasses(resolved.appearance)} style={fieldColor}>{content}</BadgePill>
       </div>
     );
   }
@@ -265,6 +293,7 @@ export function SlotContent({ slot, composition, item, fieldDefs }: SlotContentP
         appearanceTextClasses(resolved.appearance),
         appearanceTruncateClass(resolved.appearance),
       )}
+      style={fieldColor}
       {...slotDebugAttrs(slot, resolved)}
     >
       {content}
@@ -287,11 +316,14 @@ function LayoutNodeView({ node, ctx }: { node: LayoutNode; ctx: NodeCtx }) {
   const gridStyle = isGrid
     ? { gridTemplateColumns: gridColumnsTemplate(node), gridTemplateRows: gridRowsTemplate(node) }
     : undefined;
+  // Color dinámico (fondo/borde) vinculado a un campo color_hex → estilo inline.
+  const surfaceColor = surfaceFieldColorStyle(node.surface, ctx.item);
+  const containerStyle = gridStyle || surfaceColor ? { ...gridStyle, ...surfaceColor } : undefined;
   // Con radio, recortamos el contenido para que las esquinas redondeadas se vean
   // (si no, los hijos desbordan y tapan el redondeo).
   const clip = node.surface?.radius && node.surface.radius !== 'none' ? 'overflow-hidden' : undefined;
   return (
-    <div className={cn(containerClasses(node), surfaceClasses(node.surface), clip)} style={gridStyle}>
+    <div className={cn(containerClasses(node), surfaceClasses(node.surface), clip)} style={containerStyle}>
       {node.children.map((child, i) => {
         // grow solo aplica en flex; en grid el tamaño lo da el span.
         const grow = !isGrid && child.type === 'slot' && typeof child.grow === 'number' && child.grow > 0

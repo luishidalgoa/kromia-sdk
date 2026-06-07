@@ -791,19 +791,24 @@ export function BannerBox({
   );
 }
 
-/** Badge — pill con color discreto. Útil para rareza/categoría. */
+/** Badge — pill con color discreto. Útil para rareza/categoría. `style` permite
+ *  el color dinámico vinculado a un campo color_hex (KRO-147). */
 export function BadgePill({
-  children, className,
+  children, className, style,
 }: {
   children:  ReactNode;
   className?: string;
+  style?:    CSSProperties;
 }) {
   return (
-    <span className={cn(
-      'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
-      'bg-muted text-foreground/80',
-      className,
-    )}>
+    <span
+      className={cn(
+        'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
+        'bg-muted text-foreground/80',
+        className,
+      )}
+      style={style}
+    >
       {children}
     </span>
   );

@@ -43,11 +43,32 @@ const THEME_CLASS: Record<string, Record<PaletteRole, string>> = {
 };
 
 /**
+ * KRO-147 — Un color puede VINCULARSE a un campo `color_hex` (valor dinámico por
+ * item) en vez de ser fijo de la paleta. Se codifica como `field:<fieldKey>`.
+ */
+export const FIELD_COLOR_PREFIX = 'field:';
+
+/** Si el id es una vinculación a campo (`field:foo`), devuelve la key; si no, null. */
+export function colorFieldKey(id: string | undefined | null): string | null {
+  return id && id.startsWith(FIELD_COLOR_PREFIX) ? id.slice(FIELD_COLOR_PREFIX.length) : null;
+}
+
+/**
  * Resuelve un id de paleta a la clase Tailwind para el rol dado. Tokens de tema
  * → clases semánticas; colores → `${role}-${id}` (p.ej. `bg-red-500`). Vacío si
- * no hay id. Misma función en web y (espejada) en Flutter.
+ * no hay id o si es una vinculación a campo (esos se aplican por estilo inline,
+ * `resolveFieldColor`). Misma función en web y (espejada) en Flutter.
  */
 export function paletteClass(id: string | undefined | null, role: PaletteRole): string {
-  if (!id) return '';
+  if (!id || colorFieldKey(id)) return '';
   return THEME_CLASS[id]?.[role] ?? `${role}-${id}`;
+}
+
+/** Para un color vinculado a campo, devuelve el valor (hex) leído del item; si
+ *  no es vinculación a campo (o no hay valor), undefined → usar `paletteClass`. */
+export function resolveFieldColor(id: string | undefined | null, item: Record<string, unknown>): string | undefined {
+  const key = colorFieldKey(id);
+  if (!key) return undefined;
+  const v = item?.[key];
+  return typeof v === 'string' && v ? v : undefined;
 }
