@@ -165,6 +165,10 @@ export interface SlotAppearance {
    * "Fuego"/"Agua" de las recetas). Solo aplica a slots de texto/número.
    */
   display?:   'text' | 'badge';
+  /** KRO-133 F3 — color del TEXTO (id de la paleta de `@kromia/core`). */
+  textColor?: string;
+  /** KRO-133 F3 — color de FONDO del slot (id de paleta) = resaltado / chip. */
+  bgColor?:   string;
 }
 
 /**
@@ -323,8 +327,9 @@ export interface SurfaceBorder {
   width?: 'thin' | 'medium' | 'thick';
   /** Lado(s) donde aplica. Default 'all'. */
   side?:  'all' | 'top' | 'bottom' | 'left' | 'right' | 'x' | 'y';
-  /** Color del borde (token de paleta). Default 'border'. */
-  color?: SurfaceColor;
+  /** Color del borde — id de la paleta de `@kromia/core` (token de tema como
+   *  'border'/'accent' o color como 'red-500'). Default 'border'. */
+  color?: string;
   /** Estilo de línea. Default 'solid'. */
   style?: 'solid' | 'dashed' | 'dotted';
 }
@@ -335,8 +340,11 @@ export interface SurfaceBorder {
  * esquinas, sombra y relleno. Todo opcional; ausente = sin decoración.
  */
 export interface ContainerSurface {
-  /** Fondo de la caja (token de paleta; 'primary'/'accent' = tinte suave). */
+  /** Fondo de la caja (token semántico; 'primary'/'accent' = tinte suave). */
   background?: 'none' | 'card' | 'muted' | 'accent' | 'primary';
+  /** KRO-133 F3 — color de fondo de la PALETA amplia (id; prevalece sobre
+   *  `background` si está presente). */
+  bgColor?:   string;
   /** Borde atómico (grosor/lado/color/estilo). */
   border?: SurfaceBorder;
   /** Redondeo de esquinas. */

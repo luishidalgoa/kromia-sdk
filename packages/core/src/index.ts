@@ -374,3 +374,17 @@ export {
   type LayoutValidationResult,
   type ValidateLayoutOptions,
 } from './layout';
+
+// KRO-133 F3 — paleta de color cerrada (tema + rejilla ~50) + resolutor de
+// clases. Catálogo compartido (contrato cross-language); las clases web las
+// fuerza `@source inline` en Studio.
+export {
+  PALETTE,
+  PALETTE_THEME_IDS,
+  PALETTE_HUES,
+  PALETTE_SHADES,
+  paletteClass,
+  type PaletteSwatch,
+  type PaletteGroup,
+  type PaletteRole,
+} from './palette';

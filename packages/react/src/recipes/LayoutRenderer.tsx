@@ -28,7 +28,7 @@ import {
   type FieldDefLike,
 } from '../recipe-utils';
 import {
-  migrateSlotsToLayout,
+  migrateSlotsToLayout, paletteClass,
   type LayoutNode, type LayoutContainerNode, type LayoutGap, type LayoutAlign,
   type LayoutJustify, type GridPlacement, type ContainerSurface, type SurfaceBorder, type ViewComposition,
 } from '@kromia/core';
@@ -154,9 +154,6 @@ const BORDER_WIDTH_BY_SIDE: Record<BSide, Record<BWidth, string>> = {
   x:      { thin: 'border-x', medium: 'border-x-2', thick: 'border-x-4' },
   y:      { thin: 'border-y', medium: 'border-y-2', thick: 'border-y-4' },
 };
-const BORDER_COLOR_CLASSES: Record<NonNullable<SurfaceBorder['color']>, string> = {
-  border: 'border-border', muted: 'border-muted', accent: 'border-accent', primary: 'border-primary', foreground: 'border-foreground',
-};
 const BORDER_STYLE_CLASSES: Record<NonNullable<SurfaceBorder['style']>, string> = {
   solid: 'border-solid', dashed: 'border-dashed', dotted: 'border-dotted',
 };
@@ -164,7 +161,7 @@ function borderClasses(b: SurfaceBorder | undefined): string | undefined {
   if (!b || !b.width) return undefined; // sin grosor → sin borde
   return cn(
     BORDER_WIDTH_BY_SIDE[b.side ?? 'all'][b.width],
-    BORDER_COLOR_CLASSES[b.color ?? 'border'],
+    paletteClass(b.color ?? 'border', 'border'),  // color de la paleta amplia
     b.style && BORDER_STYLE_CLASSES[b.style],
   );
 }
@@ -176,8 +173,10 @@ function borderClasses(b: SurfaceBorder | undefined): string | undefined {
  */
 function surfaceClasses(s: ContainerSurface | undefined): string | undefined {
   if (!s) return undefined;
+  // bgColor (paleta amplia) prevalece sobre el token semántico `background`.
+  const bg = s.bgColor ? paletteClass(s.bgColor, 'bg') : (s.background && SURFACE_BG_CLASSES[s.background]);
   return cn(
-    s.background && SURFACE_BG_CLASSES[s.background],
+    bg,
     borderClasses(s.border),
     s.radius && SURFACE_RADIUS_CLASSES[s.radius],
     s.shadow && SURFACE_SHADOW_CLASSES[s.shadow],

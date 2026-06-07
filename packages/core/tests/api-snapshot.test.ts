@@ -156,6 +156,12 @@ const EXPECTED_EXPORTS = [
   'SURFACE_RADII',
   'SURFACE_SHADOWS',
   'SURFACE_PADDINGS',
+  // KRO-133 F3 — paleta de color
+  'PALETTE',
+  'PALETTE_THEME_IDS',
+  'PALETTE_HUES',
+  'PALETTE_SHADES',
+  'paletteClass',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
@@ -306,9 +312,12 @@ describe('Type exports compile-check', () => {
       null as unknown as import('../src/types').ContainerSurface,
       null as unknown as import('../src/types').SurfaceBorder,
       null as unknown as import('../src/types').SurfaceColor,
+      null as unknown as import('../src/palette').PaletteSwatch,
+      null as unknown as import('../src/palette').PaletteGroup,
+      null as unknown as import('../src/palette').PaletteRole,
       null as unknown as import('../src/layout').LayoutValidationResult,
       null as unknown as import('../src/layout').LayoutIssue,
     ];
-    expect(_checks.length).toBe(58);
+    expect(_checks.length).toBe(61);
   });
 });

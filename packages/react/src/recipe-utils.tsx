@@ -21,6 +21,7 @@ import {
   formatScalar             as sdkFormatScalar,
   extractAccentSettings    as sdkExtractAccentSettings,
   composeSlotValues,
+  paletteClass,
   type FieldDefLike         as SdkFieldDefLike,
   type AccentSettings       as SdkAccentSettings,
   type SlotAppearance,
@@ -192,6 +193,9 @@ export function appearanceTextClasses(a: SlotAppearance | undefined): string {
     a.align  && ALIGN_CLASSES[a.align],
     a.weight && WEIGHT_CLASSES[a.weight],
     a.size   && TEXT_SIZE_CLASSES[a.size],
+    // KRO-133 F3 — color de texto/fondo de la paleta amplia (cerrada).
+    a.textColor && paletteClass(a.textColor, 'text'),
+    a.bgColor   && paletteClass(a.bgColor, 'bg'),
   );
 }
 /** Devuelve la clase de padding-Y del wrapper del slot, o '' si no hay override. */
