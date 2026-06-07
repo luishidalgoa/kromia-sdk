@@ -22,6 +22,7 @@ import { MomentoRecipe }               from './MomentoRecipe';
 import { AccordionSimpleRecipe }       from './AccordionSimpleRecipe';
 import { AccordionWithActionsRecipe }  from './AccordionWithActionsRecipe';
 import { LayoutRenderer }              from './LayoutRenderer';
+import { recipeToComposition }         from '@kromia/core';
 import type { FieldDefLike } from '../recipe-utils';
 import type { RecipeId, SlotComposition, ViewComposition } from '@kromia/core';
 import type { CardFormat } from '@kromia/core';
@@ -173,15 +174,23 @@ export function RecipeRenderer({
         />
       );
 
-    // V4: recetas declaradas en el enum pero sin componente todavía.
-    default:
+    // KRO-133 V5 — recetas "block-native": sin componente React, su layout es un
+    // preset del sistema de bloques (recipe-presets). Lo derivamos y lo pinta el
+    // MOTOR GENÉRICO (LayoutRenderer). Cubre las recetas nuevas (feature_card,
+    // split_panel, stat_tile, cover_band) y cualquier receta futura con preset:
+    // `recipeToComposition` cae a un grid naíf si no hay preset, así que siempre
+    // renderiza algo razonable en vez del antiguo placeholder ámbar.
+    default: {
+      const withLayout = recipeToComposition(safeComposition);
       return (
-        <div className={className}>
-          <div className="rounded-lg border border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/40 dark:bg-amber-900/10 p-3 text-xs text-amber-700 dark:text-amber-400">
-            Receta "{composition.recipe}" todavía no implementada en este cliente.
-            El cliente caerá a render genérico cuando esté disponible.
-          </div>
-        </div>
+        <LayoutRenderer
+          composition={withLayout}
+          item={item}
+          fieldDefs={fieldDefs}
+          onClick={onClick}
+          className={className}
+        />
       );
+    }
   }
 }

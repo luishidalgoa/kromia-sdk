@@ -86,6 +86,81 @@ const RECIPE_PRESETS: Partial<Record<RecipeId, RecipePreset>> = {
     appearance: { title: { weight: 'semibold' }, subtitle: { size: 'md', textColor: 'muted', align: 'right' } },
   },
 
+  // ── V5 (KRO-133) — recetas modernas "block-native" ──────────────────────
+  feature_card: {
+    // Tarjeta vertical: imagen 16:9 → título → (subtítulo | badge).
+    build: (has) => {
+      const children: LayoutNode[] = []; let row = 1;
+      if (has('image')) children.push(leaf('image', { colStart: 1, rowStart: row++ }));
+      if (has('title')) children.push(leaf('title', { colStart: 1, rowStart: row++ }));
+      const bottom: LayoutNode[] = []; const bCols: string[] = []; let bc = 1;
+      if (has('subtitle')) { bottom.push(leaf('subtitle', { colStart: bc, rowStart: 1 })); bCols.push('1fr');     bc++; }
+      if (has('badge'))    { bottom.push(leaf('badge',    { colStart: bc, rowStart: 1 })); bCols.push('content'); bc++; }
+      if (bottom.length) {
+        children.push({
+          ...grid(Math.max(1, bc - 1), 1, bottom, { align: 'center', columnSizes: bCols, gap: 'sm' }),
+          place: { colStart: 1, rowStart: row++ },
+        });
+      }
+      return grid(1, Math.max(1, row - 1), children, { gap: 'sm' });
+    },
+    appearance: {
+      image:    { aspect: '16:9', shape: 'rounded' },
+      title:    { weight: 'semibold', size: 'lg' },
+      subtitle: { size: 'md', textColor: 'muted' },
+      badge:    { display: 'badge' },
+    },
+  },
+  split_panel: {
+    // Fila horizontal: imagen grande a la izquierda + (título/subtítulo/badge) + meta.
+    build: (has) => mediaRow('image', ['title', 'subtitle', 'badge'], 'meta', has),
+    appearance: {
+      image:    { shape: 'rounded', aspect: '1:1', size: 'lg' },
+      title:    { weight: 'bold' },
+      subtitle: { size: 'md', textColor: 'muted' },
+      badge:    { display: 'badge' },
+      meta:     { size: 'sm', textColor: 'muted' },
+    },
+  },
+  stat_tile: {
+    // Mosaico centrado: badge → valor grande → etiqueta, sobre fondo de tile.
+    build: (has) => stack(['badge', 'value', 'label'], has, {
+      align: 'center', gap: 'xs',
+      surface: { background: 'muted', radius: 'lg', shadow: 'none', padding: 'md' },
+    }),
+    appearance: {
+      value: { weight: 'bold', size: 'xl', align: 'center' },
+      label: { size: 'sm', textColor: 'muted', align: 'center' },
+      badge: { display: 'badge' },
+    },
+  },
+  cover_band: {
+    // Portada arriba + banda de color (acento) con título + badge.
+    build: (has) => {
+      const children: LayoutNode[] = []; let row = 1;
+      if (has('image')) children.push(leaf('image', { colStart: 1, rowStart: row++ }));
+      const band: LayoutNode[] = []; const bCols: string[] = []; let bc = 1;
+      if (has('title')) { band.push(leaf('title', { colStart: bc, rowStart: 1 })); bCols.push('1fr');     bc++; }
+      if (has('badge')) { band.push(leaf('badge', { colStart: bc, rowStart: 1 })); bCols.push('content'); bc++; }
+      if (band.length) {
+        children.push({
+          ...grid(Math.max(1, bc - 1), 1, band, {
+            align: 'center', columnSizes: bCols, gap: 'sm',
+            // Banda de acento: bg-accent + texto text-accent-foreground (contraste).
+            surface: { background: 'none', bgColor: 'accent', radius: 'md', padding: 'sm' },
+          }),
+          place: { colStart: 1, rowStart: row++ },
+        });
+      }
+      return grid(1, Math.max(1, row - 1), children, { gap: 'none' });
+    },
+    appearance: {
+      image: { aspect: '3:4', shape: 'rounded' },
+      title: { weight: 'bold', textColor: 'accent' },
+      badge: { display: 'badge' },
+    },
+  },
+
   // ── Detalle (stack vertical; sin solapes/gradientes aún) ─────────────
   hero_protagonico: {
     build: (has) => stack(['banner', 'avatar', 'title', 'subtitle', 'stats', 'body', 'gallery', 'related'], has, { align: 'center', gap: 'md' }),

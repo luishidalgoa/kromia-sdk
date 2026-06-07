@@ -39,7 +39,13 @@ export type RecipeId =
   | 'momento'
   // V3 (KRO-42)
   | 'accordion_simple'
-  | 'accordion_with_actions';
+  | 'accordion_with_actions'
+  // V5 (KRO-133) — recetas "block-native": sin componente React hardcodeado,
+  // su layout es un preset del sistema de bloques y lo pinta el motor genérico.
+  | 'feature_card'
+  | 'split_panel'
+  | 'stat_tile'
+  | 'cover_band';
 
 /** IDs de acciones. V1: solo none + navigate_to_detail. */
 export type ActionId =

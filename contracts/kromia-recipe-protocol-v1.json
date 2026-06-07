@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
-  "protocolVersion": "2.5.0",
-  "generatedAt": "2026-06-05T08:42:01.435Z",
+  "protocolVersion": "2.6.0",
+  "generatedAt": "2026-06-07T22:00:06.766Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -419,6 +419,209 @@
           "optional": false,
           "nestable": false,
           "description": "Lista de fields con behavior url/email/phone. Cada uno se renderiza como botón pulsable."
+        }
+      ]
+    },
+    {
+      "id": "feature_card",
+      "kind": "list",
+      "displayName": "Tarjeta destacada",
+      "description": "Imagen ancha arriba + título + subtítulo + badge. Tarjeta moderna para grids visuales.",
+      "slots": [
+        {
+          "id": "image",
+          "label": "Imagen",
+          "kind": "single",
+          "accepts": [
+            "image"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "title",
+          "label": "Título",
+          "kind": "single",
+          "accepts": [
+            "text-short"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "subtitle",
+          "label": "Subtítulo",
+          "kind": "composable",
+          "accepts": [
+            "text-short",
+            "date",
+            "number"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "badge",
+          "label": "Badge",
+          "kind": "single",
+          "accepts": [
+            "badge"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": "Etiqueta (rareza, categoría, estado) alineada a la derecha bajo la imagen."
+        }
+      ]
+    },
+    {
+      "id": "split_panel",
+      "kind": "list",
+      "displayName": "Panel dividido",
+      "description": "Imagen grande a la izquierda + título/subtítulo/badge a la derecha. Fila premium con acento.",
+      "slots": [
+        {
+          "id": "image",
+          "label": "Imagen",
+          "kind": "single",
+          "accepts": [
+            "image"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "title",
+          "label": "Título",
+          "kind": "single",
+          "accepts": [
+            "text-short"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "subtitle",
+          "label": "Subtítulo",
+          "kind": "composable",
+          "accepts": [
+            "text-short",
+            "date",
+            "number"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "badge",
+          "label": "Badge",
+          "kind": "single",
+          "accepts": [
+            "badge"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "meta",
+          "label": "Meta",
+          "kind": "single",
+          "accepts": [
+            "text-short",
+            "date"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": "Dato lateral a la derecha (fecha, categoría)."
+        }
+      ]
+    },
+    {
+      "id": "stat_tile",
+      "kind": "list",
+      "displayName": "Mosaico de dato",
+      "description": "Valor grande + etiqueta + badge, centrado en un mosaico. Para rankings, stats y dorsales.",
+      "slots": [
+        {
+          "id": "value",
+          "label": "Valor",
+          "kind": "single",
+          "accepts": [
+            "number",
+            "text-short"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": "El dato protagonista (se muestra grande y en negrita)."
+        },
+        {
+          "id": "label",
+          "label": "Etiqueta",
+          "kind": "single",
+          "accepts": [
+            "text-short"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "badge",
+          "label": "Badge",
+          "kind": "single",
+          "accepts": [
+            "badge"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        }
+      ]
+    },
+    {
+      "id": "cover_band",
+      "kind": "list",
+      "displayName": "Cartel",
+      "description": "Imagen de portada + banda de color inferior con título y badge. Estilo cartel/entrada.",
+      "slots": [
+        {
+          "id": "image",
+          "label": "Portada",
+          "kind": "single",
+          "accepts": [
+            "image"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "title",
+          "label": "Título",
+          "kind": "single",
+          "accepts": [
+            "text-short"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "badge",
+          "label": "Badge",
+          "kind": "single",
+          "accepts": [
+            "badge"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
         }
       ]
     }
@@ -1082,6 +1285,82 @@
       "allowedActions": [],
       "allowedTargetRecipes": [],
       "allowedExpandRecipes": []
+    },
+    "feature_card": {
+      "kindRole": "list-source",
+      "allowedActions": [
+        "none",
+        "navigate_to_detail",
+        "modal",
+        "expand_inline",
+        "external_link"
+      ],
+      "allowedTargetRecipes": [
+        "hero_protagonico",
+        "editorial",
+        "momento"
+      ],
+      "allowedExpandRecipes": [
+        "accordion_simple",
+        "accordion_with_actions"
+      ]
+    },
+    "split_panel": {
+      "kindRole": "list-source",
+      "allowedActions": [
+        "none",
+        "navigate_to_detail",
+        "modal",
+        "expand_inline",
+        "external_link"
+      ],
+      "allowedTargetRecipes": [
+        "hero_protagonico",
+        "editorial",
+        "momento"
+      ],
+      "allowedExpandRecipes": [
+        "accordion_simple",
+        "accordion_with_actions"
+      ]
+    },
+    "stat_tile": {
+      "kindRole": "list-source",
+      "allowedActions": [
+        "none",
+        "navigate_to_detail",
+        "modal",
+        "expand_inline",
+        "external_link"
+      ],
+      "allowedTargetRecipes": [
+        "hero_protagonico",
+        "editorial",
+        "momento"
+      ],
+      "allowedExpandRecipes": [
+        "accordion_simple",
+        "accordion_with_actions"
+      ]
+    },
+    "cover_band": {
+      "kindRole": "list-source",
+      "allowedActions": [
+        "none",
+        "navigate_to_detail",
+        "modal",
+        "expand_inline",
+        "external_link"
+      ],
+      "allowedTargetRecipes": [
+        "hero_protagonico",
+        "editorial",
+        "momento"
+      ],
+      "allowedExpandRecipes": [
+        "accordion_simple",
+        "accordion_with_actions"
+      ]
     }
   },
   "connections": {
@@ -1375,6 +1654,26 @@
         "id": "recipe:accordion_with_actions",
         "category": "recipe",
         "label": "Accordion con acciones"
+      },
+      {
+        "id": "recipe:feature_card",
+        "category": "recipe",
+        "label": "Tarjeta destacada"
+      },
+      {
+        "id": "recipe:split_panel",
+        "category": "recipe",
+        "label": "Panel dividido"
+      },
+      {
+        "id": "recipe:stat_tile",
+        "category": "recipe",
+        "label": "Mosaico de dato"
+      },
+      {
+        "id": "recipe:cover_band",
+        "category": "recipe",
+        "label": "Cartel"
       },
       {
         "id": "action:none",
@@ -1780,6 +2079,206 @@
       },
       {
         "from": "recipe:row_text",
+        "to": "recipe:accordion_with_actions",
+        "kind": "recipe-expand"
+      },
+      {
+        "from": "recipe:feature_card",
+        "to": "action:none",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:feature_card",
+        "to": "action:navigate_to_detail",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:feature_card",
+        "to": "action:modal",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:feature_card",
+        "to": "action:expand_inline",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:feature_card",
+        "to": "action:external_link",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:feature_card",
+        "to": "recipe:hero_protagonico",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:feature_card",
+        "to": "recipe:editorial",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:feature_card",
+        "to": "recipe:momento",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:feature_card",
+        "to": "recipe:accordion_simple",
+        "kind": "recipe-expand"
+      },
+      {
+        "from": "recipe:feature_card",
+        "to": "recipe:accordion_with_actions",
+        "kind": "recipe-expand"
+      },
+      {
+        "from": "recipe:split_panel",
+        "to": "action:none",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:split_panel",
+        "to": "action:navigate_to_detail",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:split_panel",
+        "to": "action:modal",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:split_panel",
+        "to": "action:expand_inline",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:split_panel",
+        "to": "action:external_link",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:split_panel",
+        "to": "recipe:hero_protagonico",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:split_panel",
+        "to": "recipe:editorial",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:split_panel",
+        "to": "recipe:momento",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:split_panel",
+        "to": "recipe:accordion_simple",
+        "kind": "recipe-expand"
+      },
+      {
+        "from": "recipe:split_panel",
+        "to": "recipe:accordion_with_actions",
+        "kind": "recipe-expand"
+      },
+      {
+        "from": "recipe:stat_tile",
+        "to": "action:none",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:stat_tile",
+        "to": "action:navigate_to_detail",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:stat_tile",
+        "to": "action:modal",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:stat_tile",
+        "to": "action:expand_inline",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:stat_tile",
+        "to": "action:external_link",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:stat_tile",
+        "to": "recipe:hero_protagonico",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:stat_tile",
+        "to": "recipe:editorial",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:stat_tile",
+        "to": "recipe:momento",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:stat_tile",
+        "to": "recipe:accordion_simple",
+        "kind": "recipe-expand"
+      },
+      {
+        "from": "recipe:stat_tile",
+        "to": "recipe:accordion_with_actions",
+        "kind": "recipe-expand"
+      },
+      {
+        "from": "recipe:cover_band",
+        "to": "action:none",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:cover_band",
+        "to": "action:navigate_to_detail",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:cover_band",
+        "to": "action:modal",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:cover_band",
+        "to": "action:expand_inline",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:cover_band",
+        "to": "action:external_link",
+        "kind": "recipe-action"
+      },
+      {
+        "from": "recipe:cover_band",
+        "to": "recipe:hero_protagonico",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:cover_band",
+        "to": "recipe:editorial",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:cover_band",
+        "to": "recipe:momento",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:cover_band",
+        "to": "recipe:accordion_simple",
+        "kind": "recipe-expand"
+      },
+      {
+        "from": "recipe:cover_band",
         "to": "recipe:accordion_with_actions",
         "kind": "recipe-expand"
       }

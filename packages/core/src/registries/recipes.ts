@@ -290,6 +290,120 @@ La acción del slot debe ser \`expand_inline\` para que el accordion abra/cierre
         description: 'Lista de fields con behavior url/email/phone. Cada uno se renderiza como botón pulsable.' },
     ],
   },
+
+  // ── V5 (KRO-133) — recetas modernas "block-native" ──────────────────────
+  // Sin componente React: su layout es un preset del sistema de bloques
+  // (recipe-presets.ts) y lo pinta el motor genérico (LayoutRenderer). El
+  // publisher puede activar "Diseño por bloques" y seguir editándolas.
+
+  feature_card: {
+    id:          'feature_card',
+    kind:        'list',
+    displayName: 'Tarjeta destacada',
+    description: 'Imagen ancha arriba + título + subtítulo + badge. Tarjeta moderna para grids visuales.',
+    whenToUse:
+      'Cuando la imagen manda y quieres una tarjeta con presencia: portadas, productos, destacados. Más visual que Mini card, más aireada. Renderiza bien en grid de 2-3 columnas.',
+    long: `Receta del sistema de bloques. Layout vertical:
+- \`image\` (16:9, esquinas redondeadas) arriba, a todo el ancho.
+- \`title\` (semibold) debajo.
+- fila inferior: \`subtitle\` (tenue) a la izquierda + \`badge\` a la derecha.
+
+Al activar **Diseño por bloques** puedes reordenar, estirar y decorar cada bloque.`,
+    examples: [
+      { title: 'Catálogo de productos', description: 'Foto 16:9 + nombre + precio + etiqueta "nuevo".' },
+      { title: 'Portadas de cómic', description: 'Cover ancho + título + número de edición.' },
+    ],
+    related: ['recipe:compact_card', 'recipe:cover_band', 'concept:blocks', 'kind:image'],
+    aliases: ['tarjeta destacada', 'feature card', 'tarjeta moderna'],
+    slots: [
+      { id: 'image',    label: 'Imagen',    kind: 'single',     accepts: ['image'] },
+      { id: 'title',    label: 'Título',    kind: 'single',     accepts: ['text-short'] },
+      { id: 'subtitle', label: 'Subtítulo', kind: 'composable', accepts: ['text-short', 'date', 'number'], optional: true },
+      { id: 'badge',    label: 'Badge',     kind: 'single',     accepts: ['badge'], optional: true,
+        description:    'Etiqueta (rareza, categoría, estado) alineada a la derecha bajo la imagen.' },
+    ],
+  },
+
+  split_panel: {
+    id:          'split_panel',
+    kind:        'list',
+    displayName: 'Panel dividido',
+    description: 'Imagen grande a la izquierda + título/subtítulo/badge a la derecha. Fila premium con acento.',
+    whenToUse:
+      'Para listas con más jerarquía que el Avatar compacto: la imagen es cuadrada y grande, el texto respira. Ideal cuando cada item merece presencia (destacados, fichas, equipos).',
+    long: `Receta del sistema de bloques. Fila horizontal de dos columnas:
+- \`image\` (cuadrada, grande, redondeada) a la izquierda, ajustada a su contenido.
+- columna derecha (flexible): \`title\` (bold) · \`subtitle\` (tenue) · \`badge\`.
+- \`meta\` opcional al extremo derecho.
+
+El **tinte** (campo color de la sección) pinta el acento del borde.`,
+    examples: [
+      { title: 'Equipos de la liga', description: 'Escudo grande + nombre + ciudad + badge división.' },
+      { title: 'Hermandades', description: 'Foto del paso + nombre + año + categoría.' },
+    ],
+    related: ['recipe:compact_avatar', 'recipe:feature_card', 'concept:blocks', 'concept:accent'],
+    aliases: ['panel dividido', 'split panel', 'media object'],
+    slots: [
+      { id: 'image',    label: 'Imagen',    kind: 'single',     accepts: ['image'] },
+      { id: 'title',    label: 'Título',    kind: 'single',     accepts: ['text-short'] },
+      { id: 'subtitle', label: 'Subtítulo', kind: 'composable', accepts: ['text-short', 'date', 'number'], optional: true },
+      { id: 'badge',    label: 'Badge',     kind: 'single',     accepts: ['badge'], optional: true },
+      { id: 'meta',     label: 'Meta',      kind: 'single',     accepts: ['text-short', 'date'], optional: true,
+        description:    'Dato lateral a la derecha (fecha, categoría).' },
+    ],
+  },
+
+  stat_tile: {
+    id:          'stat_tile',
+    kind:        'list',
+    displayName: 'Mosaico de dato',
+    description: 'Valor grande + etiqueta + badge, centrado en un mosaico. Para rankings, stats y dorsales.',
+    whenToUse:
+      'Cuando el protagonista es un número o un dato corto: dorsales, puntuaciones, rankings, contadores. Sin imagen, máxima legibilidad del valor. Renderiza en grid de mosaicos.',
+    long: `Receta del sistema de bloques. Mosaico centrado:
+- \`value\` (número grande, en negrita) como protagonista.
+- \`label\` (tenue) debajo.
+- \`badge\` opcional arriba.
+
+Fondo de tarjeta con esquinas redondeadas. Pensado para grids de mosaicos.`,
+    examples: [
+      { title: 'Tabla de máximos goleadores', description: 'Goles (valor) + jugador (label).' },
+      { title: 'Dorsales', description: 'Número grande + posición.' },
+    ],
+    related: ['recipe:row_text', 'concept:blocks', 'kind:number', 'kind:badge'],
+    aliases: ['mosaico de dato', 'stat tile', 'estadística', 'estadistica'],
+    slots: [
+      { id: 'value', label: 'Valor',     kind: 'single', accepts: ['number', 'text-short'],
+        description: 'El dato protagonista (se muestra grande y en negrita).' },
+      { id: 'label', label: 'Etiqueta',  kind: 'single', accepts: ['text-short'], optional: true },
+      { id: 'badge', label: 'Badge',     kind: 'single', accepts: ['badge'], optional: true },
+    ],
+  },
+
+  cover_band: {
+    id:          'cover_band',
+    kind:        'list',
+    displayName: 'Cartel',
+    description: 'Imagen de portada + banda de color inferior con título y badge. Estilo cartel/entrada.',
+    whenToUse:
+      'Para un look de cartel o entrada: la portada arriba y una banda de color abajo con el título. Muy visual, ideal para eventos, películas, lanzamientos.',
+    long: `Receta del sistema de bloques. Composición de dos bandas:
+- \`image\` (portada 3:4) arriba.
+- banda inferior con **fondo de color** (acento) que contiene \`title\` (negrita) y \`badge\`.
+
+El contraste de la banda da el aspecto de cartel. La banda usa la decoración de bloques (fondo + esquinas).`,
+    examples: [
+      { title: 'Estrenos de cine', description: 'Póster + título + clasificación.' },
+      { title: 'Carteles de festival', description: 'Imagen + nombre del evento + fecha.' },
+    ],
+    related: ['recipe:feature_card', 'recipe:momento', 'concept:blocks', 'concept:decoration'],
+    aliases: ['cartel', 'cover band', 'póster', 'poster'],
+    slots: [
+      { id: 'image', label: 'Portada', kind: 'single', accepts: ['image'] },
+      { id: 'title', label: 'Título',  kind: 'single', accepts: ['text-short'] },
+      { id: 'badge', label: 'Badge',   kind: 'single', accepts: ['badge'], optional: true },
+    ],
+  },
 };
 
 /** Acceso seguro al manifest por id. */
