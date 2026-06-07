@@ -56,6 +56,7 @@ export type {
   LayoutSlotNode,
   LayoutContainerNode,
   LayoutNode,
+  GridPlacement,
 } from './types';
 
 // ── Field types ────────────────────────────────────────────────────────
@@ -347,6 +348,7 @@ export {
 export {
   validateLayout,
   migrateSlotsToLayout,
+  migrateSlotsToGrid,
   layoutDepth,
   collectLayoutSlots,
   LAYOUT_CONTAINER_KINDS,
@@ -356,6 +358,7 @@ export {
   LAYOUT_GAPS,
   MAX_LAYOUT_DEPTH,
   MAX_GRID_COLUMNS,
+  MAX_GRID_ROWS,
   type LayoutIssue,
   type LayoutValidationResult,
   type ValidateLayoutOptions,

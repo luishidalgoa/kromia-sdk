@@ -279,6 +279,23 @@ export type LayoutJustify = 'start' | 'center' | 'end' | 'between' | 'around';
 /** Separación entre hijos — preset cerrado (no px libre). */
 export type LayoutGap = 'none' | 'xs' | 'sm' | 'md' | 'lg';
 
+/**
+ * KRO-133 F3 — Colocación de un nodo DENTRO de un contenedor `grid` 2D.
+ * 1-based (como CSS grid). Si se omite `colStart`/`rowStart`, el nodo cae por
+ * auto-flow en la siguiente celda libre. `colSpan`/`rowSpan` default 1.
+ * Es un preset declarativo (sin px/fr libres) → portable a Flutter (F4).
+ */
+export interface GridPlacement {
+  /** Columna inicial 1-based. Omitir = auto-flow. */
+  colStart?: number;
+  /** Nº de columnas que ocupa (default 1). */
+  colSpan?: number;
+  /** Fila inicial 1-based. Omitir = auto-flow. */
+  rowStart?: number;
+  /** Nº de filas que ocupa (default 1). */
+  rowSpan?: number;
+}
+
 /** Hoja del árbol: un slot. Sus fields viven en `ViewComposition.slots[slot]`. */
 export interface LayoutSlotNode {
   type: 'slot';
@@ -286,6 +303,8 @@ export interface LayoutSlotNode {
   slot: string;
   /** Peso de crecimiento si el contenedor padre es flex (default 0 = no crece). */
   grow?: number;
+  /** KRO-133 F3 — colocación dentro del grid padre (celda + span). */
+  place?: GridPlacement;
 }
 
 /** Nodo contenedor: dispone a sus hijos según `kind`. */
@@ -297,12 +316,17 @@ export interface LayoutContainerNode {
   direction?: LayoutDirection;
   /** Separación entre hijos. Default 'sm'. (stack la ignora — superpone en Z.) */
   gap?: LayoutGap;
-  /** Alineación cruzada. Default 'stretch'. */
+  /** Alineación cruzada (flex) / align-items (grid). Default 'stretch'. */
   align?: LayoutAlign;
-  /** Distribución principal (flex). Default 'start'. */
+  /** Distribución principal (flex) / justify-items (grid). Default 'start'. */
   justify?: LayoutJustify;
   /** grid: nº de columnas (1..6). Default 2. (Ignorado en flex/stack.) */
   columns?: number;
+  /** KRO-133 F3 — grid: nº de filas EXPLÍCITAS (1..6). Omitir = filas implícitas
+   *  (auto). Útil para colocar por celda 2D con rowStart/rowSpan. */
+  rows?: number;
+  /** KRO-133 F3 — colocación de ESTE contenedor dentro de su grid padre. */
+  place?: GridPlacement;
 }
 
 /** Un nodo del árbol = contenedor o slot-hoja. */

@@ -137,6 +137,7 @@ const EXPECTED_EXPORTS = [
   // KRO-133 — árbol de layout (constructor visual de recetas)
   'validateLayout',
   'migrateSlotsToLayout',
+  'migrateSlotsToGrid',
   'layoutDepth',
   'collectLayoutSlots',
   'LAYOUT_CONTAINER_KINDS',
@@ -146,6 +147,7 @@ const EXPECTED_EXPORTS = [
   'LAYOUT_GAPS',
   'MAX_LAYOUT_DEPTH',
   'MAX_GRID_COLUMNS',
+  'MAX_GRID_ROWS',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
@@ -292,9 +294,10 @@ describe('Type exports compile-check', () => {
       null as unknown as import('../src/types').LayoutNode,
       null as unknown as import('../src/types').LayoutContainerNode,
       null as unknown as import('../src/types').LayoutSlotNode,
+      null as unknown as import('../src/types').GridPlacement,
       null as unknown as import('../src/layout').LayoutValidationResult,
       null as unknown as import('../src/layout').LayoutIssue,
     ];
-    expect(_checks.length).toBe(54);
+    expect(_checks.length).toBe(55);
   });
 });

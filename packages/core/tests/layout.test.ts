@@ -7,10 +7,12 @@ import { describe, it, expect } from 'vitest';
 import {
   validateLayout,
   migrateSlotsToLayout,
+  migrateSlotsToGrid,
   layoutDepth,
   collectLayoutSlots,
   MAX_LAYOUT_DEPTH,
   MAX_GRID_COLUMNS,
+  MAX_GRID_ROWS,
 } from '../src/layout';
 import type { LayoutContainerNode, SlotComposition } from '../src/types';
 
@@ -112,6 +114,75 @@ describe('migrateSlotsToLayout — slots-plano → árbol', () => {
     const s = slots('avatar', 'title', 'subtitle');
     const out = migrateSlotsToLayout({ recipe: 'compact_avatar', slots: s });
     expect(validateLayout(out, { slots: s }).ok).toBe(true);
+  });
+});
+
+describe('KRO-133 F3 — grid 2D: placement (celdas + spans)', () => {
+  const grid = (over: Partial<LayoutContainerNode> = {}): LayoutContainerNode => ({
+    type: 'container', kind: 'grid', columns: 2, children: [], ...over,
+  });
+
+  it('hijo con place válido dentro del grid → ok', () => {
+    const root = grid({ columns: 2, children: [
+      { type: 'slot', slot: 'avatar', place: { colStart: 1, colSpan: 1 } },
+      { type: 'slot', slot: 'title',  place: { colStart: 2, colSpan: 1 } },
+    ] });
+    expect(validateLayout(root, { slots: slots('avatar', 'title') }).ok).toBe(true);
+  });
+
+  it('colSpan que se sale del grid → warn (no rompe)', () => {
+    const root = grid({ columns: 2, children: [
+      { type: 'slot', slot: 'avatar', place: { colStart: 2, colSpan: 3 } },
+    ] });
+    const res = validateLayout(root, { slots: slots('avatar') });
+    expect(res.ok).toBe(true); // warn, no error
+    expect(res.issues.some(i => i.level === 'warn' && /derecha/.test(i.message))).toBe(true);
+  });
+
+  it('place con valores no enteros / < 1 → error', () => {
+    const root = grid({ columns: 2, children: [
+      { type: 'slot', slot: 'avatar', place: { colStart: 0, colSpan: 1 } },
+    ] });
+    expect(validateLayout(root, { slots: slots('avatar') }).ok).toBe(false);
+  });
+
+  it('place dentro de un contenedor NO-grid → warn', () => {
+    const root: LayoutContainerNode = {
+      type: 'container', kind: 'flex', direction: 'row', children: [
+        { type: 'slot', slot: 'avatar', place: { colStart: 1 } },
+      ],
+    };
+    const res = validateLayout(root, { slots: slots('avatar') });
+    expect(res.issues.some(i => i.level === 'warn' && /grid/.test(i.message))).toBe(true);
+  });
+
+  it('rows fuera de rango → error', () => {
+    const root = grid({ columns: 2, rows: MAX_GRID_ROWS + 1, children: [{ type: 'slot', slot: 'a' }] });
+    expect(validateLayout(root, { slots: slots('a') }).ok).toBe(false);
+  });
+
+  it('rowStart fuera de las filas explícitas → warn', () => {
+    const root = grid({ columns: 2, rows: 2, children: [
+      { type: 'slot', slot: 'a', place: { rowStart: 3 } },
+    ] });
+    const res = validateLayout(root, { slots: slots('a') });
+    expect(res.ok).toBe(true);
+    expect(res.issues.some(i => i.level === 'warn' && /fila/.test(i.message))).toBe(true);
+  });
+});
+
+describe('migrateSlotsToGrid — slots-plano → grid 1 columna', () => {
+  it('respeta un layout existente', () => {
+    const layout = { type: 'container', kind: 'grid', columns: 1, children: [{ type: 'slot', slot: 'x' }] } as LayoutContainerNode;
+    expect(migrateSlotsToGrid({ recipe: 'compact_avatar', slots: slots('x'), layout })).toBe(layout);
+  });
+
+  it('produce un grid de 1 columna con los slots de la receta (auto-flow)', () => {
+    const out = migrateSlotsToGrid({ recipe: 'compact_avatar', slots: slots('title', 'avatar') });
+    expect(out.kind).toBe('grid');
+    expect(out.columns).toBe(1);
+    expect(collectLayoutSlots(out)).toEqual(['avatar', 'title']); // orden de la receta
+    expect(validateLayout(out, { slots: slots('avatar', 'title') }).ok).toBe(true);
   });
 });
 

@@ -19,6 +19,7 @@ import type {
   LayoutAlign,
   LayoutJustify,
   LayoutGap,
+  GridPlacement,
   SlotComposition,
   ViewComposition,
 } from './types';
@@ -36,6 +37,8 @@ export const LAYOUT_GAPS:            readonly LayoutGap[]            = ['none', 
 export const MAX_LAYOUT_DEPTH = 5;
 /** Máximo de columnas de un contenedor `grid`. */
 export const MAX_GRID_COLUMNS = 6;
+/** Máximo de filas EXPLÍCITAS de un contenedor `grid` (KRO-133 F3). */
+export const MAX_GRID_ROWS = 6;
 
 // ── Validación ───────────────────────────────────────────────────────────────
 
@@ -121,15 +124,63 @@ export function validateLayout(
         (!Number.isInteger(node.columns) || node.columns < 1 || node.columns > MAX_GRID_COLUMNS)) {
       issues.push({ level: 'error', path, message: `Columnas del grid fuera de rango (1..${MAX_GRID_COLUMNS}).` });
     }
+    if (node.kind === 'grid' && node.rows !== undefined &&
+        (!Number.isInteger(node.rows) || node.rows < 1 || node.rows > MAX_GRID_ROWS)) {
+      issues.push({ level: 'error', path, message: `Filas del grid fuera de rango (1..${MAX_GRID_ROWS}).` });
+    }
     if (!Array.isArray(node.children) || node.children.length === 0) {
       issues.push({ level: 'warn', path, message: 'Contenedor vacío (sin hijos).' });
       return;
     }
-    node.children.forEach((child, i) => walk(child, `${path}.children[${i}]`, depth + 1));
+    // KRO-133 F3 — valida la colocación (place) de cada hijo contra ESTE grid.
+    const cols = node.kind === 'grid' ? (node.columns ?? 2) : undefined;
+    const rows = node.kind === 'grid' ? node.rows : undefined;
+    node.children.forEach((child, i) => {
+      const childPath = `${path}.children[${i}]`;
+      if (child.place) validatePlacement(child.place, cols, rows, childPath, issues);
+      walk(child, childPath, depth + 1);
+    });
   };
 
   walk(root, 'root', 1);
   return { ok: issues.every(i => i.level !== 'error'), issues };
+}
+
+/**
+ * KRO-133 F3 — valida una colocación `place` contra el grid padre. `cols`/`rows`
+ * son las columnas/filas del grid padre (`rows` undefined = filas implícitas).
+ * Spans fuera de rango son error; un nodo colocado fuera del grid es warn (no
+ * rompe el render — solo no se verá donde se espera).
+ */
+function validatePlacement(
+  place: GridPlacement, cols: number | undefined, rows: number | undefined,
+  path: string, issues: LayoutIssue[],
+): void {
+  if (cols === undefined) {
+    issues.push({ level: 'warn', path, message: '`place` solo aplica dentro de un contenedor grid.' });
+    return;
+  }
+  const intGte1 = (v: number | undefined) => v === undefined || (Number.isInteger(v) && v >= 1);
+  if (!intGte1(place.colStart) || !intGte1(place.colSpan) || !intGte1(place.rowStart) || !intGte1(place.rowSpan)) {
+    issues.push({ level: 'error', path, message: '`place` (colStart/colSpan/rowStart/rowSpan) deben ser enteros ≥ 1.' });
+    return;
+  }
+  const colStart = place.colStart ?? 1;
+  const colSpan  = place.colSpan ?? 1;
+  if (colStart > cols) {
+    issues.push({ level: 'warn', path, message: `La celda empieza en la columna ${colStart} pero el grid tiene ${cols}.` });
+  } else if (colStart + colSpan - 1 > cols) {
+    issues.push({ level: 'warn', path, message: `La celda se sale por la derecha (col ${colStart}+${colSpan} > ${cols}).` });
+  }
+  if (rows !== undefined) {
+    const rowStart = place.rowStart ?? 1;
+    const rowSpan  = place.rowSpan ?? 1;
+    if (rowStart > rows) {
+      issues.push({ level: 'warn', path, message: `La celda empieza en la fila ${rowStart} pero el grid tiene ${rows}.` });
+    } else if (rowStart + rowSpan - 1 > rows) {
+      issues.push({ level: 'warn', path, message: `La celda se sale por abajo (fila ${rowStart}+${rowSpan} > ${rows}).` });
+    }
+  }
 }
 
 // ── Auto-migración (slots-plano → árbol) ─────────────────────────────────────
@@ -162,6 +213,27 @@ export function migrateSlotsToLayout(
     direction: 'column',
     gap:       'sm',
     children:  ordered.map(slot => ({ type: 'slot', slot })),
+  };
+}
+
+/**
+ * KRO-133 F3 — variante GRID de la migración: deriva un grid de 1 columna con
+ * los slots apilados (auto-flow). Es el estado inicial del editor por bloques
+ * 2D — el publisher parte de aquí y reorganiza en celdas. NO destructivo
+ * (respeta un `layout` ya existente). Equivalente visual a la columna flex,
+ * pero ya en el modelo grid para que el constructor 2D opere sobre él.
+ */
+export function migrateSlotsToGrid(
+  composition: Pick<ViewComposition, 'recipe' | 'slots'> & { layout?: LayoutContainerNode },
+): LayoutContainerNode {
+  if (composition.layout) return composition.layout;
+  const flex = migrateSlotsToLayout(composition); // reusa el orden de slots
+  return {
+    type:     'container',
+    kind:     'grid',
+    columns:  1,
+    gap:      'sm',
+    children: flex.children, // mismos slot-hojas, sin place → auto-flow vertical
   };
 }
 
