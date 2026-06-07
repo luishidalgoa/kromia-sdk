@@ -30,7 +30,7 @@ import {
 import {
   migrateSlotsToLayout,
   type LayoutNode, type LayoutContainerNode, type LayoutGap, type LayoutAlign,
-  type LayoutJustify, type GridPlacement, type ViewComposition,
+  type LayoutJustify, type GridPlacement, type ContainerSurface, type ViewComposition,
 } from '@kromia/core';
 
 // ── Catálogo → clases Tailwind (estáticas: Tailwind no resuelve `gap-${x}`) ──
@@ -113,6 +113,48 @@ function placementClasses(place: GridPlacement | undefined): string | undefined 
   );
 }
 
+// Auto-alineación del elemento dentro de su celda (KRO-133 F3).
+const JUSTIFY_SELF_CLASSES: Record<LayoutAlign, string> = {
+  start: 'justify-self-start', center: 'justify-self-center', end: 'justify-self-end', stretch: 'justify-self-stretch',
+};
+const ALIGN_SELF_CLASSES: Record<LayoutAlign, string> = {
+  start: 'self-start', center: 'self-center', end: 'self-end', stretch: 'self-stretch',
+};
+function selfAlignClasses(place: GridPlacement | undefined): string | undefined {
+  if (!place) return undefined;
+  return cn(
+    place.justifySelf && JUSTIFY_SELF_CLASSES[place.justifySelf],
+    place.alignSelf && ALIGN_SELF_CLASSES[place.alignSelf],
+  );
+}
+
+// Decoración del contenedor (KRO-133 F3) — presets cerrados → clases estáticas.
+const SURFACE_BG_CLASSES:      Record<NonNullable<ContainerSurface['background']>, string> = {
+  none: '', card: 'bg-card', muted: 'bg-muted', accent: 'bg-accent',
+};
+const SURFACE_BORDER_CLASSES:  Record<NonNullable<ContainerSurface['border']>, string> = {
+  none: '', thin: 'border border-border', medium: 'border-2 border-border',
+};
+const SURFACE_RADIUS_CLASSES:  Record<NonNullable<ContainerSurface['radius']>, string> = {
+  none: 'rounded-none', sm: 'rounded-sm', md: 'rounded-md', lg: 'rounded-lg', full: 'rounded-full',
+};
+const SURFACE_SHADOW_CLASSES:  Record<NonNullable<ContainerSurface['shadow']>, string> = {
+  none: '', sm: 'shadow-sm', md: 'shadow-md', lg: 'shadow-lg',
+};
+const SURFACE_PADDING_CLASSES: Record<NonNullable<ContainerSurface['padding']>, string> = {
+  none: 'p-0', xs: 'p-1', sm: 'p-2', md: 'p-3', lg: 'p-5',
+};
+function surfaceClasses(s: ContainerSurface | undefined): string | undefined {
+  if (!s) return undefined;
+  return cn(
+    s.background && SURFACE_BG_CLASSES[s.background],
+    s.border && SURFACE_BORDER_CLASSES[s.border],
+    s.radius && SURFACE_RADIUS_CLASSES[s.radius],
+    s.shadow && SURFACE_SHADOW_CLASSES[s.shadow],
+    s.padding && SURFACE_PADDING_CLASSES[s.padding],
+  );
+}
+
 interface NodeCtx {
   composition: { slots: ViewComposition['slots']; slotOverrides?: ViewComposition['slotOverrides'] };
   item:        Record<string, any>;
@@ -187,19 +229,20 @@ function LayoutNodeView({ node, ctx }: { node: LayoutNode; ctx: NodeCtx }) {
   const isStack = node.kind === 'stack';
   const isGrid  = node.kind === 'grid';
   return (
-    <div className={containerClasses(node)}>
+    <div className={cn(containerClasses(node), surfaceClasses(node.surface))}>
       {node.children.map((child, i) => {
         // grow solo aplica en flex; en grid el tamaño lo da el span.
         const grow = !isGrid && child.type === 'slot' && typeof child.grow === 'number' && child.grow > 0
           ? { flexGrow: child.grow }
           : undefined;
         const placement = isGrid ? placementClasses(child.place) : undefined;
+        const selfAlign = isGrid ? selfAlignClasses(child.place) : undefined;
         return (
           <div
             key={i}
             // min-w-0 + overflow-hidden: ninguna celda desborda el contenedor.
             // Stack: cada hijo en la misma celda (1/1) → superposición en Z.
-            className={cn('min-w-0 min-h-0 overflow-hidden', isStack && 'col-start-1 row-start-1', placement)}
+            className={cn('min-w-0 min-h-0 overflow-hidden', isStack && 'col-start-1 row-start-1', placement, selfAlign)}
             style={grow}
           >
             <LayoutNodeView node={child} ctx={ctx} />

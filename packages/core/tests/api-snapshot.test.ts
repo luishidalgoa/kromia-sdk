@@ -148,6 +148,11 @@ const EXPECTED_EXPORTS = [
   'MAX_LAYOUT_DEPTH',
   'MAX_GRID_COLUMNS',
   'MAX_GRID_ROWS',
+  'SURFACE_BACKGROUNDS',
+  'SURFACE_BORDERS',
+  'SURFACE_RADII',
+  'SURFACE_SHADOWS',
+  'SURFACE_PADDINGS',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
@@ -295,9 +300,10 @@ describe('Type exports compile-check', () => {
       null as unknown as import('../src/types').LayoutContainerNode,
       null as unknown as import('../src/types').LayoutSlotNode,
       null as unknown as import('../src/types').GridPlacement,
+      null as unknown as import('../src/types').ContainerSurface,
       null as unknown as import('../src/layout').LayoutValidationResult,
       null as unknown as import('../src/layout').LayoutIssue,
     ];
-    expect(_checks.length).toBe(55);
+    expect(_checks.length).toBe(56);
   });
 });

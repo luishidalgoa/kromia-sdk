@@ -57,6 +57,7 @@ export type {
   LayoutContainerNode,
   LayoutNode,
   GridPlacement,
+  ContainerSurface,
 } from './types';
 
 // ── Field types ────────────────────────────────────────────────────────
@@ -359,6 +360,11 @@ export {
   MAX_LAYOUT_DEPTH,
   MAX_GRID_COLUMNS,
   MAX_GRID_ROWS,
+  SURFACE_BACKGROUNDS,
+  SURFACE_BORDERS,
+  SURFACE_RADII,
+  SURFACE_SHADOWS,
+  SURFACE_PADDINGS,
   type LayoutIssue,
   type LayoutValidationResult,
   type ValidateLayoutOptions,

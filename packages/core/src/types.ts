@@ -294,6 +294,30 @@ export interface GridPlacement {
   rowStart?: number;
   /** Nº de filas que ocupa (default 1). */
   rowSpan?: number;
+  /** KRO-133 F3 — alineación del elemento DENTRO de su celda en el eje
+   *  horizontal (justify-self). Default = align-items del grid padre. */
+  justifySelf?: LayoutAlign;
+  /** KRO-133 F3 — alineación del elemento dentro de su celda en el eje
+   *  vertical (align-self). Default = align-items del grid padre. */
+  alignSelf?: LayoutAlign;
+}
+
+/**
+ * KRO-133 F3 — Decoración de un CONTENEDOR (presets cerrados, sin hex/px libre
+ * → portable a Flutter). Para "vestir" cajas: fondo, borde, esquinas, sombra y
+ * relleno interno. Todo opcional; ausente = sin decoración (transparente).
+ */
+export interface ContainerSurface {
+  /** Fondo de la caja. */
+  background?: 'none' | 'card' | 'muted' | 'accent';
+  /** Grosor del borde. */
+  border?: 'none' | 'thin' | 'medium';
+  /** Redondeo de esquinas. */
+  radius?: 'none' | 'sm' | 'md' | 'lg' | 'full';
+  /** Sombra/elevación. */
+  shadow?: 'none' | 'sm' | 'md' | 'lg';
+  /** Relleno interno. */
+  padding?: 'none' | 'xs' | 'sm' | 'md' | 'lg';
 }
 
 /** Hoja del árbol: un slot. Sus fields viven en `ViewComposition.slots[slot]`. */
@@ -327,6 +351,8 @@ export interface LayoutContainerNode {
   rows?: number;
   /** KRO-133 F3 — colocación de ESTE contenedor dentro de su grid padre. */
   place?: GridPlacement;
+  /** KRO-133 F3 — decoración de la caja (fondo/borde/esquinas/sombra/padding). */
+  surface?: ContainerSurface;
 }
 
 /** Un nodo del árbol = contenedor o slot-hoja. */

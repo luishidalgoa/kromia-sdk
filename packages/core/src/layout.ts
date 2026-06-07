@@ -33,6 +33,13 @@ export const LAYOUT_ALIGNS:          readonly LayoutAlign[]          = ['start',
 export const LAYOUT_JUSTIFY:         readonly LayoutJustify[]        = ['start', 'center', 'end', 'between', 'around'];
 export const LAYOUT_GAPS:            readonly LayoutGap[]            = ['none', 'xs', 'sm', 'md', 'lg'];
 
+// Catálogos de decoración de contenedor (KRO-133 F3) — presets cerrados.
+export const SURFACE_BACKGROUNDS = ['none', 'card', 'muted', 'accent'] as const;
+export const SURFACE_BORDERS     = ['none', 'thin', 'medium'] as const;
+export const SURFACE_RADII       = ['none', 'sm', 'md', 'lg', 'full'] as const;
+export const SURFACE_SHADOWS     = ['none', 'sm', 'md', 'lg'] as const;
+export const SURFACE_PADDINGS    = ['none', 'xs', 'sm', 'md', 'lg'] as const;
+
 /** Profundidad máxima de anidamiento de contenedores (raíz = 1). */
 export const MAX_LAYOUT_DEPTH = 5;
 /** Máximo de columnas de un contenedor `grid`. */
