@@ -309,21 +309,42 @@ export interface GridPlacement {
 }
 
 /**
- * KRO-133 F3 — Decoración de un CONTENEDOR (presets cerrados, sin hex/px libre
- * → portable a Flutter). Para "vestir" cajas: fondo, borde, esquinas, sombra y
- * relleno interno. Todo opcional; ausente = sin decoración (transparente).
+ * KRO-133 F3 — Color de un token de la paleta (cerrado, sin hex libre → portable
+ * a Flutter). Para bordes (y, a futuro, otros tintes).
+ */
+export type SurfaceColor = 'border' | 'muted' | 'accent' | 'primary' | 'foreground';
+
+/**
+ * KRO-133 F3 — Borde ATÓMICO de un contenedor: grosor + lado(s) + color + estilo.
+ * Sin `width` no hay borde. Todo cerrado (sin px/hex libres) → portable a Flutter.
+ */
+export interface SurfaceBorder {
+  /** Grosor. Sin esto, no se pinta borde. */
+  width?: 'thin' | 'medium' | 'thick';
+  /** Lado(s) donde aplica. Default 'all'. */
+  side?:  'all' | 'top' | 'bottom' | 'left' | 'right' | 'x' | 'y';
+  /** Color del borde (token de paleta). Default 'border'. */
+  color?: SurfaceColor;
+  /** Estilo de línea. Default 'solid'. */
+  style?: 'solid' | 'dashed' | 'dotted';
+}
+
+/**
+ * KRO-133 F3 — Decoración RICA de un CONTENEDOR (presets cerrados, sin hex/px
+ * libre → portable a Flutter). Para "vestir" cajas: fondo, borde atómico,
+ * esquinas, sombra y relleno. Todo opcional; ausente = sin decoración.
  */
 export interface ContainerSurface {
-  /** Fondo de la caja. */
-  background?: 'none' | 'card' | 'muted' | 'accent';
-  /** Grosor del borde. */
-  border?: 'none' | 'thin' | 'medium';
+  /** Fondo de la caja (token de paleta; 'primary'/'accent' = tinte suave). */
+  background?: 'none' | 'card' | 'muted' | 'accent' | 'primary';
+  /** Borde atómico (grosor/lado/color/estilo). */
+  border?: SurfaceBorder;
   /** Redondeo de esquinas. */
-  radius?: 'none' | 'sm' | 'md' | 'lg' | 'full';
+  radius?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
   /** Sombra/elevación. */
-  shadow?: 'none' | 'sm' | 'md' | 'lg';
+  shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   /** Relleno interno. */
-  padding?: 'none' | 'xs' | 'sm' | 'md' | 'lg';
+  padding?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 }
 
 /** Hoja del árbol: un slot. Sus fields viven en `ViewComposition.slots[slot]`. */

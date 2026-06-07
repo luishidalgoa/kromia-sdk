@@ -30,7 +30,7 @@ import {
 import {
   migrateSlotsToLayout,
   type LayoutNode, type LayoutContainerNode, type LayoutGap, type LayoutAlign,
-  type LayoutJustify, type GridPlacement, type ContainerSurface, type ViewComposition,
+  type LayoutJustify, type GridPlacement, type ContainerSurface, type SurfaceBorder, type ViewComposition,
 } from '@kromia/core';
 
 // ── Catálogo → clases Tailwind (estáticas: Tailwind no resuelve `gap-${x}`) ──
@@ -128,32 +128,63 @@ function selfAlignClasses(place: GridPlacement | undefined): string | undefined 
   );
 }
 
-// Decoración del contenedor (KRO-133 F3) — presets cerrados → clases estáticas.
+// Decoración RICA del contenedor (KRO-133 F3) — presets cerrados → clases
+// Tailwind estáticas (literales para que el scanner las recoja).
 const SURFACE_BG_CLASSES:      Record<NonNullable<ContainerSurface['background']>, string> = {
-  none: '', card: 'bg-card', muted: 'bg-muted', accent: 'bg-accent',
-};
-const SURFACE_BORDER_CLASSES:  Record<NonNullable<ContainerSurface['border']>, string> = {
-  none: '', thin: 'border border-border', medium: 'border-2 border-border',
+  none: '', card: 'bg-card', muted: 'bg-muted', accent: 'bg-accent', primary: 'bg-primary/10',
 };
 const SURFACE_RADIUS_CLASSES:  Record<NonNullable<ContainerSurface['radius']>, string> = {
-  none: 'rounded-none', sm: 'rounded-sm', md: 'rounded-md', lg: 'rounded-lg', full: 'rounded-full',
+  none: 'rounded-none', sm: 'rounded-sm', md: 'rounded-md', lg: 'rounded-lg', xl: 'rounded-xl', full: 'rounded-full',
 };
 const SURFACE_SHADOW_CLASSES:  Record<NonNullable<ContainerSurface['shadow']>, string> = {
-  none: '', sm: 'shadow-sm', md: 'shadow-md', lg: 'shadow-lg',
+  none: '', sm: 'shadow-sm', md: 'shadow-md', lg: 'shadow-lg', xl: 'shadow-xl',
 };
 const SURFACE_PADDING_CLASSES: Record<NonNullable<ContainerSurface['padding']>, string> = {
-  none: 'p-0', xs: 'p-1', sm: 'p-2', md: 'p-3', lg: 'p-5',
+  none: 'p-0', xs: 'p-1', sm: 'p-2', md: 'p-3', lg: 'p-5', xl: 'p-8',
 };
+// Borde atómico: matriz lado × grosor (clases literales) + color + estilo.
+type BSide  = NonNullable<SurfaceBorder['side']>;
+type BWidth = NonNullable<SurfaceBorder['width']>;
+const BORDER_WIDTH_BY_SIDE: Record<BSide, Record<BWidth, string>> = {
+  all:    { thin: 'border',   medium: 'border-2',   thick: 'border-4' },
+  top:    { thin: 'border-t', medium: 'border-t-2', thick: 'border-t-4' },
+  bottom: { thin: 'border-b', medium: 'border-b-2', thick: 'border-b-4' },
+  left:   { thin: 'border-l', medium: 'border-l-2', thick: 'border-l-4' },
+  right:  { thin: 'border-r', medium: 'border-r-2', thick: 'border-r-4' },
+  x:      { thin: 'border-x', medium: 'border-x-2', thick: 'border-x-4' },
+  y:      { thin: 'border-y', medium: 'border-y-2', thick: 'border-y-4' },
+};
+const BORDER_COLOR_CLASSES: Record<NonNullable<SurfaceBorder['color']>, string> = {
+  border: 'border-border', muted: 'border-muted', accent: 'border-accent', primary: 'border-primary', foreground: 'border-foreground',
+};
+const BORDER_STYLE_CLASSES: Record<NonNullable<SurfaceBorder['style']>, string> = {
+  solid: 'border-solid', dashed: 'border-dashed', dotted: 'border-dotted',
+};
+function borderClasses(b: SurfaceBorder | undefined): string | undefined {
+  if (!b || !b.width) return undefined; // sin grosor → sin borde
+  return cn(
+    BORDER_WIDTH_BY_SIDE[b.side ?? 'all'][b.width],
+    BORDER_COLOR_CLASSES[b.color ?? 'border'],
+    b.style && BORDER_STYLE_CLASSES[b.style],
+  );
+}
+
+/**
+ * Clases Tailwind de la decoración de un contenedor. Exportada (como
+ * `containerSurfaceClasses`) para que el editor visual de Studio pinte el lienzo
+ * con EXACTAMENTE el mismo resultado que la app — una sola fuente de verdad.
+ */
 function surfaceClasses(s: ContainerSurface | undefined): string | undefined {
   if (!s) return undefined;
   return cn(
     s.background && SURFACE_BG_CLASSES[s.background],
-    s.border && SURFACE_BORDER_CLASSES[s.border],
+    borderClasses(s.border),
     s.radius && SURFACE_RADIUS_CLASSES[s.radius],
     s.shadow && SURFACE_SHADOW_CLASSES[s.shadow],
     s.padding && SURFACE_PADDING_CLASSES[s.padding],
   );
 }
+export { surfaceClasses as containerSurfaceClasses };
 
 interface NodeCtx {
   composition: { slots: ViewComposition['slots']; slotOverrides?: ViewComposition['slotOverrides'] };

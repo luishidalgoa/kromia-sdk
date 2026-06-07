@@ -149,7 +149,10 @@ const EXPECTED_EXPORTS = [
   'MAX_GRID_COLUMNS',
   'MAX_GRID_ROWS',
   'SURFACE_BACKGROUNDS',
-  'SURFACE_BORDERS',
+  'SURFACE_BORDER_WIDTHS',
+  'SURFACE_BORDER_SIDES',
+  'SURFACE_BORDER_COLORS',
+  'SURFACE_BORDER_STYLES',
   'SURFACE_RADII',
   'SURFACE_SHADOWS',
   'SURFACE_PADDINGS',
@@ -301,9 +304,11 @@ describe('Type exports compile-check', () => {
       null as unknown as import('../src/types').LayoutSlotNode,
       null as unknown as import('../src/types').GridPlacement,
       null as unknown as import('../src/types').ContainerSurface,
+      null as unknown as import('../src/types').SurfaceBorder,
+      null as unknown as import('../src/types').SurfaceColor,
       null as unknown as import('../src/layout').LayoutValidationResult,
       null as unknown as import('../src/layout').LayoutIssue,
     ];
-    expect(_checks.length).toBe(56);
+    expect(_checks.length).toBe(58);
   });
 });

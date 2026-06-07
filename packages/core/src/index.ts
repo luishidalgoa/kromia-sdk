@@ -58,6 +58,8 @@ export type {
   LayoutNode,
   GridPlacement,
   ContainerSurface,
+  SurfaceBorder,
+  SurfaceColor,
 } from './types';
 
 // ── Field types ────────────────────────────────────────────────────────
@@ -361,7 +363,10 @@ export {
   MAX_GRID_COLUMNS,
   MAX_GRID_ROWS,
   SURFACE_BACKGROUNDS,
-  SURFACE_BORDERS,
+  SURFACE_BORDER_WIDTHS,
+  SURFACE_BORDER_SIDES,
+  SURFACE_BORDER_COLORS,
+  SURFACE_BORDER_STYLES,
   SURFACE_RADII,
   SURFACE_SHADOWS,
   SURFACE_PADDINGS,
