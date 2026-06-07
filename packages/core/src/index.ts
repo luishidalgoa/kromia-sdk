@@ -393,3 +393,7 @@ export {
   type PaletteGroup,
   type PaletteRole,
 } from './palette';
+
+// KRO-133 F5 — recetas → presets de layout (grid). "Activar diseño por bloques"
+// parte del diseño REAL de la receta, no de una columna naíf.
+export { recipeToComposition } from './recipe-presets';

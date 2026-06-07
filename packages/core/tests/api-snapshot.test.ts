@@ -167,6 +167,8 @@ const EXPECTED_EXPORTS = [
   'PALETTE_HUES',
   'PALETTE_SHADES',
   'paletteClass',
+  // KRO-133 F5 — recetas → presets de layout
+  'recipeToComposition',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
