@@ -161,15 +161,20 @@ function borderClasses(b: SurfaceBorder | undefined): string | undefined {
   );
 }
 
-// Radius por-esquina: si hay `radiusCorners`, una clase `rounded-{esquina}-{size}`
-// por esquina (safelistadas en globals.css); si no, redondeo en las 4.
-const CORNER_PREFIX: Record<'tl' | 'tr' | 'bl' | 'br', string> = {
-  tl: 'rounded-tl', tr: 'rounded-tr', bl: 'rounded-bl', br: 'rounded-br',
+// Radius por-esquina: matriz esquina × tamaño con clases LITERALES (escaneadas
+// por Tailwind desde el source de @kromia/react — sin depender de @source inline).
+type RCorner = 'tl' | 'tr' | 'bl' | 'br';
+type RSize   = NonNullable<ContainerSurface['radius']>;
+const CORNER_RADIUS: Record<RCorner, Record<RSize, string>> = {
+  tl: { none: 'rounded-tl-none', sm: 'rounded-tl-sm', md: 'rounded-tl-md', lg: 'rounded-tl-lg', xl: 'rounded-tl-xl', full: 'rounded-tl-full' },
+  tr: { none: 'rounded-tr-none', sm: 'rounded-tr-sm', md: 'rounded-tr-md', lg: 'rounded-tr-lg', xl: 'rounded-tr-xl', full: 'rounded-tr-full' },
+  bl: { none: 'rounded-bl-none', sm: 'rounded-bl-sm', md: 'rounded-bl-md', lg: 'rounded-bl-lg', xl: 'rounded-bl-xl', full: 'rounded-bl-full' },
+  br: { none: 'rounded-br-none', sm: 'rounded-br-sm', md: 'rounded-br-md', lg: 'rounded-br-lg', xl: 'rounded-br-xl', full: 'rounded-br-full' },
 };
 function radiusClasses(s: ContainerSurface): string | undefined {
   if (!s.radius) return undefined;
   if (s.radiusCorners && s.radiusCorners.length) {
-    return s.radiusCorners.map(c => `${CORNER_PREFIX[c]}-${s.radius}`).join(' ');
+    return s.radiusCorners.map(c => CORNER_RADIUS[c][s.radius!]).join(' ');
   }
   return SURFACE_RADIUS_CLASSES[s.radius];
 }
