@@ -43,6 +43,49 @@ export const SURFACE_BORDER_STYLES = ['solid', 'dashed', 'dotted'] as const;
 export const SURFACE_RADII         = ['none', 'sm', 'md', 'lg', 'xl', 'full'] as const;
 /** Esquinas para el radius por-esquina (multi; vacío = las 4). */
 export const SURFACE_RADIUS_CORNERS = ['tl', 'tr', 'bl', 'br'] as const;
+
+// ── Track sizing (ancho de columna / alto de fila) ──────────────────────────
+/** Tokens de tamaño de pista del grid (KRO-133 F3). */
+export const TRACK_SIZES = ['1fr', '2fr', '3fr', 'auto', 'content'] as const;
+
+/** Token de pista → valor CSS de grid-template. `content` = ajustado al contenido. */
+export function trackToCss(token: string | undefined): string {
+  switch (token) {
+    case 'auto':    return 'auto';
+    case 'content': return 'min-content';
+    case '2fr':     return 'minmax(0, 2fr)';
+    case '3fr':     return 'minmax(0, 3fr)';
+    default:        return 'minmax(0, 1fr)'; // '1fr' / undefined
+  }
+}
+
+/** Nº de filas EFECTIVAS de un grid (explícitas o las que exige la colocación). */
+function effectiveRows(node: LayoutContainerNode): number {
+  let max = 1;
+  for (const ch of node.children) {
+    const rs = ch.place?.rowStart ?? 1, rsp = ch.place?.rowSpan ?? 1;
+    max = Math.max(max, rs + rsp - 1);
+  }
+  return Math.max(node.rows ?? 1, max);
+}
+
+/** `grid-template-columns` del contenedor (respeta columnSizes; default = iguales). */
+export function gridColumnsTemplate(node: LayoutContainerNode): string {
+  const cols = Math.max(1, node.columns ?? 1);
+  if (node.columnSizes && node.columnSizes.length) {
+    return Array.from({ length: cols }, (_, i) => trackToCss(node.columnSizes![i])).join(' ');
+  }
+  return `repeat(${cols}, minmax(0, 1fr))`;
+}
+
+/** `grid-template-rows` del contenedor (respeta rowSizes; si no, rowSize auto/equal). */
+export function gridRowsTemplate(node: LayoutContainerNode): string {
+  const rows = effectiveRows(node);
+  if (node.rowSizes && node.rowSizes.length) {
+    return Array.from({ length: rows }, (_, i) => trackToCss(node.rowSizes![i])).join(' ');
+  }
+  return node.rowSize === 'equal' ? `repeat(${rows}, minmax(0, 1fr))` : `repeat(${rows}, auto)`;
+}
 export const SURFACE_SHADOWS       = ['none', 'sm', 'md', 'lg', 'xl'] as const;
 export const SURFACE_PADDINGS      = ['none', 'xs', 'sm', 'md', 'lg', 'xl'] as const;
 

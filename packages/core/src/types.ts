@@ -390,6 +390,14 @@ export interface LayoutContainerNode {
   /** KRO-133 F3 — dimensionado de las filas del grid: 'auto' (default) = cada
    *  fila se ajusta a su contenido; 'equal' = todas iguales (1fr). */
   rowSize?: 'auto' | 'equal';
+  /** KRO-133 F3 — tamaño POR COLUMNA (track sizing). Token por columna:
+   *  '1fr'|'2fr'|'3fr' (flexible) | 'auto' | 'content' (ajustado al contenido).
+   *  Si todas son '1fr' / undefined → columnas iguales (comportamiento default).
+   *  La longitud se ajusta a `columns`. */
+  columnSizes?: string[];
+  /** KRO-133 F3 — tamaño POR FILA (track sizing). Mismos tokens que columnSizes.
+   *  undefined → según `rowSize` (auto/equal). */
+  rowSizes?: string[];
   /** KRO-133 F3 — colocación de ESTE contenedor dentro de su grid padre. */
   place?: GridPlacement;
   /** KRO-133 F3 — decoración de la caja (fondo/borde/esquinas/sombra/padding). */

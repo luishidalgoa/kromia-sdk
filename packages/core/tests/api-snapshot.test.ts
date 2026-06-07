@@ -157,6 +157,10 @@ const EXPECTED_EXPORTS = [
   'SURFACE_RADIUS_CORNERS',
   'SURFACE_SHADOWS',
   'SURFACE_PADDINGS',
+  'TRACK_SIZES',
+  'trackToCss',
+  'gridColumnsTemplate',
+  'gridRowsTemplate',
   // KRO-133 F3 — paleta de color
   'PALETTE',
   'PALETTE_THEME_IDS',

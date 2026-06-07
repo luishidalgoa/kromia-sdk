@@ -28,7 +28,7 @@ import {
   type FieldDefLike,
 } from '../recipe-utils';
 import {
-  migrateSlotsToLayout, paletteClass,
+  migrateSlotsToLayout, paletteClass, gridColumnsTemplate, gridRowsTemplate,
   type LayoutNode, type LayoutContainerNode, type LayoutGap, type LayoutAlign,
   type LayoutJustify, type GridPlacement, type ContainerSurface, type SurfaceBorder, type ViewComposition,
 } from '@kromia/core';
@@ -50,11 +50,8 @@ const JUSTIFY_CONTENT_CLASSES: Record<LayoutJustify, string> = {
 const JUSTIFY_ITEMS_CLASSES: Partial<Record<LayoutJustify, string>> = {
   start: 'justify-items-start', center: 'justify-items-center', end: 'justify-items-end',
 };
-// Estáticas para que Tailwind las recoja.
-const GRID_COLS_CLASSES: Record<number, string> = {
-  1: 'grid-cols-1', 2: 'grid-cols-2', 3: 'grid-cols-3',
-  4: 'grid-cols-4', 5: 'grid-cols-5', 6: 'grid-cols-6',
-};
+// Estáticas para que Tailwind las recoja. (El template de columnas/filas va
+// inline — soporta track sizing arbitrario.)
 const COL_SPAN_CLASSES: Record<number, string> = {
   1: 'col-span-1', 2: 'col-span-2', 3: 'col-span-3',
   4: 'col-span-4', 5: 'col-span-5', 6: 'col-span-6',
@@ -76,14 +73,11 @@ const ROW_START_CLASSES: Record<number, string> = {
 function containerClasses(node: LayoutContainerNode): string {
   const gap = GAP_CLASSES[node.gap ?? 'sm'];
   if (node.kind === 'grid') {
-    const cols = GRID_COLS_CLASSES[node.columns ?? 2] ?? GRID_COLS_CLASSES[2];
-    // Filas AJUSTADAS AL CONTENIDO (auto), no iguales: cada fila mide lo que
-    // pide su contenido (un row de texto no se infla a la altura de la imagen).
-    // El rowSpan sigue funcionando (abarca varias filas implícitas). 'equal'
-    // fuerza filas iguales (1fr) cuando el publisher lo pide explícitamente.
-    const rowSizing = node.rowSize === 'equal' ? 'auto-rows-fr' : 'auto-rows-auto';
+    // El template de columnas/filas va INLINE (gridTemplateStyle) → soporta
+    // anchos de columna / altos de fila arbitrarios (track sizing). Aquí solo
+    // las clases no-dimensionales.
     return cn(
-      'grid min-w-0', cols, rowSizing, gap,
+      'grid min-w-0', gap,
       ALIGN_ITEMS_CLASSES[node.align ?? 'stretch'],
       node.justify && JUSTIFY_ITEMS_CLASSES[node.justify],
     );
@@ -284,8 +278,12 @@ function LayoutNodeView({ node, ctx }: { node: LayoutNode; ctx: NodeCtx }) {
 
   const isStack = node.kind === 'stack';
   const isGrid  = node.kind === 'grid';
+  // Template inline (track sizing): anchos de columna / altos de fila.
+  const gridStyle = isGrid
+    ? { gridTemplateColumns: gridColumnsTemplate(node), gridTemplateRows: gridRowsTemplate(node) }
+    : undefined;
   return (
-    <div className={cn(containerClasses(node), surfaceClasses(node.surface))}>
+    <div className={cn(containerClasses(node), surfaceClasses(node.surface))} style={gridStyle}>
       {node.children.map((child, i) => {
         // grow solo aplica en flex; en grid el tamaño lo da el span.
         const grow = !isGrid && child.type === 'slot' && typeof child.grow === 'number' && child.grow > 0
