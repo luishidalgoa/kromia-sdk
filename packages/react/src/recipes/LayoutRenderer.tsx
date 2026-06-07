@@ -287,8 +287,11 @@ function LayoutNodeView({ node, ctx }: { node: LayoutNode; ctx: NodeCtx }) {
   const gridStyle = isGrid
     ? { gridTemplateColumns: gridColumnsTemplate(node), gridTemplateRows: gridRowsTemplate(node) }
     : undefined;
+  // Con radio, recortamos el contenido para que las esquinas redondeadas se vean
+  // (si no, los hijos desbordan y tapan el redondeo).
+  const clip = node.surface?.radius && node.surface.radius !== 'none' ? 'overflow-hidden' : undefined;
   return (
-    <div className={cn(containerClasses(node), surfaceClasses(node.surface))} style={gridStyle}>
+    <div className={cn(containerClasses(node), surfaceClasses(node.surface), clip)} style={gridStyle}>
       {node.children.map((child, i) => {
         // grow solo aplica en flex; en grid el tamaño lo da el span.
         const grow = !isGrid && child.type === 'slot' && typeof child.grow === 'number' && child.grow > 0
