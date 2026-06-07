@@ -286,6 +286,24 @@ export {
   type AlbumMediaPrefixInput,
 } from './media-path';
 
+// ── Autoridad de acceso a medios (KRO-101) ───────────────────────────────────
+// Función PURA de capabilities del bucket: decide read/write/list/delete a partir
+// de username + roles + grants (resueltos a slug). La comparten Studio
+// (`/api/minio/*`, `/api/images`) y el backend (`/api/images`, ciclo de vida) →
+// una sola regla, sin drift. La regla de `read` ya contempla la visibilidad del
+// álbum (KRO-140) vía `albumVisibility`. Spec en tests/media-access.test.ts.
+export {
+  mediaCapability,
+  isPrivatePath,
+  avatarObjectPath,
+  PRIVATE_PREFIX,
+  AVATAR_PREFIX,
+  type MediaAction,
+  type MediaGrant,
+  type MediaContext,
+  type MediaCapabilityOpts,
+} from './media-access';
+
 export {
   // Tipos
   type CatalogOption,

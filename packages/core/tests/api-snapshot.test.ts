@@ -128,6 +128,12 @@ const EXPECTED_EXPORTS = [
   'depthToParallaxFactor',
   'getCardDepthLayers',
   'validateCardDepthLayers',
+  // KRO-101 — autoridad de acceso a medios (capabilities del bucket)
+  'mediaCapability',
+  'isPrivatePath',
+  'avatarObjectPath',
+  'PRIVATE_PREFIX',
+  'AVATAR_PREFIX',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
@@ -265,7 +271,12 @@ describe('Type exports compile-check', () => {
       null as unknown as ValidateCompositionOptions,
       null as unknown as import('../src/interaction').TapResolution,
       null as unknown as import('../src/interaction').ResolveTapOptions,
+      // KRO-101 — autoridad de acceso a medios
+      null as unknown as import('../src/media-access').MediaAction,
+      null as unknown as import('../src/media-access').MediaGrant,
+      null as unknown as import('../src/media-access').MediaContext,
+      null as unknown as import('../src/media-access').MediaCapabilityOpts,
     ];
-    expect(_checks.length).toBe(45);
+    expect(_checks.length).toBe(49);
   });
 });
