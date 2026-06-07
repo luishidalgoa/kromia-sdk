@@ -47,6 +47,15 @@ export type {
   CardDepthLayer,
   RaritySource,
   RarityBucket,
+  // KRO-133 — árbol de layout (constructor visual de recetas)
+  LayoutContainerKind,
+  LayoutDirection,
+  LayoutAlign,
+  LayoutJustify,
+  LayoutGap,
+  LayoutSlotNode,
+  LayoutContainerNode,
+  LayoutNode,
 } from './types';
 
 // ── Field types ────────────────────────────────────────────────────────
@@ -328,3 +337,26 @@ export {
   type DepthLayerIssue,
   type DepthLayerValidationResult,
 } from './card-layers';
+
+// ── Árbol de LAYOUT (constructor visual de recetas, KRO-133) ─────────────────
+// La composición pasa de `slots` plano a un ÁRBOL editable (contenedores
+// flex/grid/stack + hojas slot). Fase 1: catálogos + validador + auto-migración
+// (slots-plano→árbol, no destructiva). Lo comparten Studio (canvas DnD), backend
+// (validación) y el futuro motor de render (React + Flutter). Spec en
+// tests/layout.test.ts. El tipo `layout?` vive en ViewComposition (additive, sin bump).
+export {
+  validateLayout,
+  migrateSlotsToLayout,
+  layoutDepth,
+  collectLayoutSlots,
+  LAYOUT_CONTAINER_KINDS,
+  LAYOUT_DIRECTIONS,
+  LAYOUT_ALIGNS,
+  LAYOUT_JUSTIFY,
+  LAYOUT_GAPS,
+  MAX_LAYOUT_DEPTH,
+  MAX_GRID_COLUMNS,
+  type LayoutIssue,
+  type LayoutValidationResult,
+  type ValidateLayoutOptions,
+} from './layout';

@@ -248,7 +248,65 @@ export interface ViewComposition {
    * para paridad TS↔persistido↔Dart (el espejo Dart ya la parsea en `fromJson`).
    */
   protocolVersion?: string;
+
+  /**
+   * KRO-133 — Árbol de LAYOUT (constructor visual tipo Gutenberg). Describe CÓMO
+   * se disponen los slots (contenedores flex/grid/stack anidables + hojas = slots)
+   * en vez de dejarlo cableado en el JSX de cada receta. **Opcional + additive**:
+   * si falta, el cliente cae al preset de la receta (`migrateSlotsToLayout` deriva
+   * un árbol equivalente, no destructivo). Mobile-first: un solo layout, sin
+   * breakpoints. Las recetas pasan a ser presets de este árbol (decisión KRO-133).
+   */
+  layout?: LayoutContainerNode;
 }
+
+// ── KRO-133 — Árbol de LAYOUT (constructor visual de recetas) ────────────────
+//
+// La composición deja de tener el layout cableado en JSX por-receta y pasa a un
+// ÁRBOL editable: contenedores (flex/grid/stack) que anidan otros contenedores o
+// HOJAS (slots). Los `slots` de ViewComposition siguen definiendo QUÉ fields lleva
+// cada slot; este árbol define DÓNDE va cada slot. Presets cerrados (gap/align/…)
+// como `SlotAppearance` — el publisher elige de catálogos, no px libres.
+
+/** Disposición de un contenedor. `stack` = cascada/superposición en Z. */
+export type LayoutContainerKind = 'flex' | 'grid' | 'stack';
+/** flex: eje principal. */
+export type LayoutDirection = 'row' | 'column';
+/** Alineación en el eje cruzado (flex) / items (grid). */
+export type LayoutAlign = 'start' | 'center' | 'end' | 'stretch';
+/** Distribución en el eje principal (flex). */
+export type LayoutJustify = 'start' | 'center' | 'end' | 'between' | 'around';
+/** Separación entre hijos — preset cerrado (no px libre). */
+export type LayoutGap = 'none' | 'xs' | 'sm' | 'md' | 'lg';
+
+/** Hoja del árbol: un slot. Sus fields viven en `ViewComposition.slots[slot]`. */
+export interface LayoutSlotNode {
+  type: 'slot';
+  /** Nombre del slot — clave en `ViewComposition.slots`. */
+  slot: string;
+  /** Peso de crecimiento si el contenedor padre es flex (default 0 = no crece). */
+  grow?: number;
+}
+
+/** Nodo contenedor: dispone a sus hijos según `kind`. */
+export interface LayoutContainerNode {
+  type: 'container';
+  kind: LayoutContainerKind;
+  children: LayoutNode[];
+  /** flex: dirección de los hijos. Default 'column'. (Ignorado en grid/stack.) */
+  direction?: LayoutDirection;
+  /** Separación entre hijos. Default 'sm'. (stack la ignora — superpone en Z.) */
+  gap?: LayoutGap;
+  /** Alineación cruzada. Default 'stretch'. */
+  align?: LayoutAlign;
+  /** Distribución principal (flex). Default 'start'. */
+  justify?: LayoutJustify;
+  /** grid: nº de columnas (1..6). Default 2. (Ignorado en flex/stack.) */
+  columns?: number;
+}
+
+/** Un nodo del árbol = contenedor o slot-hoja. */
+export type LayoutNode = LayoutContainerNode | LayoutSlotNode;
 
 /**
  * KRO-122 — Foil IMPORTABLE por el creador. Un efecto holográfico custom no es

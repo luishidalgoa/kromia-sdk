@@ -134,6 +134,18 @@ const EXPECTED_EXPORTS = [
   'avatarObjectPath',
   'PRIVATE_PREFIX',
   'AVATAR_PREFIX',
+  // KRO-133 — árbol de layout (constructor visual de recetas)
+  'validateLayout',
+  'migrateSlotsToLayout',
+  'layoutDepth',
+  'collectLayoutSlots',
+  'LAYOUT_CONTAINER_KINDS',
+  'LAYOUT_DIRECTIONS',
+  'LAYOUT_ALIGNS',
+  'LAYOUT_JUSTIFY',
+  'LAYOUT_GAPS',
+  'MAX_LAYOUT_DEPTH',
+  'MAX_GRID_COLUMNS',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
@@ -276,7 +288,13 @@ describe('Type exports compile-check', () => {
       null as unknown as import('../src/media-access').MediaGrant,
       null as unknown as import('../src/media-access').MediaContext,
       null as unknown as import('../src/media-access').MediaCapabilityOpts,
+      // KRO-133 — árbol de layout
+      null as unknown as import('../src/types').LayoutNode,
+      null as unknown as import('../src/types').LayoutContainerNode,
+      null as unknown as import('../src/types').LayoutSlotNode,
+      null as unknown as import('../src/layout').LayoutValidationResult,
+      null as unknown as import('../src/layout').LayoutIssue,
     ];
-    expect(_checks.length).toBe(49);
+    expect(_checks.length).toBe(54);
   });
 });
