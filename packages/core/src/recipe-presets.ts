@@ -15,9 +15,8 @@
  */
 import { migrateSlotsToGrid } from './layout';
 import type {
-  LayoutContainerNode, LayoutNode, GridPlacement, SlotAppearance, ViewComposition,
+  LayoutContainerNode, LayoutNode, GridPlacement, SlotAppearance, ViewComposition, RecipeId,
 } from './types';
-import type { RecipeId } from './registries/recipes';
 
 type Ap = Partial<SlotAppearance>;
 
