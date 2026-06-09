@@ -29,6 +29,7 @@ import {
 } from '../recipe-utils';
 import {
   migrateSlotsToLayout, paletteClass, resolveFieldColor, gridColumnsTemplate, gridRowsTemplate,
+  classifyField,
   type LayoutNode, type LayoutContainerNode, type LayoutComponentNode, type LayoutGap, type LayoutAlign,
   type LayoutJustify, type GridPlacement, type ContainerSurface, type SurfaceBorder, type ViewComposition,
   type CardFormat,
@@ -239,11 +240,15 @@ function isImageField(def: FieldDefLike | undefined): boolean {
 }
 
 /** ¿El field del slot es una REFERENCIA a carta/sección? (decide rejilla de
- *  mini-cartas vs texto). El valor puede ser un ref único o una lista (behavior
- *  card_index_list). Sin este branch, caía a `ScalarText` → "[6]". */
+ *  mini-cartas vs texto). CLAVE: una "lista de cartas" NO es `type: cardRef` —
+ *  suele ser `type: number/text` + behavior `card_index_list`/`card_code_list`,
+ *  que `classifyField` mapea al kind `card-ref`. Por eso clasificamos por
+ *  type+behavior (no solo type), o caería a `ScalarText` → "[6]". */
 function isRefField(def: FieldDefLike | undefined): boolean {
-  return def?.type === 'cardRef' || def?.type === 'sectionRef'
-      || def?.type === 'array<cardRef>' || def?.type === 'array<sectionRef>';
+  if (!def) return false;
+  if (def.type === 'cardRef' || def.type === 'sectionRef'
+   || def.type === 'array<cardRef>' || def.type === 'array<sectionRef>') return true;
+  return classifyField({ type: def.type, behavior: (def as { behavior?: string }).behavior }).includes('card-ref');
 }
 
 export interface SlotContentProps {
