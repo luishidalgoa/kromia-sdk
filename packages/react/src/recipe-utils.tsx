@@ -203,18 +203,6 @@ export function appearancePaddingClass(a: SlotAppearance | undefined): string {
   return a?.paddingY ? PADDING_Y_CLASSES[a.paddingY] : '';
 }
 
-// KRO-133 — SOLAPE: margen negativo arriba para superponer el slot al anterior.
-// Clases LITERALES (el scanner de Tailwind no resuelve `-mt-${x}`). lg = -mt-12,
-// el mismo solape que usa el avatar del hero sobre el banner.
-const OVERLAP_CLASSES: Record<NonNullable<SlotAppearance['overlap']>, string> = {
-  sm: '-mt-4', md: '-mt-8', lg: '-mt-12',
-};
-/** Clase de solape (margen negativo arriba) del slot, o '' si no hay override.
- *  El `relative` lo añade el caller para que el slot solapado quede por ENCIMA. */
-export function appearanceOverlapClass(a: SlotAppearance | undefined): string {
-  return a?.overlap ? OVERLAP_CLASSES[a.overlap] : '';
-}
-
 /** Devuelve la clase de truncado de líneas, o '' si no hay override.
  *
  *  - '1'    → `line-clamp-1`   (una sola línea con ellipsis)

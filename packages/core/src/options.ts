@@ -143,14 +143,6 @@ export const OPTIONS_APPEARANCE_PADDING_Y: ReadonlyArray<CatalogOption> = [
   { id: 'lg',   label: 'L', tooltip: 'Grande' },
 ];
 
-/** Solape — tira el slot hacia arriba para superponerlo al elemento anterior. */
-export const OPTIONS_APPEARANCE_OVERLAP: ReadonlyArray<CatalogOption> = [
-  { id: 'none', label: '0', tooltip: 'Sin solape' },
-  { id: 'sm',   label: 'S', tooltip: 'Solape pequeño (se sube un poco)' },
-  { id: 'md',   label: 'M', tooltip: 'Solape medio' },
-  { id: 'lg',   label: 'L', tooltip: 'Solape grande (avatar sobre banner)' },
-];
-
 /** Posición del border accent. */
 export const OPTIONS_APPEARANCE_ACCENT_POSITION: ReadonlyArray<CatalogOption> = [
   { id: 'auto',   label: 'Auto', tooltip: 'Posición default por receta (típicamente arriba en cards / detail, izquierda en accordion)' },
@@ -173,7 +165,6 @@ export const OPTIONS_APPEARANCE_LABELS: Record<AppearanceProp, string> = {
   truncateChars:  'Caracteres',
   accentPosition: 'Tinte',
   paddingY:       'Padding',
-  overlap:        'Solape',
 };
 
 /** Tooltip explicando qué hace cada prop — visible al hover del label. */
@@ -188,7 +179,6 @@ export const OPTIONS_APPEARANCE_DESCRIPTIONS: Record<AppearanceProp, string> = {
   truncateChars:  'Cortar por número de caracteres (slice JS). Predecible, independiente del ancho.',
   accentPosition: 'Posición de la línea de color que rodea la tarjeta. "Auto" usa la posición default por receta; "∅" desactiva la línea.',
   paddingY:       'Padding vertical del wrapper del slot — separación con vecinos.',
-  overlap:        'Solape: sube el slot (margen negativo) para SUPERPONERLO al elemento de arriba — p.ej. avatar sobre banner. Combínalo con centrar.',
 };
 
 // ─────────────────────────────────────────────────────────────────────────

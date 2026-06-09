@@ -24,7 +24,7 @@ import { cn } from '../lib/cn';
 import {
   resolveSlot, isSlotDisabled, AccentFrame, extractAccentSettings,
   ScalarText, ComposableSlot, ThumbBox, BadgePill, slotDebugAttrs, appearancePaddingClass,
-  appearanceTextClasses, appearanceTruncateClass, appearanceOverlapClass,
+  appearanceTextClasses, appearanceTruncateClass,
   type FieldDefLike,
 } from '../recipe-utils';
 import {
@@ -441,11 +441,19 @@ function LayoutNodeView({ node, ctx }: { node: LayoutNode; ctx: NodeCtx }) {
         // KRO-133 — hijo ABSOLUTO: fuera del flujo, posicionado en x/y (% del
         // contenedor). Para superposiciones libres (arrastrar por el lienzo).
         if (child.place?.position === 'absolute') {
+          const pl = child.place;
           return (
             <div
               key={i}
               className="min-w-0"
-              style={{ position: 'absolute', left: `${child.place.x ?? 0}%`, top: `${child.place.y ?? 0}%`, zIndex: 20 }}
+              style={{
+                position: 'absolute',
+                left:  `${pl.x ?? 0}%`,
+                top:   `${pl.y ?? 0}%`,
+                width:  pl.w != null ? `${pl.w}%` : undefined,
+                height: pl.h != null ? `${pl.h}%` : undefined,
+                zIndex: 20,
+              }}
             >
               <LayoutNodeView node={child} ctx={ctx} />
             </div>
@@ -461,22 +469,12 @@ function LayoutNodeView({ node, ctx }: { node: LayoutNode; ctx: NodeCtx }) {
         const childPlace = isGrid ? clampPlaceToGrid(child.place, node.columns ?? 1) : child.place;
         const placement = isGrid ? placementClasses(childPlace) : undefined;
         const selfAlign = isGrid ? selfAlignClasses(childPlace) : undefined;
-        // KRO-133 — SOLAPE del slot (appearance.overlap): margen negativo arriba
-        // para superponerlo al anterior (avatar sobre banner). Con solape la celda
-        // va `relative z-10` + sin recorte para que se vea por encima.
-        const childAp = child.type === 'slot' ? ctx.composition.slots[child.slot]?.appearance : undefined;
-        const overlapCls = appearanceOverlapClass(childAp);
         return (
           <div
             key={i}
             // min-w-0 + overflow-hidden: ninguna celda desborda el contenedor.
             // Stack: cada hijo en la misma celda (1/1) → superposición en Z.
-            className={cn(
-              'min-w-0 min-h-0',
-              overlapCls ? 'overflow-visible relative z-10' : 'overflow-hidden',
-              overlapCls,
-              isStack && 'col-start-1 row-start-1', placement, selfAlign,
-            )}
+            className={cn('min-w-0 min-h-0 overflow-hidden', isStack && 'col-start-1 row-start-1', placement, selfAlign)}
             style={grow}
           >
             <LayoutNodeView node={child} ctx={ctx} />

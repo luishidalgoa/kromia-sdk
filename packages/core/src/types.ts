@@ -168,12 +168,6 @@ export interface SlotAppearance {
   size?:      'sm' | 'md' | 'lg' | 'xl';
   /** Padding vertical del wrapper del slot — separación con vecinos. */
   paddingY?:  'none' | 'sm' | 'md' | 'lg';
-  /** KRO-133 — SOLAPE: tira el slot hacia ARRIBA (margen negativo) para
-   *  SUPERPONERLO al elemento anterior — avatar sobre banner, badge sobre carta,
-   *  etc. Presets cerrados. Combínalo con `align:'center'` para centrar el solape.
-   *  Es el primitivo de superposición del motor de bloques (sustituye al -mt fijo
-   *  hardcodeado en recetas como el hero). */
-  overlap?:   'sm' | 'md' | 'lg';
   /**
    * KRO-133 F3 — cómo se PRESENTA el contenido textual del slot:
    * 'text' (default) = texto plano; 'badge' = pill/chip (como la rareza/tipo
@@ -344,7 +338,12 @@ export interface GridPlacement {
   x?: number;
   /** % vertical de la esquina sup-izq del nodo dentro del contenedor (0-100). */
   y?: number;
-}
+  /** KRO-133 — ANCHO del nodo absoluto en % del contenedor (1-100). Sin valor =
+   *  auto (se ajusta al contenido → se ve "reducido"). Pon 100 para ancho completo. */
+  w?: number;
+  /** KRO-133 — ALTO del nodo absoluto en % del contenedor (1-100). Sin valor =
+   *  auto (se ajusta al contenido). */
+  h?: number;
 
 /**
  * KRO-133 F3 — Color de un token de la paleta (cerrado, sin hex libre → portable
