@@ -31,7 +31,9 @@ import {
   migrateSlotsToLayout, paletteClass, resolveFieldColor, gridColumnsTemplate, gridRowsTemplate,
   type LayoutNode, type LayoutContainerNode, type LayoutGap, type LayoutAlign,
   type LayoutJustify, type GridPlacement, type ContainerSurface, type SurfaceBorder, type ViewComposition,
+  type CardFormat,
 } from '@kromia/core';
+import { RefGallery } from './RefGallery';
 
 // ── Catálogo → clases Tailwind (estáticas: Tailwind no resuelve `gap-${x}`) ──
 
@@ -227,6 +229,8 @@ interface NodeCtx {
   composition: { slots: ViewComposition['slots']; slotOverrides?: ViewComposition['slotOverrides'] };
   item:        Record<string, any>;
   fieldDefs:   FieldDefLike[];
+  /** Formato de carta del álbum → columnas/aspect de la rejilla de refs. */
+  cardFormat?: CardFormat;
 }
 
 /** ¿El field del slot es una imagen? (decide caja-imagen vs texto). */
@@ -234,11 +238,21 @@ function isImageField(def: FieldDefLike | undefined): boolean {
   return def?.type === 'image' || def?.type === 'array<image>';
 }
 
+/** ¿El field del slot es una REFERENCIA a carta/sección? (decide rejilla de
+ *  mini-cartas vs texto). El valor puede ser un ref único o una lista (behavior
+ *  card_index_list). Sin este branch, caía a `ScalarText` → "[6]". */
+function isRefField(def: FieldDefLike | undefined): boolean {
+  return def?.type === 'cardRef' || def?.type === 'sectionRef'
+      || def?.type === 'array<cardRef>' || def?.type === 'array<sectionRef>';
+}
+
 export interface SlotContentProps {
   slot:        string;
   composition: { slots: ViewComposition['slots']; slotOverrides?: ViewComposition['slotOverrides'] };
   item:        Record<string, any>;
   fieldDefs:   FieldDefLike[];
+  /** Formato de carta del álbum → columnas/aspect de la rejilla de refs. */
+  cardFormat?: CardFormat;
 }
 
 /**
@@ -247,7 +261,7 @@ export interface SlotContentProps {
  * lienzo con el mismo resultado que el motor de render. Devuelve null si el
  * slot está deshabilitado o no resuelve a datos.
  */
-export function SlotContent({ slot, composition, item, fieldDefs }: SlotContentProps) {
+export function SlotContent({ slot, composition, item, fieldDefs, cardFormat }: SlotContentProps) {
   if (isSlotDisabled(composition, slot)) return null;
   const resolved = resolveSlot(composition, slot, fieldDefs, item);
   if (!resolved) return null;
@@ -266,6 +280,25 @@ export function SlotContent({ slot, composition, item, fieldDefs }: SlotContentP
     return (
       <div className={appearancePaddingClass(ap)} {...slotDebugAttrs(slot, resolved)}>
         <ThumbBox url={url} alt={String(first?.value ?? '')} appearance={ap} fill={fill} />
+      </div>
+    );
+  }
+
+  // Referencias (cardRef/sectionRef): rejilla de mini-cartas (el "componente
+  // carta"), no texto crudo. Reutiliza el MISMO render que la receta hero
+  // (RefGallery) → un slot de cartas en bloques pinta la galería, no "[6]".
+  if (isRefField(first?.def)) {
+    const refVal = first?.value as Array<string | number> | string | number | undefined;
+    const seed = String(Array.isArray(refVal) ? (refVal[0] ?? slot) : (refVal ?? slot));
+    return (
+      <div className={appearancePaddingClass(resolved.appearance)} {...slotDebugAttrs(slot, resolved)}>
+        <RefGallery
+          refs={refVal}
+          seed={seed}
+          cardFormat={cardFormat}
+          nestedComposition={composition.slots[slot]?.nestedComposition}
+          fieldDefs={fieldDefs}
+        />
       </div>
     );
   }
@@ -308,7 +341,7 @@ export function SlotContent({ slot, composition, item, fieldDefs }: SlotContentP
 
 /** Render de una hoja (slot) dentro del árbol. */
 function SlotLeaf({ slot, ctx }: { slot: string; ctx: NodeCtx }) {
-  return <SlotContent slot={slot} composition={ctx.composition} item={ctx.item} fieldDefs={ctx.fieldDefs} />;
+  return <SlotContent slot={slot} composition={ctx.composition} item={ctx.item} fieldDefs={ctx.fieldDefs} cardFormat={ctx.cardFormat} />;
 }
 
 /** Render recursivo de un nodo del árbol. */
@@ -358,6 +391,8 @@ export interface LayoutRendererProps {
   fieldDefs:   FieldDefLike[];
   onClick?:    () => void;
   className?:  string;
+  /** Formato de carta del álbum → columnas/aspect de las rejillas de refs. */
+  cardFormat?: CardFormat;
 }
 
 /**
@@ -365,11 +400,11 @@ export interface LayoutRendererProps {
  * árbol derivado de los slots si no lo trae) dentro del AccentFrame de la receta.
  */
 export function LayoutRenderer({
-  composition, item, fieldDefs, onClick, className,
+  composition, item, fieldDefs, onClick, className, cardFormat,
 }: LayoutRendererProps) {
   const root: LayoutContainerNode = composition.layout ?? migrateSlotsToLayout(composition);
   const accent  = extractAccentSettings(composition, item, fieldDefs, 'top');
-  const ctx: NodeCtx = { composition, item, fieldDefs };
+  const ctx: NodeCtx = { composition, item, fieldDefs, cardFormat };
   const clickable = !!onClick;
 
   return (

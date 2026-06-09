@@ -85,6 +85,7 @@ export function RecipeRenderer({
         fieldDefs={fieldDefs}
         onClick={onClick}
         className={className}
+        cardFormat={cardFormat}
       />
     );
   }

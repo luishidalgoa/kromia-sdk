@@ -41,7 +41,9 @@ import {
   type FieldDefLike,
 } from '../recipe-utils';
 import { NestedRecipeRenderer } from './NestedRecipeRenderer';
-import { aspectToRatio, DEFAULT_CARD_FORMAT, miniRefGridColumns, type CardFormat } from '@kromia/core';
+import { MiniCardRefs } from './RefGallery';
+import { simpleHash } from '../lib/hash';
+import { DEFAULT_CARD_FORMAT, type CardFormat } from '@kromia/core';
 import type { ViewComposition } from '@kromia/core';
 
 export interface HeroProtagonicoRecipeProps {
@@ -352,128 +354,6 @@ function GradientBanner({ seed }: { seed: string }) {
   );
 }
 
-/**
- * Mini-cards de refs relacionadas (cuando no hay nestedComposition).
- *
- * Diseño mockup-fiel: mini-mockup de carta — la imagen ocupa la card
- * completa, edge-to-edge, con solo el número como overlay arriba a la
- * izquierda. NO hay silueta circular interna ni label inferior porque:
- *
- *   - El placeholder visual de "esto es una carta" lo da el degradado
- *     full-bleed que ocupa todo el rectángulo (color tinta del hash
- *     del título) — antes era una silueta circular que rompía la
- *     ilusión de "carta entera con foto".
- *   - El label inferior previo ("REF") no tenía significado real —
- *     era un placeholder mío sin conexión con datos. Eliminado.
- *
- *   ┌─────────┐
- *   │ 012     │  ← número padded top-left (overlay sobre la imagen)
- *   │         │
- *   │ ▓▓▓▓▓▓▓ │  ← imagen full-bleed (degradado en preview, foto real
- *   │ ▓▓▓▓▓▓▓ │     cuando llegue Flutter con data real)
- *   │ ▓▓▓▓▓▓▓ │
- *   └─────────┘
- *
- * Aspect 3:4, card central destacada con ring + scale + shadow, "+N"
- * con border dashed para el overflow. Pattern visual mockup-fiel.
- *
- * CONFIGURACIÓN futura (no implementada — diferida a KRO-58 V5 slots
- * customizables): layout grid|carousel + columns N. Hoy: grid de 4
- * columnas hardcoded.
- */
-function MiniCardRefs({
-  refs, seed, cardFormat,
-}: {
-  refs:       Array<string | number>;
-  seed:       string;
-  cardFormat: CardFormat;
-}) {
-  const hue = simpleHash(seed) % 360;
-  // Gradient sutil — la card es la imagen full-bleed, no un fondo plano.
-  // Hue derivado del hash del título da color consistente por item.
-  const gradStart   = `hsl(${hue}, 45%, 88%)`;
-  const gradEnd     = `hsl(${hue}, 50%, 72%)`;
-  const tintFg      = `hsl(${hue}, 55%, 22%)`;  // texto overlay legible sobre el gradient
-  const tintAccent  = `hsl(${hue}, 42%, 70%)`;  // border del "+N" placeholder
-  const tintHilight = `hsl(${hue}, 55%, 50%)`;  // ring de la card destacada
-
-  // Aspect viene del cardFormat del álbum — coherente con la "Estructura
-  // de cartas" del wizard. Si el publisher eligió 3:2 (horizontal estilo
-  // Topps baseball), las mini-cards serán wider que tall; si 1:1 cuadrada,
-  // serán cuadradas; etc.
-  const ratio = aspectToRatio(cardFormat.aspect);
-
-  // KRO-78 — columnas derivadas del cardFormat (aspect + size) por el helper
-  // puro `miniRefGridColumns` de `@kromia/core`. Antes era un `grid-cols-4` a
-  // fuego; ahora React y el futuro Flutter derivan el MISMO nº de columnas
-  // desde el mismo sitio (la matriz y el rationale viven en core). Clamp 1-6.
-  const cols            = miniRefGridColumns(cardFormat);
-  const visibleCount    = Math.max(1, cols - 1);  // un slot reservado para "+N"
-  const visible         = refs.slice(0, visibleCount);
-  const overflow        = refs.length - visible.length;
-
-  // Card central destacada cuando hay ≥2 visibles. Con cols=2 (1 card +
-  // "+N") no aplica.
-  const highlightIdx = visible.length >= 2 ? Math.floor(visible.length / 2) : -1;
-
-  return (
-    <div
-      className="grid gap-2.5"
-      style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-    >
-      {visible.map((ref, i) => {
-        const highlighted = i === highlightIdx;
-        return (
-          <div
-            key={i}
-            className={cn(
-              'rounded-lg overflow-hidden relative',
-              'transition-transform',
-              highlighted && 'scale-[1.04]',
-            )}
-            style={{
-              aspectRatio: ratio,
-              background: `linear-gradient(135deg, ${gradStart} 0%, ${gradEnd} 100%)`,
-              boxShadow: highlighted
-                ? `0 0 0 1.5px ${tintHilight}, 0 4px 8px rgba(0,0,0,0.10)`
-                : '0 1px 3px rgba(0,0,0,0.06)',
-            }}
-          >
-            {/* Número padded en overlay top-left — el resto de la card
-                queda libre como "imagen" full-bleed. */}
-            <span
-              className="absolute top-1.5 left-1.5 text-[10px] font-mono font-bold leading-none"
-              style={{ color: tintFg }}
-            >
-              {String(ref).padStart(3, '0')}
-            </span>
-          </div>
-        );
-      })}
-      {overflow > 0 && (
-        <div
-          className="rounded-lg border-2 border-dashed flex items-center justify-center"
-          style={{ aspectRatio: ratio, borderColor: tintAccent }}
-        >
-          <span
-            className="text-xs font-bold"
-            style={{ color: tintFg, opacity: 0.7 }}
-          >
-            +{overflow}
-          </span>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/** Hash determinista barato para derivar colores del título. */
-function simpleHash(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = ((h << 5) - h) + s.charCodeAt(i);
-    h |= 0;
-  }
-  return Math.abs(h);
-}
+// MiniCardRefs + simpleHash extraídos a `./RefGallery` + `../lib/hash` (KRO-133
+// Capa 1) para que el motor de bloques pinte los slots de refs igual que aquí.
 
