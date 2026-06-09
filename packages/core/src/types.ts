@@ -335,6 +335,15 @@ export interface GridPlacement {
   /** KRO-133 F3 — alineación del elemento dentro de su celda en el eje
    *  vertical (align-self). Default = align-items del grid padre. */
   alignSelf?: LayoutAlign;
+  /** KRO-133 — modo ABSOLUTO: el nodo SALE del flujo del grid y se posiciona
+   *  LIBREMENTE dentro de su contenedor (que pasa a `position: relative`). Para
+   *  superposiciones libres — el publisher lo ARRASTRA por el lienzo. Cuando
+   *  está activo, colStart/colSpan/rowStart/rowSpan se ignoran. */
+  position?: 'absolute';
+  /** % horizontal de la esquina sup-izq del nodo dentro del contenedor (0-100). */
+  x?: number;
+  /** % vertical de la esquina sup-izq del nodo dentro del contenedor (0-100). */
+  y?: number;
 }
 
 /**

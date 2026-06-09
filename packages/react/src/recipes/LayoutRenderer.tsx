@@ -433,9 +433,24 @@ function LayoutNodeView({ node, ctx }: { node: LayoutNode; ctx: NodeCtx }) {
   // Con radio, recortamos el contenido para que las esquinas redondeadas se vean
   // (si no, los hijos desbordan y tapan el redondeo).
   const clip = node.surface?.radius && node.surface.radius !== 'none' ? 'overflow-hidden' : undefined;
+  // KRO-133 — si algún hijo es ABSOLUTO, el contenedor es el marco de referencia.
+  const hasAbsolute = node.children.some(c => c.place?.position === 'absolute');
   return (
-    <div className={cn(containerClasses(node), surfaceClasses(node.surface), clip)} style={containerStyle}>
+    <div className={cn(containerClasses(node), surfaceClasses(node.surface), clip, hasAbsolute && 'relative')} style={containerStyle}>
       {node.children.map((child, i) => {
+        // KRO-133 — hijo ABSOLUTO: fuera del flujo, posicionado en x/y (% del
+        // contenedor). Para superposiciones libres (arrastrar por el lienzo).
+        if (child.place?.position === 'absolute') {
+          return (
+            <div
+              key={i}
+              className="absolute z-20 min-w-0"
+              style={{ left: `${child.place.x ?? 0}%`, top: `${child.place.y ?? 0}%` }}
+            >
+              <LayoutNodeView node={child} ctx={ctx} />
+            </div>
+          );
+        }
         // grow solo aplica en flex; en grid el tamaño lo da el span.
         const grow = !isGrid && child.type === 'slot' && typeof child.grow === 'number' && child.grow > 0
           ? { flexGrow: child.grow }
