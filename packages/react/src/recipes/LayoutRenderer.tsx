@@ -380,6 +380,24 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
   }
 }
 
+export interface ComponentContentProps {
+  node:        LayoutComponentNode;
+  composition: { slots: ViewComposition['slots']; slotOverrides?: ViewComposition['slotOverrides'] };
+  item:        Record<string, any>;
+  fieldDefs:   FieldDefLike[];
+  cardFormat?: CardFormat;
+}
+
+/**
+ * Render PÚBLICO de un componente prefabricado. Exportado para que el canvas del
+ * editor de Studio (KRO-133 Capa 2) pinte cada componente con EXACTAMENTE el
+ * mismo resultado que el motor de render — WYSIWYG, una sola fuente de verdad
+ * (mismo patrón que `SlotContent`).
+ */
+export function ComponentContent({ node, composition, item, fieldDefs, cardFormat }: ComponentContentProps) {
+  return <ComponentNodeView node={node} ctx={{ composition, item, fieldDefs, cardFormat }} />;
+}
+
 /** Render recursivo de un nodo del árbol. */
 function LayoutNodeView({ node, ctx }: { node: LayoutNode; ctx: NodeCtx }) {
   if (node.type === 'slot') return <SlotLeaf slot={node.slot} ctx={ctx} />;
