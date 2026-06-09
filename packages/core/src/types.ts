@@ -222,6 +222,16 @@ export interface TargetComposition {
   };
   linkField?: string;
   targetComposition?: TargetComposition;
+  /**
+   * KRO-133 — la pantalla de detalle es editable como una composición completa
+   * (mismo editor que la sección): admite su propio árbol de LAYOUT (modo
+   * Bloques), overrides de slots y posición del accent. Additive: las cadenas
+   * existentes no los traen → render idéntico (auto-derivado). Estructuralmente
+   * compatible con `ViewComposition` para reusar `ViewCompositionEditor`.
+   */
+  layout?: LayoutContainerNode;
+  slotOverrides?: SlotOverrides;
+  accentPosition?: 'top' | 'right' | 'bottom' | 'left' | 'none' | 'auto';
 }
 
 /**
