@@ -211,15 +211,39 @@ const RECIPE_PRESETS: Partial<Record<RecipeId, RecipePreset>> = {
     },
   },
   editorial: {
-    // KRO-133 fidelidad — meta en MAYÚSCULAS + galería como grid (no 1 imagen).
-    build: (has) => detailStack(['cover', 'title', 'meta', 'body', 'gallery'], has, { gap: 'md' }, { gallery: { component: 'gallery_grid', role: 'images' } }),
-    appearance: { cover: { aspect: '16:9' }, title: { weight: 'bold', size: 'xl' }, meta: { size: 'sm', textColor: 'muted', textTransform: 'uppercase' }, body: { size: 'md' } },
+    // KRO-133 fidelidad — TARJETA (rounded-xl bg-card) con el cover FULL-BLEED
+    // arriba (rounded-none, pegado) + el contenido en un contenedor con padding,
+    // igual que `EditorialRecipe` (`<article>` + cover + `px-5 py-5`). El título
+    // va en SERIF, el meta en MAYÚSCULAS, la galería como grid.
+    build: (has) => {
+      const content: LayoutNode[] = []; let cr = 1;
+      for (const id of ['title', 'meta', 'body']) if (has(id)) content.push(leaf(id, { colStart: 1, rowStart: cr++ }));
+      if (has('gallery')) content.push({ type: 'component', component: 'gallery_grid', slots: { images: 'gallery' }, place: { colStart: 1, rowStart: cr++ } });
+      const padded = grid(1, Math.max(1, cr - 1), content, { gap: 'sm', surface: { padding: 'lg' } });
+      const outer: LayoutNode[] = []; let or = 1;
+      if (has('cover')) outer.push(leaf('cover', { colStart: 1, rowStart: or++ }));
+      outer.push({ ...padded, place: { colStart: 1, rowStart: or++ } });
+      return grid(1, Math.max(1, or - 1), outer, { gap: 'none', surface: { background: 'card', radius: 'xl' } });
+    },
+    appearance: {
+      cover: { aspect: '16:9', shape: 'square' },   // rounded-none → flush en la tarjeta
+      title: { weight: 'bold', size: 'xl', font: 'serif' },
+      meta:  { size: 'sm', textColor: 'muted', textTransform: 'uppercase' },
+      body:  { size: 'md' },
+    },
   },
   momento: {
-    // KRO-133 fidelidad — fecha en MAYÚSCULAS + slideshow como carrusel centrado.
-    build: (has) => detailStack(['date', 'title', 'subtitle', 'body', 'slideshow'], has, { align: 'center', gap: 'md' }, { slideshow: { component: 'carousel_centered', role: 'images' } }),
+    // KRO-133 fidelidad — TARJETA centrada con padding (como `MomentoRecipe`:
+    // `rounded-xl bg-card` + `px-5 py-6 text-center`). Fecha prominente (NO
+    // uppercase — la receta no la pone), slideshow como carrusel centrado.
+    build: (has) => {
+      const content: LayoutNode[] = []; let r = 1;
+      for (const id of ['date', 'title', 'subtitle', 'body']) if (has(id)) content.push(leaf(id, { colStart: 1, rowStart: r++ }));
+      if (has('slideshow')) content.push({ type: 'component', component: 'carousel_centered', slots: { images: 'slideshow' }, place: { colStart: 1, rowStart: r++ } });
+      return grid(1, Math.max(1, r - 1), content, { align: 'center', gap: 'sm', surface: { background: 'card', radius: 'xl', padding: 'lg' } });
+    },
     appearance: {
-      date: { weight: 'bold', size: 'xl', align: 'center', textColor: 'primary', textTransform: 'uppercase' },
+      date: { weight: 'bold', size: 'xl', align: 'center', textColor: 'primary' },
       title: { weight: 'bold', align: 'center' }, subtitle: { size: 'md', textColor: 'muted', align: 'center' }, body: { size: 'md' },
     },
   },

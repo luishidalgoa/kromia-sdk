@@ -123,6 +123,10 @@ export interface SlotAppearance {
    *  tracking ancho (estilo "etiqueta"/meta de las recetas Editorial/Momento).
    *  'none' (default) = sin cambio. */
   textTransform?: 'none' | 'uppercase';
+  /** KRO-133 — familia tipográfica. 'serif' = con serifas (títulos editoriales);
+   *  'sans' (default) = la fuente base. Lo fijan los presets para fidelidad
+   *  (p.ej. el título de la receta Editorial). */
+  font?: 'sans' | 'serif';
 
   // ── Solo text-* / number / date / url / badge ─────────────────────
   /** Líneas máximas a mostrar antes de truncar con "…". '1' = una sola
