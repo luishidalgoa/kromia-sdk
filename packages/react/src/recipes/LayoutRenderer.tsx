@@ -24,7 +24,7 @@ import { cn } from '../lib/cn';
 import {
   resolveSlot, isSlotDisabled, AccentFrame, extractAccentSettings,
   ScalarText, ComposableSlot, ThumbBox, BadgePill, slotDebugAttrs, appearancePaddingClass,
-  appearanceTextClasses, appearanceTruncateClass,
+  appearanceTextClasses, appearanceTruncateClass, appearanceOverlapClass,
   type FieldDefLike,
 } from '../recipe-utils';
 import {
@@ -446,12 +446,22 @@ function LayoutNodeView({ node, ctx }: { node: LayoutNode; ctx: NodeCtx }) {
         const childPlace = isGrid ? clampPlaceToGrid(child.place, node.columns ?? 1) : child.place;
         const placement = isGrid ? placementClasses(childPlace) : undefined;
         const selfAlign = isGrid ? selfAlignClasses(childPlace) : undefined;
+        // KRO-133 — SOLAPE del slot (appearance.overlap): margen negativo arriba
+        // para superponerlo al anterior (avatar sobre banner). Con solape la celda
+        // va `relative z-10` + sin recorte para que se vea por encima.
+        const childAp = child.type === 'slot' ? ctx.composition.slots[child.slot]?.appearance : undefined;
+        const overlapCls = appearanceOverlapClass(childAp);
         return (
           <div
             key={i}
             // min-w-0 + overflow-hidden: ninguna celda desborda el contenedor.
             // Stack: cada hijo en la misma celda (1/1) → superposición en Z.
-            className={cn('min-w-0 min-h-0 overflow-hidden', isStack && 'col-start-1 row-start-1', placement, selfAlign)}
+            className={cn(
+              'min-w-0 min-h-0',
+              overlapCls ? 'overflow-visible relative z-10' : 'overflow-hidden',
+              overlapCls,
+              isStack && 'col-start-1 row-start-1', placement, selfAlign,
+            )}
             style={grow}
           >
             <LayoutNodeView node={child} ctx={ctx} />

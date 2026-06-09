@@ -199,25 +199,28 @@ export type AppearanceProp =
   | 'truncate'
   | 'truncateChars'
   | 'accentPosition'
-  | 'paddingY';
+  | 'paddingY'
+  | 'overlap';
 
 const APPEARANCE_PROPS_BY_KIND: Record<SlotAcceptKind, ReadonlyArray<AppearanceProp>> = {
   // KRO-69 follow-up — image unificado. Mismo set de props para los 4
   // (incluidos los 3 legacy aliases que ahora son sinónimos).
-  'image':        ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  'image-avatar': ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  'image-banner': ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  'image-cover':  ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  'image-array':  ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  'text-short':   ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  'text-long':    ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  'number':       ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  'date':         ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  'url':          ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  'badge':        ['size', 'truncate', 'truncateChars', 'paddingY'],
+  // KRO-133 — `overlap` (solape) disponible en todos los slots posicionables:
+  // es un primitivo de SUPERPOSICIÓN (tira el slot hacia arriba sobre el anterior).
+  'image':        ['shape', 'aspect', 'imageFocus', 'size', 'paddingY', 'overlap'],
+  'image-avatar': ['shape', 'aspect', 'imageFocus', 'size', 'paddingY', 'overlap'],
+  'image-banner': ['shape', 'aspect', 'imageFocus', 'size', 'paddingY', 'overlap'],
+  'image-cover':  ['shape', 'aspect', 'imageFocus', 'size', 'paddingY', 'overlap'],
+  'image-array':  ['shape', 'aspect', 'imageFocus', 'size', 'paddingY', 'overlap'],
+  'text-short':   ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY', 'overlap'],
+  'text-long':    ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY', 'overlap'],
+  'number':       ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY', 'overlap'],
+  'date':         ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY', 'overlap'],
+  'url':          ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY', 'overlap'],
+  'badge':        ['size', 'truncate', 'truncateChars', 'paddingY', 'overlap'],
   'color':        ['accentPosition', 'size', 'paddingY'],
-  'card-ref':     ['paddingY'],
-  'any':          ['shape', 'aspect', 'imageFocus', 'align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
+  'card-ref':     ['paddingY', 'overlap'],
+  'any':          ['shape', 'aspect', 'imageFocus', 'align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY', 'overlap'],
 };
 
 /**
@@ -229,7 +232,7 @@ export function getAvailableAppearanceProps(
   accepts: ReadonlyArray<SlotAcceptKind>,
 ): AppearanceProp[] {
   if (accepts.length === 0) return [];
-  const order: AppearanceProp[] = ['shape', 'aspect', 'imageFocus', 'align', 'weight', 'size', 'truncate', 'truncateChars', 'accentPosition', 'paddingY'];
+  const order: AppearanceProp[] = ['shape', 'aspect', 'imageFocus', 'align', 'weight', 'size', 'truncate', 'truncateChars', 'accentPosition', 'paddingY', 'overlap'];
   const union = new Set<AppearanceProp>();
   for (const kind of accepts) {
     for (const prop of APPEARANCE_PROPS_BY_KIND[kind]) {

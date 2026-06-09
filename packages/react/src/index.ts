@@ -34,6 +34,7 @@ export {
   appearanceAspectClass,
   appearanceTextClasses,
   appearancePaddingClass,
+  appearanceOverlapClass,
   appearanceTruncateClass,
   appearanceSizePx,
   applyAppearanceTruncate,
