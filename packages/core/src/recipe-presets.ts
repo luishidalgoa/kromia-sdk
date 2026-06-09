@@ -161,9 +161,25 @@ const RECIPE_PRESETS: Partial<Record<RecipeId, RecipePreset>> = {
     },
   },
 
-  // ── Detalle (stack vertical; sin solapes/gradientes aún) ─────────────
+  // ── Detalle ──────────────────────────────────────────────────────────
   hero_protagonico: {
-    build: (has) => stack(['banner', 'avatar', 'title', 'subtitle', 'stats', 'body', 'gallery', 'related'], has, { align: 'center', gap: 'md' }),
+    // KRO-133 (híbrido) — la cabecera (banner + avatar superpuesto + título +
+    // subtítulo, con placeholders + inicial del título: lógica cruzada NO
+    // expresable con slots sueltos) va como el componente FIEL `hero_header`;
+    // el cuerpo (stats/body/gallery) queda como bloques editables; y las
+    // relacionadas como el componente `ref_gallery` (galería de mini-cartas).
+    build: (has) => {
+      const children: LayoutNode[] = []; let row = 1;
+      // Cabecera FIEL — SIEMPRE presente (renderiza placeholders si vacía).
+      const headerSlots: Record<string, string> = {};
+      for (const r of ['banner', 'avatar', 'title', 'subtitle']) if (has(r)) headerSlots[r] = r;
+      children.push({ type: 'component', component: 'hero_header', slots: headerSlots, place: { colStart: 1, rowStart: row++ } });
+      // Cuerpo editable.
+      for (const id of ['stats', 'body', 'gallery']) if (has(id)) children.push(leaf(id, { colStart: 1, rowStart: row++ }));
+      // Relacionadas → galería de cartas (componente).
+      if (has('related')) children.push({ type: 'component', component: 'ref_gallery', slots: { refs: 'related' }, place: { colStart: 1, rowStart: row++ } });
+      return grid(1, Math.max(1, row - 1), children, { gap: 'md' });
+    },
     appearance: {
       banner: { aspect: '16:9' }, avatar: { shape: 'circle' },
       title: { weight: 'bold', size: 'xl', align: 'center' }, subtitle: { size: 'md', textColor: 'muted', align: 'center' },

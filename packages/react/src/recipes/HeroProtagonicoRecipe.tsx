@@ -34,7 +34,6 @@
 
 import { cn } from '../lib/cn';
 import {
-  AvatarBox, BannerBox, ComposableSlot, ScalarText,
   resolveSlot, formatScalar, MarkdownText,
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass,
   applyAppearanceTruncate, imageFocusStyle, slotDebugAttrs, extractAccentSettings, AccentFrame,
@@ -42,7 +41,7 @@ import {
 } from '../recipe-utils';
 import { NestedRecipeRenderer } from './NestedRecipeRenderer';
 import { MiniCardRefs } from './RefGallery';
-import { simpleHash } from '../lib/hash';
+import { HeroHeader } from './HeroHeader';
 import { DEFAULT_CARD_FORMAT, type CardFormat } from '@kromia/core';
 import type { ViewComposition } from '@kromia/core';
 
@@ -62,19 +61,15 @@ export interface HeroProtagonicoRecipeProps {
 export function HeroProtagonicoRecipe({
   composition, item, fieldDefs, className, cardFormat,
 }: HeroProtagonicoRecipeProps) {
-  const banner   = resolveSlot(composition, 'banner',   fieldDefs, item);
-  const avatar   = resolveSlot(composition, 'avatar',   fieldDefs, item);
+  // Cabecera (banner/avatar/title/subtitle) la resuelve + pinta HeroHeader.
+  // Aquí solo el TÍTULO (seed de las mini-cartas) + los slots del CUERPO.
   const title    = resolveSlot(composition, 'title',    fieldDefs, item);
-  const subtitle = resolveSlot(composition, 'subtitle', fieldDefs, item);
   const stats    = resolveSlot(composition, 'stats',    fieldDefs, item);
   const body     = resolveSlot(composition, 'body',     fieldDefs, item);
   const gallery  = resolveSlot(composition, 'gallery',  fieldDefs, item);
   const related  = resolveSlot(composition, 'related',  fieldDefs, item);
 
-  const bannerUrl    = banner?.fields[0]?.value as string | undefined;
-  const avatarUrl    = avatar?.fields[0]?.value as string | undefined;
-  const titleField   = title?.fields[0];
-  const titleText    = String(titleField?.value ?? '');
+  const titleText    = String(title?.fields[0]?.value ?? '');
   const bodyField    = body?.fields[0];
   const galleryUrls  = gallery?.fields[0]?.value as string[] | undefined;
   const relatedRefs  = related?.fields[0]?.value as Array<string | number> | undefined;
@@ -237,123 +232,33 @@ export function HeroProtagonicoRecipe({
     <div
       className={cn(
       // Sin border ni rounded propio: la receta DETAIL es una pantalla
-      // completa, no una card. Cuando se renderiza dentro del PhoneFrame
-      // del App Preview, el frame ya provee los rounded corners + ring;
-      // duplicar aquí creaba un "card dentro de card" visualmente raro.
-      // Solo bg-card para fondo, no chrome.
+      // completa, no una card. El PhoneFrame ya provee rounded+ring. Solo bg-card.
       'bg-card',
       className,
     )}>
-      {/* Banner — full-width, aspect 16:9. Si no hay URL, mostramos un
-          gradient brand con un patrón abstracto de círculos como en el
-          mockup del diseñador (red gradient en España). El hue del
-          gradient se deriva del título → cada item tiene un color
-          consistente sin necesidad de plumbing de sectionColor. */}
-      {bannerUrl
-        ? <span {...slotDebugAttrs('banner', banner)} className="block">
-            <BannerBox url={bannerUrl} alt="" className="rounded-none" appearance={banner?.appearance} />
-          </span>
-        : <GradientBanner seed={titleText} />}
+      {/* Cabecera (banner + avatar superpuesto + título + subtítulo) — COMPARTIDA
+          con el componente de bloques `hero_header` vía HeroHeader, para que la
+          versión "diseño por bloques" del detalle la reproduzca IDÉNTICA. */}
+      <HeroHeader composition={composition} item={item} fieldDefs={fieldDefs} />
 
-      <div className="px-5 pb-5 -mt-12 relative">
-        {/* Avatar + Title + Subtitle (HEADER) — siempre en este orden y
-            arriba del cuerpo. Define la identidad de la pantalla del item;
-            no se reordena con section.fields.
-            KRO-69: cada slot pasa su appearance al utility component. */}
-        <div className="flex flex-col items-center">
-          {/* KRO-69: paddingY del avatar al wrapper. */}
-          <div
-            className={appearancePaddingClass(avatar?.appearance)}
-            {...slotDebugAttrs('avatar', avatar)}
-          >
-            <AvatarBox
-              url={avatarUrl}
-              alt={titleText}
-              size={96}
-              className="ring-4 ring-card shadow-md"
-              appearance={avatar?.appearance}
-            />
-          </div>
-          {titleField && (
-            <h2
-              className={cn(
-                'text-2xl font-bold text-foreground mt-3 leading-tight',
-                !title?.appearance?.align && 'text-center',
-                appearancePaddingClass(title?.appearance),
-                appearanceTextClasses(title?.appearance),
-                appearanceTruncateClass(title?.appearance),
-              )}
-              {...slotDebugAttrs('title', title)}
-            >
-              <ScalarText value={titleField.value} def={titleField.def} appearance={title?.appearance} />
-            </h2>
-          )}
-          {subtitle && (
-            <p
-              className={cn(
-                'text-sm text-muted-foreground mt-1',
-                !subtitle.appearance?.align && 'text-center',
-                appearancePaddingClass(subtitle.appearance),
-                appearanceTextClasses(subtitle.appearance),
-                appearanceTruncateClass(subtitle.appearance),
-              )}
-              {...slotDebugAttrs('subtitle', subtitle)}
-            >
-              <ComposableSlot slot={subtitle} />
-            </p>
-          )}
+      {/* BODY BLOCKS — en orden de section.fields del primer field de cada slot.
+          (El -mt-12 del solape vive en HeroHeader; el cuerpo fluye debajo igual
+          que antes — primer bloque con mt-5 desde el subtítulo.) */}
+      {bodyBlocks.length > 0 && (
+        <div className="px-5 pb-5">
+          {bodyBlocks.map(b => (
+            <div key={b.key} className="mt-5">
+              {b.render()}
+            </div>
+          ))}
         </div>
-
-        {/* BODY BLOCKS — renderizados en orden de section.fields del primer
-            field de cada slot. Si el publisher dragueó cartas_estrella en
-            posición 1 y altura_escudo en posición 5, related aparece
-            ANTES que stats. */}
-        {bodyBlocks.map(b => (
-          <div key={b.key} className="mt-5">
-            {b.render()}
-          </div>
-        ))}
-      </div>
+      )}
     </div>
     </AccentFrame>
   );
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Banner gradient fallback cuando no hay imagen real. Color principal
- * derivado del hash del título → cada item con un color estable. Patrón
- * abstracto de círculos overlay sutil (5-7% opacity) para textura.
- *
- * Inspirado en el mockup del diseñador: España aparece con un banner rojo
- * con círculos abstractos. Sin imagen real ni configuración de color de
- * sección, derivamos el hue del nombre para tener variedad.
- */
-function GradientBanner({ seed }: { seed: string }) {
-  const hue = simpleHash(seed) % 360;
-  const start = `hsl(${hue}, 65%, 42%)`;
-  const end   = `hsl(${(hue + 20) % 360}, 70%, 32%)`;
-  return (
-    <div
-      className="w-full aspect-[16/9] relative overflow-hidden"
-      style={{ background: `linear-gradient(135deg, ${start} 0%, ${end} 100%)` }}
-      aria-hidden
-    >
-      {/* Patrón abstracto: 3 círculos translúcidos en posiciones distintas */}
-      <svg
-        className="absolute inset-0 w-full h-full"
-        viewBox="0 0 200 100"
-        preserveAspectRatio="xMidYMid slice"
-      >
-        <circle cx="170" cy="20" r="35" fill="rgba(255,255,255,0.10)" />
-        <circle cx="40"  cy="80" r="50" fill="rgba(255,255,255,0.06)" />
-        <circle cx="140" cy="70" r="20" fill="rgba(255,255,255,0.08)" />
-      </svg>
-    </div>
-  );
-}
-
-// MiniCardRefs + simpleHash extraídos a `./RefGallery` + `../lib/hash` (KRO-133
-// Capa 1) para que el motor de bloques pinte los slots de refs igual que aquí.
+// Cabecera (banner+avatar+título+subtítulo) extraída a `./HeroHeader` (compartida
+// con el componente de bloques `hero_header`). MiniCardRefs + simpleHash en
+// `./RefGallery` + `../lib/hash` (KRO-133) → el motor de bloques pinta refs igual.
 

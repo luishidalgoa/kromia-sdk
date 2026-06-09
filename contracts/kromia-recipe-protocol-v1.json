@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
   "protocolVersion": "2.8.0",
-  "generatedAt": "2026-06-09T12:11:17.999Z",
+  "generatedAt": "2026-06-09T13:43:04.623Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -1369,6 +1369,48 @@
           "label": "Badge",
           "accepts": [
             "badge"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "id": "hero_header",
+      "displayName": "Cabecera hero",
+      "description": "Banner + avatar circular superpuesto + título + subtítulo centrados — la cabecera de la receta \"Hero protagónico\" como bloque fiel (con placeholder de banner degradado e inicial del título). Se coloca como unidad.",
+      "roles": [
+        {
+          "id": "banner",
+          "label": "Banner",
+          "accepts": [
+            "image",
+            "image-array"
+          ],
+          "optional": true
+        },
+        {
+          "id": "avatar",
+          "label": "Avatar",
+          "accepts": [
+            "image"
+          ],
+          "optional": true
+        },
+        {
+          "id": "title",
+          "label": "Título",
+          "accepts": [
+            "text-short"
+          ],
+          "optional": false
+        },
+        {
+          "id": "subtitle",
+          "label": "Subtítulo",
+          "accepts": [
+            "text-short",
+            "date",
+            "number"
           ],
           "optional": true
         }

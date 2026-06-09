@@ -35,6 +35,7 @@ import {
   type CardFormat,
 } from '@kromia/core';
 import { RefGallery } from './RefGallery';
+import { HeroHeader } from './HeroHeader';
 
 // ── Catálogo → clases Tailwind (estáticas: Tailwind no resuelve `gap-${x}`) ──
 
@@ -380,6 +381,18 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
     case 'ref_gallery':
       // Galería de cartas referenciadas — el render del slot card-ref (Capa 1).
       return roleSlot('refs');
+    case 'hero_header': {
+      // Cabecera hero FIEL: remapea rol→slotId a los nombres de slot del hero
+      // (banner/avatar/title/subtitle) y delega en HeroHeader — el MISMO render
+      // que la receta `hero_protagonico` (placeholders + inicial del título).
+      const heroSlots: ViewComposition['slots'] = {};
+      for (const role of ['banner', 'avatar', 'title', 'subtitle'] as const) {
+        const sid = node.slots?.[role];
+        const sc  = sid ? ctx.composition.slots[sid] : undefined;
+        if (sc) heroSlots[role] = sc;
+      }
+      return <HeroHeader composition={{ slots: heroSlots }} item={ctx.item} fieldDefs={ctx.fieldDefs} />;
+    }
     default:
       return null;
   }

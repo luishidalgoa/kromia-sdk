@@ -62,6 +62,23 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
     ],
   },
 
+  // Cabecera "hero": banner + avatar circular superpuesto + título + subtítulo,
+  // centrados. Reproduce FIEL la cabecera de la receta `hero_protagonico` (con
+  // sus placeholders: banner degradado + inicial del título), que NO se puede
+  // expresar con slots sueltos (lógica cruzada título→avatar + solape). Es la
+  // pieza "prefab" que el preset de bloques del hero usa para no salir plano.
+  hero_header: {
+    id:          'hero_header',
+    displayName: 'Cabecera hero',
+    description: 'Banner + avatar circular superpuesto + título + subtítulo centrados — la cabecera de la receta "Hero protagónico" como bloque fiel (con placeholder de banner degradado e inicial del título). Se coloca como unidad.',
+    roles: [
+      { id: 'banner',   label: 'Banner',    accepts: ['image', 'image-array'],        optional: true },
+      { id: 'avatar',   label: 'Avatar',    accepts: ['image'],                        optional: true },
+      { id: 'title',    label: 'Título',    accepts: ['text-short'] },
+      { id: 'subtitle', label: 'Subtítulo', accepts: ['text-short', 'date', 'number'], optional: true },
+    ],
+  },
+
   // Galería de cartas referenciadas: rejilla de mini-cartas (reutiliza el render
   // del slot card-ref de la Capa 1). Para "relacionadas", "plantilla", etc.
   ref_gallery: {

@@ -10,10 +10,10 @@ import { validateLayout, collectLayoutSlots } from '../src/layout';
 import type { LayoutContainerNode } from '../src/types';
 
 describe('COMPONENT_REGISTRY', () => {
-  it('expone card + ref_gallery', () => {
-    expect(Object.keys(COMPONENT_REGISTRY).sort()).toEqual(['card', 'ref_gallery']);
-    expect(allComponents()).toHaveLength(2);
-    expect(COMPONENT_IDS).toEqual(['card', 'ref_gallery']);
+  it('expone card + hero_header + ref_gallery', () => {
+    expect(Object.keys(COMPONENT_REGISTRY).sort()).toEqual(['card', 'hero_header', 'ref_gallery']);
+    expect(allComponents()).toHaveLength(3);
+    expect(COMPONENT_IDS).toEqual(['card', 'hero_header', 'ref_gallery']);
   });
 
   it('getComponentDef resuelve y devuelve undefined para id desconocido', () => {
