@@ -22,6 +22,20 @@
  */
 import type { SlotAcceptKind } from '../types';
 
+/**
+ * KRO-133 — categoría de un componente. Agrupa la palette del editor en un
+ * acordeón ORGANIZADO y da orden estable. Catálogo cerrado (paridad Flutter).
+ */
+export type ComponentCategory = 'basic' | 'header' | 'media' | 'cards';
+
+/** Catálogo de categorías: etiqueta legible + orden de aparición en la palette. */
+export const COMPONENT_CATEGORIES: { id: ComponentCategory; label: string; order: number }[] = [
+  { id: 'basic',  label: 'Básicos',               order: 0 },
+  { id: 'header', label: 'Cabeceras',             order: 1 },
+  { id: 'media',  label: 'Imágenes y carruseles', order: 2 },
+  { id: 'cards',  label: 'Cartas y referencias',  order: 3 },
+];
+
 /** Un "hueco" del componente, mapeable a un slot de la composición. */
 export interface ComponentRole {
   /** Id del rol — clave en `LayoutComponentNode.slots`. */
@@ -39,13 +53,14 @@ export interface ComponentDefinition {
   id:          string;
   displayName: string;
   description: string;
+  /** KRO-133 — categoría para agrupar la palette (acordeón) por afinidad. */
+  category:    ComponentCategory;
   roles:       ComponentRole[];
 }
 
 /**
- * Catálogo cerrado. Arranque de la Capa 2 con 2 componentes; el resto
- * (avatar, banner, stat-row, badge…) son aditivos — solo nuevas entradas +
- * su renderer espejo.
+ * Catálogo cerrado, agrupado por `category` para la palette. Crecer = solo
+ * nuevas entradas + su renderer espejo (@kromia/react / @kromia/flutter).
  */
 export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
   // Carta compuesta: media full-bleed + título + (opcional) pie + (opcional)
@@ -54,6 +69,7 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
     id:          'card',
     displayName: 'Carta',
     description: 'Tarjeta compuesta: imagen + título + pie y badge opcionales. La unidad visual de un cromo, como un bloque reutilizable.',
+    category:    'basic',
     roles: [
       { id: 'media',   label: 'Imagen',  accepts: ['image', 'image-array'] },
       { id: 'title',   label: 'Título',  accepts: ['text-short'] },
@@ -71,6 +87,7 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
     id:          'hero_header',
     displayName: 'Cabecera hero',
     description: 'Banner + avatar circular superpuesto + título + subtítulo centrados — la cabecera de la receta "Hero protagónico" como bloque fiel (con placeholder de banner degradado e inicial del título). Se coloca como unidad.',
+    category:    'header',
     roles: [
       { id: 'banner',   label: 'Banner',    accepts: ['image', 'image-array'],        optional: true },
       { id: 'avatar',   label: 'Avatar',    accepts: ['image'],                        optional: true },
@@ -85,8 +102,59 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
     id:          'ref_gallery',
     displayName: 'Galería de cartas',
     description: 'Rejilla de mini-cartas a partir de un slot de referencias (card-ref). Para cartas relacionadas, plantillas, colecciones.',
+    category:    'cards',
     roles: [
       { id: 'refs', label: 'Referencias', accepts: ['card-ref'] },
+    ],
+  },
+
+  // ── Carruseles de imágenes (KRO-133) — recrean como COMPONENTES los estilos de
+  // galería que las recetas hardcodean. Un solo rol `images` (un array de
+  // imágenes). El renderer comparte `<ImageGallery variant>` en @kromia/react.
+
+  // Estilo "Hero protagónico": swipe horizontal, cada imagen ~70% de ancho y
+  // asoma la siguiente (snap-start).
+  carousel_peek: {
+    id:          'carousel_peek',
+    displayName: 'Carrusel grande',
+    description: 'Carrusel horizontal de imágenes grandes con swipe: cada imagen ocupa ~70% del ancho y asoma la siguiente (estilo "Hero protagónico"). Para galerías destacadas.',
+    category:    'media',
+    roles: [
+      { id: 'images', label: 'Imágenes', accepts: ['image-array', 'image'] },
+    ],
+  },
+
+  // Estilo "Momento": tarjetas de imagen centradas que se deslizan (snap-center).
+  carousel_centered: {
+    id:          'carousel_centered',
+    displayName: 'Carrusel centrado',
+    description: 'Carrusel horizontal de tarjetas de imagen centradas con swipe (estilo "Momento"). Pensado para slideshow en móvil.',
+    category:    'media',
+    roles: [
+      { id: 'images', label: 'Imágenes', accepts: ['image-array', 'image'] },
+    ],
+  },
+
+  // Estilo "Editorial": mosaico en rejilla de 3 columnas (sin swipe).
+  gallery_grid: {
+    id:          'gallery_grid',
+    displayName: 'Galería en mosaico',
+    description: 'Mosaico de imágenes en rejilla de 3 columnas (estilo "Editorial"). Muestra varias imágenes a la vez sin swipe.',
+    category:    'media',
+    roles: [
+      { id: 'images', label: 'Imágenes', accepts: ['image-array', 'image'] },
+    ],
+  },
+
+  // Carrusel de cartas referenciadas: las MISMAS mini-cartas de `ref_gallery`
+  // pero en fila deslizable (swipe) en vez de rejilla.
+  cards_carousel: {
+    id:          'cards_carousel',
+    displayName: 'Carrusel de cartas',
+    description: 'Carrusel horizontal de cartas referenciadas con swipe — las mini-cartas de la galería en una fila deslizable. Para cartas relacionadas o colecciones largas.',
+    category:    'cards',
+    roles: [
+      { id: 'cards', label: 'Cartas', accepts: ['card-ref'] },
     ],
   },
 };
@@ -103,3 +171,20 @@ export function getComponentDef(id: string): ComponentDefinition | undefined {
 
 /** Ids del catálogo (para validación/iteración). */
 export const COMPONENT_IDS: readonly string[] = Object.keys(COMPONENT_REGISTRY);
+
+/**
+ * Componentes agrupados por categoría, en el orden de `COMPONENT_CATEGORIES`.
+ * Para la palette en acordeón del editor (y el espejo Flutter). Omite las
+ * categorías vacías.
+ */
+export function componentsByCategory(): { category: ComponentCategory; label: string; components: ComponentDefinition[] }[] {
+  return COMPONENT_CATEGORIES
+    .slice()
+    .sort((a, b) => a.order - b.order)
+    .map(cat => ({
+      category:   cat.id,
+      label:      cat.label,
+      components: allComponents().filter(c => c.category === cat.id),
+    }))
+    .filter(group => group.components.length > 0);
+}

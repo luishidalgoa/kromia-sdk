@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
   "protocolVersion": "2.8.0",
-  "generatedAt": "2026-06-09T13:43:04.623Z",
+  "generatedAt": "2026-06-09T19:36:09.142Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -1337,6 +1337,7 @@
       "id": "card",
       "displayName": "Carta",
       "description": "Tarjeta compuesta: imagen + título + pie y badge opcionales. La unidad visual de un cromo, como un bloque reutilizable.",
+      "category": "basic",
       "roles": [
         {
           "id": "media",
@@ -1378,6 +1379,7 @@
       "id": "hero_header",
       "displayName": "Cabecera hero",
       "description": "Banner + avatar circular superpuesto + título + subtítulo centrados — la cabecera de la receta \"Hero protagónico\" como bloque fiel (con placeholder de banner degradado e inicial del título). Se coloca como unidad.",
+      "category": "header",
       "roles": [
         {
           "id": "banner",
@@ -1420,10 +1422,78 @@
       "id": "ref_gallery",
       "displayName": "Galería de cartas",
       "description": "Rejilla de mini-cartas a partir de un slot de referencias (card-ref). Para cartas relacionadas, plantillas, colecciones.",
+      "category": "cards",
       "roles": [
         {
           "id": "refs",
           "label": "Referencias",
+          "accepts": [
+            "card-ref"
+          ],
+          "optional": false
+        }
+      ]
+    },
+    {
+      "id": "carousel_peek",
+      "displayName": "Carrusel grande",
+      "description": "Carrusel horizontal de imágenes grandes con swipe: cada imagen ocupa ~70% del ancho y asoma la siguiente (estilo \"Hero protagónico\"). Para galerías destacadas.",
+      "category": "media",
+      "roles": [
+        {
+          "id": "images",
+          "label": "Imágenes",
+          "accepts": [
+            "image-array",
+            "image"
+          ],
+          "optional": false
+        }
+      ]
+    },
+    {
+      "id": "carousel_centered",
+      "displayName": "Carrusel centrado",
+      "description": "Carrusel horizontal de tarjetas de imagen centradas con swipe (estilo \"Momento\"). Pensado para slideshow en móvil.",
+      "category": "media",
+      "roles": [
+        {
+          "id": "images",
+          "label": "Imágenes",
+          "accepts": [
+            "image-array",
+            "image"
+          ],
+          "optional": false
+        }
+      ]
+    },
+    {
+      "id": "gallery_grid",
+      "displayName": "Galería en mosaico",
+      "description": "Mosaico de imágenes en rejilla de 3 columnas (estilo \"Editorial\"). Muestra varias imágenes a la vez sin swipe.",
+      "category": "media",
+      "roles": [
+        {
+          "id": "images",
+          "label": "Imágenes",
+          "accepts": [
+            "image-array",
+            "image"
+          ],
+          "optional": false
+        }
+      ]
+    },
+    {
+      "id": "cards_carousel",
+      "displayName": "Carrusel de cartas",
+      "description": "Carrusel horizontal de cartas referenciadas con swipe — las mini-cartas de la galería en una fila deslizable. Para cartas relacionadas o colecciones largas.",
+      "category": "cards",
+      "roles": [
+        {
+          "id": "cards",
+          "label": "Cartas",
           "accepts": [
             "card-ref"
           ],

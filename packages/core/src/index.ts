@@ -106,11 +106,14 @@ export {
 // ── Componentes prefabricados (KRO-133 Capa 2) ─────────────────────────
 export {
   COMPONENT_REGISTRY,
+  COMPONENT_CATEGORIES,
   allComponents,
   getComponentDef,
+  componentsByCategory,
   COMPONENT_IDS,
   type ComponentDefinition,
   type ComponentRole,
+  type ComponentCategory,
 } from './registries/components';
 
 // ── Slot kinds (meta + appearance props) ───────────────────────────────

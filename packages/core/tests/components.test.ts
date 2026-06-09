@@ -4,16 +4,23 @@
  */
 import { describe, it, expect } from 'vitest';
 import {
-  COMPONENT_REGISTRY, allComponents, getComponentDef, COMPONENT_IDS,
+  COMPONENT_REGISTRY, COMPONENT_CATEGORIES, allComponents, getComponentDef,
+  componentsByCategory, COMPONENT_IDS,
 } from '../src/registries/components';
 import { validateLayout, collectLayoutSlots } from '../src/layout';
 import type { LayoutContainerNode } from '../src/types';
 
 describe('COMPONENT_REGISTRY', () => {
-  it('expone card + hero_header + ref_gallery', () => {
-    expect(Object.keys(COMPONENT_REGISTRY).sort()).toEqual(['card', 'hero_header', 'ref_gallery']);
-    expect(allComponents()).toHaveLength(3);
-    expect(COMPONENT_IDS).toEqual(['card', 'hero_header', 'ref_gallery']);
+  it('expone los componentes base + los carruseles (KRO-133)', () => {
+    expect(Object.keys(COMPONENT_REGISTRY).sort()).toEqual([
+      'card', 'cards_carousel', 'carousel_centered', 'carousel_peek',
+      'gallery_grid', 'hero_header', 'ref_gallery',
+    ]);
+    expect(allComponents()).toHaveLength(7);
+    expect(COMPONENT_IDS).toEqual([
+      'card', 'hero_header', 'ref_gallery',
+      'carousel_peek', 'carousel_centered', 'gallery_grid', 'cards_carousel',
+    ]);
   });
 
   it('getComponentDef resuelve y devuelve undefined para id desconocido', () => {
@@ -29,6 +36,27 @@ describe('COMPONENT_REGISTRY', () => {
         expect(r.accepts.length).toBeGreaterThan(0);
       }
     }
+  });
+
+  it('toda definición tiene una category ∈ catálogo', () => {
+    const valid = new Set(COMPONENT_CATEGORIES.map(c => c.id));
+    for (const c of allComponents()) {
+      expect(valid.has(c.category)).toBe(true);
+    }
+  });
+
+  it('componentsByCategory agrupa en orden y sin categorías vacías', () => {
+    const groups = componentsByCategory();
+    // orden estable por COMPONENT_CATEGORIES.order
+    expect(groups.map(g => g.category)).toEqual(['basic', 'header', 'media', 'cards']);
+    // cada grupo tiene componentes y todos pertenecen a su categoría
+    for (const g of groups) {
+      expect(g.components.length).toBeGreaterThan(0);
+      expect(g.components.every(c => c.category === g.category)).toBe(true);
+    }
+    // los 3 de imágenes caen en 'media'
+    const media = groups.find(g => g.category === 'media');
+    expect(media?.components.map(c => c.id).sort()).toEqual(['carousel_centered', 'carousel_peek', 'gallery_grid']);
   });
 });
 

@@ -37,17 +37,24 @@ export interface RefGalleryProps {
   /** Si el slot trae mini-receta, cada ref se pinta con ella. */
   nestedComposition?: NestedViewComposition;
   fieldDefs:          FieldDefLike[];
+  /**
+   * KRO-133 — disposición de las mini-cartas: 'grid' (rejilla, default — el
+   * componente `ref_gallery`) o 'carousel' (fila deslizable con swipe — el
+   * componente `cards_carousel`). Solo afecta al placeholder de mini-cartas;
+   * el render nested mantiene su propia disposición.
+   */
+  layout?:            'grid' | 'carousel';
 }
 
 /** Punto de entrada: normaliza el valor a array y despacha nested vs mini-cartas. */
-export function RefGallery({ refs, seed, cardFormat, nestedComposition, fieldDefs }: RefGalleryProps) {
+export function RefGallery({ refs, seed, cardFormat, nestedComposition, fieldDefs, layout = 'grid' }: RefGalleryProps) {
   const list = (Array.isArray(refs) ? refs : refs == null ? [] : [refs])
     .filter((r): r is string | number => r != null && r !== '');
   if (list.length === 0) return null;
   if (nestedComposition) {
     return <NestedRecipeRenderer refs={list} nestedComposition={nestedComposition} fieldDefs={fieldDefs} />;
   }
-  return <MiniCardRefs refs={list} seed={seed} cardFormat={cardFormat ?? DEFAULT_CARD_FORMAT} />;
+  return <MiniCardRefs refs={list} seed={seed} cardFormat={cardFormat ?? DEFAULT_CARD_FORMAT} layout={layout} />;
 }
 
 /**
@@ -59,11 +66,12 @@ export function RefGallery({ refs, seed, cardFormat, nestedComposition, fieldDef
  * "+N" con border dashed para el overflow. Columnas derivadas del `cardFormat`.
  */
 export function MiniCardRefs({
-  refs, seed, cardFormat,
+  refs, seed, cardFormat, layout = 'grid',
 }: {
   refs:       Array<string | number>;
   seed:       string;
   cardFormat: CardFormat;
+  layout?:    'grid' | 'carousel';
 }) {
   const hue = simpleHash(seed) % 360;
   // Gradient sutil — la card es la imagen full-bleed, no un fondo plano.
@@ -76,6 +84,35 @@ export function MiniCardRefs({
   // Aspect viene del cardFormat del álbum — coherente con la "Estructura de
   // cartas" del wizard (3:2 horizontal → wider; 1:1 → cuadrada; etc.).
   const ratio = aspectToRatio(cardFormat.aspect);
+
+  // KRO-133 — carrusel: fila deslizable con swipe (cada mini-carta de ancho
+  // fijo, snap horizontal), en vez de rejilla. Muestra TODAS las refs (cap a 24
+  // por seguridad), sin "+N" (es scrollable). Para el componente cards_carousel.
+  if (layout === 'carousel') {
+    return (
+      <div className="flex gap-2.5 overflow-x-auto snap-x snap-mandatory pb-1">
+        {refs.slice(0, 24).map((ref, i) => (
+          <div
+            key={i}
+            className="shrink-0 snap-start rounded-lg overflow-hidden relative"
+            style={{
+              width: '6rem',
+              aspectRatio: ratio,
+              background: `linear-gradient(135deg, ${gradStart} 0%, ${gradEnd} 100%)`,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+            }}
+          >
+            <span
+              className="absolute top-1.5 left-1.5 text-[10px] font-mono font-bold leading-none"
+              style={{ color: tintFg }}
+            >
+              {String(ref).padStart(3, '0')}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   // KRO-78 — columnas derivadas del cardFormat (aspect + size) por el helper
   // puro `miniRefGridColumns` de `@kromia/core`. Clamp 1-6.

@@ -36,6 +36,7 @@ import {
 } from '@kromia/core';
 import { RefGallery } from './RefGallery';
 import { HeroHeader } from './HeroHeader';
+import { ImageGallery } from './ImageGallery';
 
 // ── Catálogo → clases Tailwind (estáticas: Tailwind no resuelve `gap-${x}`) ──
 
@@ -363,6 +364,19 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
     if (!sid) return null;
     return <SlotContent slot={sid} composition={ctx.composition} item={ctx.item} fieldDefs={ctx.fieldDefs} cardFormat={ctx.cardFormat} />;
   };
+  // KRO-133 — valor CRUDO de un rol (array completo). Los carruseles necesitan
+  // TODO el array (SlotContent colapsa image-array a la 1ª url), así que leen el
+  // field resuelto directamente.
+  const rawValue = (role: string): unknown => {
+    const sid = node.slots?.[role];
+    if (!sid) return undefined;
+    return resolveSlot(ctx.composition, sid, ctx.fieldDefs, ctx.item)?.fields?.[0]?.value;
+  };
+  const imageUrls = (role: string): string[] => {
+    const raw = rawValue(role);
+    if (Array.isArray(raw)) return raw.filter((u): u is string => typeof u === 'string');
+    return typeof raw === 'string' && raw ? [raw] : [];
+  };
 
   switch (node.component) {
     case 'card':
@@ -381,6 +395,31 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
     case 'ref_gallery':
       // Galería de cartas referenciadas — el render del slot card-ref (Capa 1).
       return roleSlot('refs');
+    // KRO-133 — carruseles de imágenes (mismo render que Hero/Momento/Editorial,
+    // vía el componente compartido `ImageGallery`). Leen el array completo del rol.
+    case 'carousel_peek':
+      return <ImageGallery urls={imageUrls('images')} variant="peek" />;
+    case 'carousel_centered':
+      return <ImageGallery urls={imageUrls('images')} variant="centered" />;
+    case 'gallery_grid':
+      return <ImageGallery urls={imageUrls('images')} variant="grid" />;
+    // KRO-133 — carrusel de cartas: las mini-cartas de la galería en fila swipe.
+    case 'cards_carousel': {
+      const sid = node.slots?.cards;
+      if (!sid) return null;
+      const refVal = rawValue('cards') as Array<string | number> | string | number | undefined;
+      const seed = String(Array.isArray(refVal) ? (refVal[0] ?? sid) : (refVal ?? sid));
+      return (
+        <RefGallery
+          refs={refVal}
+          seed={seed}
+          cardFormat={ctx.cardFormat}
+          nestedComposition={ctx.composition.slots[sid]?.nestedComposition}
+          fieldDefs={ctx.fieldDefs}
+          layout="carousel"
+        />
+      );
+    }
     case 'hero_header': {
       // Cabecera hero FIEL: remapea rol→slotId a los nombres de slot del hero
       // (banner/avatar/title/subtitle) y delega en HeroHeader — el MISMO render

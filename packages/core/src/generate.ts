@@ -48,7 +48,7 @@ import { allBehaviors, type BehaviorDefinition } from './registries/behaviors';
 import { allActions, type ActionDefinition } from './registries/actions';
 import { allFieldTypes, type FieldTypeDefinition } from './registries/field-types';
 import { allVisualEffects, type VisualEffectDefinition } from './registries/visual-effects';
-import { allComponents, type ComponentDefinition } from './registries/components';
+import { allComponents, type ComponentDefinition, type ComponentCategory } from './registries/components';
 import type { SlotAcceptKind } from './types';
 import { detectBumpKind, applyBump, type BumpKind } from './version-bump';
 
@@ -193,6 +193,7 @@ interface ComponentJson {
   id:          string;
   displayName: string;
   description: string;
+  category:    ComponentCategory;
   roles: {
     id:       string;
     label:    string;
@@ -294,6 +295,7 @@ function serializeComponent(c: ComponentDefinition): ComponentJson {
     id:          c.id,
     displayName: c.displayName,
     description: c.description,
+    category:    c.category,
     roles: c.roles.map(r => ({
       id:       r.id,
       label:    r.label,
