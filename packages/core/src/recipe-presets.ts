@@ -44,25 +44,42 @@ const stack = (ids: string[], has: (id: string) => boolean, extra: Partial<Layou
 };
 
 /**
- * Stack vertical donde ciertos ids se renderizan como COMPONENTE fiel en vez de
- * slot pelado (KRO-133 — fidelidad: la galería es grid/carrusel CON etiqueta; los
- * stats son valor+label por campo). `componentAs` mapea slotId → { component, role }
- * (p.ej. `{ gallery: { component: 'gallery_grid', role: 'images' } }`).
+ * TARJETA de detalle (KRO-133 fidelidad). Reproduce la estructura de las recetas
+ * de detalle tipo "card" (Editorial/Momento/Ficha/Perfil): un contenedor TARJETA
+ * (`rounded-xl bg-card`) con un cover FULL-BLEED opcional arriba + el contenido en
+ * un contenedor anidado con PADDING. Algunos slots se pintan como COMPONENTE fiel
+ * (`componentAs` mapea slotId → { component, role }: galería, stats, carrusel).
+ *
+ * El cover va `shape: square` (rounded-none) → pegado al borde de la tarjeta. Si no
+ * hay cover, la propia tarjeta lleva el padding (avatar/fecha-first).
  */
-const detailStack = (
-  ids: string[], has: (id: string) => boolean,
-  extra: Partial<LayoutContainerNode> = {},
+const detailCard = (
+  coverId: string | null,
+  contentIds: string[],
+  has: (id: string) => boolean,
   componentAs: Record<string, { component: string; role: string }> = {},
+  opts: { centered?: boolean } = {},
 ): LayoutContainerNode => {
-  const present = ids.filter(has);
-  const children: LayoutNode[] = present.map((id, i) => {
-    const place: GridPlacement = { colStart: 1, rowStart: i + 1 };
+  const content: LayoutNode[] = []; let cr = 1;
+  for (const id of contentIds) {
+    if (!has(id)) continue;
+    const place: GridPlacement = { colStart: 1, rowStart: cr++ };
     const c = componentAs[id];
-    return c
-      ? { type: 'component', component: c.component, slots: { [c.role]: id }, place }
-      : leaf(id, place);
+    content.push(c ? { type: 'component', component: c.component, slots: { [c.role]: id }, place } : leaf(id, place));
+  }
+  const padded = grid(1, Math.max(1, cr - 1), content, {
+    gap: 'sm', ...(opts.centered ? { align: 'center' as const } : {}), surface: { padding: 'lg' },
   });
-  return grid(1, present.length, children, extra);
+  if (coverId && has(coverId)) {
+    // Tarjeta: cover full-bleed (rounded-none) + contenido con padding.
+    const outer: LayoutNode[] = [
+      leaf(coverId, { colStart: 1, rowStart: 1 }),
+      { ...padded, place: { colStart: 1, rowStart: 2 } },
+    ];
+    return grid(1, 2, outer, { gap: 'none', surface: { background: 'card', radius: 'xl' } });
+  }
+  // Sin cover → la propia tarjeta lleva el padding.
+  return { ...padded, surface: { padding: 'lg', background: 'card', radius: 'xl' } };
 };
 
 /** Fila "media": [media | (título/subtítulo apilados) | accesorio], con anchos
@@ -211,20 +228,11 @@ const RECIPE_PRESETS: Partial<Record<RecipeId, RecipePreset>> = {
     },
   },
   editorial: {
-    // KRO-133 fidelidad — TARJETA (rounded-xl bg-card) con el cover FULL-BLEED
-    // arriba (rounded-none, pegado) + el contenido en un contenedor con padding,
-    // igual que `EditorialRecipe` (`<article>` + cover + `px-5 py-5`). El título
-    // va en SERIF, el meta en MAYÚSCULAS, la galería como grid.
-    build: (has) => {
-      const content: LayoutNode[] = []; let cr = 1;
-      for (const id of ['title', 'meta', 'body']) if (has(id)) content.push(leaf(id, { colStart: 1, rowStart: cr++ }));
-      if (has('gallery')) content.push({ type: 'component', component: 'gallery_grid', slots: { images: 'gallery' }, place: { colStart: 1, rowStart: cr++ } });
-      const padded = grid(1, Math.max(1, cr - 1), content, { gap: 'sm', surface: { padding: 'lg' } });
-      const outer: LayoutNode[] = []; let or = 1;
-      if (has('cover')) outer.push(leaf('cover', { colStart: 1, rowStart: or++ }));
-      outer.push({ ...padded, place: { colStart: 1, rowStart: or++ } });
-      return grid(1, Math.max(1, or - 1), outer, { gap: 'none', surface: { background: 'card', radius: 'xl' } });
-    },
+    // KRO-133 fidelidad — TARJETA con cover full-bleed + contenido con padding,
+    // igual que `EditorialRecipe`. Título SERIF, meta MAYÚSCULAS, galería grid.
+    build: (has) => detailCard('cover', ['title', 'meta', 'body', 'gallery'], has, {
+      gallery: { component: 'gallery_grid', role: 'images' },
+    }),
     appearance: {
       cover: { aspect: '16:9', shape: 'square' },   // rounded-none → flush en la tarjeta
       title: { weight: 'bold', size: 'xl', font: 'serif' },
@@ -233,37 +241,36 @@ const RECIPE_PRESETS: Partial<Record<RecipeId, RecipePreset>> = {
     },
   },
   momento: {
-    // KRO-133 fidelidad — TARJETA centrada con padding (como `MomentoRecipe`:
-    // `rounded-xl bg-card` + `px-5 py-6 text-center`). Fecha prominente (NO
-    // uppercase — la receta no la pone), slideshow como carrusel centrado.
-    build: (has) => {
-      const content: LayoutNode[] = []; let r = 1;
-      for (const id of ['date', 'title', 'subtitle', 'body']) if (has(id)) content.push(leaf(id, { colStart: 1, rowStart: r++ }));
-      if (has('slideshow')) content.push({ type: 'component', component: 'carousel_centered', slots: { images: 'slideshow' }, place: { colStart: 1, rowStart: r++ } });
-      return grid(1, Math.max(1, r - 1), content, { align: 'center', gap: 'sm', surface: { background: 'card', radius: 'xl', padding: 'lg' } });
-    },
+    // KRO-133 fidelidad — TARJETA centrada con padding (como `MomentoRecipe`).
+    // Fecha prominente (NO uppercase), slideshow como carrusel centrado.
+    build: (has) => detailCard(null, ['date', 'title', 'subtitle', 'body', 'slideshow'], has, {
+      slideshow: { component: 'carousel_centered', role: 'images' },
+    }, { centered: true }),
     appearance: {
       date: { weight: 'bold', size: 'xl', align: 'center', textColor: 'primary' },
       title: { weight: 'bold', align: 'center' }, subtitle: { size: 'md', textColor: 'muted', align: 'center' }, body: { size: 'md' },
     },
   },
-  // V5 (KRO-133) — plantillas de detalle block-native.
+  // V5 (KRO-133) — plantillas de detalle block-native. Misma TARJETA que el resto
+  // de detalles, para fidelidad/consistencia.
   detail_panel: {
-    // Portada ancha → título → subtítulo → stats (componente) → cuerpo → galería (grid).
-    build: (has) => detailStack(['cover', 'title', 'subtitle', 'stats', 'body', 'gallery'], has, { gap: 'md' }, {
-      stats:   { component: 'stats_row',   role: 'stats'  },
+    // TARJETA: portada full-bleed → título → subtítulo → stats (fila) → cuerpo → galería (grid).
+    build: (has) => detailCard('cover', ['title', 'subtitle', 'stats', 'body', 'gallery'], has, {
+      stats:   { component: 'stats_row',    role: 'stats'  },
       gallery: { component: 'gallery_grid', role: 'images' },
     }),
     appearance: {
-      cover:    { aspect: '16:9', shape: 'rounded' },   // sin size → ancho completo (fill)
+      cover:    { aspect: '16:9', shape: 'square' },   // rounded-none → flush en la tarjeta
       title:    { weight: 'bold', size: 'xl' },
       subtitle: { size: 'md', textColor: 'muted' },
       body:     { size: 'md' },
     },
   },
   detail_profile: {
-    // Avatar circular centrado → título → subtítulo → stats (componente) → cuerpo.
-    build: (has) => detailStack(['avatar', 'title', 'subtitle', 'stats', 'body'], has, { align: 'center', gap: 'md' }, { stats: { component: 'stats_row', role: 'stats' } }),
+    // TARJETA centrada: avatar circular → título → subtítulo → stats (fila) → cuerpo.
+    build: (has) => detailCard(null, ['avatar', 'title', 'subtitle', 'stats', 'body'], has, {
+      stats: { component: 'stats_row', role: 'stats' },
+    }, { centered: true }),
     appearance: {
       avatar:   { shape: 'circle', size: 'xl' },         // círculo grande fijo (con size → no fill)
       title:    { weight: 'bold', size: 'xl', align: 'center' },
