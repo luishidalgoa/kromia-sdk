@@ -258,9 +258,14 @@ export function SlotContent({ slot, composition, item, fieldDefs }: SlotContentP
   if (isImageField(first?.def)) {
     const raw = first?.value;
     const url = Array.isArray(raw) ? (raw[0] as string | undefined) : (raw as string | undefined);
+    // KRO-133 — banner/cover a ancho completo: si la apariencia fija un aspect
+    // pero NO un `size`, la imagen ocupa todo el ancho (tarjeta destacada,
+    // cartel, hero…). Con `size` explícito se respeta el tamaño fijo (thumb).
+    const ap = resolved.appearance;
+    const fill = !!ap?.aspect && ap.aspect !== 'free' && !ap.size;
     return (
-      <div className={appearancePaddingClass(resolved.appearance)} {...slotDebugAttrs(slot, resolved)}>
-        <ThumbBox url={url} alt={String(first?.value ?? '')} appearance={resolved.appearance} />
+      <div className={appearancePaddingClass(ap)} {...slotDebugAttrs(slot, resolved)}>
+        <ThumbBox url={url} alt={String(first?.value ?? '')} appearance={ap} fill={fill} />
       </div>
     );
   }

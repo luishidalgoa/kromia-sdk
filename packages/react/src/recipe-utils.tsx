@@ -718,13 +718,20 @@ export function StatusDot({
 /** Thumb cuadrada (rectangular si aspect ≠ 1). value es URL.
  *  KRO-69: appearance honra shape (rounded default) + aspect + size. */
 export function ThumbBox({
-  url, alt, size = 64, className, appearance,
+  url, alt, size = 64, className, appearance, fill = false,
 }: {
   url?:        string;
   alt?:        string;
   size?:       number;
   className?:  string;
   appearance?: SlotAppearance;
+  /**
+   * KRO-133 — `fill`: la imagen ocupa el ANCHO del contenedor (banner/cover)
+   * en vez de un tamaño fijo en px. La altura la da el `aspect` (por eso solo
+   * tiene efecto si hay aspect lock). Lo usa el motor de bloques para recetas
+   * tipo "tarjeta destacada" / "cartel", donde la imagen es protagonista.
+   */
+  fill?:       boolean;
 }) {
   const effectiveSize = appearanceSizePx(appearance, size);
   // Default thumb = rounded-lg. Override → shape class.
@@ -735,14 +742,19 @@ export function ThumbBox({
     : '';
   // Si hay aspect lock, no fijamos height — el aspect lo determina.
   const useFixedHeight = !aspectClass;
+  // Modo banner/cover: ancho completo. Requiere aspect (la altura sale del ratio).
+  const fillMode = fill && !!aspectClass;
 
   return (
     <div
-      style={useFixedHeight
-        ? { width: effectiveSize, height: effectiveSize }
-        : { width: effectiveSize }}
+      style={fillMode
+        ? undefined
+        : (useFixedHeight
+            ? { width: effectiveSize, height: effectiveSize }
+            : { width: effectiveSize })}
       className={cn(
-        'bg-muted shrink-0 overflow-hidden',
+        'bg-muted overflow-hidden',
+        fillMode ? 'w-full' : 'shrink-0',
         shapeClass,
         aspectClass,
         className,
