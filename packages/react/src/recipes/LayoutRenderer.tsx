@@ -37,6 +37,7 @@ import {
 import { RefGallery } from './RefGallery';
 import { HeroHeader } from './HeroHeader';
 import { ImageGallery } from './ImageGallery';
+import { StatsRow } from './StatsRow';
 
 // ── Catálogo → clases Tailwind (estáticas: Tailwind no resuelve `gap-${x}`) ──
 
@@ -431,6 +432,14 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
     // KRO-133 — carrusel de cartas: las mini-cartas de la galería en fila swipe.
     case 'cards_carousel':
       return renderRefs('cards', 'carousel');
+    // KRO-133 — fila de estadísticas: cada campo del slot = valor + etiqueta.
+    case 'stats_row': {
+      const sid = node.slots?.stats;
+      if (!sid) return null;
+      const resolved = resolveSlot(ctx.composition, sid, ctx.fieldDefs, ctx.item);
+      if (!resolved) return null;
+      return <StatsRow fields={resolved.fields} />;
+    }
     case 'hero_header': {
       // Cabecera hero FIEL: remapea rol→slotId a los nombres de slot del hero
       // (banner/avatar/title/subtitle) y delega en HeroHeader — el MISMO render

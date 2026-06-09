@@ -157,6 +157,20 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
       { id: 'cards', label: 'Cartas', accepts: ['card-ref'] },
     ],
   },
+
+  // Fila de estadísticas: cada campo del slot se pinta como VALOR grande +
+  // su etiqueta debajo (números tabulares, label en mayúsculas), separados por
+  // un borde. Recrea FIEL el bloque "stats" de las recetas de detalle (Hero/
+  // Ficha/Perfil), que es lógica multi-campo NO expresable con un slot pelado.
+  stats_row: {
+    id:          'stats_row',
+    displayName: 'Fila de estadísticas',
+    description: 'Fila de estadísticas: cada campo del slot se muestra como valor grande + su etiqueta debajo (números tabulares). El bloque "stats" de las recetas de detalle, como componente fiel.',
+    category:    'basic',
+    roles: [
+      { id: 'stats', label: 'Estadísticas', accepts: ['number', 'text-short'] },
+    ],
+  },
 };
 
 /** Todos los componentes del catálogo (orden de declaración). */

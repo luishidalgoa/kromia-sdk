@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
   "protocolVersion": "2.8.0",
-  "generatedAt": "2026-06-09T19:36:09.142Z",
+  "generatedAt": "2026-06-09T21:13:06.297Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -1496,6 +1496,23 @@
           "label": "Cartas",
           "accepts": [
             "card-ref"
+          ],
+          "optional": false
+        }
+      ]
+    },
+    {
+      "id": "stats_row",
+      "displayName": "Fila de estadísticas",
+      "description": "Fila de estadísticas: cada campo del slot se muestra como valor grande + su etiqueta debajo (números tabulares). El bloque \"stats\" de las recetas de detalle, como componente fiel.",
+      "category": "basic",
+      "roles": [
+        {
+          "id": "stats",
+          "label": "Estadísticas",
+          "accepts": [
+            "number",
+            "text-short"
           ],
           "optional": false
         }
