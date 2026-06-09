@@ -119,6 +119,10 @@ export interface SlotAppearance {
   align?:     'left' | 'center' | 'right';
   /** Peso tipográfico. */
   weight?:    'regular' | 'semibold' | 'bold';
+  /** KRO-133 — transformación del texto. 'uppercase' = MAYÚSCULAS con
+   *  tracking ancho (estilo "etiqueta"/meta de las recetas Editorial/Momento).
+   *  'none' (default) = sin cambio. */
+  textTransform?: 'none' | 'uppercase';
 
   // ── Solo text-* / number / date / url / badge ─────────────────────
   /** Líneas máximas a mostrar antes de truncar con "…". '1' = una sola

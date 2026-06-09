@@ -195,6 +195,7 @@ export type AppearanceProp =
   | 'imageFocus'
   | 'align'
   | 'weight'
+  | 'textTransform'
   | 'size'
   | 'truncate'
   | 'truncateChars'
@@ -209,11 +210,11 @@ const APPEARANCE_PROPS_BY_KIND: Record<SlotAcceptKind, ReadonlyArray<AppearanceP
   'image-banner': ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
   'image-cover':  ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
   'image-array':  ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  'text-short':   ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  'text-long':    ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  'number':       ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  'date':         ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  'url':          ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
+  'text-short':   ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'paddingY'],
+  'text-long':    ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'paddingY'],
+  'number':       ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'paddingY'],
+  'date':         ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'paddingY'],
+  'url':          ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'paddingY'],
   'badge':        ['size', 'truncate', 'truncateChars', 'paddingY'],
   'color':        ['accentPosition', 'size', 'paddingY'],
   'card-ref':     ['paddingY'],
@@ -229,7 +230,7 @@ export function getAvailableAppearanceProps(
   accepts: ReadonlyArray<SlotAcceptKind>,
 ): AppearanceProp[] {
   if (accepts.length === 0) return [];
-  const order: AppearanceProp[] = ['shape', 'aspect', 'imageFocus', 'align', 'weight', 'size', 'truncate', 'truncateChars', 'accentPosition', 'paddingY'];
+  const order: AppearanceProp[] = ['shape', 'aspect', 'imageFocus', 'align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'accentPosition', 'paddingY'];
   const union = new Set<AppearanceProp>();
   for (const kind of accepts) {
     for (const prop of APPEARANCE_PROPS_BY_KIND[kind]) {

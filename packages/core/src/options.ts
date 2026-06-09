@@ -119,6 +119,12 @@ export const OPTIONS_APPEARANCE_WEIGHT: ReadonlyArray<CatalogOption> = [
   { id: 'bold',     label: 'Bold', tooltip: 'Negrita' },
 ];
 
+/** Transformación del texto (KRO-133). */
+export const OPTIONS_APPEARANCE_TEXT_TRANSFORM: ReadonlyArray<CatalogOption> = [
+  { id: 'none',      label: 'Aa',  tooltip: 'Normal (sin cambio)' },
+  { id: 'uppercase', label: 'AA',  tooltip: 'MAYÚSCULAS con tracking ancho (estilo etiqueta/meta)' },
+];
+
 /** Tamaño relativo al default del manifest. */
 export const OPTIONS_APPEARANCE_SIZE: ReadonlyArray<CatalogOption> = [
   { id: 'sm', label: 'S',  tooltip: 'Pequeño' },
@@ -160,6 +166,7 @@ export const OPTIONS_APPEARANCE_LABELS: Record<AppearanceProp, string> = {
   imageFocus:     'Encuadre',
   align:          'Alinear',
   weight:         'Peso',
+  textTransform:  'Mayús.',
   size:           'Tamaño',
   truncate:       'Truncar',
   truncateChars:  'Caracteres',
@@ -174,6 +181,7 @@ export const OPTIONS_APPEARANCE_DESCRIPTIONS: Record<AppearanceProp, string> = {
   imageFocus:     'Punto focal de la imagen + zoom dentro del crop.',
   align:          'Alineación horizontal: izquierda, centro o derecha.',
   weight:         'Peso tipográfico: Regular, Seminegrita o Negrita.',
+  textTransform:  'MAYÚSCULAS con tracking ancho (estilo etiqueta) o normal.',
   size:           'Tamaño relativo al default del manifest.',
   truncate:       'Cortar texto largo con "…". 1L/2L/3L = N líneas máximas, ∞ = texto completo.',
   truncateChars:  'Cortar por número de caracteres (slice JS). Predecible, independiente del ancho.',

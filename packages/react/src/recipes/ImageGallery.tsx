@@ -25,16 +25,23 @@ export interface ImageGalleryProps {
   variant?:  ImageGalleryVariant;
   /** Estilo opcional por <img> (p.ej. object-position de un focus de apariencia). */
   imgStyle?: CSSProperties;
+  /** Etiqueta opcional encima (KRO-133 — fidelidad: las recetas pintan el label
+   *  del campo, p.ej. "GALERÍA"). Mismo markup que Editorial/Hero. */
+  label?:    string;
   className?: string;
 }
 
-export function ImageGallery({ urls, variant = 'peek', imgStyle, className }: ImageGalleryProps) {
+export function ImageGallery({ urls, variant = 'peek', imgStyle, label, className }: ImageGalleryProps) {
   const clean = (urls ?? []).filter((u): u is string => typeof u === 'string' && u.trim() !== '');
   if (clean.length === 0) return null;
 
-  if (variant === 'grid') {
-    return (
-      <div className={cn('grid grid-cols-3 gap-2', className)}>
+  const labelEl = label
+    ? <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">{label}</p>
+    : null;
+
+  const inner = variant === 'grid'
+    ? (
+      <div className="grid grid-cols-3 gap-2">
         {clean.slice(0, 6).map((url, i) => (
           <div key={i} className="aspect-square rounded-lg bg-muted overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -42,23 +49,23 @@ export function ImageGallery({ urls, variant = 'peek', imgStyle, className }: Im
           </div>
         ))}
       </div>
+    )
+    : (
+      <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-1">
+        {clean.map((url, i) => (
+          <div
+            key={i}
+            className={variant === 'centered'
+              ? 'snap-center shrink-0 w-64 aspect-[4/3] rounded-lg bg-muted overflow-hidden'
+              : 'snap-start shrink-0 aspect-[4/3] rounded-lg bg-muted overflow-hidden'}
+            style={variant === 'peek' ? { width: '70%' } : undefined}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={url} alt="" style={imgStyle} className="w-full h-full object-cover" />
+          </div>
+        ))}
+      </div>
     );
-  }
 
-  // peek | centered → carrusel horizontal scroll-snap.
-  const itemClass = variant === 'centered'
-    ? 'snap-center shrink-0 w-64 aspect-[4/3] rounded-lg bg-muted overflow-hidden'
-    : 'snap-start shrink-0 aspect-[4/3] rounded-lg bg-muted overflow-hidden';
-  const itemStyle: CSSProperties | undefined = variant === 'peek' ? { width: '70%' } : undefined;
-
-  return (
-    <div className={cn('flex gap-2 overflow-x-auto snap-x snap-mandatory pb-1', className)}>
-      {clean.map((url, i) => (
-        <div key={i} className={itemClass} style={itemStyle}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={url} alt="" style={imgStyle} className="w-full h-full object-cover" />
-        </div>
-      ))}
-    </div>
-  );
+  return <div className={className}>{labelEl}{inner}</div>;
 }

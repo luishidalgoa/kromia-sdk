@@ -192,6 +192,8 @@ export function appearanceTextClasses(a: SlotAppearance | undefined): string {
   return cn(
     a.align  && ALIGN_CLASSES[a.align],
     a.weight && WEIGHT_CLASSES[a.weight],
+    // KRO-133 — MAYÚSCULAS estilo etiqueta/meta (Editorial, Momento).
+    a.textTransform === 'uppercase' && 'uppercase tracking-wider',
     a.size   && TEXT_SIZE_CLASSES[a.size],
     // KRO-133 F3 — color de texto/fondo de la paleta amplia (cerrada).
     a.textColor && paletteClass(a.textColor, 'text'),

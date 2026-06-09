@@ -43,6 +43,28 @@ const stack = (ids: string[], has: (id: string) => boolean, extra: Partial<Layou
   return grid(1, present.length, present.map((id, i) => leaf(id, { colStart: 1, rowStart: i + 1 })), extra);
 };
 
+/**
+ * Stack vertical donde ciertos ids se renderizan como COMPONENTE de galería
+ * (KRO-133 — fidelidad: la galería de la receta es un grid/carrusel CON su
+ * etiqueta, no una sola imagen como el slot pelado). `galleryAs` mapea
+ * slotId → id de componente (`gallery_grid` / `carousel_centered` / `carousel_peek`).
+ */
+const detailStack = (
+  ids: string[], has: (id: string) => boolean,
+  extra: Partial<LayoutContainerNode> = {},
+  galleryAs: Record<string, string> = {},
+): LayoutContainerNode => {
+  const present = ids.filter(has);
+  const children: LayoutNode[] = present.map((id, i) => {
+    const place: GridPlacement = { colStart: 1, rowStart: i + 1 };
+    const comp = galleryAs[id];
+    return comp
+      ? { type: 'component', component: comp, slots: { images: id }, place }
+      : leaf(id, place);
+  });
+  return grid(1, present.length, children, extra);
+};
+
 /** Fila "media": [media | (título/subtítulo apilados) | accesorio], con anchos
  *  ajustados (media y accesorio al contenido, texto flexible). */
 function mediaRow(
@@ -174,8 +196,9 @@ const RECIPE_PRESETS: Partial<Record<RecipeId, RecipePreset>> = {
       const headerSlots: Record<string, string> = {};
       for (const r of ['banner', 'avatar', 'title', 'subtitle']) if (has(r)) headerSlots[r] = r;
       children.push({ type: 'component', component: 'hero_header', slots: headerSlots, place: { colStart: 1, rowStart: row++ } });
-      // Cuerpo editable.
-      for (const id of ['stats', 'body', 'gallery']) if (has(id)) children.push(leaf(id, { colStart: 1, rowStart: row++ }));
+      // Cuerpo editable (stats/body como slots; la galería como CARRUSEL fiel).
+      for (const id of ['stats', 'body']) if (has(id)) children.push(leaf(id, { colStart: 1, rowStart: row++ }));
+      if (has('gallery')) children.push({ type: 'component', component: 'carousel_peek', slots: { images: 'gallery' }, place: { colStart: 1, rowStart: row++ } });
       // Relacionadas → galería de cartas (componente).
       if (has('related')) children.push({ type: 'component', component: 'ref_gallery', slots: { refs: 'related' }, place: { colStart: 1, rowStart: row++ } });
       return grid(1, Math.max(1, row - 1), children, { gap: 'md' });
@@ -187,20 +210,22 @@ const RECIPE_PRESETS: Partial<Record<RecipeId, RecipePreset>> = {
     },
   },
   editorial: {
-    build: (has) => stack(['cover', 'title', 'meta', 'body', 'gallery'], has, { gap: 'md' }),
-    appearance: { cover: { aspect: '16:9' }, title: { weight: 'bold', size: 'xl' }, meta: { size: 'sm', textColor: 'muted' }, body: { size: 'md' } },
+    // KRO-133 fidelidad — meta en MAYÚSCULAS + galería como grid (no 1 imagen).
+    build: (has) => detailStack(['cover', 'title', 'meta', 'body', 'gallery'], has, { gap: 'md' }, { gallery: 'gallery_grid' }),
+    appearance: { cover: { aspect: '16:9' }, title: { weight: 'bold', size: 'xl' }, meta: { size: 'sm', textColor: 'muted', textTransform: 'uppercase' }, body: { size: 'md' } },
   },
   momento: {
-    build: (has) => stack(['date', 'title', 'subtitle', 'body', 'slideshow'], has, { align: 'center', gap: 'md' }),
+    // KRO-133 fidelidad — fecha en MAYÚSCULAS + slideshow como carrusel centrado.
+    build: (has) => detailStack(['date', 'title', 'subtitle', 'body', 'slideshow'], has, { align: 'center', gap: 'md' }, { slideshow: 'carousel_centered' }),
     appearance: {
-      date: { weight: 'bold', size: 'xl', align: 'center', textColor: 'primary' },
+      date: { weight: 'bold', size: 'xl', align: 'center', textColor: 'primary', textTransform: 'uppercase' },
       title: { weight: 'bold', align: 'center' }, subtitle: { size: 'md', textColor: 'muted', align: 'center' }, body: { size: 'md' },
     },
   },
   // V5 (KRO-133) — plantillas de detalle block-native.
   detail_panel: {
-    // Portada ancha → título → subtítulo → stats (fila) → cuerpo → galería.
-    build: (has) => stack(['cover', 'title', 'subtitle', 'stats', 'body', 'gallery'], has, { gap: 'md' }),
+    // Portada ancha → título → subtítulo → stats (fila) → cuerpo → galería (grid).
+    build: (has) => detailStack(['cover', 'title', 'subtitle', 'stats', 'body', 'gallery'], has, { gap: 'md' }, { gallery: 'gallery_grid' }),
     appearance: {
       cover:    { aspect: '16:9', shape: 'rounded' },   // sin size → ancho completo (fill)
       title:    { weight: 'bold', size: 'xl' },

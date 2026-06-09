@@ -44,17 +44,25 @@ export interface RefGalleryProps {
    * el render nested mantiene su propia disposición.
    */
   layout?:            'grid' | 'carousel';
+  /** KRO-133 — etiqueta opcional encima (fidelidad: el "BESTIAS" del hero). */
+  label?:             string;
 }
 
 /** Punto de entrada: normaliza el valor a array y despacha nested vs mini-cartas. */
-export function RefGallery({ refs, seed, cardFormat, nestedComposition, fieldDefs, layout = 'grid' }: RefGalleryProps) {
+export function RefGallery({ refs, seed, cardFormat, nestedComposition, fieldDefs, layout = 'grid', label }: RefGalleryProps) {
   const list = (Array.isArray(refs) ? refs : refs == null ? [] : [refs])
     .filter((r): r is string | number => r != null && r !== '');
   if (list.length === 0) return null;
-  if (nestedComposition) {
-    return <NestedRecipeRenderer refs={list} nestedComposition={nestedComposition} fieldDefs={fieldDefs} />;
-  }
-  return <MiniCardRefs refs={list} seed={seed} cardFormat={cardFormat ?? DEFAULT_CARD_FORMAT} layout={layout} />;
+  const inner = nestedComposition
+    ? <NestedRecipeRenderer refs={list} nestedComposition={nestedComposition} fieldDefs={fieldDefs} />
+    : <MiniCardRefs refs={list} seed={seed} cardFormat={cardFormat ?? DEFAULT_CARD_FORMAT} layout={layout} />;
+  if (!label) return inner;
+  return (
+    <div>
+      <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">{label}</p>
+      {inner}
+    </div>
+  );
 }
 
 /**

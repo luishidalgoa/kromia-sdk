@@ -377,6 +377,31 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
     if (Array.isArray(raw)) return raw.filter((u): u is string => typeof u === 'string');
     return typeof raw === 'string' && raw ? [raw] : [];
   };
+  // KRO-133 fidelidad — la etiqueta del campo mapeado (las recetas pintan el
+  // label de la galería, p.ej. "BESTIAS"/"GALERÍA"). Resuelve slot→field→def.label.
+  const roleLabel = (role: string): string | undefined => {
+    const sid = node.slots?.[role];
+    const fk = sid ? ctx.composition.slots[sid]?.fields?.[0] : undefined;
+    return fk ? ctx.fieldDefs.find(f => f.key === fk)?.label : undefined;
+  };
+  // Render compartido de un rol de REFERENCIAS (ref_gallery / cards_carousel).
+  const renderRefs = (role: string, layout: 'grid' | 'carousel') => {
+    const sid = node.slots?.[role];
+    if (!sid) return null;
+    const refVal = rawValue(role) as Array<string | number> | string | number | undefined;
+    const seed = String(Array.isArray(refVal) ? (refVal[0] ?? sid) : (refVal ?? sid));
+    return (
+      <RefGallery
+        refs={refVal}
+        seed={seed}
+        cardFormat={ctx.cardFormat}
+        nestedComposition={ctx.composition.slots[sid]?.nestedComposition}
+        fieldDefs={ctx.fieldDefs}
+        layout={layout}
+        label={roleLabel(role)}
+      />
+    );
+  };
 
   switch (node.component) {
     case 'card':
@@ -393,33 +418,19 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
         </div>
       );
     case 'ref_gallery':
-      // Galería de cartas referenciadas — el render del slot card-ref (Capa 1).
-      return roleSlot('refs');
+      // Galería de cartas referenciadas (rejilla) — con la etiqueta del campo.
+      return renderRefs('refs', 'grid');
     // KRO-133 — carruseles de imágenes (mismo render que Hero/Momento/Editorial,
-    // vía el componente compartido `ImageGallery`). Leen el array completo del rol.
+    // vía el componente compartido `ImageGallery`, con la etiqueta del campo).
     case 'carousel_peek':
-      return <ImageGallery urls={imageUrls('images')} variant="peek" />;
+      return <ImageGallery urls={imageUrls('images')} variant="peek" label={roleLabel('images')} />;
     case 'carousel_centered':
-      return <ImageGallery urls={imageUrls('images')} variant="centered" />;
+      return <ImageGallery urls={imageUrls('images')} variant="centered" label={roleLabel('images')} />;
     case 'gallery_grid':
-      return <ImageGallery urls={imageUrls('images')} variant="grid" />;
+      return <ImageGallery urls={imageUrls('images')} variant="grid" label={roleLabel('images')} />;
     // KRO-133 — carrusel de cartas: las mini-cartas de la galería en fila swipe.
-    case 'cards_carousel': {
-      const sid = node.slots?.cards;
-      if (!sid) return null;
-      const refVal = rawValue('cards') as Array<string | number> | string | number | undefined;
-      const seed = String(Array.isArray(refVal) ? (refVal[0] ?? sid) : (refVal ?? sid));
-      return (
-        <RefGallery
-          refs={refVal}
-          seed={seed}
-          cardFormat={ctx.cardFormat}
-          nestedComposition={ctx.composition.slots[sid]?.nestedComposition}
-          fieldDefs={ctx.fieldDefs}
-          layout="carousel"
-        />
-      );
-    }
+    case 'cards_carousel':
+      return renderRefs('cards', 'carousel');
     case 'hero_header': {
       // Cabecera hero FIEL: remapea rol→slotId a los nombres de slot del hero
       // (banner/avatar/title/subtitle) y delega en HeroHeader — el MISMO render
