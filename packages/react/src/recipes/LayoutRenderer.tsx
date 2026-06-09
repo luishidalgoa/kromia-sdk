@@ -29,7 +29,7 @@ import {
 } from '../recipe-utils';
 import {
   migrateSlotsToLayout, paletteClass, resolveFieldColor, gridColumnsTemplate, gridRowsTemplate,
-  classifyField,
+  classifyField, clampPlaceToGrid,
   type LayoutNode, type LayoutContainerNode, type LayoutComponentNode, type LayoutGap, type LayoutAlign,
   type LayoutJustify, type GridPlacement, type ContainerSurface, type SurfaceBorder, type ViewComposition,
   type CardFormat,
@@ -440,8 +440,12 @@ function LayoutNodeView({ node, ctx }: { node: LayoutNode; ctx: NodeCtx }) {
         const grow = !isGrid && child.type === 'slot' && typeof child.grow === 'number' && child.grow > 0
           ? { flexGrow: child.grow }
           : undefined;
-        const placement = isGrid ? placementClasses(child.place) : undefined;
-        const selfAlign = isGrid ? selfAlignClasses(child.place) : undefined;
+        // KRO-133 — clampa la colocación a las columnas del grid → un hijo con
+        // colStart fuera de rango NO flota fuera del lienzo (CSS Grid crearía una
+        // columna implícita). Las filas crecen solas, no se clampan.
+        const childPlace = isGrid ? clampPlaceToGrid(child.place, node.columns ?? 1) : child.place;
+        const placement = isGrid ? placementClasses(childPlace) : undefined;
+        const selfAlign = isGrid ? selfAlignClasses(childPlace) : undefined;
         return (
           <div
             key={i}

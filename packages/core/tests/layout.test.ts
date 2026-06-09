@@ -10,6 +10,7 @@ import {
   migrateSlotsToGrid,
   layoutDepth,
   collectLayoutSlots,
+  clampPlaceToGrid,
   MAX_LAYOUT_DEPTH,
   MAX_GRID_COLUMNS,
   MAX_GRID_ROWS,
@@ -199,5 +200,25 @@ describe('helpers de recorrido', () => {
       container({ children: [{ type: 'slot', slot: 'b' }, { type: 'slot', slot: 'c' }] }),
     ] });
     expect(collectLayoutSlots(root)).toEqual(['a', 'b', 'c']);
+  });
+});
+
+describe('clampPlaceToGrid — colocación dentro del ancho del grid', () => {
+  it('clampa colStart al nº de columnas (no flota fuera)', () => {
+    // grid de 1 columna, hijo pedido en col 2 → vuelve a col 1.
+    expect(clampPlaceToGrid({ colStart: 2, colSpan: 1, rowStart: 4, rowSpan: 1 }, 1))
+      .toEqual({ colStart: 1, colSpan: 1, rowStart: 4, rowSpan: 1 });
+  });
+
+  it('clampa colSpan para que no se salga por la derecha', () => {
+    // grid de 2 cols, hijo en col 2 con span 2 → span 1 (cabe 1).
+    expect(clampPlaceToGrid({ colStart: 2, colSpan: 2, rowStart: 1, rowSpan: 1 }, 2))
+      .toEqual({ colStart: 2, colSpan: 1, rowStart: 1, rowSpan: 1 });
+  });
+
+  it('respeta colocaciones válidas (devuelve el mismo objeto) y las filas', () => {
+    const ok = { colStart: 2, colSpan: 1, rowStart: 9, rowSpan: 2 };
+    expect(clampPlaceToGrid(ok, 3)).toBe(ok); // sin cambios → misma ref; filas libres
+    expect(clampPlaceToGrid(undefined, 2)).toBeUndefined();
   });
 });

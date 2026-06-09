@@ -145,6 +145,7 @@ const EXPECTED_EXPORTS = [
   'migrateSlotsToGrid',
   'layoutDepth',
   'collectLayoutSlots',
+  'clampPlaceToGrid',
   'LAYOUT_CONTAINER_KINDS',
   'LAYOUT_DIRECTIONS',
   'LAYOUT_ALIGNS',

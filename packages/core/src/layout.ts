@@ -339,3 +339,21 @@ export function collectLayoutSlots(node: LayoutNode): string[] {
   if (node.type === 'component') return Object.values(node.slots ?? {});
   return (node.children ?? []).flatMap(collectLayoutSlots);
 }
+
+/**
+ * KRO-133 — clampa la colocación `place` de un hijo a las `cols` del grid padre.
+ * Colocar un hijo en una columna inexistente (colStart > cols, o un colSpan que
+ * se sale) hacía que CSS Grid creara una columna implícita y el bloque flotara
+ * FUERA del lienzo. El render usa esto para nunca pintar fuera de rango (las
+ * filas crecen solas, no se clampan). Fuente de verdad única (editor + motor).
+ */
+export function clampPlaceToGrid(
+  place: GridPlacement | undefined, cols: number,
+): GridPlacement | undefined {
+  if (!place) return place;
+  const c = Math.max(1, cols);
+  const colStart = Math.min(Math.max(1, place.colStart ?? 1), c);
+  const colSpan  = Math.min(Math.max(1, place.colSpan ?? 1), c - colStart + 1);
+  if (colStart === place.colStart && colSpan === place.colSpan) return place;
+  return { ...place, colStart, colSpan };
+}
