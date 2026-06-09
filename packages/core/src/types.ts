@@ -45,7 +45,10 @@ export type RecipeId =
   | 'feature_card'
   | 'split_panel'
   | 'stat_tile'
-  | 'cover_band';
+  | 'cover_band'
+  // V5 — plantillas de DETALLE block-native.
+  | 'detail_panel'
+  | 'detail_profile';
 
 /** IDs de acciones. V1: solo none + navigate_to_detail. */
 export type ActionId =

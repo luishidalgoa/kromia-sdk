@@ -380,6 +380,61 @@ Fondo de tarjeta con esquinas redondeadas. Pensado para grids de mosaicos.`,
     ],
   },
 
+  detail_panel: {
+    id:          'detail_panel',
+    kind:        'detail',
+    displayName: 'Ficha',
+    description: 'Portada ancha + título + subtítulo + estadísticas + cuerpo + galería. Vista de detalle limpia y moderna.',
+    whenToUse:
+      'Como vista de detalle versátil cuando tocas un item: portada arriba a todo el ancho, título grande, datos clave y texto. Más limpia que Hero (sin avatar superpuesto), más visual que Editorial.',
+    long: `Receta de detalle del sistema de bloques (la pinta el motor de bloques). Stack vertical:
+- \`cover\` (16:9, ancho completo) arriba.
+- \`title\` (grande, negrita) + \`subtitle\` (tenue).
+- \`stats\` (números en fila) — datos clave.
+- \`body\` (texto largo) y \`gallery\` (carrusel) opcionales.`,
+    examples: [
+      { title: 'Ficha de reino', description: 'Estandarte + nombre + clima + elemento + descripción.' },
+      { title: 'Detalle de producto', description: 'Foto + nombre + precio/stock + descripción + galería.' },
+    ],
+    related: ['recipe:hero_protagonico', 'recipe:editorial', 'concept:blocks'],
+    aliases: ['ficha', 'detalle limpio', 'detail panel'],
+    slots: [
+      { id: 'cover',    label: 'Portada',       kind: 'single',     accepts: ['image'] },
+      { id: 'title',    label: 'Título',        kind: 'single',     accepts: ['text-short'] },
+      { id: 'subtitle', label: 'Subtítulo',     kind: 'composable', accepts: ['text-short', 'date', 'number'], optional: true },
+      { id: 'stats',    label: 'Estadísticas',  kind: 'composable', accepts: ['number'], optional: true,
+        description:    'Valores numéricos en fila (cada uno con su etiqueta del field).' },
+      { id: 'body',     label: 'Cuerpo',        kind: 'single',     accepts: ['text-long'], optional: true },
+      { id: 'gallery',  label: 'Galería',       kind: 'single',     accepts: ['image-array'], optional: true },
+    ],
+  },
+
+  detail_profile: {
+    id:          'detail_profile',
+    kind:        'detail',
+    displayName: 'Perfil',
+    description: 'Avatar circular centrado + título + subtítulo + estadísticas + cuerpo. Estilo ficha de persona.',
+    whenToUse:
+      'Para el detalle de una persona/entidad: avatar circular grande y centrado, nombre y datos debajo. Ideal para jugadores, hermanas, autores, personajes.',
+    long: `Receta de detalle del sistema de bloques. Stack vertical CENTRADO:
+- \`avatar\` (círculo grande) arriba.
+- \`title\` (centrado, negrita) + \`subtitle\` (centrado, tenue).
+- \`stats\` (números en fila) y \`body\` (texto) opcionales.`,
+    examples: [
+      { title: 'Ficha de jugador', description: 'Foto circular + nombre + posición/dorsal + bio.' },
+      { title: 'Personaje del bestiario', description: 'Avatar + nombre + elemento + lore.' },
+    ],
+    related: ['recipe:compact_avatar', 'recipe:hero_protagonico', 'concept:blocks'],
+    aliases: ['perfil', 'ficha de persona', 'detail profile'],
+    slots: [
+      { id: 'avatar',   label: 'Avatar',        kind: 'single',     accepts: ['image'] },
+      { id: 'title',    label: 'Título',        kind: 'single',     accepts: ['text-short'] },
+      { id: 'subtitle', label: 'Subtítulo',     kind: 'composable', accepts: ['text-short', 'date'], optional: true },
+      { id: 'stats',    label: 'Estadísticas',  kind: 'composable', accepts: ['number'], optional: true },
+      { id: 'body',     label: 'Cuerpo',        kind: 'single',     accepts: ['text-long'], optional: true },
+    ],
+  },
+
   cover_band: {
     id:          'cover_band',
     kind:        'list',

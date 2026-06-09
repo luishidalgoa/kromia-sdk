@@ -208,15 +208,16 @@ describe('behavior-registry', () => {
 describe('recipe-registry', () => {
   const recipes = allRecipes();
 
-  it('contiene 12 recipes', () => {
-    expect(recipes).toHaveLength(12);
+  it('contiene 14 recipes', () => {
+    expect(recipes).toHaveLength(14);
   });
 
-  it('distribución por kind: 7 list + 3 detail + 2 expand', () => {
-    // KRO-133 V5 — +4 list block-native (feature_card/split_panel/stat_tile/cover_band).
+  it('distribución por kind: 7 list + 5 detail + 2 expand', () => {
+    // KRO-133 V5 — +4 list (feature_card/split_panel/stat_tile/cover_band) +2 detail
+    // (detail_panel/detail_profile) block-native.
     const byKind = (k: string) => recipes.filter(r => r.kind === k);
     expect(byKind('list')).toHaveLength(7);
-    expect(byKind('detail')).toHaveLength(3);
+    expect(byKind('detail')).toHaveLength(5);
     expect(byKind('expand')).toHaveLength(2);
   });
 

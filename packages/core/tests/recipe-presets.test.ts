@@ -11,7 +11,12 @@ import { getRecipeManifest } from '../src/registries/recipes';
 import { validateLayout, collectLayoutSlots } from '../src/layout';
 import type { RecipeId, SlotComposition, ViewComposition } from '../src/types';
 
-const BLOCK_NATIVE: RecipeId[] = ['feature_card', 'split_panel', 'stat_tile', 'cover_band'];
+const BLOCK_NATIVE: RecipeId[] = [
+  // list
+  'feature_card', 'split_panel', 'stat_tile', 'cover_band',
+  // detail
+  'detail_panel', 'detail_profile',
+];
 
 /** Composición con TODOS los slots del manifest rellenos (1 field cada uno). */
 function fullComposition(recipe: RecipeId): ViewComposition {
@@ -24,10 +29,10 @@ function fullComposition(recipe: RecipeId): ViewComposition {
 describe('recipe-presets — recetas block-native (KRO-133 V5)', () => {
   for (const recipe of BLOCK_NATIVE) {
     describe(recipe, () => {
-      it('el manifest existe y es de tipo list', () => {
+      it('el manifest existe (list o detail) con slots', () => {
         const m = getRecipeManifest(recipe);
         expect(m).toBeDefined();
-        expect(m!.kind).toBe('list');
+        expect(['list', 'detail']).toContain(m!.kind);
         expect(m!.slots.length).toBeGreaterThan(0);
       });
 

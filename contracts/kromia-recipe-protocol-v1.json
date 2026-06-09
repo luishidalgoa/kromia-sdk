@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
-  "protocolVersion": "2.6.0",
-  "generatedAt": "2026-06-07T22:00:06.766Z",
+  "protocolVersion": "2.7.0",
+  "generatedAt": "2026-06-09T10:05:00.177Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -577,6 +577,146 @@
           "kind": "single",
           "accepts": [
             "badge"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        }
+      ]
+    },
+    {
+      "id": "detail_panel",
+      "kind": "detail",
+      "displayName": "Ficha",
+      "description": "Portada ancha + título + subtítulo + estadísticas + cuerpo + galería. Vista de detalle limpia y moderna.",
+      "slots": [
+        {
+          "id": "cover",
+          "label": "Portada",
+          "kind": "single",
+          "accepts": [
+            "image"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "title",
+          "label": "Título",
+          "kind": "single",
+          "accepts": [
+            "text-short"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "subtitle",
+          "label": "Subtítulo",
+          "kind": "composable",
+          "accepts": [
+            "text-short",
+            "date",
+            "number"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "stats",
+          "label": "Estadísticas",
+          "kind": "composable",
+          "accepts": [
+            "number"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": "Valores numéricos en fila (cada uno con su etiqueta del field)."
+        },
+        {
+          "id": "body",
+          "label": "Cuerpo",
+          "kind": "single",
+          "accepts": [
+            "text-long"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "gallery",
+          "label": "Galería",
+          "kind": "single",
+          "accepts": [
+            "image-array"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        }
+      ]
+    },
+    {
+      "id": "detail_profile",
+      "kind": "detail",
+      "displayName": "Perfil",
+      "description": "Avatar circular centrado + título + subtítulo + estadísticas + cuerpo. Estilo ficha de persona.",
+      "slots": [
+        {
+          "id": "avatar",
+          "label": "Avatar",
+          "kind": "single",
+          "accepts": [
+            "image"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "title",
+          "label": "Título",
+          "kind": "single",
+          "accepts": [
+            "text-short"
+          ],
+          "optional": false,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "subtitle",
+          "label": "Subtítulo",
+          "kind": "composable",
+          "accepts": [
+            "text-short",
+            "date"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "stats",
+          "label": "Estadísticas",
+          "kind": "composable",
+          "accepts": [
+            "number"
+          ],
+          "optional": true,
+          "nestable": false,
+          "description": null
+        },
+        {
+          "id": "body",
+          "label": "Cuerpo",
+          "kind": "single",
+          "accepts": [
+            "text-long"
           ],
           "optional": true,
           "nestable": false,
@@ -1205,7 +1345,9 @@
       "allowedTargetRecipes": [
         "hero_protagonico",
         "editorial",
-        "momento"
+        "momento",
+        "detail_panel",
+        "detail_profile"
       ],
       "allowedExpandRecipes": [
         "accordion_simple",
@@ -1224,7 +1366,9 @@
       "allowedTargetRecipes": [
         "hero_protagonico",
         "editorial",
-        "momento"
+        "momento",
+        "detail_panel",
+        "detail_profile"
       ],
       "allowedExpandRecipes": [
         "accordion_simple",
@@ -1251,7 +1395,9 @@
       "allowedTargetRecipes": [
         "hero_protagonico",
         "editorial",
-        "momento"
+        "momento",
+        "detail_panel",
+        "detail_profile"
       ],
       "allowedExpandRecipes": [
         "accordion_simple",
@@ -1298,7 +1444,9 @@
       "allowedTargetRecipes": [
         "hero_protagonico",
         "editorial",
-        "momento"
+        "momento",
+        "detail_panel",
+        "detail_profile"
       ],
       "allowedExpandRecipes": [
         "accordion_simple",
@@ -1317,7 +1465,9 @@
       "allowedTargetRecipes": [
         "hero_protagonico",
         "editorial",
-        "momento"
+        "momento",
+        "detail_panel",
+        "detail_profile"
       ],
       "allowedExpandRecipes": [
         "accordion_simple",
@@ -1336,12 +1486,30 @@
       "allowedTargetRecipes": [
         "hero_protagonico",
         "editorial",
-        "momento"
+        "momento",
+        "detail_panel",
+        "detail_profile"
       ],
       "allowedExpandRecipes": [
         "accordion_simple",
         "accordion_with_actions"
       ]
+    },
+    "detail_panel": {
+      "kindRole": "detail-target",
+      "allowedActions": [
+        "none"
+      ],
+      "allowedTargetRecipes": [],
+      "allowedExpandRecipes": []
+    },
+    "detail_profile": {
+      "kindRole": "detail-target",
+      "allowedActions": [
+        "none"
+      ],
+      "allowedTargetRecipes": [],
+      "allowedExpandRecipes": []
     },
     "cover_band": {
       "kindRole": "list-source",
@@ -1355,7 +1523,9 @@
       "allowedTargetRecipes": [
         "hero_protagonico",
         "editorial",
-        "momento"
+        "momento",
+        "detail_panel",
+        "detail_profile"
       ],
       "allowedExpandRecipes": [
         "accordion_simple",
@@ -1671,6 +1841,16 @@
         "label": "Mosaico de dato"
       },
       {
+        "id": "recipe:detail_panel",
+        "category": "recipe",
+        "label": "Ficha"
+      },
+      {
+        "id": "recipe:detail_profile",
+        "category": "recipe",
+        "label": "Perfil"
+      },
+      {
         "id": "recipe:cover_band",
         "category": "recipe",
         "label": "Cartel"
@@ -1974,6 +2154,16 @@
       },
       {
         "from": "recipe:compact_avatar",
+        "to": "recipe:detail_panel",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:compact_avatar",
+        "to": "recipe:detail_profile",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:compact_avatar",
         "to": "recipe:accordion_simple",
         "kind": "recipe-expand"
       },
@@ -2024,6 +2214,16 @@
       },
       {
         "from": "recipe:compact_card",
+        "to": "recipe:detail_panel",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:compact_card",
+        "to": "recipe:detail_profile",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:compact_card",
         "to": "recipe:accordion_simple",
         "kind": "recipe-expand"
       },
@@ -2074,6 +2274,16 @@
       },
       {
         "from": "recipe:row_text",
+        "to": "recipe:detail_panel",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:row_text",
+        "to": "recipe:detail_profile",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:row_text",
         "to": "recipe:accordion_simple",
         "kind": "recipe-expand"
       },
@@ -2124,6 +2334,16 @@
       },
       {
         "from": "recipe:feature_card",
+        "to": "recipe:detail_panel",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:feature_card",
+        "to": "recipe:detail_profile",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:feature_card",
         "to": "recipe:accordion_simple",
         "kind": "recipe-expand"
       },
@@ -2174,6 +2394,16 @@
       },
       {
         "from": "recipe:split_panel",
+        "to": "recipe:detail_panel",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:split_panel",
+        "to": "recipe:detail_profile",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:split_panel",
         "to": "recipe:accordion_simple",
         "kind": "recipe-expand"
       },
@@ -2224,6 +2454,16 @@
       },
       {
         "from": "recipe:stat_tile",
+        "to": "recipe:detail_panel",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:stat_tile",
+        "to": "recipe:detail_profile",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:stat_tile",
         "to": "recipe:accordion_simple",
         "kind": "recipe-expand"
       },
@@ -2270,6 +2510,16 @@
       {
         "from": "recipe:cover_band",
         "to": "recipe:momento",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:cover_band",
+        "to": "recipe:detail_panel",
+        "kind": "recipe-target"
+      },
+      {
+        "from": "recipe:cover_band",
+        "to": "recipe:detail_profile",
         "kind": "recipe-target"
       },
       {

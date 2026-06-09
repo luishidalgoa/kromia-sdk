@@ -181,6 +181,27 @@ const RECIPE_PRESETS: Partial<Record<RecipeId, RecipePreset>> = {
       title: { weight: 'bold', align: 'center' }, subtitle: { size: 'md', textColor: 'muted', align: 'center' }, body: { size: 'md' },
     },
   },
+  // V5 (KRO-133) — plantillas de detalle block-native.
+  detail_panel: {
+    // Portada ancha → título → subtítulo → stats (fila) → cuerpo → galería.
+    build: (has) => stack(['cover', 'title', 'subtitle', 'stats', 'body', 'gallery'], has, { gap: 'md' }),
+    appearance: {
+      cover:    { aspect: '16:9', shape: 'rounded' },   // sin size → ancho completo (fill)
+      title:    { weight: 'bold', size: 'xl' },
+      subtitle: { size: 'md', textColor: 'muted' },
+      body:     { size: 'md' },
+    },
+  },
+  detail_profile: {
+    // Avatar circular centrado → título → subtítulo → stats → cuerpo.
+    build: (has) => stack(['avatar', 'title', 'subtitle', 'stats', 'body'], has, { align: 'center', gap: 'md' }),
+    appearance: {
+      avatar:   { shape: 'circle', size: 'xl' },         // círculo grande fijo (con size → no fill)
+      title:    { weight: 'bold', size: 'xl', align: 'center' },
+      subtitle: { size: 'md', textColor: 'muted', align: 'center' },
+      body:     { size: 'md' },
+    },
+  },
 
   // ── Expand ──────────────────────────────────────────────────────────
   accordion_simple: {
