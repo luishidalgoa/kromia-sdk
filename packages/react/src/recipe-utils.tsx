@@ -470,6 +470,17 @@ export function ScalarText({
   const text = formatScalar(value, def);
   if (!text) return null;
   const finalText = applyAppearanceTruncate(text, appearance);
+  // KRO-133 — campos `markdown` (text-long): el motor de bloques (SlotContent →
+  // ScalarText) renderizaba el string crudo → se veía `**negrita**` literal. Las
+  // recetas detalle/expand block-native (Ficha, Perfil) y el modo Bloques honran
+  // ahora el markdown inline, igual que editorial/momento/hero.
+  if (def?.behavior === 'markdown') {
+    return (
+      <span className={cn(appearanceTextClasses(appearance), className)}>
+        <MarkdownText text={finalText} />
+      </span>
+    );
+  }
   return (
     <span className={cn(appearanceTextClasses(appearance), className)}>
       {finalText}

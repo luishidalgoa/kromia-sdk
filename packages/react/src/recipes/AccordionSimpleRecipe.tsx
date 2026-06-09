@@ -21,7 +21,7 @@ import { cn } from '../lib/cn';
 import {
   resolveSlot,
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass,
-  applyAppearanceTruncate, slotDebugAttrs, extractAccentSettings, AccentFrame,
+  applyAppearanceTruncate, slotDebugAttrs, extractAccentSettings, AccentFrame, MarkdownText,
   type FieldDefLike,
 } from '../recipe-utils';
 import type { ViewComposition } from '@kromia/core';
@@ -67,7 +67,10 @@ export function AccordionSimpleRecipe({
       )}
       {...slotDebugAttrs('body', body)}
     >
-      {applyAppearanceTruncate(String(bodyField.value), body.appearance)}
+      {/* KRO-133 — honra markdown inline (antes mostraba `**negrita**` literal). */}
+      {bodyField.def?.behavior === 'markdown'
+        ? <MarkdownText text={applyAppearanceTruncate(String(bodyField.value), body.appearance)} />
+        : applyAppearanceTruncate(String(bodyField.value), body.appearance)}
     </div>
     </AccentFrame>
   );
