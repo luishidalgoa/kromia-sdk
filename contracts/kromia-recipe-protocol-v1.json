@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
-  "protocolVersion": "2.7.0",
-  "generatedAt": "2026-06-09T10:05:00.177Z",
+  "protocolVersion": "2.8.0",
+  "generatedAt": "2026-06-09T12:11:17.999Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -1328,6 +1328,64 @@
           "key": "signature_url",
           "type": "string",
           "optional": true
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "id": "card",
+      "displayName": "Carta",
+      "description": "Tarjeta compuesta: imagen + título + pie y badge opcionales. La unidad visual de un cromo, como un bloque reutilizable.",
+      "roles": [
+        {
+          "id": "media",
+          "label": "Imagen",
+          "accepts": [
+            "image",
+            "image-array"
+          ],
+          "optional": false
+        },
+        {
+          "id": "title",
+          "label": "Título",
+          "accepts": [
+            "text-short"
+          ],
+          "optional": false
+        },
+        {
+          "id": "caption",
+          "label": "Pie",
+          "accepts": [
+            "text-short",
+            "text-long"
+          ],
+          "optional": true
+        },
+        {
+          "id": "badge",
+          "label": "Badge",
+          "accepts": [
+            "badge"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "id": "ref_gallery",
+      "displayName": "Galería de cartas",
+      "description": "Rejilla de mini-cartas a partir de un slot de referencias (card-ref). Para cartas relacionadas, plantillas, colecciones.",
+      "roles": [
+        {
+          "id": "refs",
+          "label": "Referencias",
+          "accepts": [
+            "card-ref"
+          ],
+          "optional": false
         }
       ]
     }

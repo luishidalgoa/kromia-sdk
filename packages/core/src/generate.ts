@@ -48,6 +48,7 @@ import { allBehaviors, type BehaviorDefinition } from './registries/behaviors';
 import { allActions, type ActionDefinition } from './registries/actions';
 import { allFieldTypes, type FieldTypeDefinition } from './registries/field-types';
 import { allVisualEffects, type VisualEffectDefinition } from './registries/visual-effects';
+import { allComponents, type ComponentDefinition } from './registries/components';
 import type { SlotAcceptKind } from './types';
 import { detectBumpKind, applyBump, type BumpKind } from './version-bump';
 
@@ -78,6 +79,7 @@ interface ProtocolJson {
   slotAcceptKinds:     SlotKindJson[];
   fieldTypes:          FieldTypeJson[];
   visualEffects:       VisualEffectJson[];
+  components:          ComponentJson[];
   compatibilityMatrix: Record<string, CompatibilityEntry>;
   connections:         ConnectionsSection;
 }
@@ -182,6 +184,23 @@ interface VisualEffectConfigJson {
   optional?: boolean;
 }
 
+/**
+ * Shape del CONTRATO para un componente prefabricado (KRO-133 Capa 2). Solo los
+ * campos funcionales que un renderer necesita: id + roles (rol → accepts). Sin
+ * doc rica (mismo criterio que ActionJson/FieldTypeJson).
+ */
+interface ComponentJson {
+  id:          string;
+  displayName: string;
+  description: string;
+  roles: {
+    id:       string;
+    label:    string;
+    accepts:  SlotAcceptKind[];
+    optional: boolean;
+  }[];
+}
+
 interface CompatibilityEntry {
   kindRole:             'list-source' | 'detail-target' | 'expand-target';
   allowedActions:       string[];
@@ -267,6 +286,20 @@ function serializeVisualEffect(e: VisualEffectDefinition): VisualEffectJson {
       if (p.optional !== undefined) out.optional = p.optional;
       return out;
     }),
+  };
+}
+
+function serializeComponent(c: ComponentDefinition): ComponentJson {
+  return {
+    id:          c.id,
+    displayName: c.displayName,
+    description: c.description,
+    roles: c.roles.map(r => ({
+      id:       r.id,
+      label:    r.label,
+      accepts:  [...r.accepts],
+      optional: r.optional ?? false,
+    })),
   };
 }
 
@@ -376,6 +409,7 @@ export function buildPayload(version: string, generatedAt?: string): ProtocolJso
   const actions             = allActions().slice();
   const fieldTypes          = allFieldTypes();
   const visualEffects       = allVisualEffects().map(serializeVisualEffect);
+  const components          = allComponents().map(serializeComponent);
   const slotAcceptKinds     = buildSlotKinds(behaviors);
   const compatibilityMatrix = buildCompatibilityMatrix(recipes, actions);
   const connections         = buildConnections(fieldTypes, behaviors, slotAcceptKinds, recipes, actions, compatibilityMatrix);
@@ -394,6 +428,7 @@ export function buildPayload(version: string, generatedAt?: string): ProtocolJso
     slotAcceptKinds,
     fieldTypes: fieldTypes.map(serializeFieldType),
     visualEffects,
+    components,
     compatibilityMatrix,
     connections,
   };
@@ -510,6 +545,7 @@ function main(): void {
   console.log(`  slotAcceptKinds: ${finalPayload.slotAcceptKinds.length}`);
   console.log(`  fieldTypes:      ${finalPayload.fieldTypes.length}`);
   console.log(`  visualEffects:   ${finalPayload.visualEffects.length}`);
+  console.log(`  components:       ${finalPayload.components.length}`);
   console.log(`  connections:     ${finalPayload.connections.nodes.length} nodes, ${finalPayload.connections.edges.length} edges`);
   if (finalVersion !== currentVersion) {
     console.log(`✓ package.json#version actualizado: ${currentVersion} → ${finalVersion}`);

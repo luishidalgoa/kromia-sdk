@@ -38,6 +38,11 @@ const EXPECTED_EXPORTS = [
   'getRecipeManifest',
   'allRecipes',
   'allRecipesByKind',
+  // Componentes prefabricados — KRO-133 Capa 2
+  'COMPONENT_REGISTRY',
+  'allComponents',
+  'getComponentDef',
+  'COMPONENT_IDS',
   // Slot kinds
   'SLOT_ACCEPT_KIND_META',
   'getSlotAcceptKindOptions',

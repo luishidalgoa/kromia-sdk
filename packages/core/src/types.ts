@@ -423,8 +423,29 @@ export interface LayoutContainerNode {
   surface?: ContainerSurface;
 }
 
-/** Un nodo del árbol = contenedor o slot-hoja. */
-export type LayoutNode = LayoutContainerNode | LayoutSlotNode;
+/**
+ * KRO-133 Capa 2 — Hoja "componente prefabricado": un bloque COMPUESTO
+ * reutilizable (carta, galería de cartas, avatar…) que el motor pinta como UNA
+ * unidad, en vez de que el publisher recomponga slots a mano. Resuelve el hueco
+ * de que el motor de bloques no podía reproducir lo que las recetas hardcodean.
+ *
+ * `component` = id del catálogo (`COMPONENT_REGISTRY`); `slots` mapea cada ROL
+ * del componente (p.ej. media/title/caption) a un slot de la composición — sus
+ * fields viven en `ViewComposition.slots[slotId]` como cualquier otro slot.
+ * Espejo Flutter pendiente (KRO-83).
+ */
+export interface LayoutComponentNode {
+  type: 'component';
+  /** Id del componente en `COMPONENT_REGISTRY` (p.ej. 'card', 'ref_gallery'). */
+  component: string;
+  /** Mapa rol → slotId de la composición. */
+  slots?: Record<string, string>;
+  /** Colocación de este componente dentro del grid padre (celda + span). */
+  place?: GridPlacement;
+}
+
+/** Un nodo del árbol = contenedor, slot-hoja o componente prefabricado. */
+export type LayoutNode = LayoutContainerNode | LayoutSlotNode | LayoutComponentNode;
 
 /**
  * KRO-122 — Foil IMPORTABLE por el creador. Un efecto holográfico custom no es

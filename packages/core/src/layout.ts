@@ -24,6 +24,7 @@ import type {
   ViewComposition,
 } from './types';
 import { getRecipeManifest } from './registries/recipes';
+import { getComponentDef } from './registries/components';
 
 // ── Catálogos cerrados (los consume el editor; el validador valida contra ellos) ──
 
@@ -152,6 +153,35 @@ export function validateLayout(
       seenSlots.add(node.slot);
       if (node.grow !== undefined && (!Number.isFinite(node.grow) || node.grow < 0)) {
         issues.push({ level: 'error', path, message: '`grow` debe ser un número ≥ 0.' });
+      }
+      return;
+    }
+
+    // Componente prefabricado (KRO-133 Capa 2): id del catálogo + roles mapeados
+    // a slots existentes (sin repetir un slot en el árbol).
+    if (node.type === 'component') {
+      const def = getComponentDef(node.component);
+      if (!def) {
+        issues.push({ level: 'error', path, message: `Componente desconocido: "${node.component}".` });
+        return;
+      }
+      const mapped = node.slots ?? {};
+      for (const role of def.roles) {
+        if (!role.optional && !mapped[role.id]) {
+          issues.push({ level: 'warn', path, message: `El componente "${def.displayName}" espera el rol "${role.label}".` });
+        }
+      }
+      for (const [roleId, slotId] of Object.entries(mapped)) {
+        if (!def.roles.some(r => r.id === roleId)) {
+          issues.push({ level: 'warn', path, message: `Rol "${roleId}" no existe en el componente "${def.displayName}".` });
+        }
+        if (!slotKeys.has(slotId)) {
+          issues.push({ level: 'error', path, message: `El slot "${slotId}" (rol "${roleId}") no está declarado en la composición.` });
+        }
+        if (seenSlots.has(slotId)) {
+          issues.push({ level: 'error', path, message: `El slot "${slotId}" aparece más de una vez en el layout.` });
+        }
+        seenSlots.add(slotId);
       }
       return;
     }
@@ -297,13 +327,15 @@ export function migrateSlotsToGrid(
 
 /** Profundidad máxima del árbol (raíz = 1). */
 export function layoutDepth(node: LayoutNode): number {
-  if (node.type === 'slot') return 1;
+  if (node.type === 'slot' || node.type === 'component') return 1;
   if (!node.children?.length) return 1;
   return 1 + Math.max(...node.children.map(layoutDepth));
 }
 
-/** Nombres de todos los slots referenciados por el árbol (en orden de aparición). */
+/** Nombres de todos los slots referenciados por el árbol (en orden de aparición).
+ *  Un componente referencia los slots mapeados a sus roles. */
 export function collectLayoutSlots(node: LayoutNode): string[] {
   if (node.type === 'slot') return [node.slot];
+  if (node.type === 'component') return Object.values(node.slots ?? {});
   return (node.children ?? []).flatMap(collectLayoutSlots);
 }

@@ -55,6 +55,7 @@ export type {
   LayoutGap,
   LayoutSlotNode,
   LayoutContainerNode,
+  LayoutComponentNode,
   LayoutNode,
   GridPlacement,
   ContainerSurface,
@@ -101,6 +102,16 @@ export {
   type RecipeManifest,
   type SlotDefinition,
 } from './registries/recipes';
+
+// ── Componentes prefabricados (KRO-133 Capa 2) ─────────────────────────
+export {
+  COMPONENT_REGISTRY,
+  allComponents,
+  getComponentDef,
+  COMPONENT_IDS,
+  type ComponentDefinition,
+  type ComponentRole,
+} from './registries/components';
 
 // ── Slot kinds (meta + appearance props) ───────────────────────────────
 export {

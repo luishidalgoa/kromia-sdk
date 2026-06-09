@@ -29,7 +29,7 @@ import {
 } from '../recipe-utils';
 import {
   migrateSlotsToLayout, paletteClass, resolveFieldColor, gridColumnsTemplate, gridRowsTemplate,
-  type LayoutNode, type LayoutContainerNode, type LayoutGap, type LayoutAlign,
+  type LayoutNode, type LayoutContainerNode, type LayoutComponentNode, type LayoutGap, type LayoutAlign,
   type LayoutJustify, type GridPlacement, type ContainerSurface, type SurfaceBorder, type ViewComposition,
   type CardFormat,
 } from '@kromia/core';
@@ -344,9 +344,46 @@ function SlotLeaf({ slot, ctx }: { slot: string; ctx: NodeCtx }) {
   return <SlotContent slot={slot} composition={ctx.composition} item={ctx.item} fieldDefs={ctx.fieldDefs} cardFormat={ctx.cardFormat} />;
 }
 
+/**
+ * Render de un COMPONENTE prefabricado (KRO-133 Capa 2). Lee los slots mapeados
+ * a cada rol (`node.slots[role]`) y los compone como una unidad. Reutiliza
+ * `SlotContent` por rol → appearance/imagen/refs siguen funcionando. Componente
+ * desconocido (versión futura del contrato) → null, no rompe. Espejo Flutter
+ * pendiente (KRO-83).
+ */
+function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: NodeCtx }) {
+  const roleSlot = (role: string) => {
+    const sid = node.slots?.[role];
+    if (!sid) return null;
+    return <SlotContent slot={sid} composition={ctx.composition} item={ctx.item} fieldDefs={ctx.fieldDefs} cardFormat={ctx.cardFormat} />;
+  };
+
+  switch (node.component) {
+    case 'card':
+      // Carta compuesta: media full-bleed arriba + título/pie/badge en un cuerpo
+      // con padding. La unidad visual de un cromo como bloque reutilizable.
+      return (
+        <div className="rounded-lg overflow-hidden border border-border bg-card shadow-sm">
+          {roleSlot('media')}
+          <div className="p-2 space-y-1">
+            {roleSlot('title')}
+            {roleSlot('caption')}
+            {roleSlot('badge')}
+          </div>
+        </div>
+      );
+    case 'ref_gallery':
+      // Galería de cartas referenciadas — el render del slot card-ref (Capa 1).
+      return roleSlot('refs');
+    default:
+      return null;
+  }
+}
+
 /** Render recursivo de un nodo del árbol. */
 function LayoutNodeView({ node, ctx }: { node: LayoutNode; ctx: NodeCtx }) {
   if (node.type === 'slot') return <SlotLeaf slot={node.slot} ctx={ctx} />;
+  if (node.type === 'component') return <ComponentNodeView node={node} ctx={ctx} />;
 
   const isStack = node.kind === 'stack';
   const isGrid  = node.kind === 'grid';
