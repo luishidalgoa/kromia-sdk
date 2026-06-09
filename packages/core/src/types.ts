@@ -344,6 +344,7 @@ export interface GridPlacement {
   /** KRO-133 — ALTO del nodo absoluto en % del contenedor (1-100). Sin valor =
    *  auto (se ajusta al contenido). */
   h?: number;
+}
 
 /**
  * KRO-133 F3 — Color de un token de la paleta (cerrado, sin hex libre → portable
