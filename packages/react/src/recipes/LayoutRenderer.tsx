@@ -444,8 +444,8 @@ function LayoutNodeView({ node, ctx }: { node: LayoutNode; ctx: NodeCtx }) {
           return (
             <div
               key={i}
-              className="absolute z-20 min-w-0"
-              style={{ left: `${child.place.x ?? 0}%`, top: `${child.place.y ?? 0}%` }}
+              className="min-w-0"
+              style={{ position: 'absolute', left: `${child.place.x ?? 0}%`, top: `${child.place.y ?? 0}%`, zIndex: 20 }}
             >
               <LayoutNodeView node={child} ctx={ctx} />
             </div>
