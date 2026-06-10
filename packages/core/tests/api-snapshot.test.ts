@@ -61,6 +61,8 @@ const EXPECTED_EXPORTS = [
   // Synth (AppPreview) — KRO-72
   'synthSectionItems',
   'synthFieldValue',
+  'MOCKUP_IMAGE',
+  'isMockupImage',
   // Presentation helpers — KRO-73 (B+)
   'formatScalar',
   'buildAutoDetailComposition',
