@@ -187,6 +187,7 @@ export const OPTIONS_APPEARANCE_LABELS: Record<AppearanceProp, string> = {
   truncateChars:  'Caracteres',
   accentPosition: 'Tinte',
   refColumns:     'Columnas',
+  refSize:        'Tamaño',
   refTap:         'Al tocar',
   paddingY:       'Padding',
 };
@@ -204,6 +205,7 @@ export const OPTIONS_APPEARANCE_DESCRIPTIONS: Record<AppearanceProp, string> = {
   truncateChars:  'Cortar por número de caracteres (slice JS). Predecible, independiente del ancho.',
   accentPosition: 'Posición de la línea de color que rodea la tarjeta. "Auto" usa la posición default por receta; "∅" desactiva la línea.',
   refColumns:     'Columnas de la rejilla de mini-cartas. Sin valor = automático según el formato de carta del álbum.',
+  refSize:        'Tamaño de cada mini-carta: % del ancho disponible (ajuste fino numérico). En rejilla, 100 = llena su columna.',
   refTap:         'Qué pasa al tocar una mini-carta: nada, o abrirla en modo focus (overlay protagonista).',
   paddingY:       'Padding vertical del wrapper del slot — separación con vecinos.',
 };

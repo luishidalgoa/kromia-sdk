@@ -178,6 +178,11 @@ export interface SlotAppearance {
   /** KRO-133 — qué pasa al TOCAR una mini-carta: 'focus' abre la carta real
    *  en modo focus (overlay protagonista); 'none' (default) no es interactiva. */
   refTap?:     'none' | 'focus';
+  /** KRO-133 — tamaño NUMÉRICO de cada mini-carta: % del ancho disponible
+   *  (10..100). En rejilla = ancho dentro de su columna (100 = llena la
+   *  celda); en carrusel = % del ancho del contenedor por carta. Sin valor =
+   *  default del modo (100 en rejilla, ~35 en carrusel). */
+  refSize?:    number;
 
   // ── Común (image, text, badge, card-ref) ──────────────────────────
   /** Tamaño relativo — el manifest define el default; aquí ajustas. */

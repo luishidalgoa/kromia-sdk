@@ -92,9 +92,6 @@ export function RefGallery({ refs, seed, cardFormat, nestedComposition, fieldDef
 const REF_SHAPE_CLASSES: Record<NonNullable<SlotAppearance['shape']>, string> = {
   circle: 'rounded-full', square: 'rounded-none', rounded: 'rounded-lg',
 };
-const REF_SIZE_MULT: Record<NonNullable<SlotAppearance['size']>, number> = {
-  sm: 0.7, md: 1, lg: 1.4, xl: 1.8,
-};
 
 export function MiniCardRefs({
   refs, seed, cardFormat, layout = 'grid', resolveRef, appearance, onRefTap,
@@ -108,9 +105,12 @@ export function MiniCardRefs({
   onRefTap?:  (ref: string | number) => void;
 }) {
   // KRO-133 — apariencia REAL del card-ref: forma de las esquinas, columnas
-  // de la rejilla (override del automático por cardFormat) y tamaño (carrusel).
+  // de la rejilla (override del automático por cardFormat) y tamaño NUMÉRICO
+  // (% del ancho disponible — ajuste fino, no enum).
   const shapeClass = REF_SHAPE_CLASSES[appearance?.shape ?? 'rounded'];
-  const sizeMult   = REF_SIZE_MULT[appearance?.size ?? 'md'];
+  const refSize    = typeof appearance?.refSize === 'number'
+    ? Math.min(100, Math.max(10, appearance.refSize))
+    : undefined;
   const hue = simpleHash(seed) % 360;
   // Gradient sutil — la card es la imagen full-bleed, no un fondo plano.
   const gradStart   = `hsl(${hue}, 45%, 88%)`;
@@ -157,7 +157,7 @@ export function MiniCardRefs({
               {...(onRefTap ? { type: 'button' as const, onClick: () => onRefTap(ref), title: 'Ver carta' } : {})}
               className={cn('shrink-0 snap-start overflow-hidden relative text-left', shapeClass, onRefTap && 'cursor-pointer hover:ring-2 hover:ring-primary/40 transition-all')}
               style={{
-                width: `${6 * sizeMult}rem`,
+                width: `${refSize ?? 35}%`,
                 aspectRatio: ratio,
                 background: face.bg,
                 boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
@@ -210,6 +210,9 @@ export function MiniCardRefs({
             style={{
               aspectRatio: ratio,
               background: face.bg,
+              // refSize: ancho de la carta DENTRO de su columna (100 = llena
+              // la celda) — el ajuste fino que el enum no permitía.
+              ...(refSize != null && refSize < 100 ? { width: `${refSize}%`, justifySelf: 'center' } : {}),
               boxShadow: highlighted
                 ? `0 0 0 1.5px ${tintHilight}, 0 4px 8px rgba(0,0,0,0.10)`
                 : '0 1px 3px rgba(0,0,0,0.06)',

@@ -202,6 +202,7 @@ export type AppearanceProp =
   | 'accentPosition'
   | 'refColumns'
   | 'refTap'
+  | 'refSize'
   | 'paddingY';
 
 const APPEARANCE_PROPS_BY_KIND: Record<SlotAcceptKind, ReadonlyArray<AppearanceProp>> = {
@@ -222,7 +223,7 @@ const APPEARANCE_PROPS_BY_KIND: Record<SlotAcceptKind, ReadonlyArray<AppearanceP
   // KRO-133 follow-up — props REALES de las mini-cartas de referencias: forma
   // de la carta, tamaño, columnas de la rejilla y acción al tocar. (paddingY
   // y badge/colores no aplicaban a este render → fuera.)
-  'card-ref':     ['shape', 'size', 'refColumns', 'refTap'],
+  'card-ref':     ['shape', 'refSize', 'refColumns', 'refTap'],
   'any':          ['shape', 'aspect', 'imageFocus', 'align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
 };
 
@@ -235,7 +236,7 @@ export function getAvailableAppearanceProps(
   accepts: ReadonlyArray<SlotAcceptKind>,
 ): AppearanceProp[] {
   if (accepts.length === 0) return [];
-  const order: AppearanceProp[] = ['shape', 'aspect', 'imageFocus', 'align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'accentPosition', 'refColumns', 'refTap', 'paddingY'];
+  const order: AppearanceProp[] = ['shape', 'aspect', 'imageFocus', 'align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'accentPosition', 'refSize', 'refColumns', 'refTap', 'paddingY'];
   const union = new Set<AppearanceProp>();
   for (const kind of accepts) {
     for (const prop of APPEARANCE_PROPS_BY_KIND[kind]) {

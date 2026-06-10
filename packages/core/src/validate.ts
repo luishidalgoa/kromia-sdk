@@ -112,6 +112,9 @@ function validateAppearance(
   if (appearance.refColumns !== undefined && !REF_COLS_IDS.has(appearance.refColumns)) {
     issues.push({ path: `${path}.refColumns`, level: 'error', message: `refColumns "${appearance.refColumns}" no es válido` });
   }
+  if (appearance.refSize !== undefined && (typeof appearance.refSize !== 'number' || appearance.refSize < 10 || appearance.refSize > 100)) {
+    issues.push({ path: `${path}.refSize`, level: 'error', message: `refSize debe ser un número entre 10 y 100` });
+  }
   if (appearance.refTap !== undefined && !REF_TAP_IDS.has(appearance.refTap)) {
     issues.push({ path: `${path}.refTap`, level: 'error', message: `refTap "${appearance.refTap}" no es válido` });
   }
