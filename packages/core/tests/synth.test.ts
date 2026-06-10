@@ -85,46 +85,46 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
     expect(items).toMatchInlineSnapshot(`
       [
         {
-          "avatar": "https://picsum.photos/seed/kromia-4/400/300",
+          "avatar": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
           "color": "#42d7be",
           "edad": 96,
           "galeria": [
-            "https://picsum.photos/seed/kromia-0/400/300",
-            "https://picsum.photos/seed/kromia-1/400/300",
-            "https://picsum.photos/seed/kromia-2/400/300",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
           ],
-          "nombre": "Andrés López",
-          "pais": "Francia",
+          "nombre": "XXXXXXX XXXXX",
+          "pais": "Xxxxxxx",
           "rating": 4,
-          "website": "https://kromia.app",
+          "website": "https://example.com/xxxx",
         },
         {
-          "avatar": "https://picsum.photos/seed/kromia-76/400/300",
+          "avatar": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
           "color": "#7d42d7",
           "edad": 20,
           "galeria": [
-            "https://picsum.photos/seed/kromia-44/400/300",
-            "https://picsum.photos/seed/kromia-45/400/300",
-            "https://picsum.photos/seed/kromia-46/400/300",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
           ],
-          "nombre": "Elena Pérez",
-          "pais": "España",
+          "nombre": "XXXXX XXXXXXXX",
+          "pais": "Xxxxxx",
           "rating": 5,
-          "website": "https://example.com/page",
+          "website": "https://example.com/yyyy",
         },
         {
-          "avatar": "https://picsum.photos/seed/kromia-16/400/300",
+          "avatar": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
           "color": "#d7b442",
           "edad": 32,
           "galeria": [
-            "https://picsum.photos/seed/kromia-56/400/300",
-            "https://picsum.photos/seed/kromia-57/400/300",
-            "https://picsum.photos/seed/kromia-58/400/300",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
           ],
-          "nombre": "Carmen Romero",
-          "pais": "España",
+          "nombre": "XXX XXXXXXXXX",
+          "pais": "Xxxxxx",
           "rating": 4,
-          "website": "https://kromia.app",
+          "website": "https://example.com/xxxx",
         },
       ]
     `);
@@ -136,32 +136,32 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
       [
         {
           "fotos": [
-            "https://picsum.photos/seed/kromia-56/400/300",
-            "https://picsum.photos/seed/kromia-57/400/300",
-            "https://picsum.photos/seed/kromia-58/400/300",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
           ],
-          "subtitle": "Sofía Hidalgo",
-          "title": "Lucía García",
+          "subtitle": "XXXXX XXXXXXX",
+          "title": "XXXX XXXXXXX",
           "year": 2013,
         },
         {
           "fotos": [
-            "https://picsum.photos/seed/kromia-36/400/300",
-            "https://picsum.photos/seed/kromia-37/400/300",
-            "https://picsum.photos/seed/kromia-38/400/300",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
           ],
-          "subtitle": "Elena Pérez",
-          "title": "Sofía Romero",
+          "subtitle": "XXXXX XXXXXXXX",
+          "title": "XXXXX XXXXXXXXX",
           "year": 2014,
         },
         {
           "fotos": [
-            "https://picsum.photos/seed/kromia-16/400/300",
-            "https://picsum.photos/seed/kromia-17/400/300",
-            "https://picsum.photos/seed/kromia-18/400/300",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
           ],
-          "subtitle": "Elena Castro",
-          "title": "Lucía Pérez",
+          "subtitle": "XXXXX XXXXXX",
+          "title": "XXXX XXXXXXXX",
           "year": 1985,
         },
       ]
@@ -173,40 +173,40 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
     expect(items).toMatchInlineSnapshot(`
       [
         {
-          "cover": "https://picsum.photos/seed/kromia-27/400/300",
-          "cuerpo": "Era una noche oscura y tormentosa. El viento azotaba las ventanas mientras escribíamos esta crónica.",
+          "cover": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+          "cuerpo": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint.",
           "fecha": "2024-01-04",
           "precio": 24,
           "tags": [
-            "Cádiz",
-            "Barcelona",
-            "Cádiz",
+            "Xxxx",
+            "Xxxxxxxxx",
+            "Xxxx",
           ],
-          "titulo": "Andrés Romero",
+          "titulo": "XXXXXXX XXXXXXXXX",
         },
         {
-          "cover": "https://picsum.photos/seed/kromia-98/400/300",
-          "cuerpo": "En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo de los de lanza en astillero.",
+          "cover": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+          "cuerpo": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat aute irure.",
           "fecha": "2024-02-11",
           "precio": 76,
           "tags": [
-            "Cádiz",
-            "Barcelona",
-            "Cádiz",
+            "Xxxx",
+            "Xxxxxxxxx",
+            "Xxxx",
           ],
-          "titulo": "Carmen Hidalgo",
+          "titulo": "XXX XXXXXXX",
         },
         {
-          "cover": "https://picsum.photos/seed/kromia-2/400/300",
-          "cuerpo": "Era una noche oscura y tormentosa. El viento azotaba las ventanas mientras escribíamos esta crónica.",
+          "cover": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+          "cuerpo": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint.",
           "fecha": "2024-03-18",
           "precio": 56,
           "tags": [
-            "Cádiz",
-            "Sevilla",
-            "Cádiz",
+            "Xxxx",
+            "Xxxxxxx",
+            "Xxxx",
           ],
-          "titulo": "Andrés Ortiz",
+          "titulo": "XXXXXXX XXXXXXX",
         },
       ]
     `);
@@ -279,19 +279,19 @@ describe('synthSectionItems — formato por behavior', () => {
     });
   });
 
-  it('gallery: array de URLs picsum', () => {
+  it('gallery: array de placeholders SVG (data-URI)', () => {
     expect(Array.isArray(item.gallery)).toBe(true);
     (item.gallery as unknown[]).forEach(g => {
-      expect(g as string).toMatch(/^https:\/\/picsum\.photos\/seed\/kromia-\d+/);
+      expect(g as string).toMatch(/^data:image\/svg\+xml,/);
     });
   });
 
-  it('avatar: URL picsum 200x200', () => {
-    expect(item.avatar as string).toMatch(/^https:\/\/picsum\.photos\/seed\/kromia-\d+\/200\/200$/);
+  it('avatar: placeholder SVG 200x200', () => {
+    expect(item.avatar as string).toMatch(/^data:image\/svg\+xml,.*width%3D%22200%22%20height%3D%22200%22/);
   });
 
-  it('banner: URL picsum 600x200', () => {
-    expect(item.banner as string).toMatch(/^https:\/\/picsum\.photos\/seed\/kromia-\d+\/600\/200$/);
+  it('banner: placeholder SVG 600x200', () => {
+    expect(item.banner as string).toMatch(/^data:image\/svg\+xml,.*width%3D%22600%22%20height%3D%22200%22/);
   });
 });
 
@@ -308,7 +308,7 @@ describe('synthSectionItems — heurística por nombre de key', () => {
   it('key=pais → país del corpus', () => {
     const sec = makeSection([{ key: 'pais', type: 'text' }]);
     const items = synthSectionItems('s', sec, 3);
-    const known = ['España', 'Brasil', 'Argentina', 'México', 'Francia', 'Italia', 'Alemania', 'Portugal'];
+    const known = ['Xxxxxx', 'Xxxxxxxxx', 'Xxxxxxx', 'Xxxxxxxx'];
     items.forEach(it => {
       expect(known).toContain(it.pais);
     });
@@ -337,7 +337,7 @@ describe('synthSectionItems — select con options', () => {
   it('select sin options usa BADGE_VALUES por defecto', () => {
     const sec = makeSection([{ key: 'rareza', type: 'select' }]);
     const items = synthSectionItems('s', sec, 3);
-    const badges = ['Común', 'Rara', 'Épica', 'Legendaria', 'Mítica'];
+    const badges = ['Lorem', 'Ipsum', 'Dolor', 'Amet', 'Elit'];
     items.forEach(it => {
       expect(badges).toContain(it.rareza);
     });

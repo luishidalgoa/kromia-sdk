@@ -48,33 +48,48 @@ export type SynthItem = Record<string, unknown>;
 
 // ── Corpus ─────────────────────────────────────────────────────────────
 
-const FIRST_NAMES = ['Lucía', 'Mateo', 'Sofía', 'Diego', 'Carmen', 'Javier', 'Elena', 'Pablo', 'Marta', 'Andrés'];
-const LAST_NAMES  = ['García', 'López', 'Pérez', 'Martín', 'Hidalgo', 'Sánchez', 'Romero', 'Vega', 'Castro', 'Ortiz'];
-const CITIES      = ['Sevilla', 'Madrid', 'Barcelona', 'Granada', 'Cádiz', 'Valencia', 'Málaga', 'Bilbao'];
-const COUNTRIES   = ['España', 'Brasil', 'Argentina', 'México', 'Francia', 'Italia', 'Alemania', 'Portugal'];
+// Mockup-style (petición 2026-06-10): los ejemplos del lienzo/preview NO deben
+// parecer datos reales — son maquetas. Nombres/títulos = tiras de «X» de largos
+// variados (se ve el layout sin leer contenido); frases = lorem; imágenes =
+// placeholder SVG vacío (placeholderImage). Solo el lorem queda como texto real.
+const FIRST_NAMES = ['XXXX', 'XXXXXX', 'XXXXX', 'XXXXXXX', 'XXX', 'XXXXXXXX', 'XXXXX', 'XXXXXX', 'XXXX', 'XXXXXXX'];
+const LAST_NAMES  = ['XXXXXXX', 'XXXXX', 'XXXXXXXX', 'XXXXXX', 'XXXXXXX', 'XXXX', 'XXXXXXXXX', 'XXXXX', 'XXXXXX', 'XXXXXXX'];
+const CITIES      = ['Xxxxxxx', 'Xxxxx', 'Xxxxxxxxx', 'Xxxxxx', 'Xxxx', 'Xxxxxxxx', 'Xxxxx', 'Xxxxxx'];
+const COUNTRIES   = ['Xxxxxx', 'Xxxxxx', 'Xxxxxxxxx', 'Xxxxxx', 'Xxxxxxx', 'Xxxxxx', 'Xxxxxxxx', 'Xxxxxxxx'];
 const PHRASES     = [
-  'Una noche memorable bajo la luna llena.',
-  'El compás marcaba el ritmo del corazón.',
-  'Caminamos hasta el amanecer entre cánticos.',
-  'La emoción del primer paso fue inolvidable.',
-  'Bajo el palio, el silencio se hizo respeto.',
+  'Lorem ipsum dolor sit amet consectetur.',
+  'Sed do eiusmod tempor incididunt ut.',
+  'Ut enim ad minim veniam quis nostrud.',
+  'Duis aute irure dolor in reprehenderit.',
+  'Excepteur sint occaecat cupidatat non.',
 ];
 const LONG_BODIES = [
   'Lorem ipsum dolor sit amet consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-  'En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo de los de lanza en astillero.',
-  'Era una noche oscura y tormentosa. El viento azotaba las ventanas mientras escribíamos esta crónica.',
+  'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat aute irure.',
+  'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint.',
 ];
-const BADGE_VALUES = ['Común', 'Rara', 'Épica', 'Legendaria', 'Mítica'];
-const URLS         = ['https://kromia.app', 'https://example.com/page', 'https://www.real-madrid.com'];
-const EMAILS       = ['hola@kromia.app', 'contacto@ejemplo.com', 'sofia.perez@gmail.com'];
-const PHONES       = ['+34 612 345 678', '+34 645 982 113', '+34 671 002 456'];
+const BADGE_VALUES = ['Lorem', 'Ipsum', 'Dolor', 'Amet', 'Elit'];
+const URLS         = ['https://example.com/xxxx', 'https://example.com/yyyy', 'https://example.com/zzzz'];
+const EMAILS       = ['xxxx@example.com', 'xxxxx@example.com', 'xxxxxx@example.com'];
+const PHONES       = ['+00 000 000 000', '+00 111 111 111', '+00 222 222 222'];
 
 // ── Helpers ────────────────────────────────────────────────────────────
 
-/** Placeholder image determinista por seed (Picsum). Cliente offline cae
- *  al placeholder gris del renderer. */
-function placeholderImage(seed: number, width = 400, height = 300): string {
-  return `https://picsum.photos/seed/kromia-${seed}/${width}/${height}`;
+/** Placeholder de imagen estilo WIREFRAME: SVG inline (data-URI) con fondo
+ *  neutro + aspa diagonal — la maqueta clásica de "aquí va una imagen".
+ *  Sustituye a Picsum (2026-06-10): una foto real hacía pasar el mockup por
+ *  contenido real. data-URI = determinista, offline y sin red. El `seed` se
+ *  conserva en la firma por compat (mismo contrato cross-language) aunque el
+ *  dibujo no varía. */
+function placeholderImage(_seed: number, width = 400, height = 300): string {
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`
+    + `<rect width="${width}" height="${height}" fill="#ece8df"/>`
+    + `<rect x="1.5" y="1.5" width="${width - 3}" height="${height - 3}" fill="none" stroke="#cfc9bb" stroke-width="3"/>`
+    + `<line x1="0" y1="0" x2="${width}" y2="${height}" stroke="#cfc9bb" stroke-width="3"/>`
+    + `<line x1="${width}" y1="0" x2="0" y2="${height}" stroke="#cfc9bb" stroke-width="3"/>`
+    + `</svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
 /** Hash FNV-1a 32-bit. Determinista por string. No criptográfico — solo
