@@ -158,6 +158,9 @@ const EXPECTED_EXPORTS = [
   'normalizeComposition',
   'RECIPE_ALIASES',
   'COMPONENT_ALIASES',
+  // KRO-189 — iconos de sección (catálogo + heurística)
+  'SECTION_ICONS',
+  'suggestSectionIcon',
   'gridCols',
   'gridRows',
   'cellCovered',
