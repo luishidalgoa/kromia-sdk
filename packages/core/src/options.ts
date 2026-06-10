@@ -128,8 +128,8 @@ export const OPTIONS_APPEARANCE_TEXT_TRANSFORM: ReadonlyArray<CatalogOption> = [
 /** Familia tipográfica del texto (KRO-162). `serif` = editorial/literario
  *  (la que usa la receta Editorial); `sans` = la UI por defecto. */
 export const OPTIONS_APPEARANCE_FONT: ReadonlyArray<CatalogOption> = [
-  { id: 'sans',  label: 'Aa',  tooltip: 'Sans (la tipografía de la app)' },
-  { id: 'serif', label: 'Aa',  tooltip: 'Serif (editorial, con remates)' },
+  { id: 'sans',  label: 'Sans',  tooltip: 'Sans (la tipografía de la app)' },
+  { id: 'serif', label: 'Serif', tooltip: 'Serif (editorial, con remates)' },
 ];
 
 /** Tamaño relativo al default del manifest. */
