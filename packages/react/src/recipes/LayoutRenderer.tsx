@@ -259,6 +259,15 @@ function isRefField(def: FieldDefLike | undefined): boolean {
   return classifyField({ type: def.type, behavior: (def as { behavior?: string }).behavior }).includes('card-ref');
 }
 
+/** ¿El field es TEXTO LARGO (textarea / markdown / notes / html)? Decide los
+ *  defaults de párrafo: sin truncate a 1 línea y respetando saltos de línea.
+ *  KRO-158 — un body maquetado con párrafos se colapsaba a una sola línea en
+ *  el modo bloques (truncate default + whitespace colapsado). */
+function isLongTextField(def: FieldDefLike | undefined): boolean {
+  if (!def) return false;
+  return classifyField({ type: def.type, behavior: (def as { behavior?: string }).behavior }).includes('text-long');
+}
+
 export interface SlotContentProps {
   slot:        string;
   composition: { slots: ViewComposition['slots']; slotOverrides?: ViewComposition['slotOverrides'] };
@@ -342,11 +351,17 @@ export function SlotContent({ slot, composition, item, fieldDefs, cardFormat, re
     );
   }
 
+  // KRO-158 — texto LARGO (textarea/markdown/notes/html): default SIN truncate
+  // (el texto completo es el contrato de un body) y conservando los saltos de
+  // línea del textarea plano (markdown ya gestiona párrafos via MarkdownText).
+  // El publisher puede seguir truncando explícitamente con appearance.truncate.
+  const longText = isLongTextField(first?.def);
   return (
     <div
       className={cn(
         'min-w-0',
-        !resolved.appearance?.truncate && 'truncate',
+        !resolved.appearance?.truncate && !longText && 'truncate',
+        longText && first?.def?.behavior !== 'markdown' && 'whitespace-pre-wrap',
         appearancePaddingClass(resolved.appearance),
         appearanceTextClasses(resolved.appearance),
         appearanceTruncateClass(resolved.appearance),
