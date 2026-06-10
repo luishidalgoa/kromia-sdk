@@ -62,7 +62,10 @@ export function EditorialRecipe({
     <AccentFrame accent={accent} width={4}>
     <article
       className={cn(
-        'rounded-xl border border-border bg-card overflow-hidden',
+        // KRO-133 — sin `border` ni `rounded`: la receta DETAIL es pantalla
+        // completa (el marco lo pone el PhoneFrame); el borde gris y las
+        // esquinas inferiores delataban una "tarjeta" que no existe.
+        'bg-card overflow-hidden',
         className,
       )}
     >

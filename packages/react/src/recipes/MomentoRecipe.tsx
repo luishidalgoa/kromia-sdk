@@ -67,9 +67,10 @@ export function MomentoRecipe({
     <AccentFrame accent={accent} width={4}>
     <div
       className={cn(
-        // KRO-133 — sin `border border-border`: el borde gris no gustaba y el
-        // AccentFrame ya enmarca con el acento. Se mantiene radio + fondo.
-        'rounded-xl bg-card overflow-hidden',
+        // KRO-133 — sin `border` ni `rounded`: la receta DETAIL es pantalla
+        // completa (el marco lo pone el PhoneFrame); el AccentFrame ya enmarca
+        // con el acento y las esquinas inferiores delataban una "tarjeta".
+        'bg-card overflow-hidden',
         className,
       )}
     >
