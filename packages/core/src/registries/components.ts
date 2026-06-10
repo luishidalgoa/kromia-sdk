@@ -158,6 +158,18 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
     ],
   },
 
+  // Separador decorativo: línea fina corta y centrada (el "hr" que las recetas
+  // de detalle pintan entre bloques, p.ej. bajo la fecha de "Momento"). Sin
+  // roles — es puramente visual. Para separadores a TODO el ancho, usa el borde
+  // superior de un contenedor (Decoración → Borde → lado top).
+  divider: {
+    id:          'divider',
+    displayName: 'Separador',
+    description: 'Línea fina corta y centrada para separar bloques (el "hr" de las recetas de detalle). Decorativo, sin contenido.',
+    category:    'basic',
+    roles: [],
+  },
+
   // Fila de estadísticas: cada campo del slot se pinta como VALOR grande +
   // su etiqueta debajo (números tabulares, label en mayúsculas), separados por
   // un borde. Recrea FIEL el bloque "stats" de las recetas de detalle (Hero/

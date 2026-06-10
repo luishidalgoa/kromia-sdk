@@ -45,30 +45,52 @@ const stack = (ids: string[], has: (id: string) => boolean, extra: Partial<Layou
 
 /**
  * TARJETA de detalle (KRO-133 fidelidad). Reproduce la estructura de las recetas
- * de detalle tipo "card" (Editorial/Momento/Ficha/Perfil): un contenedor TARJETA
- * (`rounded-xl bg-card`) con un cover FULL-BLEED opcional arriba + el contenido en
- * un contenedor anidado con PADDING. Algunos slots se pintan como COMPONENTE fiel
- * (`componentAs` mapea slotId → { component, role }: galería, stats, carrusel).
+ * de detalle tipo "card" (Editorial/Momento/Ficha/Perfil): un contenedor con
+ * fondo card + un cover FULL-BLEED opcional arriba + el contenido en un
+ * contenedor anidado con PADDING (`p-5` = el `px-5 py-5` de las recetas).
+ * Algunos slots se pintan como COMPONENTE fiel (`componentAs` mapea
+ * slotId → { component, role }: galería, stats, carrusel).
  *
- * El cover va `shape: square` (rounded-none) → pegado al borde de la tarjeta. Si no
- * hay cover, la propia tarjeta lleva el padding (avatar/fecha-first).
+ * SIN radius: el detalle es pantalla completa — las esquinas redondeadas tapaban
+ * la raya de acento del AccentFrame y añadían un redondeo que la pantalla real
+ * no muestra (el rounded-xl de la receta queda fuera del viewport del frame).
+ *
+ * Fidelidad extra:
+ *  · `dividerAfter`  → inserta el componente `divider` (rayita corta centrada)
+ *    tras ese slot — el "hr" bajo la fecha de Momento.
+ *  · `borderTopOn`   → envuelve ese slot en un contenedor con borde superior —
+ *    el divisor a todo el ancho sobre el cuerpo de Editorial (`border-t`).
  */
 const detailCard = (
   coverId: string | null,
   contentIds: string[],
   has: (id: string) => boolean,
   componentAs: Record<string, { component: string; role: string }> = {},
-  opts: { centered?: boolean } = {},
+  opts: { centered?: boolean; gap?: LayoutContainerNode['gap']; dividerAfter?: string; borderTopOn?: string } = {},
 ): LayoutContainerNode => {
   const content: LayoutNode[] = []; let cr = 1;
   for (const id of contentIds) {
     if (!has(id)) continue;
     const place: GridPlacement = { colStart: 1, rowStart: cr++ };
     const c = componentAs[id];
-    content.push(c ? { type: 'component', component: c.component, slots: { [c.role]: id }, place } : leaf(id, place));
+    let node: LayoutNode = c
+      ? { type: 'component', component: c.component, slots: { [c.role]: id }, place }
+      : leaf(id, place);
+    if (opts.borderTopOn === id) {
+      // Divisor a todo el ancho sobre el slot (el `border-t` del body de Editorial).
+      node = {
+        ...grid(1, 1, [{ ...node, place: { colStart: 1, rowStart: 1 } }],
+          { gap: 'none', surface: { border: { width: 'thin', sides: ['top'] } } }),
+        place,
+      };
+    }
+    content.push(node);
+    if (opts.dividerAfter === id) {
+      content.push({ type: 'component', component: 'divider', slots: {}, place: { colStart: 1, rowStart: cr++ } });
+    }
   }
   const padded = grid(1, Math.max(1, cr - 1), content, {
-    gap: 'sm', ...(opts.centered ? { align: 'center' as const } : {}), surface: { padding: 'lg' },
+    gap: opts.gap ?? 'sm', ...(opts.centered ? { align: 'center' as const } : {}), surface: { padding: 'lg' },
   });
   if (coverId && has(coverId)) {
     // Tarjeta: cover full-bleed (rounded-none) + contenido con padding.
@@ -76,10 +98,10 @@ const detailCard = (
       leaf(coverId, { colStart: 1, rowStart: 1 }),
       { ...padded, place: { colStart: 1, rowStart: 2 } },
     ];
-    return grid(1, 2, outer, { gap: 'none', surface: { background: 'card', radius: 'xl' } });
+    return grid(1, 2, outer, { gap: 'none', surface: { background: 'card' } });
   }
   // Sin cover → la propia tarjeta lleva el padding.
-  return { ...padded, surface: { padding: 'lg', background: 'card', radius: 'xl' } };
+  return { ...padded, surface: { padding: 'lg', background: 'card' } };
 };
 
 /** Fila "media": [media | (título/subtítulo apilados) | accesorio], con anchos
@@ -233,31 +255,34 @@ const RECIPE_PRESETS: Partial<Record<RecipeId, RecipePreset>> = {
     appearance: {
       banner: { aspect: '16:9' }, avatar: { shape: 'circle' },
       title: { weight: 'bold', size: 'xl', align: 'center' }, subtitle: { size: 'md', textColor: 'muted', align: 'center' },
-      body: { size: 'md' },
+      body: { size: 'md', truncate: 'none' },
     },
   },
   editorial: {
-    // KRO-133 fidelidad — TARJETA con cover full-bleed + contenido con padding,
-    // igual que `EditorialRecipe`. Título SERIF, meta MAYÚSCULAS, galería grid.
+    // KRO-133 fidelidad — TARJETA con cover full-bleed + contenido p-5 gap-3
+    // (= `px-5 py-5 space-y-3` de la receta). Título SERIF, meta MAYÚSCULAS,
+    // body con DIVISOR superior (`border-t`) y SIN truncar, galería grid.
     build: (has) => detailCard('cover', ['title', 'meta', 'body', 'gallery'], has, {
       gallery: { component: 'gallery_grid', role: 'images' },
-    }),
+    }, { gap: 'md', borderTopOn: 'body' }),
     appearance: {
       cover: { aspect: '16:9', shape: 'square' },   // rounded-none → flush en la tarjeta
       title: { weight: 'bold', size: 'xl', font: 'serif' },
       meta:  { size: 'sm', textColor: 'muted', textTransform: 'uppercase' },
-      body:  { size: 'md' },
+      body:  { size: 'md', truncate: 'none' },
     },
   },
   momento: {
     // KRO-133 fidelidad — TARJETA centrada con padding (como `MomentoRecipe`).
-    // Fecha prominente (NO uppercase), slideshow como carrusel centrado.
+    // Fecha prominente (NO uppercase) + SEPARADOR corto bajo la fecha (el "hr"
+    // de la receta), body sin truncar, slideshow como carrusel centrado.
     build: (has) => detailCard(null, ['date', 'title', 'subtitle', 'body', 'slideshow'], has, {
       slideshow: { component: 'carousel_centered', role: 'images' },
-    }, { centered: true }),
+    }, { centered: true, dividerAfter: 'date' }),
     appearance: {
       date: { weight: 'bold', size: 'xl', align: 'center', textColor: 'primary' },
-      title: { weight: 'bold', align: 'center' }, subtitle: { size: 'md', textColor: 'muted', align: 'center' }, body: { size: 'md' },
+      title: { weight: 'bold', align: 'center' }, subtitle: { size: 'md', textColor: 'muted', align: 'center' },
+      body: { size: 'md', truncate: 'none' },
     },
   },
   // V5 (KRO-133) — plantillas de detalle block-native. Misma TARJETA que el resto
@@ -272,7 +297,7 @@ const RECIPE_PRESETS: Partial<Record<RecipeId, RecipePreset>> = {
       cover:    { aspect: '16:9', shape: 'square' },   // rounded-none → flush en la tarjeta
       title:    { weight: 'bold', size: 'xl' },
       subtitle: { size: 'md', textColor: 'muted' },
-      body:     { size: 'md' },
+      body:     { size: 'md', truncate: 'none' },
     },
   },
   detail_profile: {
@@ -284,7 +309,7 @@ const RECIPE_PRESETS: Partial<Record<RecipeId, RecipePreset>> = {
       avatar:   { shape: 'circle', size: 'xl' },         // círculo grande fijo (con size → no fill)
       title:    { weight: 'bold', size: 'xl', align: 'center' },
       subtitle: { size: 'md', textColor: 'muted', align: 'center' },
-      body:     { size: 'md' },
+      body:     { size: 'md', truncate: 'none' },
     },
   },
 

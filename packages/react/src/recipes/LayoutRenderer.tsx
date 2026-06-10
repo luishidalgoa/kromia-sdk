@@ -432,6 +432,10 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
     // KRO-133 — carrusel de cartas: las mini-cartas de la galería en fila swipe.
     case 'cards_carousel':
       return renderRefs('cards', 'carousel');
+    // KRO-133 — separador decorativo: línea corta centrada (el "hr" de las
+    // recetas de detalle, p.ej. bajo la fecha de Momento).
+    case 'divider':
+      return <div className="w-12 h-px bg-border mx-auto" />;
     // KRO-133 — fila de estadísticas: cada campo del slot = valor + etiqueta.
     case 'stats_row': {
       const sid = node.slots?.stats;

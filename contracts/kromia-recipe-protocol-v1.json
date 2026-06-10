@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
   "protocolVersion": "2.8.0",
-  "generatedAt": "2026-06-09T21:13:06.297Z",
+  "generatedAt": "2026-06-10T06:56:45.655Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -1500,6 +1500,13 @@
           "optional": false
         }
       ]
+    },
+    {
+      "id": "divider",
+      "displayName": "Separador",
+      "description": "Línea fina corta y centrada para separar bloques (el \"hr\" de las recetas de detalle). Decorativo, sin contenido.",
+      "category": "basic",
+      "roles": []
     },
     {
       "id": "stats_row",

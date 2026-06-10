@@ -11,15 +11,15 @@ import { validateLayout, collectLayoutSlots } from '../src/layout';
 import type { LayoutContainerNode } from '../src/types';
 
 describe('COMPONENT_REGISTRY', () => {
-  it('expone los componentes base + los carruseles + stats (KRO-133)', () => {
+  it('expone los componentes base + los carruseles + stats + divider (KRO-133)', () => {
     expect(Object.keys(COMPONENT_REGISTRY).sort()).toEqual([
-      'card', 'cards_carousel', 'carousel_centered', 'carousel_peek',
+      'card', 'cards_carousel', 'carousel_centered', 'carousel_peek', 'divider',
       'gallery_grid', 'hero_header', 'ref_gallery', 'stats_row',
     ]);
-    expect(allComponents()).toHaveLength(8);
+    expect(allComponents()).toHaveLength(9);
     expect(COMPONENT_IDS).toEqual([
       'card', 'hero_header', 'ref_gallery',
-      'carousel_peek', 'carousel_centered', 'gallery_grid', 'cards_carousel', 'stats_row',
+      'carousel_peek', 'carousel_centered', 'gallery_grid', 'cards_carousel', 'divider', 'stats_row',
     ]);
   });
 
