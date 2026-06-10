@@ -71,8 +71,11 @@ export function EditorialRecipe({
     >
       {/* Cover full-width 16:9. KRO-69: cover honra appearance shape/aspect.
           KRO-58 V5: omitido si el slot cover está desactivado → el detalle
-          arranca directo por el título (artículo sin cabecera). */}
-      {!isSlotDisabled(composition, 'cover') && (
+          arranca directo por el título (artículo sin cabecera).
+          KRO-133 fix — también omitido si el slot NO tiene campos mapeados
+          (`cover` null): antes pintaba una caja bg-muted VACÍA de 16:9 que el
+          publisher no podía ni rellenar ni quitar desde el editor. */}
+      {cover && !isSlotDisabled(composition, 'cover') && (
         <span {...slotDebugAttrs('cover', cover)} className="block">
           <BannerBox url={coverUrl} alt="" className="rounded-none" appearance={cover?.appearance} />
         </span>
