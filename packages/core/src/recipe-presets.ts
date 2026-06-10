@@ -208,18 +208,27 @@ const RECIPE_PRESETS: Partial<Record<RecipeId, RecipePreset>> = {
     // el cuerpo (stats/body/gallery) queda como bloques editables; y las
     // relacionadas como el componente `ref_gallery` (galería de mini-cartas).
     build: (has) => {
-      const children: LayoutNode[] = []; let row = 1;
-      // Cabecera FIEL — SIEMPRE presente (renderiza placeholders si vacía).
+      // Cabecera FIEL FULL-BLEED (la receta pinta el banner edge-to-edge) +
+      // CUERPO en contenedor con padding (la receta usa px-5 en el contenido).
       const headerSlots: Record<string, string> = {};
       for (const r of ['banner', 'avatar', 'title', 'subtitle']) if (has(r)) headerSlots[r] = r;
-      children.push({ type: 'component', component: 'hero_header', slots: headerSlots, place: { colStart: 1, rowStart: row++ } });
-      // Cuerpo (stats como FILA fiel, body como slot, galería como CARRUSEL fiel).
-      if (has('stats')) children.push({ type: 'component', component: 'stats_row', slots: { stats: 'stats' }, place: { colStart: 1, rowStart: row++ } });
-      if (has('body'))  children.push(leaf('body', { colStart: 1, rowStart: row++ }));
-      if (has('gallery')) children.push({ type: 'component', component: 'carousel_peek', slots: { images: 'gallery' }, place: { colStart: 1, rowStart: row++ } });
-      // Relacionadas → galería de cartas (componente).
-      if (has('related')) children.push({ type: 'component', component: 'ref_gallery', slots: { refs: 'related' }, place: { colStart: 1, rowStart: row++ } });
-      return grid(1, Math.max(1, row - 1), children, { gap: 'md' });
+      const body: LayoutNode[] = []; let br = 1;
+      if (has('stats')) body.push({ type: 'component', component: 'stats_row', slots: { stats: 'stats' }, place: { colStart: 1, rowStart: br++ } });
+      if (has('body'))  body.push(leaf('body', { colStart: 1, rowStart: br++ }));
+      if (has('gallery')) body.push({ type: 'component', component: 'carousel_peek', slots: { images: 'gallery' }, place: { colStart: 1, rowStart: br++ } });
+      if (has('related')) body.push({ type: 'component', component: 'ref_gallery', slots: { refs: 'related' }, place: { colStart: 1, rowStart: br++ } });
+      const children: LayoutNode[] = [
+        { type: 'component', component: 'hero_header', slots: headerSlots, place: { colStart: 1, rowStart: 1 } },
+      ];
+      if (body.length) {
+        children.push({
+          ...grid(1, Math.max(1, br - 1), body, { gap: 'md', surface: { padding: 'lg' } }),
+          place: { colStart: 1, rowStart: 2 },
+        });
+      }
+      // `surface` en la raíz (aunque sin padding) → el motor NO añade su p-3
+      // default: el banner toca los bordes como en la receta.
+      return grid(1, children.length, children, { gap: 'none', surface: { padding: 'none' } });
     },
     appearance: {
       banner: { aspect: '16:9' }, avatar: { shape: 'circle' },

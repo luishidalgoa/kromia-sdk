@@ -29,7 +29,7 @@ import {
 } from '../recipe-utils';
 import {
   migrateSlotsToLayout, paletteClass, resolveFieldColor, gridColumnsTemplate, gridRowsTemplate,
-  classifyField, clampPlaceToGrid,
+  classifyField, clampPlaceToGrid, getRecipeManifest,
   type LayoutNode, type LayoutContainerNode, type LayoutComponentNode, type LayoutGap, type LayoutAlign,
   type LayoutJustify, type GridPlacement, type ContainerSurface, type SurfaceBorder, type ViewComposition,
   type CardFormat,
@@ -565,14 +565,24 @@ export function LayoutRenderer({
   const accent  = extractAccentSettings(composition, item, fieldDefs, 'top');
   const ctx: NodeCtx = { composition, item, fieldDefs, cardFormat };
   const clickable = !!onClick;
+  // KRO-133 fidelidad — el padding default SOLO si el layout raíz no declara su
+  // propio `surface`: los presets de detalle traen TARJETA con padding propio
+  // (Editorial/Momento/Ficha/Perfil) o son full-bleed por diseño; un p-3 extra
+  // alrededor era el "padding a todo" que delataba al motor vs la receta.
+  // Sin surface (listas, layouts hechos a mano) se mantiene el p-3 clásico.
+  const rootHasSurface = !!root.surface;
+  // Las recetas de DETALLE enmarcan con accent width 4 (pantalla protagonista);
+  // las de lista con 3. Igualamos según el kind de la receta.
+  const accentWidth = getRecipeManifest(composition.recipe)?.kind === 'detail' ? 4 : 3;
 
   return (
-    <AccentFrame accent={accent} width={3}>
+    <AccentFrame accent={accent} width={accentWidth}>
       <div
         onClick={onClick}
         className={cn(
           // overflow-hidden en la raíz: nada sobresale del contenedor principal.
-          'bg-card p-3 overflow-hidden',
+          'bg-card overflow-hidden',
+          !rootHasSurface && 'p-3',
           clickable && 'cursor-pointer transition-colors rounded-lg',
           className,
         )}
