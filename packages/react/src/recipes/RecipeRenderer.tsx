@@ -22,6 +22,7 @@ import { MomentoRecipe }               from './MomentoRecipe';
 import { AccordionSimpleRecipe }       from './AccordionSimpleRecipe';
 import { AccordionWithActionsRecipe }  from './AccordionWithActionsRecipe';
 import { LayoutRenderer }              from './LayoutRenderer';
+import type { CardRefResolver }        from './RefGallery';
 import { recipeToComposition }         from '@kromia/core';
 import type { FieldDefLike } from '../recipe-utils';
 import type { RecipeId, SlotComposition, ViewComposition } from '@kromia/core';
@@ -49,10 +50,14 @@ export interface RecipeRendererProps {
    *  cards del hero_protagonico). Sin esto las miniaturas asumen 2:3 default
    *  y se ven incoherentes con un álbum de cartas horizontales. */
   cardFormat?: CardFormat;
+  /** KRO-133 — resuelve refs a cartas REALES (foto) en las mini-cartas de
+   *  los slots card-ref. Lo inyecta el host (Studio/Flutter); sin él, las
+   *  mini-cartas pintan el placeholder degradado de siempre. */
+  resolveCardRef?: CardRefResolver;
 }
 
 export function RecipeRenderer({
-  composition, item, fieldDefs, onItemClick, className, cardFormat,
+  composition, item, fieldDefs, onItemClick, className, cardFormat, resolveCardRef,
 }: RecipeRendererProps) {
   // navigate_to_detail, modal y expand_inline disparan onItemClick — la
   // receta no distingue. El wrapper interactivo (RecipeInteractive) decide
@@ -86,6 +91,7 @@ export function RecipeRenderer({
         onClick={onClick}
         className={className}
         cardFormat={cardFormat}
+        resolveCardRef={resolveCardRef}
       />
     );
   }
@@ -132,6 +138,7 @@ export function RecipeRenderer({
           fieldDefs={fieldDefs}
           className={className}
           cardFormat={cardFormat}
+          resolveCardRef={resolveCardRef}
         />
       );
 
@@ -190,6 +197,8 @@ export function RecipeRenderer({
           fieldDefs={fieldDefs}
           onClick={onClick}
           className={className}
+          cardFormat={cardFormat}
+          resolveCardRef={resolveCardRef}
         />
       );
     }

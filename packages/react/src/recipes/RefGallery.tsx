@@ -28,6 +28,14 @@ import {
 import { NestedRecipeRenderer } from './NestedRecipeRenderer';
 import type { FieldDefLike } from '../recipe-utils';
 
+/**
+ * KRO-133 — resolutor de refs a CARTAS REALES. El host (Studio con los cards
+ * del álbum; Flutter con su store) lo inyecta para que las mini-cartas pinten
+ * la FOTO real de la carta referenciada en vez del placeholder degradado.
+ * Devuelve null/undefined si la ref no resuelve (→ placeholder).
+ */
+export type CardRefResolver = (ref: string | number) => { imageUrl?: string; title?: string } | null | undefined;
+
 export interface RefGalleryProps {
   /** Valor del field de refs: un ref único o un array (lista). */
   refs:               Array<string | number> | string | number | null | undefined;
@@ -46,16 +54,18 @@ export interface RefGalleryProps {
   layout?:            'grid' | 'carousel';
   /** KRO-133 — etiqueta opcional encima (fidelidad: el "BESTIAS" del hero). */
   label?:             string;
+  /** KRO-133 — resuelve cada ref a la carta REAL (foto). Sin él, placeholders. */
+  resolveRef?:        CardRefResolver;
 }
 
 /** Punto de entrada: normaliza el valor a array y despacha nested vs mini-cartas. */
-export function RefGallery({ refs, seed, cardFormat, nestedComposition, fieldDefs, layout = 'grid', label }: RefGalleryProps) {
+export function RefGallery({ refs, seed, cardFormat, nestedComposition, fieldDefs, layout = 'grid', label, resolveRef }: RefGalleryProps) {
   const list = (Array.isArray(refs) ? refs : refs == null ? [] : [refs])
     .filter((r): r is string | number => r != null && r !== '');
   if (list.length === 0) return null;
   const inner = nestedComposition
     ? <NestedRecipeRenderer refs={list} nestedComposition={nestedComposition} fieldDefs={fieldDefs} />
-    : <MiniCardRefs refs={list} seed={seed} cardFormat={cardFormat ?? DEFAULT_CARD_FORMAT} layout={layout} />;
+    : <MiniCardRefs refs={list} seed={seed} cardFormat={cardFormat ?? DEFAULT_CARD_FORMAT} layout={layout} resolveRef={resolveRef} />;
   if (!label) return inner;
   return (
     <div>
@@ -74,12 +84,13 @@ export function RefGallery({ refs, seed, cardFormat, nestedComposition, fieldDef
  * "+N" con border dashed para el overflow. Columnas derivadas del `cardFormat`.
  */
 export function MiniCardRefs({
-  refs, seed, cardFormat, layout = 'grid',
+  refs, seed, cardFormat, layout = 'grid', resolveRef,
 }: {
   refs:       Array<string | number>;
   seed:       string;
   cardFormat: CardFormat;
   layout?:    'grid' | 'carousel';
+  resolveRef?: CardRefResolver;
 }) {
   const hue = simpleHash(seed) % 360;
   // Gradient sutil — la card es la imagen full-bleed, no un fondo plano.
@@ -93,31 +104,54 @@ export function MiniCardRefs({
   // cartas" del wizard (3:2 horizontal → wider; 1:1 → cuadrada; etc.).
   const ratio = aspectToRatio(cardFormat.aspect);
 
+  // KRO-133 — la CARA de la mini-carta: la FOTO REAL de la carta si el host
+  // inyectó `resolveRef` y la ref resuelve; si no, el degradado placeholder.
+  // El número en overlay siempre (blanco con sombra sobre foto; tinte sobre
+  // el degradado).
+  const cardFace = (ref: string | number) => {
+    const resolved = resolveRef?.(ref);
+    const imgUrl = resolved?.imageUrl;
+    return {
+      img: imgUrl
+        // eslint-disable-next-line @next/next/no-img-element
+        ? <img src={imgUrl} alt={resolved?.title ?? ''} className="absolute inset-0 w-full h-full object-cover" />
+        : null,
+      numStyle: imgUrl
+        ? { color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.6)' }
+        : { color: tintFg },
+      bg: imgUrl ? undefined : `linear-gradient(135deg, ${gradStart} 0%, ${gradEnd} 100%)`,
+    };
+  };
+
   // KRO-133 — carrusel: fila deslizable con swipe (cada mini-carta de ancho
   // fijo, snap horizontal), en vez de rejilla. Muestra TODAS las refs (cap a 24
   // por seguridad), sin "+N" (es scrollable). Para el componente cards_carousel.
   if (layout === 'carousel') {
     return (
       <div className="flex gap-2.5 overflow-x-auto snap-x snap-mandatory pb-1">
-        {refs.slice(0, 24).map((ref, i) => (
-          <div
-            key={i}
-            className="shrink-0 snap-start rounded-lg overflow-hidden relative"
-            style={{
-              width: '6rem',
-              aspectRatio: ratio,
-              background: `linear-gradient(135deg, ${gradStart} 0%, ${gradEnd} 100%)`,
-              boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-            }}
-          >
-            <span
-              className="absolute top-1.5 left-1.5 text-[10px] font-mono font-bold leading-none"
-              style={{ color: tintFg }}
+        {refs.slice(0, 24).map((ref, i) => {
+          const face = cardFace(ref);
+          return (
+            <div
+              key={i}
+              className="shrink-0 snap-start rounded-lg overflow-hidden relative"
+              style={{
+                width: '6rem',
+                aspectRatio: ratio,
+                background: face.bg,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+              }}
             >
-              {String(ref).padStart(3, '0')}
-            </span>
-          </div>
-        ))}
+              {face.img}
+              <span
+                className="absolute top-1.5 left-1.5 text-[10px] font-mono font-bold leading-none"
+                style={face.numStyle}
+              >
+                {String(ref).padStart(3, '0')}
+              </span>
+            </div>
+          );
+        })}
       </div>
     );
   }
@@ -139,6 +173,7 @@ export function MiniCardRefs({
     >
       {visible.map((ref, i) => {
         const highlighted = i === highlightIdx;
+        const face = cardFace(ref);
         return (
           <div
             key={i}
@@ -149,17 +184,19 @@ export function MiniCardRefs({
             )}
             style={{
               aspectRatio: ratio,
-              background: `linear-gradient(135deg, ${gradStart} 0%, ${gradEnd} 100%)`,
+              background: face.bg,
               boxShadow: highlighted
                 ? `0 0 0 1.5px ${tintHilight}, 0 4px 8px rgba(0,0,0,0.10)`
                 : '0 1px 3px rgba(0,0,0,0.06)',
             }}
           >
+            {/* Foto REAL de la carta si resuelve; si no, el degradado de fondo. */}
+            {face.img}
             {/* Número padded en overlay top-left — el resto queda libre como
                 "imagen" full-bleed. */}
             <span
               className="absolute top-1.5 left-1.5 text-[10px] font-mono font-bold leading-none"
-              style={{ color: tintFg }}
+              style={face.numStyle}
             >
               {String(ref).padStart(3, '0')}
             </span>

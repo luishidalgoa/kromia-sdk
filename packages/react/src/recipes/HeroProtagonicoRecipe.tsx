@@ -40,7 +40,7 @@ import {
   type FieldDefLike,
 } from '../recipe-utils';
 import { NestedRecipeRenderer } from './NestedRecipeRenderer';
-import { MiniCardRefs } from './RefGallery';
+import { MiniCardRefs, type CardRefResolver } from './RefGallery';
 import { HeroHeader } from './HeroHeader';
 import { DEFAULT_CARD_FORMAT, type CardFormat } from '@kromia/core';
 import type { ViewComposition } from '@kromia/core';
@@ -56,10 +56,12 @@ export interface HeroProtagonicoRecipeProps {
    *  con la "Estructura de cartas" que el publisher configuró en el step 1
    *  del wizard. Sin esto, las mini-cards asumen 2:3 default. */
   cardFormat?: CardFormat;
+  /** KRO-133 — resuelve refs a cartas REALES (foto) en las mini-cartas. */
+  resolveCardRef?: CardRefResolver;
 }
 
 export function HeroProtagonicoRecipe({
-  composition, item, fieldDefs, className, cardFormat,
+  composition, item, fieldDefs, className, cardFormat, resolveCardRef,
 }: HeroProtagonicoRecipeProps) {
   // Cabecera (banner/avatar/title/subtitle) la resuelve + pinta HeroHeader.
   // Aquí solo el TÍTULO (seed de las mini-cartas) + los slots del CUERPO.
@@ -212,6 +214,7 @@ export function HeroProtagonicoRecipe({
               refs={relatedRefs}
               seed={titleText}
               cardFormat={cardFormat ?? DEFAULT_CARD_FORMAT}
+              resolveRef={resolveCardRef}
             />
           )}
         </div>
