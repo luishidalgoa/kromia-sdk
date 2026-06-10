@@ -24,12 +24,14 @@
  *   └────────────────────────────────────────┘
  */
 
+import { isMockupImage } from '@kromia/core';
 import { cn } from '../lib/cn';
 import {
   ComposableSlot, ScalarText, formatScalar,
   resolveSlot, MarkdownText,
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass,
   applyAppearanceTruncate, imageFocusStyle, slotDebugAttrs, extractAccentSettings, AccentFrame,
+  MockupImageSkeleton,
   type FieldDefLike,
 } from '../recipe-utils';
 import type { ViewComposition } from '@kromia/core';
@@ -145,13 +147,14 @@ export function MomentoRecipe({
                   key={i}
                   className="snap-center shrink-0 w-64 aspect-[4/3] rounded-lg bg-muted overflow-hidden"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {isMockupImage(url) ? <MockupImageSkeleton /> :
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={url}
                     alt=""
                     style={imageFocusStyle(slideshow.appearance)}
                     className="w-full h-full object-cover"
-                  />
+                  />}
                 </div>
               ))}
           </div>

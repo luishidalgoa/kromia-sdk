@@ -17,7 +17,7 @@
 import { cn } from './lib/cn';
 import { cloneElement, isValidElement } from 'react';
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
-import {
+import { isMockupImage,
   formatScalar             as sdkFormatScalar,
   extractAccentSettings    as sdkExtractAccentSettings,
   composeSlotValues,
@@ -637,7 +637,7 @@ export function AvatarBox({
         className,
       )}
     >
-      {url && (
+      {url && (isMockupImage(url) ? <MockupImageSkeleton /> :
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={url}
@@ -648,6 +648,13 @@ export function AvatarBox({
       )}
     </div>
   );
+}
+
+/** Skeleton para el sentinel `mockup:image` del synth (2026-06-10): caja
+ *  neutra PULSANTE que comunica "aquí va una imagen" sin intentar cargar
+ *  nada (sin red, sin proxy, sin icono de imagen rota). Llena el wrapper. */
+export function MockupImageSkeleton({ className }: { className?: string }) {
+  return <div className={cn('w-full h-full animate-pulse bg-foreground/[0.06]', className)} aria-hidden />;
 }
 
 /**
@@ -775,7 +782,7 @@ export function ThumbBox({
         className,
       )}
     >
-      {url && (
+      {url && (isMockupImage(url) ? <MockupImageSkeleton /> :
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={url}
@@ -805,7 +812,7 @@ export function BannerBox({
     : 'aspect-[16/9]';
   return (
     <div className={cn('w-full bg-muted overflow-hidden', shapeClass, aspectClass, className)}>
-      {url && (
+      {url && (isMockupImage(url) ? <MockupImageSkeleton /> :
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={url}

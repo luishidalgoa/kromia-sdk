@@ -32,11 +32,13 @@
  *   └────────────────────────────────────────┘
  */
 
+import { isMockupImage } from '@kromia/core';
 import { cn } from '../lib/cn';
 import {
   resolveSlot, formatScalar, MarkdownText,
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass,
   applyAppearanceTruncate, imageFocusStyle, slotDebugAttrs, extractAccentSettings, AccentFrame,
+  MockupImageSkeleton,
   type FieldDefLike,
 } from '../recipe-utils';
 import { NestedRecipeRenderer } from './NestedRecipeRenderer';
@@ -178,13 +180,14 @@ export function HeroProtagonicoRecipe({
                   className="aspect-[4/3] rounded-lg bg-muted overflow-hidden shrink-0 snap-start"
                   style={{ width: '70%' }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {isMockupImage(url) ? <MockupImageSkeleton /> :
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={url}
                     alt=""
                     style={imageFocusStyle(gallery.appearance)}
                     className="w-full h-full object-cover"
-                  />
+                  />}
                 </div>
               ))}
           </div>

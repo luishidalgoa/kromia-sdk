@@ -75,21 +75,23 @@ const PHONES       = ['+00 000 000 000', '+00 111 111 111', '+00 222 222 222'];
 
 // ── Helpers ────────────────────────────────────────────────────────────
 
-/** Placeholder de imagen estilo WIREFRAME: SVG inline (data-URI) con fondo
- *  neutro + aspa diagonal — la maqueta clásica de "aquí va una imagen".
- *  Sustituye a Picsum (2026-06-10): una foto real hacía pasar el mockup por
- *  contenido real. data-URI = determinista, offline y sin red. El `seed` se
- *  conserva en la firma por compat (mismo contrato cross-language) aunque el
- *  dibujo no varía. */
-function placeholderImage(_seed: number, width = 400, height = 300): string {
-  const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`
-    + `<rect width="${width}" height="${height}" fill="#ece8df"/>`
-    + `<rect x="1.5" y="1.5" width="${width - 3}" height="${height - 3}" fill="none" stroke="#cfc9bb" stroke-width="3"/>`
-    + `<line x1="0" y1="0" x2="${width}" y2="${height}" stroke="#cfc9bb" stroke-width="3"/>`
-    + `<line x1="${width}" y1="0" x2="0" y2="${height}" stroke="#cfc9bb" stroke-width="3"/>`
-    + `</svg>`;
-  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+/** Sentinel de imagen MOCKUP (2026-06-10). El synth NO devuelve una URL real:
+ *  los renderers (@kromia/react `isMockupImage`) lo detectan y pintan un
+ *  SKELETON (caja neutra pulsante) en lugar de intentar cargar una imagen.
+ *  Evita de raíz fotos reales (Picsum), data-URIs rotos por proxies y red.
+ *  **Spec cross-language**: el SDK Dart debe usar el mismo literal. */
+export const MOCKUP_IMAGE = 'mockup:image';
+
+/** ¿Es el valor el sentinel de imagen mockup del synth? */
+export function isMockupImage(v: unknown): v is typeof MOCKUP_IMAGE {
+  return v === MOCKUP_IMAGE;
+}
+
+/** Placeholder de imagen del synth → siempre el sentinel. La firma conserva
+ *  seed/width/height por compat con el contrato previo (deterministas, pero
+ *  ya no participan en el valor). */
+function placeholderImage(_seed: number, _width = 400, _height = 300): string {
+  return MOCKUP_IMAGE;
 }
 
 /** Hash FNV-1a 32-bit. Determinista por string. No criptográfico — solo

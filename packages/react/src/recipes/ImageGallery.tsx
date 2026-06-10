@@ -15,7 +15,9 @@
  * Mobile-first. Espejo Flutter pendiente (KRO-83).
  */
 import type { CSSProperties } from 'react';
+import { isMockupImage } from '@kromia/core';
 import { cn } from '../lib/cn';
+import { MockupImageSkeleton } from '../recipe-utils';
 
 export type ImageGalleryVariant = 'peek' | 'centered' | 'grid';
 
@@ -44,8 +46,9 @@ export function ImageGallery({ urls, variant = 'peek', imgStyle, label, classNam
       <div className="grid grid-cols-3 gap-2">
         {clean.slice(0, 6).map((url, i) => (
           <div key={i} className="aspect-square rounded-lg bg-muted overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={url} alt="" style={imgStyle} className="w-full h-full object-cover" />
+            {isMockupImage(url) ? <MockupImageSkeleton /> :
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={url} alt="" style={imgStyle} className="w-full h-full object-cover" />}
           </div>
         ))}
       </div>
@@ -60,8 +63,9 @@ export function ImageGallery({ urls, variant = 'peek', imgStyle, label, classNam
               : 'snap-start shrink-0 aspect-[4/3] rounded-lg bg-muted overflow-hidden'}
             style={variant === 'peek' ? { width: '70%' } : undefined}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={url} alt="" style={imgStyle} className="w-full h-full object-cover" />
+            {isMockupImage(url) ? <MockupImageSkeleton /> :
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={url} alt="" style={imgStyle} className="w-full h-full object-cover" />}
           </div>
         ))}
       </div>

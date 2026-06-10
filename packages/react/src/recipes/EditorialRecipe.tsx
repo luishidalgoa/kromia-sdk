@@ -1,3 +1,4 @@
+import { isMockupImage } from '@kromia/core';
 'use client';
 /**
  * Receta DETALLE `editorial` — artículo con cover + título grande + meta + body
@@ -25,7 +26,7 @@
  */
 
 import { cn } from '../lib/cn';
-import {
+import { MockupImageSkeleton,
   BannerBox, ComposableSlot, ScalarText,
   resolveSlot, isSlotDisabled, MarkdownText,
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass,
@@ -137,13 +138,14 @@ export function EditorialRecipe({
                 .slice(0, 6)
                 .map((url, i) => (
                   <div key={i} className="aspect-square rounded-lg bg-muted overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {isMockupImage(url) ? <MockupImageSkeleton /> :
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={url}
                       alt=""
                       style={imageFocusStyle(gallery.appearance)}
                       className="w-full h-full object-cover"
-                    />
+                    />}
                   </div>
                 ))}
             </div>

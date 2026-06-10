@@ -85,13 +85,13 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
     expect(items).toMatchInlineSnapshot(`
       [
         {
-          "avatar": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+          "avatar": "mockup:image",
           "color": "#42d7be",
           "edad": 96,
           "galeria": [
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "mockup:image",
+            "mockup:image",
+            "mockup:image",
           ],
           "nombre": "XXXXXXX XXXXX",
           "pais": "Xxxxxxx",
@@ -99,13 +99,13 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
           "website": "https://example.com/xxxx",
         },
         {
-          "avatar": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+          "avatar": "mockup:image",
           "color": "#7d42d7",
           "edad": 20,
           "galeria": [
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "mockup:image",
+            "mockup:image",
+            "mockup:image",
           ],
           "nombre": "XXXXX XXXXXXXX",
           "pais": "Xxxxxx",
@@ -113,13 +113,13 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
           "website": "https://example.com/yyyy",
         },
         {
-          "avatar": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+          "avatar": "mockup:image",
           "color": "#d7b442",
           "edad": 32,
           "galeria": [
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "mockup:image",
+            "mockup:image",
+            "mockup:image",
           ],
           "nombre": "XXX XXXXXXXXX",
           "pais": "Xxxxxx",
@@ -136,9 +136,9 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
       [
         {
           "fotos": [
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "mockup:image",
+            "mockup:image",
+            "mockup:image",
           ],
           "subtitle": "XXXXX XXXXXXX",
           "title": "XXXX XXXXXXX",
@@ -146,9 +146,9 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
         },
         {
           "fotos": [
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "mockup:image",
+            "mockup:image",
+            "mockup:image",
           ],
           "subtitle": "XXXXX XXXXXXXX",
           "title": "XXXXX XXXXXXXXX",
@@ -156,9 +156,9 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
         },
         {
           "fotos": [
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
-            "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+            "mockup:image",
+            "mockup:image",
+            "mockup:image",
           ],
           "subtitle": "XXXXX XXXXXX",
           "title": "XXXX XXXXXXXX",
@@ -173,7 +173,7 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
     expect(items).toMatchInlineSnapshot(`
       [
         {
-          "cover": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+          "cover": "mockup:image",
           "cuerpo": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint.",
           "fecha": "2024-01-04",
           "precio": 24,
@@ -185,7 +185,7 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
           "titulo": "XXXXXXX XXXXXXXXX",
         },
         {
-          "cover": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+          "cover": "mockup:image",
           "cuerpo": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat aute irure.",
           "fecha": "2024-02-11",
           "precio": 76,
@@ -197,7 +197,7 @@ describe('synthSectionItems — snapshots canónicos (cross-language ground trut
           "titulo": "XXX XXXXXXX",
         },
         {
-          "cover": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23ece8df%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%221.5%22%20width%3D%22397%22%20height%3D%22297%22%20fill%3D%22none%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%22300%22%20stroke%3D%22%23cfc9bb%22%20stroke-width%3D%223%22%2F%3E%3C%2Fsvg%3E",
+          "cover": "mockup:image",
           "cuerpo": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint.",
           "fecha": "2024-03-18",
           "precio": 56,
@@ -279,19 +279,19 @@ describe('synthSectionItems — formato por behavior', () => {
     });
   });
 
-  it('gallery: array de placeholders SVG (data-URI)', () => {
+  it('gallery: array de sentinels mockup:image', () => {
     expect(Array.isArray(item.gallery)).toBe(true);
     (item.gallery as unknown[]).forEach(g => {
-      expect(g as string).toMatch(/^data:image\/svg\+xml,/);
+      expect(g).toBe('mockup:image');
     });
   });
 
-  it('avatar: placeholder SVG 200x200', () => {
-    expect(item.avatar as string).toMatch(/^data:image\/svg\+xml,.*width%3D%22200%22%20height%3D%22200%22/);
+  it('avatar: sentinel mockup:image', () => {
+    expect(item.avatar).toBe('mockup:image');
   });
 
-  it('banner: placeholder SVG 600x200', () => {
-    expect(item.banner as string).toMatch(/^data:image\/svg\+xml,.*width%3D%22600%22%20height%3D%22200%22/);
+  it('banner: sentinel mockup:image', () => {
+    expect(item.banner).toBe('mockup:image');
   });
 });
 
