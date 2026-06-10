@@ -60,6 +60,35 @@ export function trackToCss(token: string | undefined): string {
   }
 }
 
+/** KRO-166 — GEOMETRÍA CANÓNICA del grid. El default de columnas es 1 (la
+ *  verdad del RENDER: `gridColumnsTemplate` siempre pintó `?? 1`); el
+ *  validador asumía 2 → validaba contra una rejilla distinta de la pintada.
+ *  Studio (layout-edit) y el motor derivan de AQUÍ — un solo default. */
+export function gridCols(node: LayoutContainerNode): number {
+  return Math.max(1, node.columns ?? 1);
+}
+
+/** Nº de filas EFECTIVAS de un grid (explícitas o las que exige la colocación). */
+export function gridRows(node: LayoutContainerNode): number {
+  let max = 1;
+  for (const ch of node.children) {
+    if (ch.place?.position === 'absolute') continue;
+    const rs = ch.place?.rowStart ?? 1, rsp = ch.place?.rowSpan ?? 1;
+    max = Math.max(max, rs + rsp - 1);
+  }
+  return Math.max(node.rows ?? 1, max);
+}
+
+/** ¿Algún hijo EN FLUJO (no absoluto) cubre la celda (col,row)? */
+export function cellCovered(node: LayoutContainerNode, col: number, row: number): boolean {
+  return node.children.some(ch => {
+    if (ch.place?.position === 'absolute') return false;
+    const cs = ch.place?.colStart ?? 1, csp = ch.place?.colSpan ?? 1;
+    const rs = ch.place?.rowStart ?? 1, rsp = ch.place?.rowSpan ?? 1;
+    return col >= cs && col < cs + csp && row >= rs && row < rs + rsp;
+  });
+}
+
 /** Nº de filas EFECTIVAS de un grid (explícitas o las que exige la colocación). */
 function effectiveRows(node: LayoutContainerNode): number {
   let max = 1;
@@ -72,7 +101,7 @@ function effectiveRows(node: LayoutContainerNode): number {
 
 /** `grid-template-columns` del contenedor (respeta columnSizes; default = iguales). */
 export function gridColumnsTemplate(node: LayoutContainerNode): string {
-  const cols = Math.max(1, node.columns ?? 1);
+  const cols = gridCols(node);
   if (node.columnSizes && node.columnSizes.length) {
     return Array.from({ length: cols }, (_, i) => trackToCss(node.columnSizes![i])).join(' ');
   }
@@ -255,13 +284,45 @@ export function validateLayout(
       return;
     }
     // KRO-133 F3 — valida la colocación (place) de cada hijo contra ESTE grid.
-    const cols = node.kind === 'grid' ? (node.columns ?? 2) : undefined;
+    // KRO-166 — default UNIFICADO con el render (gridCols, ?? 1): antes el
+    // validador asumía 2 columnas y validaba contra una rejilla que no existía.
+    const cols = node.kind === 'grid' ? gridCols(node) : undefined;
     const rows = node.kind === 'grid' ? node.rows : undefined;
     node.children.forEach((child, i) => {
       const childPath = `${path}.children[${i}]`;
       if (child.place) validatePlacement(child.place, cols, rows, childPath, issues);
       walk(child, childPath, depth + 1);
     });
+    // KRO-166 — SOLAPES: dos hijos en flujo (no absolutos) que comparten celda.
+    // `setGrid` clampa cada hijo por separado al reducir columnas/filas y pueden
+    // acabar apilados sin aviso. Warn (no error): el render lo pinta superpuesto.
+    if (node.kind === 'grid') {
+      const rects = node.children.map((ch, i) => {
+        if (ch.place?.position === 'absolute') return null;
+        return {
+          i,
+          cs: ch.place?.colStart ?? 1, csp: ch.place?.colSpan ?? 1,
+          rs: ch.place?.rowStart ?? 1, rsp: ch.place?.rowSpan ?? 1,
+        };
+      });
+      for (let a = 0; a < rects.length; a++) {
+        const ra = rects[a];
+        if (!ra) continue;
+        for (let b = a + 1; b < rects.length; b++) {
+          const rb = rects[b];
+          if (!rb) continue;
+          const overlap = ra.cs < rb.cs + rb.csp && rb.cs < ra.cs + ra.csp
+                       && ra.rs < rb.rs + rb.rsp && rb.rs < ra.rs + ra.rsp;
+          if (overlap) {
+            issues.push({
+              level: 'warn',
+              path:  `${path}.children[${rb.i}]`,
+              message: `Los bloques #${ra.i + 1} y #${rb.i + 1} se solapan en la celda (${Math.max(ra.cs, rb.cs)},${Math.max(ra.rs, rb.rs)}).`,
+            });
+          }
+        }
+      }
+    }
   };
 
   walk(root, 'root', 1);

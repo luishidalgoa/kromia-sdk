@@ -7,6 +7,9 @@ import { describe, it, expect } from 'vitest';
 import {
   validateLayout,
   pruneLayoutSlots,
+  gridCols,
+  gridRows,
+  cellCovered,
   migrateSlotsToLayout,
   migrateSlotsToGrid,
   layoutDepth,
@@ -278,5 +281,60 @@ describe('pruneLayoutSlots (KRO-165)', () => {
     const pruned = pruneLayoutSlots(tree(), ['title', 'image']);
     const res = validateLayout(pruned, { slots: { title: { fields: ['nombre'] }, image: { fields: ['foto'] } } });
     expect(res.issues.filter(i => /no está declarado/.test(i.message))).toEqual([]);
+  });
+});
+
+// ── KRO-166 — geometría canónica + solapes ──────────────────────────────────
+describe('geometría canónica y solapes (KRO-166)', () => {
+  it('default de columnas UNIFICADO: sin `columns`, colStart 2 avisa (la rejilla real es de 1)', () => {
+    const root: LayoutContainerNode = {
+      type: 'container', kind: 'grid', rows: 1, gap: 'sm',
+      children: [
+        { type: 'slot', slot: 'title', place: { colStart: 2, colSpan: 1, rowStart: 1, rowSpan: 1 } },
+      ],
+    };
+    const res = validateLayout(root, { slots: { title: { fields: ['nombre'] } } });
+    expect(res.issues.some(i => /columna|colStart|fuera/i.test(i.message))).toBe(true);
+  });
+
+  it('dos hijos apilados en la misma celda → warn de solape con la celda', () => {
+    const root: LayoutContainerNode = {
+      type: 'container', kind: 'grid', columns: 2, rows: 2, gap: 'sm',
+      children: [
+        { type: 'slot', slot: 'title', place: { colStart: 1, colSpan: 2, rowStart: 1, rowSpan: 1 } },
+        { type: 'slot', slot: 'body',  place: { colStart: 2, colSpan: 1, rowStart: 1, rowSpan: 1 } },
+      ],
+    };
+    const res = validateLayout(root, { slots: { title: { fields: ['nombre'] }, body: { fields: ['lore'] } } });
+    const overlaps = res.issues.filter(i => /se solapan/.test(i.message));
+    expect(overlaps.length).toBe(1);
+    expect(overlaps[0].level).toBe('warn');
+    expect(res.ok).toBe(true); // warn, no error
+  });
+
+  it('los bloques ABSOLUTOS no cuentan para el solape', () => {
+    const root: LayoutContainerNode = {
+      type: 'container', kind: 'grid', columns: 1, rows: 1, gap: 'sm',
+      children: [
+        { type: 'slot', slot: 'title', place: { colStart: 1, colSpan: 1, rowStart: 1, rowSpan: 1 } },
+        { type: 'slot', slot: 'body',  place: { colStart: 1, colSpan: 1, rowStart: 1, rowSpan: 1, position: 'absolute', x: 10, y: 10 } },
+      ],
+    };
+    const res = validateLayout(root, { slots: { title: { fields: ['nombre'] }, body: { fields: ['lore'] } } });
+    expect(res.issues.filter(i => /se solapan/.test(i.message))).toEqual([]);
+  });
+
+  it('gridCols/gridRows/cellCovered: helpers canónicos', () => {
+    const c: LayoutContainerNode = {
+      type: 'container', kind: 'grid', columns: 2, rows: 1, gap: 'sm',
+      children: [
+        { type: 'slot', slot: 'title', place: { colStart: 1, colSpan: 2, rowStart: 1, rowSpan: 1 } },
+      ],
+    };
+    expect(gridCols(c)).toBe(2);
+    expect(gridCols({ ...c, columns: undefined })).toBe(1);
+    expect(gridRows(c)).toBe(1);
+    expect(cellCovered(c, 2, 1)).toBe(true);
+    expect(cellCovered(c, 1, 2)).toBe(false);
   });
 });

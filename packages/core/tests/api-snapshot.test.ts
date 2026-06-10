@@ -150,6 +150,9 @@ const EXPECTED_EXPORTS = [
   // KRO-133 — árbol de layout (constructor visual de recetas)
   'validateLayout',
   'pruneLayoutSlots',
+  'gridCols',
+  'gridRows',
+  'cellCovered',
   'migrateSlotsToLayout',
   'migrateSlotsToGrid',
   'layoutDepth',

@@ -371,6 +371,9 @@ export {
 export {
   validateLayout,
   pruneLayoutSlots,
+  gridCols,
+  gridRows,
+  cellCovered,
   migrateSlotsToLayout,
   migrateSlotsToGrid,
   layoutDepth,
