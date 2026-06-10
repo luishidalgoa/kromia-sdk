@@ -208,6 +208,9 @@ export {
   type ValidationRule as AlbumValidationRule,
 } from './validate-album-data';
 
+// ── Normalización de catálogo (KRO-171) ────────────────────────────────
+export { normalizeComposition, RECIPE_ALIASES, COMPONENT_ALIASES } from './normalize';
+
 // ── Synth (AppPreview / playgrounds) ───────────────────────────────────
 // KRO-72: migrado desde kromia-studio. Permite a cualquier consumer
 // (Studio, drift detector, futuro Flutter) generar items sintéticos
@@ -254,6 +257,10 @@ export {
   OPTIONS_APPEARANCE_TEXT_TRANSFORM,
   OPTIONS_APPEARANCE_FONT,
   OPTIONS_APPEARANCE_DISPLAY,
+  LAYOUT_GAP_LABELS,
+  LAYOUT_ALIGN_LABELS,
+  LAYOUT_TRACK_LABELS,
+  LAYOUT_SURFACE_LABELS,
   OPTIONS_APPEARANCE_SIZE,
   OPTIONS_APPEARANCE_TRUNCATE,
   OPTIONS_APPEARANCE_PADDING_Y,

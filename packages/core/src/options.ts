@@ -259,6 +259,40 @@ export function detectActivePreset(
 }
 
 // ─────────────────────────────────────────────────────────────────────────
+// 3b. Labels es-ES del EDITOR DE BLOQUES (KRO-172)
+//
+// Antes vivían hardcodeados en LayoutEditor.tsx (Studio) — drift silencioso
+// con Flutter y bloqueo de i18n. Misma promesa que KRO-75: añadir una opción
+// al modelo = su label vive AQUÍ y todos los editores la heredan.
+// ─────────────────────────────────────────────────────────────────────────
+
+/** Espaciado entre celdas del grid (LayoutGap). */
+export const LAYOUT_GAP_LABELS: Readonly<Record<string, string>> = {
+  none: 'Pegado', xs: 'XS', sm: 'S', md: 'M', lg: 'L',
+};
+
+/** Alineación de items (LayoutAlign). */
+export const LAYOUT_ALIGN_LABELS: Readonly<Record<string, string>> = {
+  start: 'Inicio', center: 'Centro', end: 'Final', stretch: 'Estirar',
+};
+
+/** Tamaños de pista (track sizing) del grid. */
+export const LAYOUT_TRACK_LABELS: Readonly<Record<string, string>> = {
+  '1fr': '1×', '2fr': '2×', '3fr': '3×', auto: 'Auto', content: 'Ajust.',
+};
+
+/** Decoración (surface) de contenedores: labels por grupo. */
+export const LAYOUT_SURFACE_LABELS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  background:  { none: 'Ninguno', card: 'Tarjeta', muted: 'Tenue', accent: 'Acento', primary: 'Marca' },
+  borderWidth: { thin: 'Fino', medium: 'Medio', thick: 'Grueso' },
+  borderSide:  { top: 'Arriba', right: 'Derecha', bottom: 'Abajo', left: 'Izquierda' },
+  borderStyle: { solid: 'Sólido', dashed: 'Trazos', dotted: 'Puntos' },
+  radius:      { none: 'Rectas', sm: 'S', md: 'M', lg: 'L', xl: 'XL', full: 'Círculo' },
+  shadow:      { none: 'Sin', sm: 'S', md: 'M', lg: 'L', xl: 'XL' },
+  padding:     { none: '0', xs: 'XS', sm: 'S', md: 'M', lg: 'L', xl: 'XL' },
+};
+
+// ─────────────────────────────────────────────────────────────────────────
 // 4. Card format — aspect/size de la carta + labels es-ES
 // ─────────────────────────────────────────────────────────────────────────
 
