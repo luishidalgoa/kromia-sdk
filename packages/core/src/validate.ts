@@ -123,6 +123,17 @@ function validateAppearance(
   if (appearance.font !== undefined && !FONT_IDS.has(appearance.font)) {
     issues.push({ path: `${path}.font`, level: 'error', message: `font "${appearance.font}" no es válido` });
   }
+  if (appearance.display !== undefined && !['text', 'badge'].includes(appearance.display)) {
+    issues.push({ path: `${path}.display`, level: 'error', message: `display "${appearance.display}" no es válido` });
+  }
+  // textColor/bgColor son ids de paleta o 'field:<key>' (string libre — el
+  // render degrada a default si no resuelve). Solo se valida el TIPO.
+  if (appearance.textColor !== undefined && (typeof appearance.textColor !== 'string' || appearance.textColor.length === 0)) {
+    issues.push({ path: `${path}.textColor`, level: 'error', message: 'textColor debe ser un string no vacío' });
+  }
+  if (appearance.bgColor !== undefined && (typeof appearance.bgColor !== 'string' || appearance.bgColor.length === 0)) {
+    issues.push({ path: `${path}.bgColor`, level: 'error', message: 'bgColor debe ser un string no vacío' });
+  }
   if (appearance.textTransform !== undefined && !['none', 'uppercase'].includes(appearance.textTransform)) {
     issues.push({ path: `${path}.textTransform`, level: 'error', message: `textTransform "${appearance.textTransform}" no es válido` });
   }

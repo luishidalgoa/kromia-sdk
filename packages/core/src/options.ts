@@ -132,6 +132,13 @@ export const OPTIONS_APPEARANCE_FONT: ReadonlyArray<CatalogOption> = [
   { id: 'serif', label: 'Serif', tooltip: 'Serif (editorial, con remates)' },
 ];
 
+/** KRO-169 — cómo se PRESENTA el valor del slot: texto plano o pill/chip
+ *  (badge). Antes vivía hardcodeado solo en el editor de bloques. */
+export const OPTIONS_APPEARANCE_DISPLAY: ReadonlyArray<CatalogOption> = [
+  { id: 'text',  label: 'Texto', tooltip: 'Texto plano (default)' },
+  { id: 'badge', label: 'Badge', tooltip: 'Pill/chip — rarezas, tipos, etiquetas' },
+];
+
 /** Tamaño relativo al default del manifest. */
 export const OPTIONS_APPEARANCE_SIZE: ReadonlyArray<CatalogOption> = [
   { id: 'sm', label: 'S',  tooltip: 'Pequeño' },
@@ -190,6 +197,9 @@ export const OPTIONS_APPEARANCE_LABELS: Record<AppearanceProp, string> = {
   weight:         'Peso',
   textTransform:  'Mayús.',
   font:           'Tipografía',
+  display:        'Mostrar como',
+  textColor:      'Color del texto',
+  bgColor:        'Fondo',
   size:           'Tamaño',
   truncate:       'Truncar',
   truncateChars:  'Caracteres',
@@ -209,6 +219,9 @@ export const OPTIONS_APPEARANCE_DESCRIPTIONS: Record<AppearanceProp, string> = {
   weight:         'Peso tipográfico: Regular, Seminegrita o Negrita.',
   textTransform:  'MAYÚSCULAS con tracking ancho (estilo etiqueta) o normal.',
   font:           'Familia tipográfica: sans (app) o serif (editorial).',
+  display:        'Texto plano o pill/chip (badge) — rarezas, tipos, etiquetas.',
+  textColor:      'Color del texto: paleta del tema o vinculado a un campo color del dato.',
+  bgColor:        'Color de fondo del slot: paleta del tema o vinculado a un campo color.',
   size:           'Tamaño relativo al default del manifest.',
   truncate:       'Cortar texto largo con "…". 1L/2L/3L = N líneas máximas, ∞ = texto completo.',
   truncateChars:  'Cortar por número de caracteres (slice JS). Predecible, independiente del ancho.',

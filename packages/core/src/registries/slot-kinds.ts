@@ -197,6 +197,9 @@ export type AppearanceProp =
   | 'weight'
   | 'textTransform'
   | 'font'
+  | 'display'
+  | 'textColor'
+  | 'bgColor'
   | 'size'
   | 'truncate'
   | 'truncateChars'
@@ -214,12 +217,12 @@ const APPEARANCE_PROPS_BY_KIND: Record<SlotAcceptKind, ReadonlyArray<AppearanceP
   'image-banner': ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
   'image-cover':  ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
   'image-array':  ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  'text-short':   ['align', 'weight', 'textTransform', 'font', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  'text-long':    ['align', 'weight', 'textTransform', 'font', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  'number':       ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  'date':         ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'paddingY'],
+  'text-short':   ['align', 'weight', 'textTransform', 'font', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
+  'text-long':    ['align', 'weight', 'textTransform', 'font', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
+  'number':       ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
+  'date':         ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
   'url':          ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  'badge':        ['size', 'truncate', 'truncateChars', 'paddingY'],
+  'badge':        ['size', 'truncate', 'truncateChars', 'textColor', 'bgColor', 'paddingY'],
   'color':        ['accentPosition', 'size', 'paddingY'],
   // KRO-133 follow-up — props REALES de las mini-cartas de referencias: forma
   // de la carta, tamaño, columnas de la rejilla y acción al tocar. (paddingY
@@ -237,7 +240,7 @@ export function getAvailableAppearanceProps(
   accepts: ReadonlyArray<SlotAcceptKind>,
 ): AppearanceProp[] {
   if (accepts.length === 0) return [];
-  const order: AppearanceProp[] = ['shape', 'aspect', 'imageFocus', 'align', 'weight', 'textTransform', 'font', 'size', 'truncate', 'truncateChars', 'accentPosition', 'refSize', 'refColumns', 'refTap', 'paddingY'];
+  const order: AppearanceProp[] = ['shape', 'aspect', 'imageFocus', 'align', 'weight', 'textTransform', 'font', 'size', 'display', 'textColor', 'bgColor', 'truncate', 'truncateChars', 'accentPosition', 'refSize', 'refColumns', 'refTap', 'paddingY'];
   const union = new Set<AppearanceProp>();
   for (const kind of accepts) {
     for (const prop of APPEARANCE_PROPS_BY_KIND[kind]) {
