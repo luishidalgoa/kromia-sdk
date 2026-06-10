@@ -54,10 +54,12 @@ export interface RecipeRendererProps {
    *  los slots card-ref. Lo inyecta el host (Studio/Flutter); sin él, las
    *  mini-cartas pintan el placeholder degradado de siempre. */
   resolveCardRef?: CardRefResolver;
+  /** KRO-133 — tap en una mini-carta de refs (gated por appearance.refTap). */
+  onCardRefTap?: (ref: string | number) => void;
 }
 
 export function RecipeRenderer({
-  composition, item, fieldDefs, onItemClick, className, cardFormat, resolveCardRef,
+  composition, item, fieldDefs, onItemClick, className, cardFormat, resolveCardRef, onCardRefTap,
 }: RecipeRendererProps) {
   // navigate_to_detail, modal y expand_inline disparan onItemClick — la
   // receta no distingue. El wrapper interactivo (RecipeInteractive) decide
@@ -92,6 +94,7 @@ export function RecipeRenderer({
         className={className}
         cardFormat={cardFormat}
         resolveCardRef={resolveCardRef}
+        onCardRefTap={onCardRefTap}
       />
     );
   }
@@ -139,6 +142,7 @@ export function RecipeRenderer({
           className={className}
           cardFormat={cardFormat}
           resolveCardRef={resolveCardRef}
+          onCardRefTap={onCardRefTap}
         />
       );
 
@@ -199,6 +203,7 @@ export function RecipeRenderer({
           className={className}
           cardFormat={cardFormat}
           resolveCardRef={resolveCardRef}
+          onCardRefTap={onCardRefTap}
         />
       );
     }

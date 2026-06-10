@@ -58,10 +58,12 @@ export interface HeroProtagonicoRecipeProps {
   cardFormat?: CardFormat;
   /** KRO-133 — resuelve refs a cartas REALES (foto) en las mini-cartas. */
   resolveCardRef?: CardRefResolver;
+  /** KRO-133 — tap en mini-carta (gated por appearance.refTap === 'focus'). */
+  onCardRefTap?: (ref: string | number) => void;
 }
 
 export function HeroProtagonicoRecipe({
-  composition, item, fieldDefs, className, cardFormat, resolveCardRef,
+  composition, item, fieldDefs, className, cardFormat, resolveCardRef, onCardRefTap,
 }: HeroProtagonicoRecipeProps) {
   // Cabecera (banner/avatar/title/subtitle) la resuelve + pinta HeroHeader.
   // Aquí solo el TÍTULO (seed de las mini-cartas) + los slots del CUERPO.
@@ -215,6 +217,8 @@ export function HeroProtagonicoRecipe({
               seed={titleText}
               cardFormat={cardFormat ?? DEFAULT_CARD_FORMAT}
               resolveRef={resolveCardRef}
+              appearance={related?.appearance}
+              onRefTap={related?.appearance?.refTap === 'focus' ? onCardRefTap : undefined}
             />
           )}
         </div>

@@ -30,6 +30,8 @@ import {
   OPTIONS_APPEARANCE_TRUNCATE,
   OPTIONS_APPEARANCE_PADDING_Y,
   OPTIONS_APPEARANCE_ACCENT_POSITION,
+  OPTIONS_APPEARANCE_REF_COLUMNS,
+  OPTIONS_APPEARANCE_REF_TAP,
 } from './options';
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -76,6 +78,8 @@ const SIZE_IDS     = new Set(OPTIONS_APPEARANCE_SIZE.map(o => o.id));
 const TRUNCATE_IDS = new Set(OPTIONS_APPEARANCE_TRUNCATE.map(o => o.id));
 const PADDING_IDS  = new Set(OPTIONS_APPEARANCE_PADDING_Y.map(o => o.id));
 const ACCENT_IDS   = new Set(OPTIONS_APPEARANCE_ACCENT_POSITION.map(o => o.id));
+const REF_COLS_IDS = new Set(OPTIONS_APPEARANCE_REF_COLUMNS.map(o => o.id));
+const REF_TAP_IDS  = new Set(OPTIONS_APPEARANCE_REF_TAP.map(o => o.id));
 
 function validateAppearance(
   appearance: SlotAppearance | undefined,
@@ -104,6 +108,12 @@ function validateAppearance(
   }
   if (appearance.paddingY !== undefined && !PADDING_IDS.has(appearance.paddingY)) {
     issues.push({ path: `${path}.paddingY`, level: 'error', message: `paddingY "${appearance.paddingY}" no es válido` });
+  }
+  if (appearance.refColumns !== undefined && !REF_COLS_IDS.has(appearance.refColumns)) {
+    issues.push({ path: `${path}.refColumns`, level: 'error', message: `refColumns "${appearance.refColumns}" no es válido` });
+  }
+  if (appearance.refTap !== undefined && !REF_TAP_IDS.has(appearance.refTap)) {
+    issues.push({ path: `${path}.refTap`, level: 'error', message: `refTap "${appearance.refTap}" no es válido` });
   }
   if (appearance.accentPosition !== undefined && !ACCENT_IDS.has(appearance.accentPosition)) {
     issues.push({ path: `${path}.accentPosition`, level: 'error', message: `accentPosition "${appearance.accentPosition}" no es válido` });

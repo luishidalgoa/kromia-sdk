@@ -237,6 +237,9 @@ interface NodeCtx {
   cardFormat?: CardFormat;
   /** KRO-133 — resuelve refs a cartas REALES (foto) en las mini-cartas. */
   resolveCardRef?: CardRefResolver;
+  /** KRO-133 — tap en una mini-carta (el host abre el modo focus). Solo se
+   *  invoca cuando el slot tiene appearance.refTap === 'focus'. */
+  onCardRefTap?: (ref: string | number) => void;
 }
 
 /** ¿El field del slot es una imagen? (decide caja-imagen vs texto). */
@@ -265,6 +268,8 @@ export interface SlotContentProps {
   cardFormat?: CardFormat;
   /** KRO-133 — resuelve refs a cartas REALES (foto) en las mini-cartas. */
   resolveCardRef?: CardRefResolver;
+  /** KRO-133 — tap en mini-carta (gated por appearance.refTap === 'focus'). */
+  onCardRefTap?: (ref: string | number) => void;
 }
 
 /**
@@ -273,7 +278,7 @@ export interface SlotContentProps {
  * lienzo con el mismo resultado que el motor de render. Devuelve null si el
  * slot está deshabilitado o no resuelve a datos.
  */
-export function SlotContent({ slot, composition, item, fieldDefs, cardFormat, resolveCardRef }: SlotContentProps) {
+export function SlotContent({ slot, composition, item, fieldDefs, cardFormat, resolveCardRef, onCardRefTap }: SlotContentProps) {
   if (isSlotDisabled(composition, slot)) return null;
   const resolved = resolveSlot(composition, slot, fieldDefs, item);
   if (!resolved) return null;
@@ -311,6 +316,8 @@ export function SlotContent({ slot, composition, item, fieldDefs, cardFormat, re
           nestedComposition={composition.slots[slot]?.nestedComposition}
           fieldDefs={fieldDefs}
           resolveRef={resolveCardRef}
+          appearance={resolved.appearance}
+          onRefTap={resolved.appearance?.refTap === 'focus' ? onCardRefTap : undefined}
         />
       </div>
     );
@@ -354,7 +361,7 @@ export function SlotContent({ slot, composition, item, fieldDefs, cardFormat, re
 
 /** Render de una hoja (slot) dentro del árbol. */
 function SlotLeaf({ slot, ctx }: { slot: string; ctx: NodeCtx }) {
-  return <SlotContent slot={slot} composition={ctx.composition} item={ctx.item} fieldDefs={ctx.fieldDefs} cardFormat={ctx.cardFormat} resolveCardRef={ctx.resolveCardRef} />;
+  return <SlotContent slot={slot} composition={ctx.composition} item={ctx.item} fieldDefs={ctx.fieldDefs} cardFormat={ctx.cardFormat} resolveCardRef={ctx.resolveCardRef} onCardRefTap={ctx.onCardRefTap} />;
 }
 
 /**
@@ -371,7 +378,7 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
     if (isHidden(role)) return null;
     const sid = node.slots?.[role];
     if (!sid) return null;
-    return <SlotContent slot={sid} composition={ctx.composition} item={ctx.item} fieldDefs={ctx.fieldDefs} cardFormat={ctx.cardFormat} resolveCardRef={ctx.resolveCardRef} />;
+    return <SlotContent slot={sid} composition={ctx.composition} item={ctx.item} fieldDefs={ctx.fieldDefs} cardFormat={ctx.cardFormat} resolveCardRef={ctx.resolveCardRef} onCardRefTap={ctx.onCardRefTap} />;
   };
   // KRO-133 — valor CRUDO de un rol (array completo). Los carruseles necesitan
   // TODO el array (SlotContent colapsa image-array a la 1ª url), así que leen el
@@ -399,6 +406,7 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
     if (!sid) return null;
     const refVal = rawValue(role) as Array<string | number> | string | number | undefined;
     const seed = String(Array.isArray(refVal) ? (refVal[0] ?? sid) : (refVal ?? sid));
+    const ap = ctx.composition.slots[sid]?.appearance;
     return (
       <RefGallery
         refs={refVal}
@@ -409,6 +417,8 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
         layout={layout}
         label={roleLabel(role)}
         resolveRef={ctx.resolveCardRef}
+        appearance={ap}
+        onRefTap={ap?.refTap === 'focus' ? ctx.onCardRefTap : undefined}
       />
     );
   };
@@ -481,6 +491,8 @@ export interface ComponentContentProps {
   cardFormat?: CardFormat;
   /** KRO-133 — resuelve refs a cartas REALES (foto) en las mini-cartas. */
   resolveCardRef?: CardRefResolver;
+  /** KRO-133 — tap en mini-carta (gated por appearance.refTap === 'focus'). */
+  onCardRefTap?: (ref: string | number) => void;
 }
 
 /**
@@ -489,8 +501,8 @@ export interface ComponentContentProps {
  * mismo resultado que el motor de render — WYSIWYG, una sola fuente de verdad
  * (mismo patrón que `SlotContent`).
  */
-export function ComponentContent({ node, composition, item, fieldDefs, cardFormat, resolveCardRef }: ComponentContentProps) {
-  return <ComponentNodeView node={node} ctx={{ composition, item, fieldDefs, cardFormat, resolveCardRef }} />;
+export function ComponentContent({ node, composition, item, fieldDefs, cardFormat, resolveCardRef, onCardRefTap }: ComponentContentProps) {
+  return <ComponentNodeView node={node} ctx={{ composition, item, fieldDefs, cardFormat, resolveCardRef, onCardRefTap }} />;
 }
 
 /** Render recursivo de un nodo del árbol. */
@@ -572,6 +584,8 @@ export interface LayoutRendererProps {
   cardFormat?: CardFormat;
   /** KRO-133 — resuelve refs a cartas REALES (foto) en las mini-cartas. */
   resolveCardRef?: CardRefResolver;
+  /** KRO-133 — tap en mini-carta (gated por appearance.refTap === 'focus'). */
+  onCardRefTap?: (ref: string | number) => void;
 }
 
 /**
@@ -579,11 +593,11 @@ export interface LayoutRendererProps {
  * árbol derivado de los slots si no lo trae) dentro del AccentFrame de la receta.
  */
 export function LayoutRenderer({
-  composition, item, fieldDefs, onClick, className, cardFormat, resolveCardRef,
+  composition, item, fieldDefs, onClick, className, cardFormat, resolveCardRef, onCardRefTap,
 }: LayoutRendererProps) {
   const rawRoot: LayoutContainerNode = composition.layout ?? migrateSlotsToLayout(composition);
   const accent  = extractAccentSettings(composition, item, fieldDefs, 'top');
-  const ctx: NodeCtx = { composition, item, fieldDefs, cardFormat, resolveCardRef };
+  const ctx: NodeCtx = { composition, item, fieldDefs, cardFormat, resolveCardRef, onCardRefTap };
   const clickable = !!onClick;
   const isDetail = getRecipeManifest(composition.recipe)?.kind === 'detail';
   // KRO-133 fidelidad — una pantalla de DETALLE es pantalla completa: el nodo

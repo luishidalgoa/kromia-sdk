@@ -149,6 +149,21 @@ export const OPTIONS_APPEARANCE_PADDING_Y: ReadonlyArray<CatalogOption> = [
   { id: 'lg',   label: 'L', tooltip: 'Grande' },
 ];
 
+/** Columnas de la rejilla de mini-cartas de un slot card-ref (KRO-133).
+ *  Sin override = automático (derivado del formato de carta del álbum). */
+export const OPTIONS_APPEARANCE_REF_COLUMNS: ReadonlyArray<CatalogOption> = [
+  { id: '1', label: '1', tooltip: '1 columna (lista vertical de cartas)' },
+  { id: '2', label: '2', tooltip: '2 columnas' },
+  { id: '3', label: '3', tooltip: '3 columnas' },
+  { id: '4', label: '4', tooltip: '4 columnas' },
+];
+
+/** Acción al TOCAR una mini-carta de referencias (KRO-133). */
+export const OPTIONS_APPEARANCE_REF_TAP: ReadonlyArray<CatalogOption> = [
+  { id: 'none',  label: '∅',     tooltip: 'No interactiva (solo se muestra)' },
+  { id: 'focus', label: 'Focus', tooltip: 'Abre la carta real en modo focus (overlay protagonista)' },
+];
+
 /** Posición del border accent. */
 export const OPTIONS_APPEARANCE_ACCENT_POSITION: ReadonlyArray<CatalogOption> = [
   { id: 'auto',   label: 'Auto', tooltip: 'Posición default por receta (típicamente arriba en cards / detail, izquierda en accordion)' },
@@ -171,6 +186,8 @@ export const OPTIONS_APPEARANCE_LABELS: Record<AppearanceProp, string> = {
   truncate:       'Truncar',
   truncateChars:  'Caracteres',
   accentPosition: 'Tinte',
+  refColumns:     'Columnas',
+  refTap:         'Al tocar',
   paddingY:       'Padding',
 };
 
@@ -186,6 +203,8 @@ export const OPTIONS_APPEARANCE_DESCRIPTIONS: Record<AppearanceProp, string> = {
   truncate:       'Cortar texto largo con "…". 1L/2L/3L = N líneas máximas, ∞ = texto completo.',
   truncateChars:  'Cortar por número de caracteres (slice JS). Predecible, independiente del ancho.',
   accentPosition: 'Posición de la línea de color que rodea la tarjeta. "Auto" usa la posición default por receta; "∅" desactiva la línea.',
+  refColumns:     'Columnas de la rejilla de mini-cartas. Sin valor = automático según el formato de carta del álbum.',
+  refTap:         'Qué pasa al tocar una mini-carta: nada, o abrirla en modo focus (overlay protagonista).',
   paddingY:       'Padding vertical del wrapper del slot — separación con vecinos.',
 };
 

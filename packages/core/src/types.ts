@@ -171,6 +171,14 @@ export interface SlotAppearance {
    *  el slot). 'auto' usa el default de la receta. */
   accentPosition?: 'top' | 'right' | 'bottom' | 'left' | 'none' | 'auto';
 
+  // ── Solo kind=card-ref (mini-cartas de referencias) ───────────────
+  /** KRO-133 — columnas de la rejilla de mini-cartas ('1'..'4'). Sin valor =
+   *  automático (derivado del cardFormat del álbum vía miniRefGridColumns). */
+  refColumns?: '1' | '2' | '3' | '4';
+  /** KRO-133 — qué pasa al TOCAR una mini-carta: 'focus' abre la carta real
+   *  en modo focus (overlay protagonista); 'none' (default) no es interactiva. */
+  refTap?:     'none' | 'focus';
+
   // ── Común (image, text, badge, card-ref) ──────────────────────────
   /** Tamaño relativo — el manifest define el default; aquí ajustas. */
   size?:      'sm' | 'md' | 'lg' | 'xl';

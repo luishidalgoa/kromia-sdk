@@ -23,7 +23,7 @@ import { cn } from '../lib/cn';
 import { simpleHash } from '../lib/hash';
 import {
   aspectToRatio, DEFAULT_CARD_FORMAT, miniRefGridColumns,
-  type CardFormat, type NestedViewComposition,
+  type CardFormat, type NestedViewComposition, type SlotAppearance,
 } from '@kromia/core';
 import { NestedRecipeRenderer } from './NestedRecipeRenderer';
 import type { FieldDefLike } from '../recipe-utils';
@@ -56,16 +56,22 @@ export interface RefGalleryProps {
   label?:             string;
   /** KRO-133 — resuelve cada ref a la carta REAL (foto). Sin él, placeholders. */
   resolveRef?:        CardRefResolver;
+  /** KRO-133 — apariencia del slot card-ref: shape (esquinas de la mini-carta),
+   *  size (tamaño en carrusel) y refColumns (columnas de la rejilla). */
+  appearance?:        SlotAppearance;
+  /** KRO-133 — tap en una mini-carta (el host abre el modo focus). Solo se
+   *  cablea cuando appearance.refTap === 'focus'. */
+  onRefTap?:          (ref: string | number) => void;
 }
 
 /** Punto de entrada: normaliza el valor a array y despacha nested vs mini-cartas. */
-export function RefGallery({ refs, seed, cardFormat, nestedComposition, fieldDefs, layout = 'grid', label, resolveRef }: RefGalleryProps) {
+export function RefGallery({ refs, seed, cardFormat, nestedComposition, fieldDefs, layout = 'grid', label, resolveRef, appearance, onRefTap }: RefGalleryProps) {
   const list = (Array.isArray(refs) ? refs : refs == null ? [] : [refs])
     .filter((r): r is string | number => r != null && r !== '');
   if (list.length === 0) return null;
   const inner = nestedComposition
     ? <NestedRecipeRenderer refs={list} nestedComposition={nestedComposition} fieldDefs={fieldDefs} />
-    : <MiniCardRefs refs={list} seed={seed} cardFormat={cardFormat ?? DEFAULT_CARD_FORMAT} layout={layout} resolveRef={resolveRef} />;
+    : <MiniCardRefs refs={list} seed={seed} cardFormat={cardFormat ?? DEFAULT_CARD_FORMAT} layout={layout} resolveRef={resolveRef} appearance={appearance} onRefTap={onRefTap} />;
   if (!label) return inner;
   return (
     <div>
@@ -83,15 +89,28 @@ export function RefGallery({ refs, seed, cardFormat, nestedComposition, fieldDef
  * hace de "foto" en preview). Card central destacada cuando hay ≥2 visibles;
  * "+N" con border dashed para el overflow. Columnas derivadas del `cardFormat`.
  */
+const REF_SHAPE_CLASSES: Record<NonNullable<SlotAppearance['shape']>, string> = {
+  circle: 'rounded-full', square: 'rounded-none', rounded: 'rounded-lg',
+};
+const REF_SIZE_MULT: Record<NonNullable<SlotAppearance['size']>, number> = {
+  sm: 0.7, md: 1, lg: 1.4, xl: 1.8,
+};
+
 export function MiniCardRefs({
-  refs, seed, cardFormat, layout = 'grid', resolveRef,
+  refs, seed, cardFormat, layout = 'grid', resolveRef, appearance, onRefTap,
 }: {
   refs:       Array<string | number>;
   seed:       string;
   cardFormat: CardFormat;
   layout?:    'grid' | 'carousel';
   resolveRef?: CardRefResolver;
+  appearance?: SlotAppearance;
+  onRefTap?:  (ref: string | number) => void;
 }) {
+  // KRO-133 — apariencia REAL del card-ref: forma de las esquinas, columnas
+  // de la rejilla (override del automático por cardFormat) y tamaño (carrusel).
+  const shapeClass = REF_SHAPE_CLASSES[appearance?.shape ?? 'rounded'];
+  const sizeMult   = REF_SIZE_MULT[appearance?.size ?? 'md'];
   const hue = simpleHash(seed) % 360;
   // Gradient sutil — la card es la imagen full-bleed, no un fondo plano.
   const gradStart   = `hsl(${hue}, 45%, 88%)`;
@@ -131,12 +150,14 @@ export function MiniCardRefs({
       <div className="flex gap-2.5 overflow-x-auto snap-x snap-mandatory pb-1">
         {refs.slice(0, 24).map((ref, i) => {
           const face = cardFace(ref);
+          const Cell = onRefTap ? 'button' : 'div';
           return (
-            <div
+            <Cell
               key={i}
-              className="shrink-0 snap-start rounded-lg overflow-hidden relative"
+              {...(onRefTap ? { type: 'button' as const, onClick: () => onRefTap(ref), title: 'Ver carta' } : {})}
+              className={cn('shrink-0 snap-start overflow-hidden relative text-left', shapeClass, onRefTap && 'cursor-pointer hover:ring-2 hover:ring-primary/40 transition-all')}
               style={{
-                width: '6rem',
+                width: `${6 * sizeMult}rem`,
                 aspectRatio: ratio,
                 background: face.bg,
                 boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
@@ -149,7 +170,7 @@ export function MiniCardRefs({
               >
                 {String(ref).padStart(3, '0')}
               </span>
-            </div>
+            </Cell>
           );
         })}
       </div>
@@ -157,8 +178,9 @@ export function MiniCardRefs({
   }
 
   // KRO-78 — columnas derivadas del cardFormat (aspect + size) por el helper
-  // puro `miniRefGridColumns` de `@kromia/core`. Clamp 1-6.
-  const cols            = miniRefGridColumns(cardFormat);
+  // puro `miniRefGridColumns` de `@kromia/core`. Clamp 1-6. El publisher puede
+  // FORZAR columnas con appearance.refColumns ('1'..'4') — KRO-133.
+  const cols            = appearance?.refColumns ? Number(appearance.refColumns) : miniRefGridColumns(cardFormat);
   const visibleCount    = Math.max(1, cols - 1);  // un slot reservado para "+N"
   const visible         = refs.slice(0, visibleCount);
   const overflow        = refs.length - visible.length;
@@ -174,13 +196,16 @@ export function MiniCardRefs({
       {visible.map((ref, i) => {
         const highlighted = i === highlightIdx;
         const face = cardFace(ref);
+        const Cell = onRefTap ? 'button' : 'div';
         return (
-          <div
+          <Cell
             key={i}
+            {...(onRefTap ? { type: 'button' as const, onClick: () => onRefTap(ref), title: 'Ver carta' } : {})}
             className={cn(
-              'rounded-lg overflow-hidden relative',
+              shapeClass, 'overflow-hidden relative text-left',
               'transition-transform',
               highlighted && 'scale-[1.04]',
+              onRefTap && 'cursor-pointer hover:ring-2 hover:ring-primary/40',
             )}
             style={{
               aspectRatio: ratio,
@@ -200,12 +225,12 @@ export function MiniCardRefs({
             >
               {String(ref).padStart(3, '0')}
             </span>
-          </div>
+          </Cell>
         );
       })}
       {overflow > 0 && (
         <div
-          className="rounded-lg border-2 border-dashed flex items-center justify-center"
+          className={cn(shapeClass, 'border-2 border-dashed flex items-center justify-center')}
           style={{ aspectRatio: ratio, borderColor: tintAccent }}
         >
           <span
