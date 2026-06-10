@@ -46,8 +46,8 @@ export type RecipeId =
   | 'split_panel'
   | 'stat_tile'
   | 'cover_band'
-  // V5 — plantillas de DETALLE block-native.
-  | 'detail_panel'
+  // V5 — plantillas de DETALLE block-native. (`detail_panel` "Ficha" eliminada
+  // KRO-133: quedó idéntica a `editorial` tras unificar la tarjeta de detalle.)
   | 'detail_profile';
 
 /** IDs de acciones. V1: solo none + navigate_to_detail. */

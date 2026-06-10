@@ -571,12 +571,15 @@ export function LayoutRenderer({
   const clickable = !!onClick;
   const isDetail = getRecipeManifest(composition.recipe)?.kind === 'detail';
   // KRO-133 fidelidad — una pantalla de DETALLE es pantalla completa: el nodo
-  // RAÍZ nunca lleva esquinas redondeadas ni borde (taparían la raya de acento
-  // y añadirían un marco que la pantalla real no muestra). Se neutralizan AQUÍ
-  // (no solo en los presets) para cubrir también layouts ya guardados con
-  // radius/border antiguos. Los contenedores INTERNOS conservan su decoración.
+  // RAÍZ nunca lleva esquinas redondeadas, borde NI fondo semántico propio.
+  // El radius/border taparían la raya de acento en las esquinas y enmarcarían
+  // algo que la pantalla real no muestra; el `background: 'card'` opaco del
+  // raíz PINTABA ENCIMA del box-shadow inset del AccentFrame (que vive en el
+  // wrapper) → "desaparecía el color de la raya". El wrapper ya provee bg-card.
+  // Se neutralizan AQUÍ (no solo en los presets) para cubrir también layouts ya
+  // guardados. `bgColor` custom (paleta) y los contenedores INTERNOS se respetan.
   const root: LayoutContainerNode = isDetail && rawRoot.surface
-    ? { ...rawRoot, surface: { ...rawRoot.surface, radius: undefined, border: undefined } }
+    ? { ...rawRoot, surface: { ...rawRoot.surface, radius: undefined, border: undefined, background: undefined } }
     : rawRoot;
   // KRO-133 fidelidad — el padding default SOLO si el layout raíz no declara su
   // propio `surface`: los presets de detalle traen TARJETA con padding propio

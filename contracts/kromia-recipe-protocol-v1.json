@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
-  "protocolVersion": "2.8.0",
-  "generatedAt": "2026-06-10T06:56:45.655Z",
+  "protocolVersion": "3.0.0",
+  "generatedAt": "2026-06-10T07:23:34.919Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -577,82 +577,6 @@
           "kind": "single",
           "accepts": [
             "badge"
-          ],
-          "optional": true,
-          "nestable": false,
-          "description": null
-        }
-      ]
-    },
-    {
-      "id": "detail_panel",
-      "kind": "detail",
-      "displayName": "Ficha",
-      "description": "Portada ancha + título + subtítulo + estadísticas + cuerpo + galería. Vista de detalle limpia y moderna.",
-      "slots": [
-        {
-          "id": "cover",
-          "label": "Portada",
-          "kind": "single",
-          "accepts": [
-            "image"
-          ],
-          "optional": false,
-          "nestable": false,
-          "description": null
-        },
-        {
-          "id": "title",
-          "label": "Título",
-          "kind": "single",
-          "accepts": [
-            "text-short"
-          ],
-          "optional": false,
-          "nestable": false,
-          "description": null
-        },
-        {
-          "id": "subtitle",
-          "label": "Subtítulo",
-          "kind": "composable",
-          "accepts": [
-            "text-short",
-            "date",
-            "number"
-          ],
-          "optional": true,
-          "nestable": false,
-          "description": null
-        },
-        {
-          "id": "stats",
-          "label": "Estadísticas",
-          "kind": "composable",
-          "accepts": [
-            "number"
-          ],
-          "optional": true,
-          "nestable": false,
-          "description": "Valores numéricos en fila (cada uno con su etiqueta del field)."
-        },
-        {
-          "id": "body",
-          "label": "Cuerpo",
-          "kind": "single",
-          "accepts": [
-            "text-long"
-          ],
-          "optional": true,
-          "nestable": false,
-          "description": null
-        },
-        {
-          "id": "gallery",
-          "label": "Galería",
-          "kind": "single",
-          "accepts": [
-            "image-array"
           ],
           "optional": true,
           "nestable": false,
@@ -1540,7 +1464,6 @@
         "hero_protagonico",
         "editorial",
         "momento",
-        "detail_panel",
         "detail_profile"
       ],
       "allowedExpandRecipes": [
@@ -1561,7 +1484,6 @@
         "hero_protagonico",
         "editorial",
         "momento",
-        "detail_panel",
         "detail_profile"
       ],
       "allowedExpandRecipes": [
@@ -1590,7 +1512,6 @@
         "hero_protagonico",
         "editorial",
         "momento",
-        "detail_panel",
         "detail_profile"
       ],
       "allowedExpandRecipes": [
@@ -1639,7 +1560,6 @@
         "hero_protagonico",
         "editorial",
         "momento",
-        "detail_panel",
         "detail_profile"
       ],
       "allowedExpandRecipes": [
@@ -1660,7 +1580,6 @@
         "hero_protagonico",
         "editorial",
         "momento",
-        "detail_panel",
         "detail_profile"
       ],
       "allowedExpandRecipes": [
@@ -1681,21 +1600,12 @@
         "hero_protagonico",
         "editorial",
         "momento",
-        "detail_panel",
         "detail_profile"
       ],
       "allowedExpandRecipes": [
         "accordion_simple",
         "accordion_with_actions"
       ]
-    },
-    "detail_panel": {
-      "kindRole": "detail-target",
-      "allowedActions": [
-        "none"
-      ],
-      "allowedTargetRecipes": [],
-      "allowedExpandRecipes": []
     },
     "detail_profile": {
       "kindRole": "detail-target",
@@ -1718,7 +1628,6 @@
         "hero_protagonico",
         "editorial",
         "momento",
-        "detail_panel",
         "detail_profile"
       ],
       "allowedExpandRecipes": [
@@ -2035,11 +1944,6 @@
         "label": "Mosaico de dato"
       },
       {
-        "id": "recipe:detail_panel",
-        "category": "recipe",
-        "label": "Ficha"
-      },
-      {
         "id": "recipe:detail_profile",
         "category": "recipe",
         "label": "Perfil"
@@ -2348,11 +2252,6 @@
       },
       {
         "from": "recipe:compact_avatar",
-        "to": "recipe:detail_panel",
-        "kind": "recipe-target"
-      },
-      {
-        "from": "recipe:compact_avatar",
         "to": "recipe:detail_profile",
         "kind": "recipe-target"
       },
@@ -2408,11 +2307,6 @@
       },
       {
         "from": "recipe:compact_card",
-        "to": "recipe:detail_panel",
-        "kind": "recipe-target"
-      },
-      {
-        "from": "recipe:compact_card",
         "to": "recipe:detail_profile",
         "kind": "recipe-target"
       },
@@ -2468,11 +2362,6 @@
       },
       {
         "from": "recipe:row_text",
-        "to": "recipe:detail_panel",
-        "kind": "recipe-target"
-      },
-      {
-        "from": "recipe:row_text",
         "to": "recipe:detail_profile",
         "kind": "recipe-target"
       },
@@ -2528,11 +2417,6 @@
       },
       {
         "from": "recipe:feature_card",
-        "to": "recipe:detail_panel",
-        "kind": "recipe-target"
-      },
-      {
-        "from": "recipe:feature_card",
         "to": "recipe:detail_profile",
         "kind": "recipe-target"
       },
@@ -2584,11 +2468,6 @@
       {
         "from": "recipe:split_panel",
         "to": "recipe:momento",
-        "kind": "recipe-target"
-      },
-      {
-        "from": "recipe:split_panel",
-        "to": "recipe:detail_panel",
         "kind": "recipe-target"
       },
       {
@@ -2648,11 +2527,6 @@
       },
       {
         "from": "recipe:stat_tile",
-        "to": "recipe:detail_panel",
-        "kind": "recipe-target"
-      },
-      {
-        "from": "recipe:stat_tile",
         "to": "recipe:detail_profile",
         "kind": "recipe-target"
       },
@@ -2704,11 +2578,6 @@
       {
         "from": "recipe:cover_band",
         "to": "recipe:momento",
-        "kind": "recipe-target"
-      },
-      {
-        "from": "recipe:cover_band",
-        "to": "recipe:detail_panel",
         "kind": "recipe-target"
       },
       {

@@ -14,8 +14,8 @@ import type { RecipeId, SlotComposition, ViewComposition } from '../src/types';
 const BLOCK_NATIVE: RecipeId[] = [
   // list
   'feature_card', 'split_panel', 'stat_tile', 'cover_band',
-  // detail
-  'detail_panel', 'detail_profile',
+  // detail (`detail_panel` "Ficha" eliminada — idéntica a editorial)
+  'detail_profile',
 ];
 
 /** Composición con TODOS los slots del manifest rellenos (1 field cada uno). */

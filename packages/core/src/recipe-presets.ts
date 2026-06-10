@@ -96,16 +96,18 @@ const detailCard = (
   const padded = grid(1, Math.max(1, content.length), content, {
     gap: opts.gap ?? 'sm', ...(opts.centered ? { align: 'center' as const } : {}), surface: { padding: 'lg' },
   });
+  // Sin `background` propio en el raíz: el wrapper del motor ya es bg-card y un
+  // fondo opaco aquí taparía la raya de acento (box-shadow inset del wrapper).
   if (coverId && has(coverId)) {
     // Tarjeta: cover full-bleed (rounded-none) + contenido con padding.
     const outer: LayoutNode[] = [
       leaf(coverId, { colStart: 1, rowStart: 1 }),
       { ...padded, place: { colStart: 1, rowStart: 2 } },
     ];
-    return grid(1, 2, outer, { gap: 'none', surface: { background: 'card' } });
+    return grid(1, 2, outer, { gap: 'none', surface: { padding: 'none' } });
   }
   // Sin cover → la propia tarjeta lleva el padding.
-  return { ...padded, surface: { padding: 'lg', background: 'card' } };
+  return padded;
 };
 
 /** Fila "media": [media | (título/subtítulo apilados) | accesorio], con anchos
@@ -290,21 +292,8 @@ const RECIPE_PRESETS: Partial<Record<RecipeId, RecipePreset>> = {
       body: { size: 'md', truncate: 'none' },
     },
   },
-  // V5 (KRO-133) — plantillas de detalle block-native. Misma TARJETA que el resto
-  // de detalles, para fidelidad/consistencia.
-  detail_panel: {
-    // TARJETA: portada full-bleed → título → subtítulo → stats (fila) → cuerpo → galería (grid).
-    build: (has) => detailCard('cover', ['title', 'subtitle', 'stats', 'body', 'gallery'], has, {
-      stats:   { component: 'stats_row',    role: 'stats'  },
-      gallery: { component: 'gallery_grid', role: 'images' },
-    }),
-    appearance: {
-      cover:    { aspect: '16:9', shape: 'square' },   // rounded-none → flush en la tarjeta
-      title:    { weight: 'bold', size: 'xl' },
-      subtitle: { size: 'md', textColor: 'muted' },
-      body:     { size: 'md', truncate: 'none' },
-    },
-  },
+  // V5 (KRO-133) — plantilla de detalle block-native. Misma TARJETA que el resto
+  // de detalles. (`detail_panel` "Ficha" eliminada: idéntica a `editorial`.)
   detail_profile: {
     // TARJETA centrada: avatar circular → título → subtítulo → stats (fila) → cuerpo.
     build: (has) => detailCard(null, ['avatar', 'title', 'subtitle', 'stats', 'body'], has, {
