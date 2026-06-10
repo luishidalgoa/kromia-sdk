@@ -365,7 +365,10 @@ function SlotLeaf({ slot, ctx }: { slot: string; ctx: NodeCtx }) {
  * pendiente (KRO-83).
  */
 function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: NodeCtx }) {
+  // KRO-133 — rol OCULTO por el publisher: ese módulo no se pinta (ni placeholder).
+  const isHidden = (role: string) => node.hidden?.includes(role) ?? false;
   const roleSlot = (role: string) => {
+    if (isHidden(role)) return null;
     const sid = node.slots?.[role];
     if (!sid) return null;
     return <SlotContent slot={sid} composition={ctx.composition} item={ctx.item} fieldDefs={ctx.fieldDefs} cardFormat={ctx.cardFormat} resolveCardRef={ctx.resolveCardRef} />;
@@ -426,18 +429,18 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
       );
     case 'ref_gallery':
       // Galería de cartas referenciadas (rejilla) — con la etiqueta del campo.
-      return renderRefs('refs', 'grid');
+      return isHidden('refs') ? null : renderRefs('refs', 'grid');
     // KRO-133 — carruseles de imágenes (mismo render que Hero/Momento/Editorial,
     // vía el componente compartido `ImageGallery`, con la etiqueta del campo).
     case 'carousel_peek':
-      return <ImageGallery urls={imageUrls('images')} variant="peek" label={roleLabel('images')} />;
+      return isHidden('images') ? null : <ImageGallery urls={imageUrls('images')} variant="peek" label={roleLabel('images')} />;
     case 'carousel_centered':
-      return <ImageGallery urls={imageUrls('images')} variant="centered" label={roleLabel('images')} />;
+      return isHidden('images') ? null : <ImageGallery urls={imageUrls('images')} variant="centered" label={roleLabel('images')} />;
     case 'gallery_grid':
-      return <ImageGallery urls={imageUrls('images')} variant="grid" label={roleLabel('images')} />;
+      return isHidden('images') ? null : <ImageGallery urls={imageUrls('images')} variant="grid" label={roleLabel('images')} />;
     // KRO-133 — carrusel de cartas: las mini-cartas de la galería en fila swipe.
     case 'cards_carousel':
-      return renderRefs('cards', 'carousel');
+      return isHidden('cards') ? null : renderRefs('cards', 'carousel');
     // KRO-133 — separador decorativo: línea corta centrada (el "hr" de las
     // recetas de detalle, p.ej. bajo la fecha de Momento).
     case 'divider':
@@ -454,13 +457,16 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
       // Cabecera hero FIEL: remapea rol→slotId a los nombres de slot del hero
       // (banner/avatar/title/subtitle) y delega en HeroHeader — el MISMO render
       // que la receta `hero_protagonico` (placeholders + inicial del título).
+      // Los roles OCULTOS no se mapean y se le indican a HeroHeader para que
+      // tampoco pinte sus placeholders.
       const heroSlots: ViewComposition['slots'] = {};
       for (const role of ['banner', 'avatar', 'title', 'subtitle'] as const) {
+        if (isHidden(role)) continue;
         const sid = node.slots?.[role];
         const sc  = sid ? ctx.composition.slots[sid] : undefined;
         if (sc) heroSlots[role] = sc;
       }
-      return <HeroHeader composition={{ slots: heroSlots }} item={ctx.item} fieldDefs={ctx.fieldDefs} />;
+      return <HeroHeader composition={{ slots: heroSlots }} item={ctx.item} fieldDefs={ctx.fieldDefs} hiddenSlots={node.hidden} />;
     }
     default:
       return null;

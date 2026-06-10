@@ -167,7 +167,8 @@ export function validateLayout(
       }
       const mapped = node.slots ?? {};
       for (const role of def.roles) {
-        if (!role.optional && !mapped[role.id]) {
+        // Un rol OCULTO por el publisher (node.hidden) no se pinta → no avisar.
+        if (!role.optional && !mapped[role.id] && !node.hidden?.includes(role.id)) {
           issues.push({ level: 'warn', path, message: `El componente "${def.displayName}" espera el rol "${role.label}".` });
         }
       }

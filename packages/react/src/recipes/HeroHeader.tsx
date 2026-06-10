@@ -32,9 +32,13 @@ export interface HeroHeaderProps {
   item:        Record<string, any>;
   fieldDefs:   FieldDefLike[];
   className?:  string;
+  /** KRO-133 — módulos OCULTOS por el publisher (banner/avatar/subtitle): no se
+   *  pintan NI sus placeholders (el banner degradado, el avatar con inicial). */
+  hiddenSlots?: ReadonlyArray<string>;
 }
 
-export function HeroHeader({ composition, item, fieldDefs, className }: HeroHeaderProps) {
+export function HeroHeader({ composition, item, fieldDefs, className, hiddenSlots }: HeroHeaderProps) {
+  const isHidden = (id: string) => hiddenSlots?.includes(id) ?? false;
   const banner   = resolveSlot(composition, 'banner',   fieldDefs, item);
   const avatar   = resolveSlot(composition, 'avatar',   fieldDefs, item);
   const title    = resolveSlot(composition, 'title',    fieldDefs, item);
@@ -49,16 +53,18 @@ export function HeroHeader({ composition, item, fieldDefs, className }: HeroHead
     <div className={className}>
       {/* Banner — full-width 16:9. Sin URL → gradient brand (hue del título) con
           patrón abstracto de círculos, como el mockup del diseñador. */}
-      {bannerUrl
+      {!isHidden('banner') && (bannerUrl
         ? <span {...slotDebugAttrs('banner', banner)} className="block">
             <BannerBox url={bannerUrl} alt="" className="rounded-none" appearance={banner?.appearance} />
           </span>
-        : <GradientBanner seed={titleText} />}
+        : <GradientBanner seed={titleText} />)}
 
       {/* Avatar (solapado -mt-12) + título + subtítulo, centrados. El avatar saca
-          la inicial del TÍTULO cuando no hay foto (AvatarBox con alt=titleText). */}
-      <div className="px-5 -mt-12 relative">
+          la inicial del TÍTULO cuando no hay foto (AvatarBox con alt=titleText).
+          Sin banner (oculto) no hay nada que solapar → sin margen negativo. */}
+      <div className={cn('px-5 relative', !isHidden('banner') && '-mt-12')}>
         <div className="flex flex-col items-center">
+          {!isHidden('avatar') && (
           <div className={appearancePaddingClass(avatar?.appearance)} {...slotDebugAttrs('avatar', avatar)}>
             <AvatarBox
               url={avatarUrl}
@@ -68,6 +74,7 @@ export function HeroHeader({ composition, item, fieldDefs, className }: HeroHead
               appearance={avatar?.appearance}
             />
           </div>
+          )}
           {titleField && (
             <h2
               className={cn(
@@ -82,7 +89,7 @@ export function HeroHeader({ composition, item, fieldDefs, className }: HeroHead
               <ScalarText value={titleField.value} def={titleField.def} appearance={title?.appearance} />
             </h2>
           )}
-          {subtitle && (
+          {subtitle && !isHidden('subtitle') && (
             <p
               className={cn(
                 'text-sm text-muted-foreground mt-1',

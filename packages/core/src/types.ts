@@ -463,6 +463,10 @@ export interface LayoutComponentNode {
   component: string;
   /** Mapa rol → slotId de la composición. */
   slots?: Record<string, string>;
+  /** KRO-133 — roles OCULTOS por el publisher: el renderer no pinta ese módulo
+   *  (ni siquiera su placeholder — p.ej. el avatar con inicial del hero).
+   *  Reversible desde el editor. */
+  hidden?: string[];
   /** Colocación de este componente dentro del grid padre (celda + span). */
   place?: GridPlacement;
 }
