@@ -68,28 +68,32 @@ const detailCard = (
   componentAs: Record<string, { component: string; role: string }> = {},
   opts: { centered?: boolean; gap?: LayoutContainerNode['gap']; dividerAfter?: string; borderTopOn?: string } = {},
 ): LayoutContainerNode => {
-  const content: LayoutNode[] = []; let cr = 1;
+  // 1ª pasada: nodos SIN place (el divider puede insertarse al principio);
+  // 2ª pasada: asigna rowStart secuencial.
+  const nodes: LayoutNode[] = [];
   for (const id of contentIds) {
     if (!has(id)) continue;
-    const place: GridPlacement = { colStart: 1, rowStart: cr++ };
     const c = componentAs[id];
     let node: LayoutNode = c
-      ? { type: 'component', component: c.component, slots: { [c.role]: id }, place }
-      : leaf(id, place);
+      ? { type: 'component', component: c.component, slots: { [c.role]: id } }
+      : { type: 'slot', slot: id };
     if (opts.borderTopOn === id) {
       // Divisor a todo el ancho sobre el slot (el `border-t` del body de Editorial).
-      node = {
-        ...grid(1, 1, [{ ...node, place: { colStart: 1, rowStart: 1 } }],
-          { gap: 'none', surface: { border: { width: 'thin', sides: ['top'] } } }),
-        place,
-      };
+      node = grid(1, 1, [{ ...node, place: { colStart: 1, rowStart: 1 } }],
+        { gap: 'none', surface: { border: { width: 'thin', sides: ['top'] } } });
     }
-    content.push(node);
+    nodes.push(node);
     if (opts.dividerAfter === id) {
-      content.push({ type: 'component', component: 'divider', slots: {}, place: { colStart: 1, rowStart: cr++ } });
+      nodes.push({ type: 'component', component: 'divider', slots: {} });
     }
   }
-  const padded = grid(1, Math.max(1, cr - 1), content, {
+  // El divisor de la receta es INCONDICIONAL (Momento lo pinta aunque no haya
+  // fecha): si el slot ancla no existe, el divider va al principio.
+  if (opts.dividerAfter && !nodes.some(n => n.type === 'component' && n.component === 'divider')) {
+    nodes.unshift({ type: 'component', component: 'divider', slots: {} });
+  }
+  const content: LayoutNode[] = nodes.map((n, i) => ({ ...n, place: { colStart: 1, rowStart: i + 1 } }));
+  const padded = grid(1, Math.max(1, content.length), content, {
     gap: opts.gap ?? 'sm', ...(opts.centered ? { align: 'center' as const } : {}), surface: { padding: 'lg' },
   });
   if (coverId && has(coverId)) {
@@ -269,7 +273,8 @@ const RECIPE_PRESETS: Partial<Record<RecipeId, RecipePreset>> = {
       cover: { aspect: '16:9', shape: 'square' },   // rounded-none → flush en la tarjeta
       title: { weight: 'bold', size: 'xl', font: 'serif' },
       meta:  { size: 'sm', textColor: 'muted', textTransform: 'uppercase' },
-      body:  { size: 'md', truncate: 'none' },
+      // paddingY md = py-2 → los 8px entre el divisor y el texto (pt-2 de la receta).
+      body:  { size: 'md', truncate: 'none', paddingY: 'md' },
     },
   },
   momento: {

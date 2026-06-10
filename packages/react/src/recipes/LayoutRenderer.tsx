@@ -565,10 +565,19 @@ export interface LayoutRendererProps {
 export function LayoutRenderer({
   composition, item, fieldDefs, onClick, className, cardFormat,
 }: LayoutRendererProps) {
-  const root: LayoutContainerNode = composition.layout ?? migrateSlotsToLayout(composition);
+  const rawRoot: LayoutContainerNode = composition.layout ?? migrateSlotsToLayout(composition);
   const accent  = extractAccentSettings(composition, item, fieldDefs, 'top');
   const ctx: NodeCtx = { composition, item, fieldDefs, cardFormat };
   const clickable = !!onClick;
+  const isDetail = getRecipeManifest(composition.recipe)?.kind === 'detail';
+  // KRO-133 fidelidad — una pantalla de DETALLE es pantalla completa: el nodo
+  // RAÍZ nunca lleva esquinas redondeadas ni borde (taparían la raya de acento
+  // y añadirían un marco que la pantalla real no muestra). Se neutralizan AQUÍ
+  // (no solo en los presets) para cubrir también layouts ya guardados con
+  // radius/border antiguos. Los contenedores INTERNOS conservan su decoración.
+  const root: LayoutContainerNode = isDetail && rawRoot.surface
+    ? { ...rawRoot, surface: { ...rawRoot.surface, radius: undefined, border: undefined } }
+    : rawRoot;
   // KRO-133 fidelidad — el padding default SOLO si el layout raíz no declara su
   // propio `surface`: los presets de detalle traen TARJETA con padding propio
   // (Editorial/Momento/Ficha/Perfil) o son full-bleed por diseño; un p-3 extra
@@ -577,7 +586,7 @@ export function LayoutRenderer({
   const rootHasSurface = !!root.surface;
   // Las recetas de DETALLE enmarcan con accent width 4 (pantalla protagonista);
   // las de lista con 3. Igualamos según el kind de la receta.
-  const accentWidth = getRecipeManifest(composition.recipe)?.kind === 'detail' ? 4 : 3;
+  const accentWidth = isDetail ? 4 : 3;
 
   return (
     <AccentFrame accent={accent} width={accentWidth}>
