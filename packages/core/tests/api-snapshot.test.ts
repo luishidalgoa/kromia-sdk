@@ -149,6 +149,7 @@ const EXPECTED_EXPORTS = [
   'AVATAR_PREFIX',
   // KRO-133 — árbol de layout (constructor visual de recetas)
   'validateLayout',
+  'pruneLayoutSlots',
   'migrateSlotsToLayout',
   'migrateSlotsToGrid',
   'layoutDepth',

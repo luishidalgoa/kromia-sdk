@@ -370,6 +370,7 @@ export {
 // tests/layout.test.ts. El tipo `layout?` vive en ViewComposition (additive, sin bump).
 export {
   validateLayout,
+  pruneLayoutSlots,
   migrateSlotsToLayout,
   migrateSlotsToGrid,
   layoutDepth,

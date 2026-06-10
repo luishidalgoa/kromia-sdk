@@ -6,6 +6,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   validateLayout,
+  pruneLayoutSlots,
   migrateSlotsToLayout,
   migrateSlotsToGrid,
   layoutDepth,
@@ -15,7 +16,7 @@ import {
   MAX_GRID_COLUMNS,
   MAX_GRID_ROWS,
 } from '../src/layout';
-import type { LayoutContainerNode, SlotComposition } from '../src/types';
+import type { LayoutContainerNode, LayoutNode, SlotComposition } from '../src/types';
 
 const slots = (...keys: string[]): Record<string, SlotComposition> =>
   Object.fromEntries(keys.map(k => [k, { fields: [k] }]));
@@ -220,5 +221,62 @@ describe('clampPlaceToGrid — colocación dentro del ancho del grid', () => {
     const ok = { colStart: 2, colSpan: 1, rowStart: 9, rowSpan: 2 };
     expect(clampPlaceToGrid(ok, 3)).toBe(ok); // sin cambios → misma ref; filas libres
     expect(clampPlaceToGrid(undefined, 2)).toBeUndefined();
+  });
+});
+
+// ── KRO-165 — pruneLayoutSlots ───────────────────────────────────────────────
+describe('pruneLayoutSlots (KRO-165)', () => {
+  const tree = (): LayoutContainerNode => ({
+    type: 'container', kind: 'grid', columns: 2, rows: 2, gap: 'sm',
+    children: [
+      { type: 'slot', slot: 'title',  place: { colStart: 1, colSpan: 1, rowStart: 1, rowSpan: 1 } },
+      { type: 'slot', slot: 'extra',  place: { colStart: 2, colSpan: 1, rowStart: 1, rowSpan: 1 } },
+      {
+        type: 'container', kind: 'grid', columns: 1, rows: 1, gap: 'sm',
+        place: { colStart: 1, colSpan: 2, rowStart: 2, rowSpan: 1 },
+        children: [
+          { type: 'slot', slot: 'extra', place: { colStart: 1, colSpan: 1, rowStart: 1, rowSpan: 1 } },
+        ],
+      },
+      {
+        type: 'component', component: 'hero_header',
+        slots: { banner: 'image', title: 'extra' },
+        place: { colStart: 1, colSpan: 2, rowStart: 3, rowSpan: 1 },
+      },
+    ],
+  });
+
+  it('poda las hojas-slot inválidas a cualquier profundidad', () => {
+    const pruned = pruneLayoutSlots(tree(), ['title', 'image']);
+    const slots: string[] = [];
+    const walk = (n: LayoutNode) => {
+      if (n.type === 'slot') slots.push(n.slot);
+      if (n.type === 'container') n.children.forEach(walk);
+    };
+    walk(pruned);
+    expect(slots).toEqual(['title']);
+  });
+
+  it('desmapea roles de componente que apuntan a slots inválidos (conserva el componente)', () => {
+    const pruned = pruneLayoutSlots(tree(), ['title', 'image']);
+    const comp = pruned.children.find(c => c.type === 'component');
+    expect(comp).toBeDefined();
+    expect((comp as { slots?: Record<string, string> }).slots).toEqual({ banner: 'image' });
+  });
+
+  it('conserva contenedores aunque queden vacíos + es pura (no muta la entrada)', () => {
+    const input = tree();
+    const before = JSON.stringify(input);
+    const pruned = pruneLayoutSlots(input, ['title', 'image']);
+    expect(JSON.stringify(input)).toBe(before);
+    const inner = pruned.children.find(c => c.type === 'container');
+    expect(inner).toBeDefined();
+    expect((inner as LayoutContainerNode).children).toEqual([]);
+  });
+
+  it('el resultado de podar pasa validateLayout sin "no declarado"', () => {
+    const pruned = pruneLayoutSlots(tree(), ['title', 'image']);
+    const res = validateLayout(pruned, { slots: { title: { fields: ['nombre'] }, image: { fields: ['foto'] } } });
+    expect(res.issues.filter(i => /no está declarado/.test(i.message))).toEqual([]);
   });
 });

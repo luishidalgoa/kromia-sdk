@@ -118,6 +118,41 @@ export interface ValidateLayoutOptions {
 }
 
 /**
+ * KRO-165 — PODA del layout cuando cambia el set de slots de la composición.
+ * Los mutators de slots (deshabilitar, quitar custom) dejaban la hoja-slot
+ * colgando en `composition.layout` → con el gate de KRO-164 eso ahora sería
+ * un ERROR que bloquea el guardado; antes era corrupción silenciosa.
+ *
+ * - Elimina las hojas `slot` cuyo id NO esté en `validSlotIds`.
+ * - DESMAPEA los roles de componente que apunten a slots inválidos (el
+ *   componente queda, con el hueco "Sin asignar").
+ * - Los contenedores se conservan aunque queden vacíos (son estructura
+ *   del publisher).
+ *
+ * Pura: devuelve un árbol nuevo (clona), nunca muta el de entrada.
+ */
+export function pruneLayoutSlots(
+  layout:       LayoutContainerNode,
+  validSlotIds: ReadonlyArray<string>,
+): LayoutContainerNode {
+  const valid = new Set(validSlotIds);
+  const walk = (node: LayoutNode): LayoutNode | null => {
+    if (node.type === 'slot') {
+      return valid.has(node.slot) ? node : null;
+    }
+    if (node.type === 'component') {
+      const entries = Object.entries(node.slots ?? {}).filter(([, sid]) => valid.has(sid));
+      return { ...node, slots: Object.fromEntries(entries) };
+    }
+    return {
+      ...node,
+      children: node.children.map(walk).filter((c): c is LayoutNode => c !== null),
+    };
+  };
+  return walk(structuredClone(layout)) as LayoutContainerNode;
+}
+
+/**
  * Valida el árbol de layout: estructura (raíz contenedor, hijos no vacíos),
  * catálogos (kind/gap/align/justify/columns), profundidad, y que cada slot-hoja
  * referencie un slot existente y NO se repita. Devuelve issues con severity.
