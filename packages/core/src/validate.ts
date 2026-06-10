@@ -16,7 +16,8 @@
  *             debería ser advertido.
  */
 
-import type { ViewComposition, SlotComposition, SlotAppearance, FieldDefLike, NestedViewComposition, TargetComposition } from './types';
+import type { ViewComposition, SlotComposition, SlotAppearance, FieldDefLike, NestedViewComposition, TargetComposition, LayoutContainerNode } from './types';
+import { validateLayout } from './layout';
 import { RECIPE_REGISTRY, getRecipeManifest, allRecipesByKind } from './registries/recipes';
 import { ACTION_IDS } from './registries/actions';
 import { MAX_TARGET_DEPTH } from './target-chain';
@@ -274,6 +275,27 @@ function validateSlot(
 }
 
 /**
+ * KRO-164 — Valida el árbol de BLOQUES (`layout`) de una composition con
+ * `validateLayout` y vuelca sus issues con el prefijo de path dado. Antes el
+ * layout se persistía SIN pasar por el gate (validateComposition lo ignoraba):
+ * árboles corruptos —slot duplicado, componente desconocido, hoja colgante—
+ * llegaban a BD en silencio. El backend (thin wrapper de KRO-80) hereda esta
+ * regla gratis → paridad cliente↔server también para el modo bloques.
+ */
+function validateCompositionLayout(
+  layout: LayoutContainerNode | undefined,
+  slots:  Record<string, SlotComposition> | undefined,
+  path:   string,
+  issues: ValidationIssue[],
+): void {
+  if (!layout) return;
+  const res = validateLayout(layout, { slots: slots ?? {} });
+  for (const iss of res.issues) {
+    issues.push({ path: `${path}.${iss.path}`, level: iss.level, message: iss.message });
+  }
+}
+
+/**
  * KRO-94 Fase B — Valida un eslabón de la cadena de navegación multi-salto
  * (`TargetComposition`) y, recursivamente, sus saltos siguientes.
  *
@@ -336,6 +358,9 @@ function validateTargetChain(
       validateSlot(slotId, slot, expandSlotsByid.get(slotId), undefined, `${path}.expand.slots.${slotId}`, issues);
     }
   }
+
+  // KRO-164 — el detalle tambien puede llevar diseño por bloques.
+  validateCompositionLayout(node.layout, node.slots, `${path}.layout`, issues);
 
   if (node.targetComposition) {
     validateTargetChain(node.targetComposition, depth + 1, `${path}.targetComposition`, issues);
@@ -427,6 +452,9 @@ export function validateComposition(
       }
     }
   }
+
+  // ── 3c. LAYOUT (diseño por bloques) — KRO-164 ─────────────────────
+  validateCompositionLayout(composition.layout, composition.slots, 'layout', issues);
 
   // ── 4. accentPosition (top-level) ─────────────────────────────────
   if (composition.accentPosition !== undefined && !ACCENT_IDS.has(composition.accentPosition)) {

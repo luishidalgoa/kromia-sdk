@@ -540,3 +540,78 @@ describe('validateComposition — slots obligatorios sin rellenar', () => {
     expect(r.issues.some(i => i.path === 'slots.extra' && i.level === 'warn')).toBe(true);
   });
 });
+
+// ── KRO-164 — el gate valida también el LAYOUT (diseño por bloques) ─────────
+describe('validateComposition — layout (KRO-164)', () => {
+  it('layout válido → sin issues de layout', () => {
+    const c: ViewComposition = {
+      recipe: 'compact_avatar',
+      action: 'none',
+      slots:  { avatar: { fields: ['foto'] }, title: { fields: ['nombre'] } },
+      layout: {
+        type: 'container', kind: 'grid', columns: 1, rows: 2, gap: 'sm',
+        children: [
+          { type: 'slot', slot: 'avatar', place: { colStart: 1, colSpan: 1, rowStart: 1, rowSpan: 1 } },
+          { type: 'slot', slot: 'title',  place: { colStart: 1, colSpan: 1, rowStart: 2, rowSpan: 1 } },
+        ],
+      },
+    };
+    const r = validateComposition(c);
+    expect(r.issues.filter(i => i.path.startsWith('layout'))).toEqual([]);
+  });
+
+  it('layout con slot NO declarado en la composition → error con path layout.*', () => {
+    const c: ViewComposition = {
+      recipe: 'compact_avatar',
+      action: 'none',
+      slots:  { title: { fields: ['nombre'] } },
+      layout: {
+        type: 'container', kind: 'grid', columns: 1, rows: 1, gap: 'sm',
+        children: [
+          { type: 'slot', slot: 'fantasma', place: { colStart: 1, colSpan: 1, rowStart: 1, rowSpan: 1 } },
+        ],
+      },
+    };
+    const r = validateComposition(c);
+    const layoutErrors = r.issues.filter(i => i.path.startsWith('layout.') && i.level === 'error');
+    expect(layoutErrors.length).toBeGreaterThan(0);
+    expect(r.valid).toBe(false);
+  });
+
+  it('layout con componente desconocido → error (antes se persistía en silencio)', () => {
+    const c: ViewComposition = {
+      recipe: 'compact_avatar',
+      action: 'none',
+      slots:  { title: { fields: ['nombre'] } },
+      layout: {
+        type: 'container', kind: 'grid', columns: 1, rows: 1, gap: 'sm',
+        children: [
+          { type: 'component', component: 'no_existe', slots: {}, place: { colStart: 1, colSpan: 1, rowStart: 1, rowSpan: 1 } },
+        ],
+      },
+    };
+    const r = validateComposition(c);
+    expect(r.issues.some(i => i.path.startsWith('layout.') && i.level === 'error' && /no_existe/.test(i.message))).toBe(true);
+    expect(r.valid).toBe(false);
+  });
+
+  it('targetComposition.layout corrupto → error con path targetComposition.layout.*', () => {
+    const c: ViewComposition = {
+      recipe: 'compact_avatar',
+      action: 'navigate_to_detail',
+      slots:  { title: { fields: ['nombre'] } },
+      targetComposition: {
+        recipe: 'hero_protagonico',
+        slots:  { title: { fields: ['nombre'] } },
+        layout: {
+          type: 'container', kind: 'grid', columns: 1, rows: 1, gap: 'sm',
+          children: [
+            { type: 'slot', slot: 'fantasma', place: { colStart: 1, colSpan: 1, rowStart: 1, rowSpan: 1 } },
+          ],
+        },
+      },
+    };
+    const r = validateComposition(c);
+    expect(r.issues.some(i => i.path.startsWith('targetComposition.layout.') && i.level === 'error')).toBe(true);
+  });
+});
