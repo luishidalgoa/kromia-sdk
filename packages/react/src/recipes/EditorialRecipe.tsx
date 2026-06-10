@@ -1,5 +1,5 @@
-import { isMockupImage } from '@kromia/core';
 'use client';
+import { isMockupImage } from '@kromia/core';
 /**
  * Receta DETALLE `editorial` — artículo con cover + título grande + meta + body
  * markdown + galería opcional. Para historias largas: artículos de hermandades,
