@@ -338,3 +338,50 @@ describe('geometría canónica y solapes (KRO-166)', () => {
     expect(cellCovered(c, 1, 2)).toBe(false);
   });
 });
+
+// ── KRO-167 — validador completo: absoluto, surface, tracks ─────────────────
+describe('validateLayout — absoluto/surface/tracks (KRO-167)', () => {
+  const base = (extra: Partial<LayoutContainerNode>): LayoutContainerNode => ({
+    type: 'container', kind: 'grid', columns: 1, rows: 1, gap: 'sm',
+    children: [{ type: 'slot', slot: 'title', place: { colStart: 1, colSpan: 1, rowStart: 1, rowSpan: 1 } }],
+    ...extra,
+  });
+  const slotsOpt = { slots: { title: { fields: ['nombre'] }, body: { fields: ['lore'] } } };
+
+  it('absoluto: x/y fuera de 0..100 → error; en rango → limpio y sin reglas de grid', () => {
+    const bad = base({ children: [
+      { type: 'slot', slot: 'title', place: { colStart: 9, colSpan: 1, rowStart: 1, rowSpan: 1, position: 'absolute', x: 150, y: 10 } },
+    ]});
+    expect(validateLayout(bad, slotsOpt).issues.some(i => /x\/y deben ser/.test(i.message))).toBe(true);
+    const ok = base({ children: [
+      { type: 'slot', slot: 'title', place: { colStart: 9, colSpan: 1, rowStart: 1, rowSpan: 1, position: 'absolute', x: 50, y: 10, w: 30 } },
+    ]});
+    const res = validateLayout(ok, slotsOpt);
+    // colStart 9 es un recuerdo del flujo: NO debe avisar de columnas.
+    expect(res.issues.filter(i => /columna|colStart/.test(i.message))).toEqual([]);
+    expect(res.issues.filter(i => i.level === 'error')).toEqual([]);
+  });
+
+  it('surface: tokens inválidos → error con path surface.*', () => {
+    const bad = base({ surface: { background: 'fucsia' as never, radius: 'xxl' as never } });
+    const res = validateLayout(bad, slotsOpt);
+    expect(res.issues.some(i => i.path.endsWith('surface.background') && i.level === 'error')).toBe(true);
+    expect(res.issues.some(i => i.path.endsWith('surface.radius') && i.level === 'error')).toBe(true);
+  });
+
+  it('surface válida → sin issues de surface', () => {
+    const ok = base({ surface: { background: 'card', radius: 'lg', padding: 'md', border: { width: 'thin', style: 'dashed', sides: ['top'] } } });
+    expect(validateLayout(ok, slotsOpt).issues.filter(i => i.path.includes('surface'))).toEqual([]);
+  });
+
+  it('track desconocido → warn; columnSizes de más → warn', () => {
+    const bad = base({ columns: 2, columnSizes: ['1fr', '7fr', 'auto'], children: [
+      { type: 'slot', slot: 'title', place: { colStart: 1, colSpan: 1, rowStart: 1, rowSpan: 1 } },
+      { type: 'slot', slot: 'body',  place: { colStart: 2, colSpan: 1, rowStart: 1, rowSpan: 1 } },
+    ]});
+    const res = validateLayout(bad, slotsOpt);
+    expect(res.issues.some(i => /Track "7fr" desconocido/.test(i.message))).toBe(true);
+    expect(res.issues.some(i => /entradas pero el grid tiene/.test(i.message))).toBe(true);
+    expect(res.ok).toBe(true); // warns, no errors
+  });
+});

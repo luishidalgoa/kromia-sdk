@@ -615,3 +615,33 @@ describe('validateComposition — layout (KRO-164)', () => {
     expect(r.issues.some(i => i.path.startsWith('targetComposition.layout.') && i.level === 'error')).toBe(true);
   });
 });
+
+// ── KRO-167 — appearance: textTransform + imageFocus ────────────────────────
+describe('validateComposition — textTransform/imageFocus (KRO-167)', () => {
+  it('textTransform inválido → error; imageFocus fuera de rango → error', () => {
+    const c: ViewComposition = {
+      recipe: 'compact_avatar',
+      action: 'none',
+      slots: {
+        title:  { fields: ['nombre'], appearance: { textTransform: 'lowercase' as never } },
+        avatar: { fields: ['foto'],   appearance: { imageFocus: { x: 150, y: 50, zoom: 1 } } },
+      },
+    };
+    const r = validateComposition(c);
+    expect(r.issues.some(i => i.path.endsWith('textTransform') && i.level === 'error')).toBe(true);
+    expect(r.issues.some(i => i.path.endsWith('imageFocus') && i.level === 'error')).toBe(true);
+  });
+
+  it('valores válidos → limpio', () => {
+    const c: ViewComposition = {
+      recipe: 'compact_avatar',
+      action: 'none',
+      slots: {
+        title:  { fields: ['nombre'], appearance: { textTransform: 'uppercase' } },
+        avatar: { fields: ['foto'],   appearance: { imageFocus: { x: 50, y: 30, zoom: 2 } } },
+      },
+    };
+    const r = validateComposition(c);
+    expect(r.issues.filter(i => /textTransform|imageFocus/.test(i.path))).toEqual([]);
+  });
+});

@@ -123,6 +123,17 @@ function validateAppearance(
   if (appearance.font !== undefined && !FONT_IDS.has(appearance.font)) {
     issues.push({ path: `${path}.font`, level: 'error', message: `font "${appearance.font}" no es válido` });
   }
+  if (appearance.textTransform !== undefined && !['none', 'uppercase'].includes(appearance.textTransform)) {
+    issues.push({ path: `${path}.textTransform`, level: 'error', message: `textTransform "${appearance.textTransform}" no es válido` });
+  }
+  if (appearance.imageFocus !== undefined) {
+    const f = appearance.imageFocus;
+    const pct = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 100;
+    const zoomOk = f.zoom === undefined || (typeof f.zoom === 'number' && f.zoom >= 1 && f.zoom <= 3);
+    if (!pct(f.x) || !pct(f.y) || !zoomOk) {
+      issues.push({ path: `${path}.imageFocus`, level: 'error', message: 'imageFocus: x/y deben ser 0..100 y zoom 1..3' });
+    }
+  }
   if (appearance.accentPosition !== undefined && !ACCENT_IDS.has(appearance.accentPosition)) {
     issues.push({ path: `${path}.accentPosition`, level: 'error', message: `accentPosition "${appearance.accentPosition}" no es válido` });
   }

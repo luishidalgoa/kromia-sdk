@@ -283,6 +283,23 @@ export function validateLayout(
       issues.push({ level: 'warn', path, message: 'Contenedor vacío (sin hijos).' });
       return;
     }
+    // KRO-167 — decoración (surface) y track sizes del contenedor.
+    if (node.surface) validateSurface(node.surface, `${path}.surface`, issues);
+    if (node.kind === 'grid') {
+      const colsN = gridCols(node);
+      for (const [propName, arr] of [['columnSizes', node.columnSizes], ['rowSizes', node.rowSizes]] as const) {
+        if (!arr) continue;
+        arr.forEach((tk, i) => {
+          if (!TRACK_TOKENS.has(tk)) {
+            issues.push({ level: 'warn', path: `${path}.${propName}[${i}]`, message: `Track "${tk}" desconocido (esperaba: ${[...TRACK_TOKENS].join('|')}) — el render usará 1fr.` });
+          }
+        });
+        if (propName === 'columnSizes' && arr.length > colsN) {
+          issues.push({ level: 'warn', path: `${path}.columnSizes`, message: `columnSizes tiene ${arr.length} entradas pero el grid tiene ${colsN} columnas (las extra se ignoran).` });
+        }
+      }
+    }
+
     // KRO-133 F3 — valida la colocación (place) de cada hijo contra ESTE grid.
     // KRO-166 — default UNIFICADO con el render (gridCols, ?? 1): antes el
     // validador asumía 2 columnas y validaba contra una rejilla que no existía.
@@ -335,10 +352,64 @@ export function validateLayout(
  * Spans fuera de rango son error; un nodo colocado fuera del grid es warn (no
  * rompe el render — solo no se verá donde se espera).
  */
+/** KRO-167 — tokens de track sizing que `trackToCss` entiende (cualquier otro
+ *  cae al default 1fr en el render → warn, no error). */
+const TRACK_TOKENS = new Set(['1fr', '2fr', '3fr', 'auto', 'content']);
+
+/** KRO-167 — valida la DECORACIÓN (surface) de un contenedor contra los presets
+ *  cerrados del modelo. bgColor/border.color son ids de paleta (string libre,
+ *  el render degrada a default) → no se validan aquí. */
+function validateSurface(
+  surface: NonNullable<LayoutContainerNode['surface']>,
+  path: string, issues: LayoutIssue[],
+): void {
+  const inSet = (v: string | undefined, set: ReadonlyArray<string>) => v === undefined || set.includes(v);
+  if (!inSet(surface.background, ['none', 'card', 'muted', 'accent', 'primary'])) {
+    issues.push({ level: 'error', path: `${path}.background`, message: `background "${surface.background}" no es válido.` });
+  }
+  if (!inSet(surface.radius, ['none', 'sm', 'md', 'lg', 'xl', 'full'])) {
+    issues.push({ level: 'error', path: `${path}.radius`, message: `radius "${surface.radius}" no es válido.` });
+  }
+  if (surface.radiusCorners?.some(c => !['tl', 'tr', 'bl', 'br'].includes(c))) {
+    issues.push({ level: 'error', path: `${path}.radiusCorners`, message: 'radiusCorners solo admite tl/tr/bl/br.' });
+  }
+  if (!inSet(surface.shadow, ['none', 'sm', 'md', 'lg', 'xl'])) {
+    issues.push({ level: 'error', path: `${path}.shadow`, message: `shadow "${surface.shadow}" no es válido.` });
+  }
+  if (!inSet(surface.padding, ['none', 'xs', 'sm', 'md', 'lg', 'xl'])) {
+    issues.push({ level: 'error', path: `${path}.padding`, message: `padding "${surface.padding}" no es válido.` });
+  }
+  if (surface.border) {
+    if (!inSet(surface.border.width, ['thin', 'medium', 'thick'])) {
+      issues.push({ level: 'error', path: `${path}.border.width`, message: `border.width "${surface.border.width}" no es válido.` });
+    }
+    if (surface.border.sides?.some(sd => !['top', 'right', 'bottom', 'left'].includes(sd))) {
+      issues.push({ level: 'error', path: `${path}.border.sides`, message: 'border.sides solo admite top/right/bottom/left.' });
+    }
+    if (!inSet(surface.border.style, ['solid', 'dashed', 'dotted'])) {
+      issues.push({ level: 'error', path: `${path}.border.style`, message: `border.style "${surface.border.style}" no es válido.` });
+    }
+  }
+}
+
 function validatePlacement(
   place: GridPlacement, cols: number | undefined, rows: number | undefined,
   path: string, issues: LayoutIssue[],
 ): void {
+  // KRO-167 — modo ABSOLUTO: valida x/y (0..100, % del contenedor) y w/h
+  // (5..100 si presentes) y NO aplica las reglas de grid (está fuera del
+  // flujo; sus colStart/rowStart son recuerdos de cuando estaba en flujo).
+  if (place.position === 'absolute') {
+    const pct = (v: number | undefined, lo: number) =>
+      v === undefined || (typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= 100);
+    if (!pct(place.x, 0) || !pct(place.y, 0)) {
+      issues.push({ level: 'error', path, message: 'Posición absoluta: x/y deben ser números entre 0 y 100 (%).' });
+    }
+    if (!pct(place.w, 5) || !pct(place.h, 5)) {
+      issues.push({ level: 'error', path, message: 'Posición absoluta: w/h deben ser números entre 5 y 100 (%).' });
+    }
+    return;
+  }
   if (cols === undefined) {
     issues.push({ level: 'warn', path, message: '`place` solo aplica dentro de un contenedor grid.' });
     return;
