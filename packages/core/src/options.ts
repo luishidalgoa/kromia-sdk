@@ -125,6 +125,13 @@ export const OPTIONS_APPEARANCE_TEXT_TRANSFORM: ReadonlyArray<CatalogOption> = [
   { id: 'uppercase', label: 'AA',  tooltip: 'MAYÚSCULAS con tracking ancho (estilo etiqueta/meta)' },
 ];
 
+/** Familia tipográfica del texto (KRO-162). `serif` = editorial/literario
+ *  (la que usa la receta Editorial); `sans` = la UI por defecto. */
+export const OPTIONS_APPEARANCE_FONT: ReadonlyArray<CatalogOption> = [
+  { id: 'sans',  label: 'Aa',  tooltip: 'Sans (la tipografía de la app)' },
+  { id: 'serif', label: 'Aa',  tooltip: 'Serif (editorial, con remates)' },
+];
+
 /** Tamaño relativo al default del manifest. */
 export const OPTIONS_APPEARANCE_SIZE: ReadonlyArray<CatalogOption> = [
   { id: 'sm', label: 'S',  tooltip: 'Pequeño' },
@@ -182,6 +189,7 @@ export const OPTIONS_APPEARANCE_LABELS: Record<AppearanceProp, string> = {
   align:          'Alinear',
   weight:         'Peso',
   textTransform:  'Mayús.',
+  font:           'Tipografía',
   size:           'Tamaño',
   truncate:       'Truncar',
   truncateChars:  'Caracteres',
@@ -200,6 +208,7 @@ export const OPTIONS_APPEARANCE_DESCRIPTIONS: Record<AppearanceProp, string> = {
   align:          'Alineación horizontal: izquierda, centro o derecha.',
   weight:         'Peso tipográfico: Regular, Seminegrita o Negrita.',
   textTransform:  'MAYÚSCULAS con tracking ancho (estilo etiqueta) o normal.',
+  font:           'Familia tipográfica: sans (app) o serif (editorial).',
   size:           'Tamaño relativo al default del manifest.',
   truncate:       'Cortar texto largo con "…". 1L/2L/3L = N líneas máximas, ∞ = texto completo.',
   truncateChars:  'Cortar por número de caracteres (slice JS). Predecible, independiente del ancho.',

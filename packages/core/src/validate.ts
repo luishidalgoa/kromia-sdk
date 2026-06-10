@@ -80,6 +80,7 @@ const PADDING_IDS  = new Set(OPTIONS_APPEARANCE_PADDING_Y.map(o => o.id));
 const ACCENT_IDS   = new Set(OPTIONS_APPEARANCE_ACCENT_POSITION.map(o => o.id));
 const REF_COLS_IDS = new Set(OPTIONS_APPEARANCE_REF_COLUMNS.map(o => o.id));
 const REF_TAP_IDS  = new Set(OPTIONS_APPEARANCE_REF_TAP.map(o => o.id));
+const FONT_IDS      = new Set(['sans', 'serif']);
 
 function validateAppearance(
   appearance: SlotAppearance | undefined,
@@ -117,6 +118,9 @@ function validateAppearance(
   }
   if (appearance.refTap !== undefined && !REF_TAP_IDS.has(appearance.refTap)) {
     issues.push({ path: `${path}.refTap`, level: 'error', message: `refTap "${appearance.refTap}" no es válido` });
+  }
+  if (appearance.font !== undefined && !FONT_IDS.has(appearance.font)) {
+    issues.push({ path: `${path}.font`, level: 'error', message: `font "${appearance.font}" no es válido` });
   }
   if (appearance.accentPosition !== undefined && !ACCENT_IDS.has(appearance.accentPosition)) {
     issues.push({ path: `${path}.accentPosition`, level: 'error', message: `accentPosition "${appearance.accentPosition}" no es válido` });

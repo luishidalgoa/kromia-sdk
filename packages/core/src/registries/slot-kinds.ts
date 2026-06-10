@@ -196,6 +196,7 @@ export type AppearanceProp =
   | 'align'
   | 'weight'
   | 'textTransform'
+  | 'font'
   | 'size'
   | 'truncate'
   | 'truncateChars'
@@ -213,8 +214,8 @@ const APPEARANCE_PROPS_BY_KIND: Record<SlotAcceptKind, ReadonlyArray<AppearanceP
   'image-banner': ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
   'image-cover':  ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
   'image-array':  ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  'text-short':   ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  'text-long':    ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'paddingY'],
+  'text-short':   ['align', 'weight', 'textTransform', 'font', 'size', 'truncate', 'truncateChars', 'paddingY'],
+  'text-long':    ['align', 'weight', 'textTransform', 'font', 'size', 'truncate', 'truncateChars', 'paddingY'],
   'number':       ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'paddingY'],
   'date':         ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'paddingY'],
   'url':          ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'paddingY'],
