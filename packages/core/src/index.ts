@@ -215,6 +215,8 @@ export {
 export {
   synthSectionItems,
   synthFieldValue,
+  MOCKUP_IMAGE,
+  isMockupImage,
   type SynthSourceField,
   type SynthSourceSection,
   type SynthItem,
