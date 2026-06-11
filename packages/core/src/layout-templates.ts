@@ -123,7 +123,7 @@ const VARIANTS: Partial<Record<RecipeId, LayoutTemplate[]>> = {
         if (has('badge')) children.push(leaf('badge', { position: 'absolute', x: 62, y: 5, w: 34, h: 14 }));
         return grid(1, Math.max(1, row - 1), children, { gap: 'sm' });
       },
-      appearance: { image: { aspect: '16:9', shape: 'rounded' }, title: { weight: 'semibold', size: 'lg' }, subtitle: { size: 'md', textColor: 'muted' }, badge: { display: 'badge', align: 'right' } },
+      appearance: { image: { aspect: '16:9', shape: 'rounded' }, title: { weight: 'semibold', size: 'lg' }, subtitle: { size: 'md', textColor: 'muted' }, badge: { display: 'badge' } },
     },
   ],
   split_panel: [

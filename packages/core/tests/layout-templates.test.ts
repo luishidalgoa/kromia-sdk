@@ -9,6 +9,7 @@ import { describe, it, expect } from 'vitest';
 import { layoutTemplatesFor, applyLayoutTemplate } from '../src/layout-templates';
 import { RECIPE_REGISTRY, getRecipeManifest } from '../src/registries/recipes';
 import { validateLayout, collectLayoutSlots } from '../src/layout';
+import { getAvailableAppearanceProps } from '../src/registries/slot-kinds';
 import type { RecipeId, SlotComposition, ViewComposition } from '../src/types';
 
 const ALL_RECIPES = Object.keys(RECIPE_REGISTRY) as RecipeId[];
@@ -40,6 +41,27 @@ describe('layout-templates — integridad del catálogo', () => {
       expect(layoutTemplatesFor(recipe).length, recipe).toBeGreaterThanOrEqual(2);
     }
   });
+
+  it('toda prop de appearance apunta a un slot del manifest y es APLICABLE a su kind', () => {
+    // Caza config muerta: una prop que el SlotEditor no muestra para ese kind
+    // quedaría persistida sin que el publisher pueda verla ni resetearla.
+    for (const recipe of ALL_RECIPES) {
+      const manifest = getRecipeManifest(recipe)!;
+      for (const t of layoutTemplatesFor(recipe)) {
+        for (const [slotId, ap] of Object.entries(t.appearance ?? {})) {
+          const slot = manifest.slots.find(s => s.id === slotId);
+          expect(slot, `${recipe}/${t.id}: appearance para slot inexistente "${slotId}"`).toBeDefined();
+          const available = new Set<string>(getAvailableAppearanceProps(slot!.accepts));
+          // `display` activa el render de pill — patrón heredado de los presets,
+          // legítimo aunque el kind no lo liste.
+          available.add('display');
+          for (const key of Object.keys(ap)) {
+            expect(available.has(key), `${recipe}/${t.id}.${slotId}: prop "${key}" no aplicable al kind`).toBe(true);
+          }
+        }
+      }
+    }
+  });
 });
 
 describe('layout-templates — toda variante valida con cualquier combinación de slots', () => {
@@ -67,15 +89,18 @@ describe('layout-templates — toda variante valida con cualquier combinación d
           expect(res.issues.filter(i => i.level === 'error')).toEqual([]);
         });
 
-        it(`${t.id}: robusto con UN solo slot presente`, () => {
+        it(`${t.id}: robusto con UN solo slot presente (CADA slot del manifest) y con ninguno`, () => {
           const manifest = getRecipeManifest(recipe)!;
-          const first = manifest.slots[0]?.id;
-          if (!first) return;
-          const comp = applyLayoutTemplate(
-            { recipe, action: 'none', slots: { [first]: { fields: [first] } } }, t,
-          );
-          const res = validateLayout(comp.layout!, { slots: comp.slots });
-          expect(res.issues.filter(i => i.level === 'error')).toEqual([]);
+          for (const s of manifest.slots) {
+            const comp = applyLayoutTemplate(
+              { recipe, action: 'none', slots: { [s.id]: { fields: [s.id] } } }, t,
+            );
+            const res = validateLayout(comp.layout!, { slots: comp.slots });
+            expect(res.issues.filter(i => i.level === 'error'), `${t.id} con solo "${s.id}"`).toEqual([]);
+          }
+          const empty = applyLayoutTemplate({ recipe, action: 'none', slots: {} }, t);
+          const res = validateLayout(empty.layout!, { slots: empty.slots });
+          expect(res.issues.filter(i => i.level === 'error'), `${t.id} sin slots`).toEqual([]);
         });
       }
     });
