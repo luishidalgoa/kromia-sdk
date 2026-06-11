@@ -20,16 +20,19 @@ import type {
 
 type Ap = Partial<SlotAppearance>;
 
-interface RecipePreset {
+// Exportados a NIVEL DE MÓDULO (no del barrel público) para que
+// layout-templates.ts (KRO-178) construya sus variantes con los mismos
+// ladrillos. La API pública del paquete no cambia.
+export interface RecipePreset {
   /** Construye el árbol con SOLO los slots presentes (`has(id)`). */
   build: (has: (id: string) => boolean) => LayoutContainerNode;
   /** Apariencia base por slot (se fusiona; la del usuario tiene prioridad). */
   appearance?: Record<string, Ap>;
 }
 
-const leaf = (slot: string, place: GridPlacement): LayoutNode => ({ type: 'slot', slot, place });
+export const leaf = (slot: string, place: GridPlacement): LayoutNode => ({ type: 'slot', slot, place });
 
-const grid = (
+export const grid = (
   columns: number, rows: number, children: LayoutNode[],
   extra: Partial<Omit<LayoutContainerNode, 'type' | 'kind' | 'columns' | 'rows' | 'children'>> = {},
 ): LayoutContainerNode => ({
@@ -38,7 +41,7 @@ const grid = (
 });
 
 /** Stack vertical (1 columna) de los slots presentes, en orden. */
-const stack = (ids: string[], has: (id: string) => boolean, extra: Partial<LayoutContainerNode> = {}): LayoutContainerNode => {
+export const stack = (ids: string[], has: (id: string) => boolean, extra: Partial<LayoutContainerNode> = {}): LayoutContainerNode => {
   const present = ids.filter(has);
   return grid(1, present.length, present.map((id, i) => leaf(id, { colStart: 1, rowStart: i + 1 })), extra);
 };
@@ -61,7 +64,7 @@ const stack = (ids: string[], has: (id: string) => boolean, extra: Partial<Layou
  *  · `borderTopOn`   → envuelve ese slot en un contenedor con borde superior —
  *    el divisor a todo el ancho sobre el cuerpo de Editorial (`border-t`).
  */
-const detailCard = (
+export const detailCard = (
   coverId: string | null,
   contentIds: string[],
   has: (id: string) => boolean,
@@ -112,7 +115,7 @@ const detailCard = (
 
 /** Fila "media": [media | (título/subtítulo apilados) | accesorio], con anchos
  *  ajustados (media y accesorio al contenido, texto flexible). */
-function mediaRow(
+export function mediaRow(
   mediaId: string | null, stackIds: string[], asideId: string | null,
   has: (id: string) => boolean,
 ): LayoutContainerNode {
@@ -133,7 +136,7 @@ function mediaRow(
   return grid(Math.max(1, col - 1), 1, children, { align: 'center', columnSizes: colSizes, gap: 'md' });
 }
 
-const RECIPE_PRESETS: Partial<Record<RecipeId, RecipePreset>> = {
+export const RECIPE_PRESETS: Partial<Record<RecipeId, RecipePreset>> = {
   // ── Listas ──────────────────────────────────────────────────────────
   compact_card: {
     build: (has) => mediaRow('thumb', ['title', 'subtitle'], 'badge', has),
@@ -319,13 +322,13 @@ const RECIPE_PRESETS: Partial<Record<RecipeId, RecipePreset>> = {
 };
 
 /**
- * Devuelve una composición con `layout` = preset de su receta + apariencias base
- * fusionadas en los slots (las del usuario mandan). Si la receta no tiene preset,
- * cae al grid naíf (`migrateSlotsToGrid`). Lo usa el editor al "Activar diseño
- * por bloques" para partir del diseño REAL de la receta.
+ * KRO-178 — núcleo compartido: fusiona un `build`+`appearance` (de un preset o
+ * de una variante de plantilla) en la composición. Export de módulo (no barrel).
  */
-export function recipeToComposition(composition: ViewComposition): ViewComposition {
-  const preset = RECIPE_PRESETS[composition.recipe];
+export function composeLayoutPreset(
+  composition: ViewComposition,
+  preset: Pick<RecipePreset, 'build' | 'appearance'> | undefined,
+): ViewComposition {
   const slots = composition.slots ?? {};
   const has = (id: string) => id in slots;
   const layout = preset ? preset.build(has) : migrateSlotsToGrid(composition);
@@ -339,4 +342,14 @@ export function recipeToComposition(composition: ViewComposition): ViewCompositi
     }
   }
   return { ...composition, slots: nextSlots, layout };
+}
+
+/**
+ * Devuelve una composición con `layout` = preset de su receta + apariencias base
+ * fusionadas en los slots (las del usuario mandan). Si la receta no tiene preset,
+ * cae al grid naíf (`migrateSlotsToGrid`). Lo usa el editor al "Activar diseño
+ * por bloques" para partir del diseño REAL de la receta.
+ */
+export function recipeToComposition(composition: ViewComposition): ViewComposition {
+  return composeLayoutPreset(composition, RECIPE_PRESETS[composition.recipe]);
 }

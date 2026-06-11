@@ -161,6 +161,9 @@ const EXPECTED_EXPORTS = [
   // KRO-189 — iconos de sección (catálogo + heurística)
   'SECTION_ICONS',
   'suggestSectionIcon',
+  // KRO-178 — galería de variantes de plantilla de layout (fuera del KRP)
+  'layoutTemplatesFor',
+  'applyLayoutTemplate',
   'gridCols',
   'gridRows',
   'cellCovered',

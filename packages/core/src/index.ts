@@ -438,3 +438,9 @@ export {
 // KRO-133 F5 — recetas → presets de layout (grid). "Activar diseño por bloques"
 // parte del diseño REAL de la receta, no de una columna naíf.
 export { recipeToComposition } from './recipe-presets';
+
+// KRO-178 — galería de variantes de plantilla de layout. FUERA del contrato
+// KRP (mismo criterio que SECTION_ICONS): se consumen en EDICIÓN para sembrar
+// composition.layout, que es lo que se persiste y lo que el cliente renderiza.
+export { layoutTemplatesFor, applyLayoutTemplate } from './layout-templates';
+export type { LayoutTemplate } from './layout-templates';
