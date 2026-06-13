@@ -438,7 +438,10 @@ export function imageFocusStyle(a: SlotAppearance | undefined): CSSProperties {
   const style: CSSProperties = {
     objectPosition: `${x}% ${y}%`,
   };
-  if (z !== 1) {
+  // KRO-147 F3 — con object-contain el zoom>1 desbordaría la caja y el
+  // overflow-hidden del wrapper recortaría, contradiciendo "encaja la imagen
+  // entera". El scale solo tiene sentido con object-cover (el default).
+  if (z !== 1 && a?.objectFit !== 'contain') {
     style.transform       = `scale(${z})`;
     style.transformOrigin = `${x}% ${y}%`;
   }
