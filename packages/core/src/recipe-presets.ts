@@ -13,7 +13,7 @@
  *
  * Ground-truth cross-language: Flutter espejará estos presets.
  */
-import { migrateSlotsToGrid } from './layout';
+import { migrateSlotsToGrid, collectLayoutSlots } from './layout';
 import type {
   LayoutContainerNode, LayoutNode, GridPlacement, SlotAppearance, ViewComposition, RecipeId,
 } from './types';
@@ -331,7 +331,7 @@ export function composeLayoutPreset(
 ): ViewComposition {
   const slots = composition.slots ?? {};
   const has = (id: string) => id in slots;
-  const layout = preset ? preset.build(has) : migrateSlotsToGrid(composition);
+  const baseLayout = preset ? preset.build(has) : migrateSlotsToGrid(composition);
 
   const nextSlots = { ...slots };
   if (preset?.appearance) {
@@ -341,6 +341,28 @@ export function composeLayoutPreset(
       }
     }
   }
+
+  // KRO-145 — no-regresión: ningún slot presente se PIERDE al migrar. El `build`
+  // de un preset coloca una lista FIJA de slots; si la composición trae slots que
+  // ese build no contempla (un slot CUSTOM del usuario vía slotOverrides, o un
+  // hueco del preset), se añaden como filas al final, envolviendo el preset en un
+  // stack vertical. Así "Activar diseño por bloques" nunca borra datos del
+  // publisher (backward-compat 100%). El fallback `migrateSlotsToGrid` ya coloca
+  // TODOS los slots → 0 huérfanos → no se envuelve.
+  const placed = new Set(collectLayoutSlots(baseLayout));
+  const orphans = Object.keys(slots).filter(id => !placed.has(id));
+  const layout = orphans.length
+    ? grid(1, 1 + orphans.length, [
+        { ...baseLayout, place: { colStart: 1, rowStart: 1 } },
+        ...orphans.map((id, i) => leaf(id, { colStart: 1, rowStart: i + 2 })),
+      ],
+      // Si el preset trae `surface` propia (detalle/hero/tile = full-bleed o
+      // fondo), el wrapper pide padding:none para no añadir el p-3 default del
+      // motor (el interior ya gestiona su padding). Si no, el wrapper hereda el
+      // padding default y el interior queda flush dentro (= misma caja de antes).
+      baseLayout.surface ? { surface: { padding: 'none' } } : {})
+    : baseLayout;
+
   return { ...composition, slots: nextSlots, layout };
 }
 
