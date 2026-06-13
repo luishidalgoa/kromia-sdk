@@ -14,7 +14,7 @@
  *
  * Mobile-first. Espejo Flutter pendiente (KRO-83).
  */
-import type { CSSProperties } from 'react';
+import { useRef, useState, type CSSProperties } from 'react';
 import { isMockupImage } from '@kromia/core';
 import { cn } from '../lib/cn';
 import { MockupImageSkeleton } from '../recipe-utils';
@@ -34,7 +34,19 @@ export interface ImageGalleryProps {
 }
 
 export function ImageGallery({ urls, variant = 'peek', imgStyle, label, className }: ImageGalleryProps) {
+  // KRO-155 — dots de posición en los carruseles (peek/centered): el índice
+  // activo se deriva del scroll (stride medio = scrollWidth / nº slides), así un
+  // carrusel con una slide visible deja de parecer estático. Los hooks van ANTES
+  // del early-return para respetar las reglas de hooks.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
   const clean = (urls ?? []).filter((u): u is string => typeof u === 'string' && u.trim() !== '');
+  const onScroll = () => {
+    const el = scrollRef.current;
+    if (!el || clean.length < 2) return;
+    const stride = el.scrollWidth / clean.length;
+    setActive(Math.max(0, Math.min(clean.length - 1, Math.round(el.scrollLeft / stride))));
+  };
   if (clean.length === 0) return null;
 
   const labelEl = label
@@ -66,21 +78,31 @@ export function ImageGallery({ urls, variant = 'peek', imgStyle, label, classNam
       </div>
     )
     : (
-      <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-1">
-        {clean.map((url, i) => (
-          <div
-            key={i}
-            className={variant === 'centered'
-              ? 'snap-center shrink-0 w-64 aspect-[4/3] rounded-lg bg-muted overflow-hidden'
-              : 'snap-start shrink-0 aspect-[4/3] rounded-lg bg-muted overflow-hidden'}
-            style={variant === 'peek' ? { width: '70%' } : undefined}
-          >
-            {isMockupImage(url) ? <MockupImageSkeleton /> :
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={url} alt="" style={imgStyle} className="w-full h-full object-cover" />}
+      <>
+        <div ref={scrollRef} onScroll={onScroll} className="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-1">
+          {clean.map((url, i) => (
+            <div
+              key={i}
+              className={variant === 'centered'
+                ? 'snap-center shrink-0 w-64 aspect-[4/3] rounded-lg bg-muted overflow-hidden'
+                : 'snap-start shrink-0 aspect-[4/3] rounded-lg bg-muted overflow-hidden'}
+              style={variant === 'peek' ? { width: '70%' } : undefined}
+            >
+              {isMockupImage(url) ? <MockupImageSkeleton /> :
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={url} alt="" style={imgStyle} className="w-full h-full object-cover" />}
+            </div>
+          ))}
+        </div>
+        {/* KRO-155 — dots de posición (solo con ≥2 slides). El activo se ensancha. */}
+        {clean.length > 1 && (
+          <div className="flex justify-center gap-1.5 mt-1.5" aria-hidden>
+            {clean.map((_, i) => (
+              <span key={i} className={cn('h-1.5 rounded-full transition-all', i === active ? 'w-4 bg-foreground/60' : 'w-1.5 bg-foreground/25')} />
+            ))}
           </div>
-        ))}
-      </div>
+        )}
+      </>
     );
 
   return <div className={className}>{labelEl}{inner}</div>;
