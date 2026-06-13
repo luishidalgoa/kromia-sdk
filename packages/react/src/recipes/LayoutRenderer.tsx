@@ -444,11 +444,19 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
   };
 
   switch (node.component) {
-    case 'card':
+    case 'card': {
       // Carta compuesta: media full-bleed arriba + título/pie/badge en un cuerpo
       // con padding. La unidad visual de un cromo como bloque reutilizable.
+      // KRO-155 — `surface` editable: si el publisher la define, la caja deja de
+      // estar a fuego (radius/sombra/tinte/borde/relleno via surfaceClasses +
+      // color vinculado a campo); si no, conserva el look default. Mismo camino
+      // que la decoración de un contenedor.
+      const sc = node.surface;
       return (
-        <div className="rounded-lg overflow-hidden border border-border bg-card shadow-sm">
+        <div
+          className={cn('overflow-hidden', sc ? surfaceClasses(sc) : 'rounded-lg border border-border bg-card shadow-sm')}
+          style={sc ? surfaceFieldColorStyle(sc, ctx.item) : undefined}
+        >
           {roleSlot('media')}
           <div className="p-2 space-y-1">
             {roleSlot('title')}
@@ -457,6 +465,7 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
           </div>
         </div>
       );
+    }
     case 'ref_gallery':
       // Galería de cartas referenciadas (rejilla) — con la etiqueta del campo.
       return isHidden('refs') ? null : renderRefs('refs', 'grid');

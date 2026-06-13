@@ -503,6 +503,11 @@ export interface LayoutComponentNode {
   hidden?: string[];
   /** Colocación de este componente dentro del grid padre (celda + span). */
   place?: GridPlacement;
+  /** KRO-155 — decoración del componente (fondo/borde/radius/sombra/relleno),
+   *  el MISMO `ContainerSurface` que los contenedores. Hoy lo honra el render del
+   *  componente `card` (su caja deja de estar a fuego → radius/sombra/tinte/borde
+   *  editables); otros componentes lo irán adoptando. undefined = look default. */
+  surface?: ContainerSurface;
 }
 
 /** Un nodo del árbol = contenedor, slot-hoja o componente prefabricado. */

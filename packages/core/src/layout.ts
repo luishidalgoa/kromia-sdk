@@ -229,6 +229,9 @@ export function validateLayout(
         issues.push({ level: 'error', path, message: `Componente desconocido: "${node.component}".` });
         return;
       }
+      // KRO-155 — la decoración (surface) del componente se valida igual que la
+      // del contenedor (mismos presets cerrados).
+      if (node.surface) validateSurface(node.surface, `${path}.surface`, issues);
       const mapped = node.slots ?? {};
       for (const role of def.roles) {
         // Un rol OCULTO por el publisher (node.hidden) no se pinta → no avisar.

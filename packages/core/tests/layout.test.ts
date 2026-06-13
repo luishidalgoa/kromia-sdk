@@ -374,6 +374,30 @@ describe('validateLayout — absoluto/surface/tracks (KRO-167)', () => {
     expect(validateLayout(ok, slotsOpt).issues.filter(i => i.path.includes('surface'))).toEqual([]);
   });
 
+  it('surface en un COMPONENTE (card): se valida igual que la del contenedor (KRO-155)', () => {
+    const layout: LayoutContainerNode = {
+      type: 'container', kind: 'grid', columns: 1, rows: 1, gap: 'sm',
+      children: [{
+        type: 'component', component: 'card', slots: { media: 'cover' },
+        surface: { background: 'fucsia' as never, radius: 'xxl' as never },
+        place: { colStart: 1, colSpan: 1, rowStart: 1, rowSpan: 1 },
+      }],
+    };
+    const res = validateLayout(layout, { slots: { cover: { fields: ['foto'] } } });
+    expect(res.issues.some(i => i.path.endsWith('surface.background') && i.level === 'error')).toBe(true);
+    expect(res.issues.some(i => i.path.endsWith('surface.radius')     && i.level === 'error')).toBe(true);
+    // una surface válida en el componente → sin issues de surface
+    const okLayout: LayoutContainerNode = {
+      type: 'container', kind: 'grid', columns: 1, rows: 1, gap: 'sm',
+      children: [{
+        type: 'component', component: 'card', slots: { media: 'cover' },
+        surface: { radius: 'lg', shadow: 'md' },
+        place: { colStart: 1, colSpan: 1, rowStart: 1, rowSpan: 1 },
+      }],
+    };
+    expect(validateLayout(okLayout, { slots: { cover: { fields: ['foto'] } } }).issues.filter(i => i.path.includes('surface'))).toEqual([]);
+  });
+
   it('track desconocido → warn; columnSizes de más → warn', () => {
     const bad = base({ columns: 2, columnSizes: ['1fr', '7fr', 'auto'], children: [
       { type: 'slot', slot: 'title', place: { colStart: 1, colSpan: 1, rowStart: 1, rowSpan: 1 } },
