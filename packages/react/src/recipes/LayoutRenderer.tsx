@@ -298,6 +298,9 @@ export function SlotContent({ slot, composition, item, fieldDefs, cardFormat, re
   if (isImageField(first?.def)) {
     const raw = first?.value;
     const url = Array.isArray(raw) ? (raw[0] as string | undefined) : (raw as string | undefined);
+    // KRO-155 — si el slot es un `array<image>` con más de una url, el chip "+N"
+    // del ThumbBox avisa de que hay más (no se pierden en silencio tras la 1ª).
+    const count = Array.isArray(raw) ? raw.length : undefined;
     // KRO-133 — banner/cover a ancho completo: si la apariencia fija un aspect
     // pero NO un `size`, la imagen ocupa todo el ancho (tarjeta destacada,
     // cartel, hero…). Con `size` explícito se respeta el tamaño fijo (thumb).
@@ -305,7 +308,7 @@ export function SlotContent({ slot, composition, item, fieldDefs, cardFormat, re
     const fill = !!ap?.aspect && ap.aspect !== 'free' && !ap.size;
     return (
       <div className={appearancePaddingClass(ap)} {...slotDebugAttrs(slot, resolved)}>
-        <ThumbBox url={url} alt={String(first?.value ?? '')} appearance={ap} fill={fill} />
+        <ThumbBox url={url} alt={String(first?.value ?? '')} appearance={ap} fill={fill} count={count} />
       </div>
     );
   }

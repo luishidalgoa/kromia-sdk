@@ -238,7 +238,7 @@ const APPEARANCE_PROPS_BY_KIND: Record<SlotAcceptKind, ReadonlyArray<AppearanceP
   // de la carta, tamaño, columnas de la rejilla y acción al tocar. (paddingY
   // y badge/colores no aplicaban a este render → fuera.)
   'card-ref':     ['shape', 'refSize', 'refColumns', 'refTap'],
-  'any':          ['shape', 'aspect', 'objectFit', 'imageFocus', 'align', 'weight', 'italic', 'underline', 'size', 'truncate', 'truncateChars', 'paddingY', 'opacity', 'shadow'],
+  'any':          ['shape', 'aspect', 'objectFit', 'imageFocus', 'align', 'weight', 'textTransform', 'italic', 'underline', 'size', 'truncate', 'truncateChars', 'paddingY', 'opacity', 'shadow'],
 };
 
 /**

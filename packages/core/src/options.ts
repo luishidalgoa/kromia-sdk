@@ -272,7 +272,7 @@ export const OPTIONS_APPEARANCE_DESCRIPTIONS: Record<AppearanceProp, string> = {
   bgColor:        'Color de fondo del slot: paleta del tema o vinculado a un campo color.',
   size:           'Tamaño relativo al default del manifest.',
   truncate:       'Cortar texto largo con "…". 1L/2L/3L = N líneas máximas, ∞ = texto completo.',
-  truncateChars:  'Cortar por número de caracteres (slice JS). Predecible, independiente del ancho.',
+  truncateChars:  'Cortar por número de caracteres (slice JS). Predecible, independiente del ancho. Coexiste con "Truncar líneas".',
   accentPosition: 'Posición de la línea de color que rodea la tarjeta. "Auto" usa la posición default por receta; "∅" desactiva la línea.',
   refColumns:     'Columnas de la rejilla de mini-cartas. Sin valor = automático según el formato de carta del álbum.',
   refSize:        'Tamaño de cada mini-carta: % del ancho disponible (ajuste fino numérico). En rejilla, 100 = llena su columna.',

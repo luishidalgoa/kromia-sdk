@@ -792,7 +792,7 @@ export function StatusDot({
 /** Thumb cuadrada (rectangular si aspect ≠ 1). value es URL.
  *  KRO-69: appearance honra shape (rounded default) + aspect + size. */
 export function ThumbBox({
-  url, alt, size = 64, className, appearance, fill = false,
+  url, alt, size = 64, className, appearance, fill = false, count,
 }: {
   url?:        string;
   alt?:        string;
@@ -806,6 +806,13 @@ export function ThumbBox({
    * tipo "tarjeta destacada" / "cartel", donde la imagen es protagonista.
    */
   fill?:       boolean;
+  /**
+   * KRO-155 — nº TOTAL de imágenes cuando este thumb representa un `array<image>`
+   * colapsado a su 1ª url (slot image-array como hoja). Si es >1, pinta un chip
+   * "+N" en la esquina para que se vea que hay más (coherente con el "+N" de las
+   * galerías y de las mini-cartas de referencias). Sin valor / ≤1 → sin chip.
+   */
+  count?:      number;
 }) {
   const effectiveSize = appearanceSizePx(appearance, size);
   // Default thumb = rounded-lg. Override → shape class.
@@ -827,7 +834,7 @@ export function ThumbBox({
             ? { width: effectiveSize, height: effectiveSize }
             : { width: effectiveSize })}
       className={cn(
-        'bg-muted overflow-hidden',
+        'relative bg-muted overflow-hidden',
         fillMode ? 'w-full' : 'shrink-0',
         shapeClass,
         aspectClass,
@@ -844,6 +851,11 @@ export function ThumbBox({
           style={imageFocusStyle(appearance)}
           className={cn('w-full h-full', appearanceObjectFitClass(appearance))}
         />
+      )}
+      {count != null && count > 1 && (
+        <span className="absolute bottom-1 right-1 rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white">
+          +{count - 1}
+        </span>
       )}
     </div>
   );
