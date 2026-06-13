@@ -41,16 +41,28 @@ export function ImageGallery({ urls, variant = 'peek', imgStyle, label, classNam
     ? <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">{label}</p>
     : null;
 
+  // KRO-155 — coherencia con MiniCardRefs (RefGallery): el grid mostraba 6 y
+  // DESCARTABA el resto en silencio. Si hay más de 6, mostramos 5 + una celda
+  // "+N" para comunicar que el contenido no se perdió. Los carruseles (peek/
+  // centered) ya muestran todo deslizando, no necesitan el indicador.
+  const gridOverflow = variant === 'grid' && clean.length > 6 ? clean.length - 5 : 0;
+  const gridShown    = gridOverflow > 0 ? clean.slice(0, 5) : clean.slice(0, 6);
+
   const inner = variant === 'grid'
     ? (
       <div className="grid grid-cols-3 gap-2">
-        {clean.slice(0, 6).map((url, i) => (
+        {gridShown.map((url, i) => (
           <div key={i} className="aspect-square rounded-lg bg-muted overflow-hidden">
             {isMockupImage(url) ? <MockupImageSkeleton /> :
             // eslint-disable-next-line @next/next/no-img-element
             <img src={url} alt="" style={imgStyle} className="w-full h-full object-cover" />}
           </div>
         ))}
+        {gridOverflow > 0 && (
+          <div className="aspect-square rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/40 flex items-center justify-center">
+            <span className="text-sm font-bold text-muted-foreground">+{gridOverflow}</span>
+          </div>
+        )}
       </div>
     )
     : (

@@ -646,7 +646,10 @@ export function LayoutRenderer({
           // overflow-hidden en la raíz: nada sobresale del contenedor principal.
           'bg-card overflow-hidden',
           !rootHasSurface && 'p-3',
-          clickable && 'cursor-pointer transition-colors rounded-lg',
+          // KRO-155 — feedback REAL de tappable (antes `transition-colors` no
+          // transicionaba nada): atenúa al hover y hunde+atenúa al presionar.
+          // `brightness` funciona sobre cualquier fondo (no reemplaza bg-card).
+          clickable && 'cursor-pointer rounded-lg transition hover:brightness-95 active:scale-[0.98] active:brightness-90',
           className,
         )}
       >
