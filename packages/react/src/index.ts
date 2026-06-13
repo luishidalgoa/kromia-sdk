@@ -36,6 +36,9 @@ export {
   appearancePaddingClass,
   appearanceTruncateClass,
   appearanceSizePx,
+  // KRO-147 F3 — efectos (opacity/shadow) + object-fit
+  appearanceEffectClasses,
+  appearanceObjectFitClass,
   applyAppearanceTruncate,
   isEmpty,
   buildAccentBorderStyle,

@@ -113,6 +113,10 @@ export interface SlotAppearance {
   /** Aspect ratio del wrapper. 'free' = sin enforce.
    *  9:16 cubre el caso Story/Reel (vertical mobile-first). */
   aspect?:    '1:1' | '16:9' | '4:3' | '3:4' | '9:16' | 'free';
+  /** KRO-147 F3 — ajuste de la imagen dentro de su caja. 'cover' (default) =
+   *  rellena recortando (con `imageFocus`); 'contain' = encaja entera sin
+   *  recortar (deja bandas). */
+  objectFit?: 'cover' | 'contain';
 
   // ── Solo text-* / number / date / url ─────────────────────────────
   /** Alineación horizontal del texto dentro del slot. */
@@ -127,6 +131,17 @@ export interface SlotAppearance {
    *  'sans' (default) = la fuente base. Lo fijan los presets para fidelidad
    *  (p.ej. el título de la receta Editorial). */
   font?: 'sans' | 'serif';
+  /** KRO-147 F3 — cursiva. true = `italic`. Default (undefined/false) = recto. */
+  italic?: boolean;
+  /** KRO-147 F3 — subrayado. true = `underline` (con offset). */
+  underline?: boolean;
+  /** KRO-147 F3 — interlineado (line-height). 'tight' = compacto, 'normal'
+   *  (default) = el de la app, 'relaxed' = aireado (párrafos largos). */
+  lineHeight?: 'tight' | 'normal' | 'relaxed';
+  /** KRO-147 F3 — espaciado entre letras (tracking). 'tight' = apretado,
+   *  'normal' (default), 'wide' = abierto (estilo etiqueta). Independiente
+   *  del `tracking-wider` que ya aplica `textTransform: 'uppercase'`. */
+  tracking?: 'tight' | 'normal' | 'wide';
 
   // ── Solo text-* / number / date / url / badge ─────────────────────
   /** Líneas máximas a mostrar antes de truncar con "…". '1' = una sola
@@ -199,6 +214,12 @@ export interface SlotAppearance {
   textColor?: string;
   /** KRO-133 F3 — color de FONDO del slot (id de paleta) = resaltado / chip. */
   bgColor?:   string;
+  /** KRO-147 F3 — opacidad del slot (efecto). '100' (default) = opaco;
+   *  '90'/'75'/'50' = translúcido (marcas de agua, fondos sutiles). */
+  opacity?:   '100' | '90' | '75' | '50';
+  /** KRO-147 F3 — sombra del slot (a nivel slot, no del contenedor). 'none'
+   *  (default) = sin sombra; sm/md/lg = elevación creciente (imágenes/badges). */
+  shadow?:    'none' | 'sm' | 'md' | 'lg';
 }
 
 /**

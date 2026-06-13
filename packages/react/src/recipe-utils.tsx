@@ -176,6 +176,31 @@ const PADDING_Y_CLASSES: Record<NonNullable<SlotAppearance['paddingY']>, string>
   lg:   'py-4',
 };
 
+// KRO-147 F3 — tipografía rica + efectos. Todas LITERALES → safelist
+// automático por @source (no construidas dinámicamente).
+const LINE_HEIGHT_CLASSES: Record<NonNullable<SlotAppearance['lineHeight']>, string> = {
+  tight:   'leading-tight',
+  normal:  'leading-normal',
+  relaxed: 'leading-relaxed',
+};
+const TRACKING_CLASSES: Record<NonNullable<SlotAppearance['tracking']>, string> = {
+  tight:  'tracking-tight',
+  normal: 'tracking-normal',
+  wide:   'tracking-wide',
+};
+const OPACITY_CLASSES: Record<NonNullable<SlotAppearance['opacity']>, string> = {
+  '100': 'opacity-100',
+  '90':  'opacity-90',
+  '75':  'opacity-75',
+  '50':  'opacity-50',
+};
+const SLOT_SHADOW_CLASSES: Record<NonNullable<SlotAppearance['shadow']>, string> = {
+  none: 'shadow-none',
+  sm:   'shadow-sm',
+  md:   'shadow-md',
+  lg:   'shadow-lg',
+};
+
 /** Devuelve la clase de forma o '' si no hay override. */
 export function appearanceShapeClass(a: SlotAppearance | undefined): string {
   return a?.shape ? SHAPE_CLASSES[a.shape] : '';
@@ -197,10 +222,32 @@ export function appearanceTextClasses(a: SlotAppearance | undefined): string {
     // KRO-133 — familia tipográfica (serif para títulos editoriales).
     a.font === 'serif' && 'font-serif',
     a.size   && TEXT_SIZE_CLASSES[a.size],
+    // KRO-147 F3 — tipografía rica. `tracking` va DESPUÉS del tracking-wider
+    // implícito de uppercase para que, si el publisher lo fija, gane (cn/merge).
+    a.italic && 'italic',
+    a.underline && 'underline underline-offset-2',
+    a.lineHeight && LINE_HEIGHT_CLASSES[a.lineHeight],
+    a.tracking   && TRACKING_CLASSES[a.tracking],
     // KRO-133 F3 — color de texto/fondo de la paleta amplia (cerrada).
     a.textColor && paletteClass(a.textColor, 'text'),
     a.bgColor   && paletteClass(a.bgColor, 'bg'),
   );
+}
+
+/** KRO-147 F3 — clases de EFECTO del slot (opacity + shadow), aplicables al
+ *  wrapper de cualquier slot (imagen, badge, texto). '' si no hay overrides. */
+export function appearanceEffectClasses(a: SlotAppearance | undefined): string {
+  if (!a) return '';
+  return cn(
+    a.opacity && OPACITY_CLASSES[a.opacity],
+    a.shadow  && SLOT_SHADOW_CLASSES[a.shadow],
+  );
+}
+
+/** KRO-147 F3 — clase de object-fit de una imagen. Default 'cover' (recorta
+ *  con punto focal); 'contain' encaja entera. */
+export function appearanceObjectFitClass(a: SlotAppearance | undefined): string {
+  return a?.objectFit === 'contain' ? 'object-contain' : 'object-cover';
 }
 /** Devuelve la clase de padding-Y del wrapper del slot, o '' si no hay override. */
 export function appearancePaddingClass(a: SlotAppearance | undefined): string {
@@ -634,6 +681,8 @@ export function AvatarBox({
       className={cn(
         'bg-muted shrink-0 overflow-hidden ring-2 ring-card',
         shapeClass,
+        // KRO-147 F3 — opacity + shadow del slot.
+        appearanceEffectClasses(appearance),
         className,
       )}
     >
@@ -643,7 +692,7 @@ export function AvatarBox({
           src={url}
           alt={alt ?? ''}
           style={imageFocusStyle(appearance)}
-          className="w-full h-full object-cover"
+          className={cn('w-full h-full', appearanceObjectFitClass(appearance))}
         />
       )}
     </div>
@@ -779,6 +828,8 @@ export function ThumbBox({
         fillMode ? 'w-full' : 'shrink-0',
         shapeClass,
         aspectClass,
+        // KRO-147 F3 — opacity + shadow del slot.
+        appearanceEffectClasses(appearance),
         className,
       )}
     >
@@ -788,7 +839,7 @@ export function ThumbBox({
           src={url}
           alt={alt ?? ''}
           style={imageFocusStyle(appearance)}
-          className="w-full h-full object-cover"
+          className={cn('w-full h-full', appearanceObjectFitClass(appearance))}
         />
       )}
     </div>
@@ -811,14 +862,14 @@ export function BannerBox({
     ? appearanceAspectClass(appearance)
     : 'aspect-[16/9]';
   return (
-    <div className={cn('w-full bg-muted overflow-hidden', shapeClass, aspectClass, className)}>
+    <div className={cn('w-full bg-muted overflow-hidden', shapeClass, aspectClass, appearanceEffectClasses(appearance), className)}>
       {url && (isMockupImage(url) ? <MockupImageSkeleton /> :
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={url}
           alt={alt ?? ''}
           style={imageFocusStyle(appearance)}
-          className="w-full h-full object-cover"
+          className={cn('w-full h-full', appearanceObjectFitClass(appearance))}
         />
       )}
     </div>

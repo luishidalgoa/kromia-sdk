@@ -192,11 +192,16 @@ export function formatSlotAccepts(
 export type AppearanceProp =
   | 'shape'
   | 'aspect'
+  | 'objectFit'
   | 'imageFocus'
   | 'align'
   | 'weight'
+  | 'italic'
+  | 'underline'
   | 'textTransform'
   | 'font'
+  | 'lineHeight'
+  | 'tracking'
   | 'display'
   | 'textColor'
   | 'bgColor'
@@ -207,28 +212,33 @@ export type AppearanceProp =
   | 'refColumns'
   | 'refTap'
   | 'refSize'
-  | 'paddingY';
+  | 'paddingY'
+  | 'opacity'
+  | 'shadow';
 
 const APPEARANCE_PROPS_BY_KIND: Record<SlotAcceptKind, ReadonlyArray<AppearanceProp>> = {
   // KRO-69 follow-up — image unificado. Mismo set de props para los 4
   // (incluidos los 3 legacy aliases que ahora son sinónimos).
-  'image':        ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  'image-avatar': ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  'image-banner': ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  'image-cover':  ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  'image-array':  ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  'text-short':   ['align', 'weight', 'textTransform', 'font', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
-  'text-long':    ['align', 'weight', 'textTransform', 'font', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
-  'number':       ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
-  'date':         ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
-  'url':          ['align', 'weight', 'textTransform', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  'badge':        ['size', 'truncate', 'truncateChars', 'textColor', 'bgColor', 'paddingY'],
+  // KRO-147 F3 — imagen suma objectFit (ajuste) + opacity/shadow (efectos).
+  'image':        ['shape', 'aspect', 'objectFit', 'imageFocus', 'size', 'paddingY', 'opacity', 'shadow'],
+  'image-avatar': ['shape', 'aspect', 'objectFit', 'imageFocus', 'size', 'paddingY', 'opacity', 'shadow'],
+  'image-banner': ['shape', 'aspect', 'objectFit', 'imageFocus', 'size', 'paddingY', 'opacity', 'shadow'],
+  'image-cover':  ['shape', 'aspect', 'objectFit', 'imageFocus', 'size', 'paddingY', 'opacity', 'shadow'],
+  'image-array':  ['shape', 'aspect', 'objectFit', 'imageFocus', 'size', 'paddingY', 'opacity', 'shadow'],
+  // KRO-147 F3 — texto suma tipografía rica: italic, underline, lineHeight, tracking.
+  'text-short':   ['align', 'weight', 'italic', 'underline', 'textTransform', 'font', 'lineHeight', 'tracking', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
+  'text-long':    ['align', 'weight', 'italic', 'underline', 'textTransform', 'font', 'lineHeight', 'tracking', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
+  'number':       ['align', 'weight', 'italic', 'underline', 'textTransform', 'lineHeight', 'tracking', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
+  'date':         ['align', 'weight', 'italic', 'underline', 'textTransform', 'lineHeight', 'tracking', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
+  'url':          ['align', 'weight', 'italic', 'underline', 'textTransform', 'lineHeight', 'tracking', 'size', 'truncate', 'truncateChars', 'paddingY'],
+  // KRO-147 F3 — badge suma opacity/shadow (efectos del pill).
+  'badge':        ['size', 'truncate', 'truncateChars', 'textColor', 'bgColor', 'paddingY', 'opacity', 'shadow'],
   'color':        ['accentPosition', 'size', 'paddingY'],
   // KRO-133 follow-up — props REALES de las mini-cartas de referencias: forma
   // de la carta, tamaño, columnas de la rejilla y acción al tocar. (paddingY
   // y badge/colores no aplicaban a este render → fuera.)
   'card-ref':     ['shape', 'refSize', 'refColumns', 'refTap'],
-  'any':          ['shape', 'aspect', 'imageFocus', 'align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
+  'any':          ['shape', 'aspect', 'objectFit', 'imageFocus', 'align', 'weight', 'italic', 'underline', 'size', 'truncate', 'truncateChars', 'paddingY', 'opacity', 'shadow'],
 };
 
 /**
@@ -240,7 +250,7 @@ export function getAvailableAppearanceProps(
   accepts: ReadonlyArray<SlotAcceptKind>,
 ): AppearanceProp[] {
   if (accepts.length === 0) return [];
-  const order: AppearanceProp[] = ['shape', 'aspect', 'imageFocus', 'align', 'weight', 'textTransform', 'font', 'size', 'display', 'textColor', 'bgColor', 'truncate', 'truncateChars', 'accentPosition', 'refSize', 'refColumns', 'refTap', 'paddingY'];
+  const order: AppearanceProp[] = ['shape', 'aspect', 'objectFit', 'imageFocus', 'align', 'weight', 'italic', 'underline', 'textTransform', 'font', 'lineHeight', 'tracking', 'size', 'display', 'textColor', 'bgColor', 'truncate', 'truncateChars', 'accentPosition', 'refSize', 'refColumns', 'refTap', 'paddingY', 'opacity', 'shadow'];
   const union = new Set<AppearanceProp>();
   for (const kind of accepts) {
     for (const prop of APPEARANCE_PROPS_BY_KIND[kind]) {

@@ -33,6 +33,11 @@ import {
   OPTIONS_APPEARANCE_ACCENT_POSITION,
   OPTIONS_APPEARANCE_REF_COLUMNS,
   OPTIONS_APPEARANCE_REF_TAP,
+  OPTIONS_APPEARANCE_LINE_HEIGHT,
+  OPTIONS_APPEARANCE_TRACKING,
+  OPTIONS_APPEARANCE_OBJECT_FIT,
+  OPTIONS_APPEARANCE_OPACITY,
+  OPTIONS_APPEARANCE_SHADOW,
 } from './options';
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -82,6 +87,12 @@ const ACCENT_IDS   = new Set(OPTIONS_APPEARANCE_ACCENT_POSITION.map(o => o.id));
 const REF_COLS_IDS = new Set(OPTIONS_APPEARANCE_REF_COLUMNS.map(o => o.id));
 const REF_TAP_IDS  = new Set(OPTIONS_APPEARANCE_REF_TAP.map(o => o.id));
 const FONT_IDS      = new Set(['sans', 'serif']);
+// KRO-147 F3
+const LINE_HEIGHT_IDS = new Set(OPTIONS_APPEARANCE_LINE_HEIGHT.map(o => o.id));
+const TRACKING_IDS    = new Set(OPTIONS_APPEARANCE_TRACKING.map(o => o.id));
+const OBJECT_FIT_IDS  = new Set(OPTIONS_APPEARANCE_OBJECT_FIT.map(o => o.id));
+const OPACITY_IDS     = new Set(OPTIONS_APPEARANCE_OPACITY.map(o => o.id));
+const SHADOW_IDS      = new Set(OPTIONS_APPEARANCE_SHADOW.map(o => o.id));
 
 function validateAppearance(
   appearance: SlotAppearance | undefined,
@@ -136,6 +147,28 @@ function validateAppearance(
   }
   if (appearance.textTransform !== undefined && !['none', 'uppercase'].includes(appearance.textTransform)) {
     issues.push({ path: `${path}.textTransform`, level: 'error', message: `textTransform "${appearance.textTransform}" no es válido` });
+  }
+  // KRO-147 F3 — tipografía rica + caja/efectos.
+  if (appearance.italic !== undefined && typeof appearance.italic !== 'boolean') {
+    issues.push({ path: `${path}.italic`, level: 'error', message: 'italic debe ser booleano' });
+  }
+  if (appearance.underline !== undefined && typeof appearance.underline !== 'boolean') {
+    issues.push({ path: `${path}.underline`, level: 'error', message: 'underline debe ser booleano' });
+  }
+  if (appearance.lineHeight !== undefined && !LINE_HEIGHT_IDS.has(appearance.lineHeight)) {
+    issues.push({ path: `${path}.lineHeight`, level: 'error', message: `lineHeight "${appearance.lineHeight}" no es válido` });
+  }
+  if (appearance.tracking !== undefined && !TRACKING_IDS.has(appearance.tracking)) {
+    issues.push({ path: `${path}.tracking`, level: 'error', message: `tracking "${appearance.tracking}" no es válido` });
+  }
+  if (appearance.objectFit !== undefined && !OBJECT_FIT_IDS.has(appearance.objectFit)) {
+    issues.push({ path: `${path}.objectFit`, level: 'error', message: `objectFit "${appearance.objectFit}" no es válido` });
+  }
+  if (appearance.opacity !== undefined && !OPACITY_IDS.has(appearance.opacity)) {
+    issues.push({ path: `${path}.opacity`, level: 'error', message: `opacity "${appearance.opacity}" no es válido` });
+  }
+  if (appearance.shadow !== undefined && !SHADOW_IDS.has(appearance.shadow)) {
+    issues.push({ path: `${path}.shadow`, level: 'error', message: `shadow "${appearance.shadow}" no es válido` });
   }
   if (appearance.imageFocus !== undefined) {
     const f = appearance.imageFocus;

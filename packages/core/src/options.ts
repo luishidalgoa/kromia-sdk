@@ -132,6 +132,20 @@ export const OPTIONS_APPEARANCE_FONT: ReadonlyArray<CatalogOption> = [
   { id: 'serif', label: 'Serif', tooltip: 'Serif (editorial, con remates)' },
 ];
 
+/** KRO-147 F3 — interlineado (line-height) del texto. */
+export const OPTIONS_APPEARANCE_LINE_HEIGHT: ReadonlyArray<CatalogOption> = [
+  { id: 'tight',   label: 'Compacto', tooltip: 'Líneas juntas (títulos, datos densos)' },
+  { id: 'normal',  label: 'Normal',   tooltip: 'El interlineado de la app (default)' },
+  { id: 'relaxed', label: 'Aireado',  tooltip: 'Líneas separadas (párrafos largos)' },
+];
+
+/** KRO-147 F3 — espaciado entre letras (tracking). */
+export const OPTIONS_APPEARANCE_TRACKING: ReadonlyArray<CatalogOption> = [
+  { id: 'tight',  label: 'Apretado', tooltip: 'Letras juntas' },
+  { id: 'normal', label: 'Normal',   tooltip: 'Tracking de la app (default)' },
+  { id: 'wide',   label: 'Abierto',  tooltip: 'Letras separadas (estilo etiqueta)' },
+];
+
 /** KRO-169 — cómo se PRESENTA el valor del slot: texto plano o pill/chip
  *  (badge). Antes vivía hardcodeado solo en el editor de bloques. */
 export const OPTIONS_APPEARANCE_DISPLAY: ReadonlyArray<CatalogOption> = [
@@ -163,6 +177,28 @@ export const OPTIONS_APPEARANCE_PADDING_Y: ReadonlyArray<CatalogOption> = [
   { id: 'lg',   label: 'L', tooltip: 'Grande' },
 ];
 
+/** KRO-147 F3 — ajuste de la imagen dentro de su caja. */
+export const OPTIONS_APPEARANCE_OBJECT_FIT: ReadonlyArray<CatalogOption> = [
+  { id: 'cover',   label: 'Recortar', tooltip: 'Rellena la caja recortando lo que sobra (con punto focal)' },
+  { id: 'contain', label: 'Encajar',  tooltip: 'Encaja la imagen entera sin recortar (deja bandas)' },
+];
+
+/** KRO-147 F3 — opacidad del slot (efecto). */
+export const OPTIONS_APPEARANCE_OPACITY: ReadonlyArray<CatalogOption> = [
+  { id: '100', label: '100%', tooltip: 'Opaco (default)' },
+  { id: '90',  label: '90%',  tooltip: 'Casi opaco' },
+  { id: '75',  label: '75%',  tooltip: 'Translúcido' },
+  { id: '50',  label: '50%',  tooltip: 'Medio transparente (marcas de agua)' },
+];
+
+/** KRO-147 F3 — sombra del slot (a nivel slot, no del contenedor). */
+export const OPTIONS_APPEARANCE_SHADOW: ReadonlyArray<CatalogOption> = [
+  { id: 'none', label: '0', tooltip: 'Sin sombra (default)' },
+  { id: 'sm',   label: 'S', tooltip: 'Sombra sutil' },
+  { id: 'md',   label: 'M', tooltip: 'Sombra media' },
+  { id: 'lg',   label: 'L', tooltip: 'Sombra marcada (elevación)' },
+];
+
 /** Columnas de la rejilla de mini-cartas de un slot card-ref (KRO-133).
  *  Sin override = automático (derivado del formato de carta del álbum). */
 export const OPTIONS_APPEARANCE_REF_COLUMNS: ReadonlyArray<CatalogOption> = [
@@ -192,11 +228,16 @@ export const OPTIONS_APPEARANCE_ACCENT_POSITION: ReadonlyArray<CatalogOption> = 
 export const OPTIONS_APPEARANCE_LABELS: Record<AppearanceProp, string> = {
   shape:          'Forma',
   aspect:         'Ratio',
+  objectFit:      'Ajuste',
   imageFocus:     'Encuadre',
   align:          'Alinear',
   weight:         'Peso',
+  italic:         'Cursiva',
+  underline:      'Subrayado',
   textTransform:  'Mayús.',
   font:           'Tipografía',
+  lineHeight:     'Interlineado',
+  tracking:       'Tracking',
   display:        'Mostrar como',
   textColor:      'Color del texto',
   bgColor:        'Fondo',
@@ -208,17 +249,24 @@ export const OPTIONS_APPEARANCE_LABELS: Record<AppearanceProp, string> = {
   refSize:        'Tamaño',
   refTap:         'Al tocar',
   paddingY:       'Padding',
+  opacity:        'Opacidad',
+  shadow:         'Sombra',
 };
 
 /** Tooltip explicando qué hace cada prop — visible al hover del label. */
 export const OPTIONS_APPEARANCE_DESCRIPTIONS: Record<AppearanceProp, string> = {
   shape:          'Forma del clip: círculo, cuadrado o redondeado.',
   aspect:         'Aspect ratio del wrapper. ∞ = sin forzar.',
+  objectFit:      'Ajuste de la imagen: recortar para rellenar (con punto focal) o encajar entera.',
   imageFocus:     'Punto focal de la imagen + zoom dentro del crop.',
   align:          'Alineación horizontal: izquierda, centro o derecha.',
   weight:         'Peso tipográfico: Regular, Seminegrita o Negrita.',
+  italic:         'Cursiva (itálica) del texto del slot.',
+  underline:      'Subrayado del texto del slot (con offset).',
   textTransform:  'MAYÚSCULAS con tracking ancho (estilo etiqueta) o normal.',
   font:           'Familia tipográfica: sans (app) o serif (editorial).',
+  lineHeight:     'Interlineado (separación entre líneas): compacto, normal o aireado.',
+  tracking:       'Espaciado entre letras: apretado, normal o abierto.',
   display:        'Texto plano o pill/chip (badge) — rarezas, tipos, etiquetas.',
   textColor:      'Color del texto: paleta del tema o vinculado a un campo color del dato.',
   bgColor:        'Color de fondo del slot: paleta del tema o vinculado a un campo color.',
@@ -230,6 +278,8 @@ export const OPTIONS_APPEARANCE_DESCRIPTIONS: Record<AppearanceProp, string> = {
   refSize:        'Tamaño de cada mini-carta: % del ancho disponible (ajuste fino numérico). En rejilla, 100 = llena su columna.',
   refTap:         'Qué pasa al tocar una mini-carta: nada, o abrirla en modo focus (overlay protagonista).',
   paddingY:       'Padding vertical del wrapper del slot — separación con vecinos.',
+  opacity:        'Opacidad del slot: 100% opaco hasta 50% (marcas de agua, fondos sutiles).',
+  shadow:         'Sombra del slot (elevación): ninguna, sutil, media o marcada.',
 };
 
 // ─────────────────────────────────────────────────────────────────────────

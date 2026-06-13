@@ -206,6 +206,40 @@ describe('validateComposition — appearance', () => {
     expect(r.valid).toBe(false);
   });
 
+  // KRO-147 F3 — tipografía rica + caja/efectos
+  it('lineHeight/tracking/objectFit/opacity/shadow inválidos → error con path exacto', () => {
+    const cases: Array<[string, unknown]> = [
+      ['lineHeight', 'fake'], ['tracking', 'fake'], ['objectFit', 'fake'],
+      ['opacity', '33'], ['shadow', 'xl'],
+    ];
+    for (const [prop, val] of cases) {
+      const c = makeValidComposition();
+      c.slots.title.appearance = { [prop]: val } as any;
+      const r = validateComposition(c);
+      expect(r.valid, `${prop}=${val} debería ser inválido`).toBe(false);
+      expect(r.issues).toContainEqual(expect.objectContaining({
+        path: `slots.title.appearance.${prop}`, level: 'error',
+      }));
+    }
+  });
+
+  it('italic/underline no-booleanos → error', () => {
+    for (const prop of ['italic', 'underline']) {
+      const c = makeValidComposition();
+      c.slots.title.appearance = { [prop]: 'si' } as any;
+      expect(validateComposition(c).valid, prop).toBe(false);
+    }
+  });
+
+  it('valores F3 válidos → ok', () => {
+    const c = makeValidComposition();
+    c.slots.title.appearance = {
+      italic: true, underline: true, lineHeight: 'relaxed', tracking: 'wide',
+      objectFit: 'contain', opacity: '75', shadow: 'md',
+    };
+    expect(validateComposition(c).valid).toBe(true);
+  });
+
   it('accentPosition top-level inválido → error', () => {
     const c = makeValidComposition();
     (c as any).accentPosition = 'fake';

@@ -23,6 +23,11 @@ import {
   OPTIONS_APPEARANCE_TRUNCATE,
   OPTIONS_APPEARANCE_PADDING_Y,
   OPTIONS_APPEARANCE_ACCENT_POSITION,
+  OPTIONS_APPEARANCE_LINE_HEIGHT,
+  OPTIONS_APPEARANCE_TRACKING,
+  OPTIONS_APPEARANCE_OBJECT_FIT,
+  OPTIONS_APPEARANCE_OPACITY,
+  OPTIONS_APPEARANCE_SHADOW,
   OPTIONS_APPEARANCE_LABELS,
   OPTIONS_APPEARANCE_DESCRIPTIONS,
   APPEARANCE_PRESETS,
@@ -131,10 +136,37 @@ describe('OPTIONS_APPEARANCE_ACCENT_POSITION', () => {
   });
 });
 
+// KRO-147 F3 — catálogos nuevos: tipografía rica + caja/efectos
+describe('OPTIONS_APPEARANCE — KRO-147 F3 catálogos nuevos', () => {
+  it('LINE_HEIGHT: tight, normal, relaxed', () => {
+    expect(OPTIONS_APPEARANCE_LINE_HEIGHT.map(o => o.id)).toEqual(['tight', 'normal', 'relaxed']);
+  });
+  it('TRACKING: tight, normal, wide', () => {
+    expect(OPTIONS_APPEARANCE_TRACKING.map(o => o.id)).toEqual(['tight', 'normal', 'wide']);
+  });
+  it('OBJECT_FIT: cover, contain', () => {
+    expect(OPTIONS_APPEARANCE_OBJECT_FIT.map(o => o.id)).toEqual(['cover', 'contain']);
+  });
+  it('OPACITY: 100, 90, 75, 50', () => {
+    expect(OPTIONS_APPEARANCE_OPACITY.map(o => o.id)).toEqual(['100', '90', '75', '50']);
+  });
+  it('SHADOW: none, sm, md, lg', () => {
+    expect(OPTIONS_APPEARANCE_SHADOW.map(o => o.id)).toEqual(['none', 'sm', 'md', 'lg']);
+  });
+  it('cada opción nueva tiene label + tooltip', () => {
+    for (const cat of [OPTIONS_APPEARANCE_LINE_HEIGHT, OPTIONS_APPEARANCE_TRACKING,
+      OPTIONS_APPEARANCE_OBJECT_FIT, OPTIONS_APPEARANCE_OPACITY, OPTIONS_APPEARANCE_SHADOW]) {
+      cat.forEach(o => { expect(o.label).toBeTruthy(); expect(o.tooltip).toBeTruthy(); });
+    }
+  });
+});
+
 describe('OPTIONS_APPEARANCE_LABELS', () => {
   it('todos los appearance props tienen label es-ES', () => {
     const props = ['shape', 'aspect', 'imageFocus', 'align', 'weight', 'size',
-                   'truncate', 'truncateChars', 'accentPosition', 'paddingY'];
+                   'truncate', 'truncateChars', 'accentPosition', 'paddingY',
+                   // KRO-147 F3
+                   'italic', 'underline', 'lineHeight', 'tracking', 'objectFit', 'opacity', 'shadow'];
     props.forEach(p => {
       expect(OPTIONS_APPEARANCE_LABELS[p as keyof typeof OPTIONS_APPEARANCE_LABELS]).toBeTruthy();
     });

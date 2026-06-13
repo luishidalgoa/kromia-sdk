@@ -24,7 +24,7 @@ import { cn } from '../lib/cn';
 import {
   resolveSlot, isSlotDisabled, AccentFrame, extractAccentSettings,
   ScalarText, ComposableSlot, ThumbBox, BadgePill, slotDebugAttrs, appearancePaddingClass,
-  appearanceTextClasses, appearanceTruncateClass,
+  appearanceTextClasses, appearanceTruncateClass, appearanceEffectClasses,
   type FieldDefLike,
 } from '../recipe-utils';
 import {
@@ -346,7 +346,9 @@ export function SlotContent({ slot, composition, item, fieldDefs, cardFormat, re
   if (resolved.appearance?.display === 'badge') {
     return (
       <div className={appearancePaddingClass(resolved.appearance)} {...slotDebugAttrs(slot, resolved)}>
-        <BadgePill className={appearanceTextClasses(resolved.appearance)} style={fieldColor}>{content}</BadgePill>
+        {/* KRO-147 F3 — el badge honra opacity/shadow del slot además de
+            color/size/peso (appearanceTextClasses). */}
+        <BadgePill className={cn(appearanceTextClasses(resolved.appearance), appearanceEffectClasses(resolved.appearance))} style={fieldColor}>{content}</BadgePill>
       </div>
     );
   }
