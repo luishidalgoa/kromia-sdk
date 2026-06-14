@@ -450,6 +450,10 @@ export interface LayoutContainerNode {
   type: 'container';
   kind: LayoutContainerKind;
   children: LayoutNode[];
+  /** KRO-155 — nombre opcional del contenedor, puesto por el publisher para
+   *  navegar un layout complejo desde el panel de Capas ("Cabecera", "Cuerpo"…).
+   *  Metadata de AUTORÍA: el render lo ignora (no entra al contrato KRP). */
+  name?: string;
   /** flex: dirección de los hijos. Default 'column'. (Ignorado en grid/stack.) */
   direction?: LayoutDirection;
   /** Separación entre hijos. Default 'sm'. (stack la ignora — superpone en Z.) */
