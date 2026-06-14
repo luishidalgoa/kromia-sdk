@@ -145,20 +145,64 @@ export function synthSectionItems(
   sectionKey: string,
   section:    SynthSourceSection,
   count:      number = 3,
+  variant:    SynthVariant = 'normal',
 ): SynthItem[] {
   const out: SynthItem[] = [];
   for (let i = 0; i < count; i++) {
     const item: SynthItem = {};
     for (const f of section.fields) {
-      item[f.key] = synthFieldValue(f, `${sectionKey}-${i}-${f.key}`, i);
+      item[f.key] = synthFieldValue(f, `${sectionKey}-${i}-${f.key}`, i, variant);
     }
     out.push(item);
   }
   return out;
 }
 
-/** Devuelve un value coherente con el behavior/type del field. */
+/** KRO-155 — variantes de DENSIDAD del synth para probar layouts extremos en el
+ *  AppPreview (SDK-first, espejo para Flutter):
+ *   - 'normal' = como siempre.
+ *   - 'stress' = texto largo + arrays/galerías multiplicados → overflow/truncado.
+ *   - 'sparse' = ~40% de textos vacíos + arrays de 1 → estados vacíos. */
+type SynthVariant = 'normal' | 'stress' | 'sparse';
+
+// Texto largo determinista para 'stress' (probar truncado, wrap, elipsis).
+const STRESS_TEXT =
+  'Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor ' +
+  'incididunt ut labore et dolore magna aliqua enim ad minim veniam quis nostrud';
+
+/** Ajusta el value CRUDO a la variante: multiplica/alarga (stress) o vacía/recorta
+ *  (sparse). Solo toca TEXTO y ARRAYS (las palancas de presión del layout); números
+ *  y demás se dejan intactos (un año sigue siendo un año, un rating 1-5 también). */
+function applyVariant(value: unknown, variant: SynthVariant, seed: string): unknown {
+  if (variant === 'normal') return value;
+  if (Array.isArray(value)) {
+    if (value.length === 0) return value;
+    if (variant === 'sparse') return value.slice(0, 1);
+    const out: unknown[] = [];
+    while (out.length < 7) out.push(value[out.length % value.length]);
+    return out;
+  }
+  if (typeof value === 'string') {
+    if (value === '') return value;
+    if (variant === 'sparse') return hash(seed) % 5 < 2 ? '' : value; // ~40% vacíos
+    return STRESS_TEXT;
+  }
+  return value;
+}
+
+/** Devuelve un value coherente con el behavior/type del field, ajustado a la
+ *  `variant` de densidad. */
 export function synthFieldValue(
+  field:   SynthSourceField,
+  seed:    string,
+  idx:     number,
+  variant: SynthVariant = 'normal',
+): unknown {
+  return applyVariant(synthFieldValueRaw(field, seed, idx), variant, seed);
+}
+
+/** Generación base del value, sin variante (la lógica histórica). */
+function synthFieldValueRaw(
   field: SynthSourceField,
   seed:  string,
   idx:   number,
