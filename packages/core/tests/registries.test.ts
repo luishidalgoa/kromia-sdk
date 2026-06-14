@@ -358,6 +358,14 @@ describe('slot-kinds (SLOT_ACCEPT_KIND_META)', () => {
     expect(props).toEqual(expect.arrayContaining(['align', 'weight', 'truncate']));
   });
 
+  it('getAvailableAppearanceProps: text-* incluye textShadow — no se cae del `order` (KRO-155)', () => {
+    // El filtro `order.filter(p => union.has(p))` dropea silenciosamente cualquier
+    // prop que esté en la union/APPEARANCE_PROPS_BY_KIND pero NO en `order` (tsc no
+    // lo caza). Esta guarda asegura que textShadow sobrevive el filtro.
+    expect(getAvailableAppearanceProps(['text-short'])).toContain('textShadow');
+    expect(getAvailableAppearanceProps(['any'])).toContain('textShadow');
+  });
+
   it('getAvailableAppearanceProps: empty accepts → []', () => {
     expect(getAvailableAppearanceProps([])).toEqual([]);
   });

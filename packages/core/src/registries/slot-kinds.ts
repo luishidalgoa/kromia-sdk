@@ -251,7 +251,7 @@ export function getAvailableAppearanceProps(
   accepts: ReadonlyArray<SlotAcceptKind>,
 ): AppearanceProp[] {
   if (accepts.length === 0) return [];
-  const order: AppearanceProp[] = ['shape', 'aspect', 'objectFit', 'imageFocus', 'align', 'weight', 'italic', 'underline', 'textTransform', 'font', 'lineHeight', 'tracking', 'size', 'display', 'textColor', 'bgColor', 'truncate', 'truncateChars', 'accentPosition', 'refSize', 'refColumns', 'refTap', 'paddingY', 'opacity', 'shadow'];
+  const order: AppearanceProp[] = ['shape', 'aspect', 'objectFit', 'imageFocus', 'align', 'weight', 'italic', 'underline', 'textTransform', 'font', 'lineHeight', 'tracking', 'textShadow', 'size', 'display', 'textColor', 'bgColor', 'truncate', 'truncateChars', 'accentPosition', 'refSize', 'refColumns', 'refTap', 'paddingY', 'opacity', 'shadow'];
   const union = new Set<AppearanceProp>();
   for (const kind of accepts) {
     for (const prop of APPEARANCE_PROPS_BY_KIND[kind]) {
