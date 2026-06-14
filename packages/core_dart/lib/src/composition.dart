@@ -11,6 +11,8 @@
 /// diferencia de los registries, que son catálogos estáticos).
 library;
 
+import 'layout_node.dart';
+
 /// Override de apariencia per-instance (KRO-69 V6). Subset cerrado a presets.
 class SlotAppearance {
   final String? shape; // 'circle' | 'square' | 'rounded'
@@ -184,6 +186,11 @@ class ViewComposition {
   /// El gate de compat de runtime (KRO-65) lee de aquí. Legacy = null.
   final String? protocolVersion;
 
+  /// KRO-133 Fase 4 — árbol de LAYOUT editable (motor de bloques). Si está
+  /// presente, el render lo interpreta (LayoutRenderer); si no, cae al render de
+  /// receta clásico. Espejo de `ViewComposition.layout` (types.ts).
+  final LayoutContainerNode? layout;
+
   const ViewComposition({
     required this.recipe,
     required this.action,
@@ -195,6 +202,7 @@ class ViewComposition {
     this.slotOverrides,
     this.accentPosition,
     this.protocolVersion,
+    this.layout,
   });
 
   factory ViewComposition.fromJson(Map<String, dynamic> json) => ViewComposition(
@@ -215,6 +223,9 @@ class ViewComposition {
             : SlotOverrides.fromJson(json['slotOverrides'] as Map<String, dynamic>),
         accentPosition: json['accentPosition'] as String?,
         protocolVersion: json['protocolVersion'] as String?,
+        layout: json['layout'] is Map
+            ? LayoutContainerNode.fromJson((json['layout'] as Map).cast<String, dynamic>())
+            : null,
       );
 }
 
