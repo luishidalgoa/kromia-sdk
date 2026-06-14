@@ -202,6 +202,7 @@ export type AppearanceProp =
   | 'font'
   | 'lineHeight'
   | 'tracking'
+  | 'textShadow'
   | 'display'
   | 'textColor'
   | 'bgColor'
@@ -226,11 +227,11 @@ const APPEARANCE_PROPS_BY_KIND: Record<SlotAcceptKind, ReadonlyArray<AppearanceP
   'image-cover':  ['shape', 'aspect', 'objectFit', 'imageFocus', 'size', 'paddingY', 'opacity', 'shadow'],
   'image-array':  ['shape', 'aspect', 'objectFit', 'imageFocus', 'size', 'paddingY', 'opacity', 'shadow'],
   // KRO-147 F3 — texto suma tipografía rica: italic, underline, lineHeight, tracking.
-  'text-short':   ['align', 'weight', 'italic', 'underline', 'textTransform', 'font', 'lineHeight', 'tracking', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
-  'text-long':    ['align', 'weight', 'italic', 'underline', 'textTransform', 'font', 'lineHeight', 'tracking', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
-  'number':       ['align', 'weight', 'italic', 'underline', 'textTransform', 'lineHeight', 'tracking', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
-  'date':         ['align', 'weight', 'italic', 'underline', 'textTransform', 'lineHeight', 'tracking', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
-  'url':          ['align', 'weight', 'italic', 'underline', 'textTransform', 'lineHeight', 'tracking', 'size', 'truncate', 'truncateChars', 'paddingY'],
+  'text-short':   ['align', 'weight', 'italic', 'underline', 'textTransform', 'font', 'lineHeight', 'tracking', 'textShadow', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
+  'text-long':    ['align', 'weight', 'italic', 'underline', 'textTransform', 'font', 'lineHeight', 'tracking', 'textShadow', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
+  'number':       ['align', 'weight', 'italic', 'underline', 'textTransform', 'lineHeight', 'tracking', 'textShadow', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
+  'date':         ['align', 'weight', 'italic', 'underline', 'textTransform', 'lineHeight', 'tracking', 'textShadow', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
+  'url':          ['align', 'weight', 'italic', 'underline', 'textTransform', 'lineHeight', 'tracking', 'textShadow', 'size', 'truncate', 'truncateChars', 'paddingY'],
   // KRO-147 F3 — badge suma opacity/shadow (efectos del pill).
   'badge':        ['size', 'truncate', 'truncateChars', 'textColor', 'bgColor', 'paddingY', 'opacity', 'shadow'],
   'color':        ['accentPosition', 'size', 'paddingY'],
@@ -238,7 +239,7 @@ const APPEARANCE_PROPS_BY_KIND: Record<SlotAcceptKind, ReadonlyArray<AppearanceP
   // de la carta, tamaño, columnas de la rejilla y acción al tocar. (paddingY
   // y badge/colores no aplicaban a este render → fuera.)
   'card-ref':     ['shape', 'refSize', 'refColumns', 'refTap'],
-  'any':          ['shape', 'aspect', 'objectFit', 'imageFocus', 'align', 'weight', 'textTransform', 'italic', 'underline', 'size', 'truncate', 'truncateChars', 'paddingY', 'opacity', 'shadow'],
+  'any':          ['shape', 'aspect', 'objectFit', 'imageFocus', 'align', 'weight', 'textTransform', 'italic', 'underline', 'textShadow', 'size', 'truncate', 'truncateChars', 'paddingY', 'opacity', 'shadow'],
 };
 
 /**

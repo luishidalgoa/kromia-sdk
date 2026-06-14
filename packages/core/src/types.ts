@@ -142,6 +142,9 @@ export interface SlotAppearance {
    *  'normal' (default), 'wide' = abierto (estilo etiqueta). Independiente
    *  del `tracking-wider` que ya aplica `textTransform: 'uppercase'`. */
   tracking?: 'tight' | 'normal' | 'wide';
+  /** KRO-155 — sombra del TEXTO (≠ del box `shadow`): legibilidad de texto claro
+   *  sobre imágenes. 'sm'/'md' = sombra sutil/media; 'none' (default) = sin sombra. */
+  textShadow?: 'none' | 'sm' | 'md';
 
   // ── Solo text-* / number / date / url / badge ─────────────────────
   /** Líneas máximas a mostrar antes de truncar con "…". '1' = una sola

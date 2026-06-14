@@ -125,6 +125,13 @@ export const OPTIONS_APPEARANCE_TEXT_TRANSFORM: ReadonlyArray<CatalogOption> = [
   { id: 'uppercase', label: 'AA',  tooltip: 'MAYÚSCULAS con tracking ancho (estilo etiqueta/meta)' },
 ];
 
+/** Sombra del TEXTO para legibilidad sobre imágenes (KRO-155). */
+export const OPTIONS_APPEARANCE_TEXTSHADOW: ReadonlyArray<CatalogOption> = [
+  { id: 'none', label: '∅',     tooltip: 'Sin sombra' },
+  { id: 'sm',   label: 'Suave', tooltip: 'Sombra sutil — texto sobre imágenes con algo de contraste' },
+  { id: 'md',   label: 'Media', tooltip: 'Sombra marcada — texto claro sobre imágenes claras/ruidosas' },
+];
+
 /** Familia tipográfica del texto (KRO-162). `serif` = editorial/literario
  *  (la que usa la receta Editorial); `sans` = la UI por defecto. */
 export const OPTIONS_APPEARANCE_FONT: ReadonlyArray<CatalogOption> = [
@@ -238,6 +245,7 @@ export const OPTIONS_APPEARANCE_LABELS: Record<AppearanceProp, string> = {
   font:           'Tipografía',
   lineHeight:     'Interlineado',
   tracking:       'Tracking',
+  textShadow:     'Sombra de texto',
   display:        'Mostrar como',
   textColor:      'Color del texto',
   bgColor:        'Fondo',
@@ -267,6 +275,7 @@ export const OPTIONS_APPEARANCE_DESCRIPTIONS: Record<AppearanceProp, string> = {
   font:           'Familia tipográfica: sans (app) o serif (editorial).',
   lineHeight:     'Interlineado (separación entre líneas): compacto, normal o aireado.',
   tracking:       'Espaciado entre letras: apretado, normal o abierto.',
+  textShadow:     'Sombra bajo el texto para que se lea sobre imágenes claras.',
   display:        'Texto plano o pill/chip (badge) — rarezas, tipos, etiquetas.',
   textColor:      'Color del texto: paleta del tema o vinculado a un campo color del dato.',
   bgColor:        'Color de fondo del slot: paleta del tema o vinculado a un campo color.',

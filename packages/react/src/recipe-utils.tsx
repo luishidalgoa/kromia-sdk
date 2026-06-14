@@ -188,6 +188,13 @@ const TRACKING_CLASSES: Record<NonNullable<SlotAppearance['tracking']>, string> 
   normal: 'tracking-normal',
   wide:   'tracking-wide',
 };
+// KRO-155 — sombra del TEXTO (legibilidad sobre imágenes). Valores arbitrarios
+// literales → el scanner de Tailwind (@source cubre @kromia/react) los recoge.
+const TEXT_SHADOW_CLASSES: Record<NonNullable<SlotAppearance['textShadow']>, string> = {
+  none: '',
+  sm:   '[text-shadow:0_1px_2px_rgb(0_0_0_/_0.5)]',
+  md:   '[text-shadow:0_2px_4px_rgb(0_0_0_/_0.7)]',
+};
 const OPACITY_CLASSES: Record<NonNullable<SlotAppearance['opacity']>, string> = {
   '100': 'opacity-100',
   '90':  'opacity-90',
@@ -228,6 +235,8 @@ export function appearanceTextClasses(a: SlotAppearance | undefined): string {
     a.underline && 'underline underline-offset-2',
     a.lineHeight && LINE_HEIGHT_CLASSES[a.lineHeight],
     a.tracking   && TRACKING_CLASSES[a.tracking],
+    // KRO-155 — sombra del texto (legibilidad sobre imágenes).
+    a.textShadow && TEXT_SHADOW_CLASSES[a.textShadow],
     // KRO-133 F3 — color de texto/fondo de la paleta amplia (cerrada).
     a.textColor && paletteClass(a.textColor, 'text'),
     a.bgColor   && paletteClass(a.bgColor, 'bg'),
