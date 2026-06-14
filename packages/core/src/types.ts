@@ -523,6 +523,14 @@ export interface LayoutComponentNode {
    *  (stats/badges/título/galerías/separador…) envuelve su salida en la caja
    *  decorada cuando está definido. undefined = look default (sin caja). */
   surface?: ContainerSurface;
+  /** KRO-155 — CONFIG genérica per-instancia del componente: bolsa cerrada de
+   *  presets (clave → id de opción) que personaliza cómo se renderiza ESTE
+   *  prefab, sin añadir un campo tipado por cada parámetro. El esquema de qué
+   *  claves/opciones admite cada componente vive en `getComponentConfigSchema`
+   *  (metadata de editor, NO en el contrato KRP) y el render mapea los ids a
+   *  clases. P.ej. `divider`: { width, thickness, style, tint }. Como `surface`,
+   *  es data per-instancia (no contrato); undefined = defaults del componente. */
+  config?: Record<string, string>;
 }
 
 /** Un nodo del árbol = contenedor, slot-hoja o componente prefabricado. */

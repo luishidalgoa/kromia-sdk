@@ -156,6 +156,23 @@ const SCRIM_CLASSES: Record<ScrimKind, string> = {
 export function scrimClass(scrim: LayoutContainerNode['scrim']): string | undefined {
   return scrim && scrim !== 'none' ? SCRIM_CLASSES[scrim] : undefined;
 }
+// KRO-155 — `divider` parametrizable vía `node.config` (mecanismo de config
+// genérico; esquema en core `getComponentConfigSchema('divider')`). La línea se
+// pinta con un borde-top (soporta dashed/dotted, a diferencia de un bg). Los
+// defaults reproducen el separador clásico (corto, fino, sólido, color borde).
+const DIVIDER_WIDTH: Record<string, string> = { short: 'w-12', wide: 'w-24', full: 'w-full' };
+const DIVIDER_THICKNESS: Record<string, string> = { hairline: 'border-t', medium: 'border-t-2', thick: 'border-t-4' };
+const DIVIDER_STYLE: Record<string, string> = { solid: 'border-solid', dashed: 'border-dashed', dotted: 'border-dotted' };
+const DIVIDER_TINT: Record<string, string> = { border: 'border-border', muted: 'border-muted-foreground/40', strong: 'border-foreground/60' };
+function dividerClasses(config: Record<string, string> | undefined): string {
+  const c = config ?? {};
+  return cn('mx-auto',
+    DIVIDER_WIDTH[c.width ?? 'short'] ?? DIVIDER_WIDTH.short,
+    DIVIDER_THICKNESS[c.thickness ?? 'hairline'] ?? DIVIDER_THICKNESS.hairline,
+    DIVIDER_STYLE[c.style ?? 'solid'] ?? DIVIDER_STYLE.solid,
+    DIVIDER_TINT[c.tint ?? 'border'] ?? DIVIDER_TINT.border,
+  );
+}
 // Borde atómico: matriz lado × grosor (clases literales) + color + estilo.
 type BSide  = 'all' | 'top' | 'right' | 'bottom' | 'left';
 type BWidth = NonNullable<SurfaceBorder['width']>;
@@ -501,7 +518,7 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
     // KRO-133 — separador decorativo: línea corta centrada (el "hr" de las
     // recetas de detalle, p.ej. bajo la fecha de Momento).
     case 'divider':
-      return <div className="w-12 h-px bg-border mx-auto" />;
+      return <div className={dividerClasses(node.config)} />;
     // KRO-133 — fila de estadísticas: cada campo del slot = valor + etiqueta.
     case 'stats_row': {
       const sid = node.slots?.stats;

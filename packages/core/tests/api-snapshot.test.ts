@@ -44,6 +44,7 @@ const EXPECTED_EXPORTS = [
   'allComponents',
   'getComponentDef',
   'componentsByCategory',
+  'getComponentConfigSchema',
   'COMPONENT_IDS',
   // Slot kinds
   'SLOT_ACCEPT_KIND_META',

@@ -110,10 +110,12 @@ export {
   allComponents,
   getComponentDef,
   componentsByCategory,
+  getComponentConfigSchema,
   COMPONENT_IDS,
   type ComponentDefinition,
   type ComponentRole,
   type ComponentCategory,
+  type ComponentConfigField,
 } from './registries/components';
 
 // ── Slot kinds (meta + appearance props) ───────────────────────────────

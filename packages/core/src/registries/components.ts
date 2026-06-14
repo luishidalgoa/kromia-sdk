@@ -241,3 +241,44 @@ export function componentsByCategory(): { category: ComponentCategory; label: st
     }))
     .filter(group => group.components.length > 0);
 }
+
+// ── KRO-155 — CONFIG genérica per-componente ─────────────────────────────────
+// Mecanismo de personalización de un prefab SIN añadir un campo tipado por cada
+// parámetro: una bolsa cerrada `node.config` (clave → id de opción) cuyo ESQUEMA
+// (qué claves admite cada componente + sus presets) vive aquí. El editor deriva
+// los controles de este esquema; el render (@kromia/react) mapea los ids a clases;
+// Flutter espeja los mismos ids. Es metadata de EDITOR (presets cerrados), NO se
+// serializa al contrato KRP — añadir/editar un campo aquí NO bumpea el contrato.
+
+/** Un campo personalizable de un componente: clave + presets cerrados + default. */
+export interface ComponentConfigField {
+  /** Clave bajo `node.config` (p.ej. 'thickness'). */
+  key:     string;
+  /** Etiqueta para el control del editor. */
+  label:   string;
+  /** Opciones cerradas (id técnico → etiqueta). El render mapea el id a clases. */
+  options: { id: string; label: string }[];
+  /** Id de opción por defecto cuando `node.config[key]` no está. */
+  default: string;
+}
+
+const COMPONENT_CONFIG_SCHEMAS: Record<string, ComponentConfigField[]> = {
+  // Separador parametrizable: ancho, grosor, estilo de línea y tono.
+  divider: [
+    { key: 'width',     label: 'Ancho',  default: 'short', options: [
+      { id: 'short', label: 'Corto' }, { id: 'wide', label: 'Ancho' }, { id: 'full', label: 'Completo' }] },
+    { key: 'thickness', label: 'Grosor', default: 'hairline', options: [
+      { id: 'hairline', label: 'Fino' }, { id: 'medium', label: 'Medio' }, { id: 'thick', label: 'Grueso' }] },
+    { key: 'style',     label: 'Estilo', default: 'solid', options: [
+      { id: 'solid', label: 'Sólido' }, { id: 'dashed', label: 'Discontinuo' }, { id: 'dotted', label: 'Punteado' }] },
+    { key: 'tint',      label: 'Tono',   default: 'border', options: [
+      { id: 'border', label: 'Borde' }, { id: 'muted', label: 'Tenue' }, { id: 'strong', label: 'Fuerte' }] },
+  ],
+};
+
+/** Esquema de CONFIG de un componente (campos personalizables), o `[]` si no
+ *  tiene ninguno. El editor lo recorre para pintar controles; el render lee
+ *  `node.config[field.key]` (cayendo a `field.default`). */
+export function getComponentConfigSchema(componentId: string): ComponentConfigField[] {
+  return COMPONENT_CONFIG_SCHEMAS[componentId] ?? [];
+}
