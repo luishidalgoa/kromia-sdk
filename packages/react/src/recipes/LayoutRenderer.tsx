@@ -492,6 +492,32 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
       if (!resolved) return null;
       return <StatsRow fields={resolved.fields} />;
     }
+    // KRO-155 — fila de BADGES: un pill por CADA field del slot (rareza · tipo ·
+    // estado), en vez de un único pill envolviendo todo. Salta los vacíos.
+    case 'badge_row': {
+      if (isHidden('badges')) return null;
+      const sid = node.slots?.badges;
+      if (!sid) return null;
+      const resolved = resolveSlot(ctx.composition, sid, ctx.fieldDefs, ctx.item);
+      if (!resolved) return null;
+      return (
+        <div className="flex flex-wrap gap-1">
+          {resolved.fields.map((f, i) =>
+            f.value == null || f.value === '' ? null : (
+              <BadgePill key={i}><ScalarText value={f.value} def={f.def} appearance={resolved.appearance} /></BadgePill>
+            ),
+          )}
+        </div>
+      );
+    }
+    // KRO-155 — título de SECCIÓN: rótulo en MAYÚSCULAS (mismo markup que el label
+    // de las galerías). Muestra el valor del campo o, si no hay, su etiqueta.
+    case 'section_title': {
+      if (isHidden('text')) return null;
+      const v = rawValue('text');
+      const text = v != null && v !== '' ? String(v) : (roleLabel('text') ?? '');
+      return text ? <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{text}</p> : null;
+    }
     case 'hero_header': {
       // Cabecera hero FIEL: remapea rol→slotId a los nombres de slot del hero
       // (banner/avatar/title/subtitle) y delega en HeroHeader — el MISMO render

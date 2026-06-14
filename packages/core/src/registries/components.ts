@@ -78,6 +78,33 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
     ],
   },
 
+  // KRO-155 — fila de BADGES: cada field del slot = su propio pill (p.ej.
+  // "Fuego · Rara · Holo" como chips sueltos), en vez de UN solo pill que
+  // envuelve todo (lo que hace un slot composable con display:'badge').
+  badge_row: {
+    id:          'badge_row',
+    displayName: 'Fila de badges',
+    description: 'Pinta cada campo del slot como un BADGE separado (p.ej. "Fuego · Rara · Holo" como pills sueltas), en vez de un único pill que envuelve todo. Para varios atributos cortos en línea.',
+    category:    'basic',
+    roles: [
+      { id: 'badges', label: 'Badges', accepts: ['badge', 'text-short'] },
+    ],
+  },
+
+  // KRO-155 — título de SECCIÓN: rótulo en MAYÚSCULAS colocable (el "separador
+  // con texto"). Hoy esos rótulos ("GALERÍA"/"BESTIAS") solo existen
+  // auto-derivados DENTRO de las galerías; este los hace ponibles en cualquier
+  // sitio.
+  section_title: {
+    id:          'section_title',
+    displayName: 'Título de sección',
+    description: 'Etiqueta de sección en MAYÚSCULAS colocable sobre cualquier bloque. Muestra el valor del campo o, si no hay, su etiqueta — como los rótulos "GALERÍA"/"ESTADÍSTICAS" que hoy solo existen dentro de las galerías.',
+    category:    'basic',
+    roles: [
+      { id: 'text', label: 'Texto', accepts: ['text-short'], optional: true },
+    ],
+  },
+
   // Cabecera "hero": banner + avatar circular superpuesto + título + subtítulo,
   // centrados. Reproduce FIEL la cabecera de la receta `hero_protagonico` (con
   // sus placeholders: banner degradado + inicial del título), que NO se puede
