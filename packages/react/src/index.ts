@@ -70,4 +70,4 @@ export { NestedRecipeRenderer } from './recipes/NestedRecipeRenderer';
 export { RefGallery, MiniCardRefs, type CardRefResolver } from './recipes/RefGallery';
 // KRO-133 F2/F3 — motor de render genérico del árbol de layout (grid 2D) +
 // render de celda reutilizable por el editor visual de Studio.
-export { LayoutRenderer, SlotContent, ComponentContent, containerSurfaceClasses, type LayoutRendererProps, type SlotContentProps, type ComponentContentProps } from './recipes/LayoutRenderer';
+export { LayoutRenderer, SlotContent, ComponentContent, containerSurfaceClasses, scrimClass, type LayoutRendererProps, type SlotContentProps, type ComponentContentProps } from './recipes/LayoutRenderer';

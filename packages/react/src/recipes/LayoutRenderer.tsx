@@ -142,6 +142,20 @@ const SURFACE_SHADOW_CLASSES:  Record<NonNullable<ContainerSurface['shadow']>, s
 const SURFACE_PADDING_CLASSES: Record<NonNullable<ContainerSurface['padding']>, string> = {
   none: 'p-0', xs: 'p-1', sm: 'p-2', md: 'p-3', lg: 'p-5', xl: 'p-8',
 };
+// KRO-155 — velo (scrim) de legibilidad de texto sobre imagen. Gradiente/oscurecido
+// que se pinta como overlay z-10 (encima del fondo, debajo del texto absoluto z-20).
+type ScrimKind = Exclude<NonNullable<LayoutContainerNode['scrim']>, 'none'>;
+const SCRIM_CLASSES: Record<ScrimKind, string> = {
+  bottom: 'bg-gradient-to-t from-black/65 via-black/20 to-transparent',
+  top:    'bg-gradient-to-b from-black/65 via-black/20 to-transparent',
+  full:   'bg-black/40',
+};
+/** KRO-155 — clase del overlay de velo (scrim) de un contenedor, o undefined si
+ *  no tiene. Fuente ÚNICA: el render del SDK y el lienzo WYSIWYG de Studio la
+ *  consumen igual (evita drift del gradiente). */
+export function scrimClass(scrim: LayoutContainerNode['scrim']): string | undefined {
+  return scrim && scrim !== 'none' ? SCRIM_CLASSES[scrim] : undefined;
+}
 // Borde atómico: matriz lado × grosor (clases literales) + color + estilo.
 type BSide  = 'all' | 'top' | 'right' | 'bottom' | 'left';
 type BWidth = NonNullable<SurfaceBorder['width']>;
@@ -605,8 +619,11 @@ function LayoutNodeView({ node, ctx }: { node: LayoutNode; ctx: NodeCtx }) {
   const clip = node.surface?.radius && node.surface.radius !== 'none' ? 'overflow-hidden' : undefined;
   // KRO-133 — si algún hijo es ABSOLUTO, el contenedor es el marco de referencia.
   const hasAbsolute = node.children.some(c => c.place?.position === 'absolute');
+  // KRO-155 — velo (scrim) de legibilidad: necesita posicionar el overlay → el
+  // contenedor pasa a `relative` aunque no haya hijos absolutos.
+  const scrim = scrimClass(node.scrim);
   return (
-    <div className={cn(containerClasses(node), surfaceClasses(node.surface), clip, hasAbsolute && 'relative')} style={containerStyle}>
+    <div className={cn(containerClasses(node), surfaceClasses(node.surface), clip, (hasAbsolute || scrim) && 'relative')} style={containerStyle}>
       {node.children.map((child, i) => {
         // KRO-133 — hijo ABSOLUTO: fuera del flujo, posicionado en x/y (% del
         // contenedor). Para superposiciones libres (arrastrar por el lienzo).
@@ -651,6 +668,12 @@ function LayoutNodeView({ node, ctx }: { node: LayoutNode; ctx: NodeCtx }) {
           </div>
         );
       })}
+      {/* KRO-155 — velo de legibilidad: overlay z-10 (sobre el fondo, bajo el
+          texto absoluto z-20). Pensado para "imagen de fondo (hijo en flujo) +
+          texto en capa absoluta encima". pointer-events-none → no roba clics. */}
+      {scrim && (
+        <div aria-hidden className={cn('pointer-events-none absolute inset-0 z-10', scrim)} />
+      )}
     </div>
   );
 }

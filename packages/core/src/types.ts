@@ -485,6 +485,13 @@ export interface LayoutContainerNode {
   place?: GridPlacement;
   /** KRO-133 F3 — decoración de la caja (fondo/borde/esquinas/sombra/padding). */
   surface?: ContainerSurface;
+  /** KRO-155 — velo de oscurecimiento (scrim) para legibilidad de TEXTO SOBRE
+   *  IMAGEN. Gradiente opcional sobre el contenido de FONDO del contenedor
+   *  (z-10), por debajo de los hijos ABSOLUTOS (texto, z-20). Presets cerrados:
+   *  'bottom'/'top' = degradado oscuro desde ese borde; 'full' = oscurecido
+   *  uniforme. Metadata de render (NO entra al contrato KRP), como `surface`.
+   *  Complementa a `SlotAppearance.textShadow`. undefined/'none' = sin velo. */
+  scrim?: 'none' | 'bottom' | 'top' | 'full';
 }
 
 /**
