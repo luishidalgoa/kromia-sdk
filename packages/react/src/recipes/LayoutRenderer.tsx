@@ -22,7 +22,7 @@
  */
 import { cn } from '../lib/cn';
 import {
-  resolveSlot, isSlotDisabled, AccentFrame, extractAccentSettings,
+  resolveSlot, isSlotDisabled, AccentFrame, extractAccentSettings, formatScalar,
   ScalarText, ComposableSlot, ThumbBox, BadgePill, slotDebugAttrs, appearancePaddingClass,
   appearanceTextClasses, appearanceTruncateClass, appearanceEffectClasses,
   type FieldDefLike,
@@ -493,7 +493,9 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
       return <StatsRow fields={resolved.fields} />;
     }
     // KRO-155 — fila de BADGES: un pill por CADA field del slot (rareza · tipo ·
-    // estado), en vez de un único pill envolviendo todo. Salta los vacíos.
+    // estado), en vez de un único pill envolviendo todo. Salta los vacíos con la
+    // MISMA noción de vacío que el resto (formatScalar→'' cubre whitespace) y honra
+    // la appearance del slot en cada pill, como la rama badge canónica.
     case 'badge_row': {
       if (isHidden('badges')) return null;
       const sid = node.slots?.badges;
@@ -503,19 +505,24 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
       return (
         <div className="flex flex-wrap gap-1">
           {resolved.fields.map((f, i) =>
-            f.value == null || f.value === '' ? null : (
-              <BadgePill key={i}><ScalarText value={f.value} def={f.def} appearance={resolved.appearance} /></BadgePill>
+            formatScalar(f.value, f.def) === '' ? null : (
+              <BadgePill key={i} className={appearanceTextClasses(resolved.appearance)}>
+                <ScalarText value={f.value} def={f.def} appearance={resolved.appearance} />
+              </BadgePill>
             ),
           )}
         </div>
       );
     }
     // KRO-155 — título de SECCIÓN: rótulo en MAYÚSCULAS (mismo markup que el label
-    // de las galerías). Muestra el valor del campo o, si no hay, su etiqueta.
+    // de las galerías). Muestra el valor del campo FORMATEADO (año/fecha/moneda/
+    // rating… via formatScalar, como el resto de textos) o, si no hay, su etiqueta.
     case 'section_title': {
       if (isHidden('text')) return null;
-      const v = rawValue('text');
-      const text = v != null && v !== '' ? String(v) : (roleLabel('text') ?? '');
+      const sid = node.slots?.text;
+      const first = sid ? resolveSlot(ctx.composition, sid, ctx.fieldDefs, ctx.item)?.fields?.[0] : undefined;
+      const formatted = first ? formatScalar(first.value, first.def) : '';
+      const text = formatted !== '' ? formatted : (roleLabel('text') ?? '');
       return text ? <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{text}</p> : null;
     }
     case 'hero_header': {

@@ -92,6 +92,42 @@ function slotAcceptKind(id: string, behaviorIds: string[] = [], extras: Record<s
   };
 }
 
+// KRO-155 — componente prefabricado (badge_row/section_title/card…).
+function component(id: string, extras: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    id,
+    displayName: id,
+    description: `Component ${id}`,
+    category:    'basic',
+    roles:       [],
+    ...extras,
+  };
+}
+
+// ── components: antes el detector era CIEGO a esta colección (KRO-155) ──
+describe('detectBumpKind — components (KRO-155)', () => {
+  it('añadir un componente → minor', () => {
+    const a = baseJson({ components: [component('card')] });
+    const b = baseJson({ components: [component('card'), component('badge_row')] });
+    expect(detectBumpKind(a, b).kind).toBe('minor');
+  });
+  it('quitar un componente → major', () => {
+    const a = baseJson({ components: [component('card'), component('badge_row')] });
+    const b = baseJson({ components: [component('card')] });
+    expect(detectBumpKind(a, b).kind).toBe('major');
+  });
+  it('cambiar el shape de un componente (roles) → major', () => {
+    const a = baseJson({ components: [component('card', { roles: [{ id: 'media', accepts: ['image'] }] })] });
+    const b = baseJson({ components: [component('card', { roles: [{ id: 'media', accepts: ['image', 'image-array'] }] })] });
+    expect(detectBumpKind(a, b).kind).toBe('major');
+  });
+  it('solo description (cosmético) → patch', () => {
+    const a = baseJson({ components: [component('card', { description: 'viejo' })] });
+    const b = baseJson({ components: [component('card', { description: 'nuevo' })] });
+    expect(detectBumpKind(a, b).kind).toBe('patch');
+  });
+});
+
 // ── Caso base ───────────────────────────────────────────────────────
 
 describe('detectBumpKind — none', () => {

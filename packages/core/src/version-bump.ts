@@ -84,7 +84,11 @@ const IGNORED_TOP_LEVEL_FIELDS = new Set<string>([
  * resultado del detector (el max wins), pero sí condiciona el orden
  * de los `reasons` en el output.
  */
-const COLLECTIONS = ['recipes', 'actions', 'behaviors', 'slotAcceptKinds', 'fieldTypes', 'visualEffects'] as const;
+// KRO-155 — `components` faltaba: el detector era CIEGO a él (añadir/quitar/mutar
+// un componente prefabricado no bumpeaba). Como entra al contrato (generate.ts) y
+// sus entradas tienen `id` estable, el diff entry-by-entry lo cubre igual que el
+// resto: adición → minor, eliminación/cambio de shape → major, solo desc → patch.
+const COLLECTIONS = ['recipes', 'actions', 'behaviors', 'slotAcceptKinds', 'fieldTypes', 'visualEffects', 'components'] as const;
 
 // ── API pública ────────────────────────────────────────────────────
 
