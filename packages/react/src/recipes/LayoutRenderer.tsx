@@ -443,6 +443,10 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
     );
   };
 
+  // KRO-155 — capturamos la salida del componente para poder envolverla en una
+  // `surface` opcional (decoración genérica de prefabs). IIFE para no re-indentar
+  // el switch; los helpers de arriba (isHidden/roleSlot/renderRefs…) siguen en scope.
+  const inner = (() => {
   switch (node.component) {
     case 'card': {
       // Carta compuesta: media full-bleed arriba + título/pie/badge en un cuerpo
@@ -543,6 +547,21 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
     default:
       return null;
   }
+  })();
+  // KRO-155 — `surface` editable GENÉRICA para cualquier prefab: si el publisher la
+  // define, envolvemos la salida en una caja decorada (borde/tinte/radius/sombra/
+  // relleno), el MISMO `ContainerSurface` que los contenedores. `card` ya la honra
+  // internamente (media full-bleed + cuerpo) → se excluye para no duplicar.
+  // `inner == null` (rol oculto / sin slot) se preserva: nada de cajas decoradas
+  // vacías.
+  const sc = node.surface;
+  if (inner == null || !sc || node.component === 'card') return inner;
+  const clip = sc.radius && sc.radius !== 'none' ? 'overflow-hidden' : undefined;
+  return (
+    <div className={cn(surfaceClasses(sc), clip)} style={surfaceFieldColorStyle(sc, ctx.item)}>
+      {inner}
+    </div>
+  );
 }
 
 export interface ComponentContentProps {
