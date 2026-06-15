@@ -465,7 +465,7 @@ export interface LayoutContainerNode {
   align?: LayoutAlign;
   /** Distribución principal (flex) / justify-items (grid). Default 'start'. */
   justify?: LayoutJustify;
-  /** grid: nº de columnas (1..6). Default 2. (Ignorado en flex/stack.) */
+  /** grid: nº de columnas (1..6). Default 1 (`gridCols → ?? 1`, KRO-166). (Ignorado en flex/stack.) */
   columns?: number;
   /** KRO-133 F3 — grid: nº de filas EXPLÍCITAS (1..6). Omitir = filas implícitas
    *  (auto). Útil para colocar por celda 2D con rowStart/rowSpan. */

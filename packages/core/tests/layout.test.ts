@@ -20,6 +20,7 @@ import {
   MAX_GRID_ROWS,
 } from '../src/layout';
 import type { LayoutContainerNode, LayoutNode, SlotComposition } from '../src/types';
+import { buildPayload } from '../src/generate';
 
 const slots = (...keys: string[]): Record<string, SlotComposition> =>
   Object.fromEntries(keys.map(k => [k, { fields: [k] }]));
@@ -407,5 +408,21 @@ describe('validateLayout — absoluto/surface/tracks (KRO-167)', () => {
     expect(res.issues.some(i => /Track "7fr" desconocido/.test(i.message))).toBe(true);
     expect(res.issues.some(i => /entradas pero el grid tiene/.test(i.message))).toBe(true);
     expect(res.ok).toBe(true); // warns, no errors
+  });
+});
+
+// ── KRO-133 — el árbol de layout es RENDER-ONLY: NO entra al contrato KRP ───────
+// Red de seguridad anti-bump: editar/extender el árbol de layout es dato de
+// composición (como slotOverrides/accent), no contrato de registry → no debe
+// cambiar el `.json` del KRP ni bumpear PROTOCOL_VERSION. Lo afianza explícito
+// además del contract-drift.test.
+describe('layout NO entra al contrato KRP (render-only, anti-bump)', () => {
+  it('buildPayload no serializa el árbol de layout', () => {
+    const payload = buildPayload('9.9.9');
+    expect(Object.keys(payload)).not.toContain('layout');
+    const json = JSON.stringify(payload);
+    // Ningún contenedor del árbol (kind flex/stack) llega al contrato serializado.
+    expect(json).not.toContain('"kind":"flex"');
+    expect(json).not.toContain('"kind":"stack"');
   });
 });
