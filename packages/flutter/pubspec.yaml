@@ -1,0 +1,27 @@
+name: kromia_flutter
+description: >-
+  Motor de render del árbol de LAYOUT de Kromia para Flutter — equivalente Dart de
+  @kromia/react. Interpreta `ViewComposition.layout` (modelo de kromia_core) y lo
+  pinta como un widget tree equivalente al render web. KRO-133 Fase 4 / KRO-83.
+version: 3.1.0
+publish_to: none
+
+# La versión sigue a @kromia/core (package.json) como kromia_core: el TS lidera.
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Modelo + lógica pura (LayoutNode/validateLayout/recipe_presets/components…).
+  kromia_core:
+    path: ../core_dart
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
