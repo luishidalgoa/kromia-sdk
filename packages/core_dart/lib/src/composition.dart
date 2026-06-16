@@ -26,6 +26,12 @@ class SlotAppearance {
   final String? size; // 'sm' | 'md' | 'lg' | 'xl'
   final String? paddingY; // 'none' | 'sm' | 'md' | 'lg'
 
+  // KRO-133 — campos usados por los presets de receta (recipe-presets.ts).
+  final String? textColor; // id de paleta ('muted'/'accent'/'primary'…) o color_hex field
+  final String? display; // 'badge' → pinta el slot como pill
+  final String? font; // 'sans' (def) | 'serif'
+  final String? textTransform; // 'none' (def) | 'uppercase'
+
   const SlotAppearance({
     this.shape,
     this.aspect,
@@ -37,6 +43,10 @@ class SlotAppearance {
     this.accentPosition,
     this.size,
     this.paddingY,
+    this.textColor,
+    this.display,
+    this.font,
+    this.textTransform,
   });
 
   factory SlotAppearance.fromJson(Map<String, dynamic> json) => SlotAppearance(
@@ -52,7 +62,51 @@ class SlotAppearance {
         accentPosition: json['accentPosition'] as String?,
         size: json['size'] as String?,
         paddingY: json['paddingY'] as String?,
+        textColor: json['textColor'] as String?,
+        display: json['display'] as String?,
+        font: json['font'] as String?,
+        textTransform: json['textTransform'] as String?,
       );
+
+  /// `this` (apariencia del usuario) SOBRE [base] (apariencia del preset): cada
+  /// campo del usuario gana; los ausentes caen al preset. Espejo de
+  /// `{...preset, ...user}` de composeLayoutPreset (KRO-133).
+  SlotAppearance mergedOver(SlotAppearance? base) {
+    if (base == null) return this;
+    return SlotAppearance(
+      shape: shape ?? base.shape,
+      aspect: aspect ?? base.aspect,
+      align: align ?? base.align,
+      weight: weight ?? base.weight,
+      truncate: truncate ?? base.truncate,
+      truncateChars: truncateChars ?? base.truncateChars,
+      imageFocus: imageFocus ?? base.imageFocus,
+      accentPosition: accentPosition ?? base.accentPosition,
+      size: size ?? base.size,
+      paddingY: paddingY ?? base.paddingY,
+      textColor: textColor ?? base.textColor,
+      display: display ?? base.display,
+      font: font ?? base.font,
+      textTransform: textTransform ?? base.textTransform,
+    );
+  }
+
+  /// ¿Tiene algún override? (para el corpus: "fusiona apariencia en ≥1 slot").
+  bool get isNotEmpty =>
+      shape != null ||
+      aspect != null ||
+      align != null ||
+      weight != null ||
+      truncate != null ||
+      truncateChars != null ||
+      imageFocus != null ||
+      accentPosition != null ||
+      size != null ||
+      paddingY != null ||
+      textColor != null ||
+      display != null ||
+      font != null ||
+      textTransform != null;
 }
 
 /// Punto focal de imagen (object-cover). Defaults: x=50, y=50, zoom=1.

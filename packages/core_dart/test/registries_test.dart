@@ -176,15 +176,15 @@ void main() {
   group('recipe-registry', () {
     final recipes = allRecipes();
 
-    test('contiene 8 recipes', () {
-      expect(recipes.length, 8);
+    test('contiene 13 recipes (8 clásicas + 5 V5 block-native, KRO-133)', () {
+      expect(recipes.length, 13);
     });
 
-    test('distribución por kind: 3 list + 3 detail + 2 expand', () {
+    test('distribución por kind: 7 list + 4 detail + 2 expand', () {
       List<RecipeManifest> byKind(String k) =>
           recipes.where((r) => r.kind == k).toList();
-      expect(byKind('list').length, 3);
-      expect(byKind('detail').length, 3);
+      expect(byKind('list').length, 7);
+      expect(byKind('detail').length, 4);
       expect(byKind('expand').length, 2);
     });
 

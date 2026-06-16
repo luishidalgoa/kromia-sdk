@@ -223,6 +223,67 @@ const Map<String, RecipeManifest> recipeRegistry = <String, RecipeManifest>{
       ),
     ],
   ),
+  // ── V5 (KRO-133) — recetas block-native ───────────────────────────
+  'feature_card': RecipeManifest(
+    id: 'feature_card',
+    kind: 'list',
+    displayName: 'Tarjeta destacada',
+    description: 'Imagen 16:9 arriba + título + (subtítulo | badge). Más visual y aireada.',
+    slots: [
+      SlotDefinition(id: 'image', label: 'Imagen', kind: 'single', accepts: ['image']),
+      SlotDefinition(id: 'title', label: 'Título', kind: 'single', accepts: ['text-short']),
+      SlotDefinition(id: 'subtitle', label: 'Subtítulo', kind: 'composable', accepts: ['text-short', 'date', 'number'], optional: true),
+      SlotDefinition(id: 'badge', label: 'Badge', kind: 'single', accepts: ['badge'], optional: true),
+    ],
+  ),
+  'split_panel': RecipeManifest(
+    id: 'split_panel',
+    kind: 'list',
+    displayName: 'Panel dividido',
+    description: 'Imagen cuadrada grande a la izquierda + columna de texto + meta opcional.',
+    slots: [
+      SlotDefinition(id: 'image', label: 'Imagen', kind: 'single', accepts: ['image']),
+      SlotDefinition(id: 'title', label: 'Título', kind: 'single', accepts: ['text-short']),
+      SlotDefinition(id: 'subtitle', label: 'Subtítulo', kind: 'composable', accepts: ['text-short', 'date', 'number'], optional: true),
+      SlotDefinition(id: 'badge', label: 'Badge', kind: 'single', accepts: ['badge'], optional: true),
+      SlotDefinition(id: 'meta', label: 'Meta', kind: 'single', accepts: ['text-short', 'date'], optional: true),
+    ],
+  ),
+  'stat_tile': RecipeManifest(
+    id: 'stat_tile',
+    kind: 'list',
+    displayName: 'Mosaico de dato',
+    description: 'Valor grande protagonista + etiqueta + badge opcional. Sin imagen.',
+    slots: [
+      SlotDefinition(id: 'value', label: 'Valor', kind: 'single', accepts: ['number', 'text-short']),
+      SlotDefinition(id: 'label', label: 'Etiqueta', kind: 'single', accepts: ['text-short'], optional: true),
+      SlotDefinition(id: 'badge', label: 'Badge', kind: 'single', accepts: ['badge'], optional: true),
+    ],
+  ),
+  'detail_profile': RecipeManifest(
+    id: 'detail_profile',
+    kind: 'detail',
+    displayName: 'Perfil',
+    description: 'Avatar circular grande centrado + título + subtítulo + stats + cuerpo.',
+    slots: [
+      SlotDefinition(id: 'avatar', label: 'Avatar', kind: 'single', accepts: ['image']),
+      SlotDefinition(id: 'title', label: 'Título', kind: 'single', accepts: ['text-short']),
+      SlotDefinition(id: 'subtitle', label: 'Subtítulo', kind: 'composable', accepts: ['text-short', 'date'], optional: true),
+      SlotDefinition(id: 'stats', label: 'Estadísticas', kind: 'composable', accepts: ['number'], optional: true),
+      SlotDefinition(id: 'body', label: 'Cuerpo', kind: 'single', accepts: ['text-long'], optional: true),
+    ],
+  ),
+  'cover_band': RecipeManifest(
+    id: 'cover_band',
+    kind: 'list',
+    displayName: 'Cartel',
+    description: 'Portada 3:4 arriba + banda de color con título + badge.',
+    slots: [
+      SlotDefinition(id: 'image', label: 'Portada', kind: 'single', accepts: ['image']),
+      SlotDefinition(id: 'title', label: 'Título', kind: 'single', accepts: ['text-short']),
+      SlotDefinition(id: 'badge', label: 'Badge', kind: 'single', accepts: ['badge'], optional: true),
+    ],
+  ),
   // ── V3 (KRO-42) — recetas de EXPAND ───────────────────────────────
   'accordion_simple': RecipeManifest(
     id: 'accordion_simple',
