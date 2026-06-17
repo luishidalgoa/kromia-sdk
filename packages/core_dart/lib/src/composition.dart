@@ -13,100 +13,161 @@ library;
 
 import 'layout_node.dart';
 
-/// Override de apariencia per-instance (KRO-69 V6). Subset cerrado a presets.
+/// Override de apariencia per-instance — espejo 1:1 de `SlotAppearance` (types.ts).
 class SlotAppearance {
+  // ── Image-* ──
   final String? shape; // 'circle' | 'square' | 'rounded'
   final String? aspect; // '1:1' | '16:9' | '4:3' | '3:4' | '9:16' | 'free'
+  final String? objectFit; // 'cover' (def) | 'contain'
+  // ── Texto ──
   final String? align; // 'left' | 'center' | 'right'
   final String? weight; // 'regular' | 'semibold' | 'bold'
+  final String? textTransform; // 'none' (def) | 'uppercase'
+  final String? font; // 'sans' (def) | 'serif'
+  final bool? italic;
+  final bool? underline;
+  final String? lineHeight; // 'tight' | 'normal' | 'relaxed'
+  final String? tracking; // 'tight' | 'normal' | 'wide'
+  final String? textShadow; // 'none' (def) | 'sm' | 'md'
   final String? truncate; // '1' | '2' | '3' | 'none'
   final int? truncateChars;
   final ImageFocus? imageFocus;
   final String? accentPosition; // 'top'|'right'|'bottom'|'left'|'none'|'auto'
+  // ── Refs (card-ref) ──
+  final String? refColumns; // '1' | '2' | '3' | '4'
+  final String? refTap; // 'none' | 'focus'
+  final num? refSize;
+  // ── Generales ──
   final String? size; // 'sm' | 'md' | 'lg' | 'xl'
   final String? paddingY; // 'none' | 'sm' | 'md' | 'lg'
-
-  // KRO-133 — campos usados por los presets de receta (recipe-presets.ts).
-  final String? textColor; // id de paleta ('muted'/'accent'/'primary'…) o color_hex field
-  final String? display; // 'badge' → pinta el slot como pill
-  final String? font; // 'sans' (def) | 'serif'
-  final String? textTransform; // 'none' (def) | 'uppercase'
+  final String? display; // 'text' (def) | 'badge'
+  final String? textColor; // id de paleta o 'field:<col>' (color_hex)
+  final String? bgColor; // id de paleta o 'field:<col>'
+  final String? opacity; // '100' | '90' | '75' | '50'
+  final String? shadow; // 'none' | 'sm' | 'md' | 'lg'
 
   const SlotAppearance({
     this.shape,
     this.aspect,
+    this.objectFit,
     this.align,
     this.weight,
+    this.textTransform,
+    this.font,
+    this.italic,
+    this.underline,
+    this.lineHeight,
+    this.tracking,
+    this.textShadow,
     this.truncate,
     this.truncateChars,
     this.imageFocus,
     this.accentPosition,
+    this.refColumns,
+    this.refTap,
+    this.refSize,
     this.size,
     this.paddingY,
-    this.textColor,
     this.display,
-    this.font,
-    this.textTransform,
+    this.textColor,
+    this.bgColor,
+    this.opacity,
+    this.shadow,
   });
 
   factory SlotAppearance.fromJson(Map<String, dynamic> json) => SlotAppearance(
         shape: json['shape'] as String?,
         aspect: json['aspect'] as String?,
+        objectFit: json['objectFit'] as String?,
         align: json['align'] as String?,
         weight: json['weight'] as String?,
+        textTransform: json['textTransform'] as String?,
+        font: json['font'] as String?,
+        italic: json['italic'] as bool?,
+        underline: json['underline'] as bool?,
+        lineHeight: json['lineHeight'] as String?,
+        tracking: json['tracking'] as String?,
+        textShadow: json['textShadow'] as String?,
         truncate: json['truncate'] as String?,
         truncateChars: (json['truncateChars'] as num?)?.toInt(),
         imageFocus: json['imageFocus'] == null
             ? null
             : ImageFocus.fromJson(json['imageFocus'] as Map<String, dynamic>),
         accentPosition: json['accentPosition'] as String?,
+        refColumns: json['refColumns'] as String?,
+        refTap: json['refTap'] as String?,
+        refSize: json['refSize'] as num?,
         size: json['size'] as String?,
         paddingY: json['paddingY'] as String?,
-        textColor: json['textColor'] as String?,
         display: json['display'] as String?,
-        font: json['font'] as String?,
-        textTransform: json['textTransform'] as String?,
+        textColor: json['textColor'] as String?,
+        bgColor: json['bgColor'] as String?,
+        opacity: json['opacity'] as String?,
+        shadow: json['shadow'] as String?,
       );
 
-  /// `this` (apariencia del usuario) SOBRE [base] (apariencia del preset): cada
-  /// campo del usuario gana; los ausentes caen al preset. Espejo de
-  /// `{...preset, ...user}` de composeLayoutPreset (KRO-133).
+  /// `this` (usuario) SOBRE [base] (preset): cada campo del usuario gana; los
+  /// ausentes caen al preset. Espejo de `{...preset, ...user}` (composeLayoutPreset).
   SlotAppearance mergedOver(SlotAppearance? base) {
     if (base == null) return this;
     return SlotAppearance(
       shape: shape ?? base.shape,
       aspect: aspect ?? base.aspect,
+      objectFit: objectFit ?? base.objectFit,
       align: align ?? base.align,
       weight: weight ?? base.weight,
+      textTransform: textTransform ?? base.textTransform,
+      font: font ?? base.font,
+      italic: italic ?? base.italic,
+      underline: underline ?? base.underline,
+      lineHeight: lineHeight ?? base.lineHeight,
+      tracking: tracking ?? base.tracking,
+      textShadow: textShadow ?? base.textShadow,
       truncate: truncate ?? base.truncate,
       truncateChars: truncateChars ?? base.truncateChars,
       imageFocus: imageFocus ?? base.imageFocus,
       accentPosition: accentPosition ?? base.accentPosition,
+      refColumns: refColumns ?? base.refColumns,
+      refTap: refTap ?? base.refTap,
+      refSize: refSize ?? base.refSize,
       size: size ?? base.size,
       paddingY: paddingY ?? base.paddingY,
-      textColor: textColor ?? base.textColor,
       display: display ?? base.display,
-      font: font ?? base.font,
-      textTransform: textTransform ?? base.textTransform,
+      textColor: textColor ?? base.textColor,
+      bgColor: bgColor ?? base.bgColor,
+      opacity: opacity ?? base.opacity,
+      shadow: shadow ?? base.shadow,
     );
   }
 
-  /// ¿Tiene algún override? (para el corpus: "fusiona apariencia en ≥1 slot").
+  /// ¿Tiene algún override?
   bool get isNotEmpty =>
       shape != null ||
       aspect != null ||
+      objectFit != null ||
       align != null ||
       weight != null ||
+      textTransform != null ||
+      font != null ||
+      italic != null ||
+      underline != null ||
+      lineHeight != null ||
+      tracking != null ||
+      textShadow != null ||
       truncate != null ||
       truncateChars != null ||
       imageFocus != null ||
       accentPosition != null ||
+      refColumns != null ||
+      refTap != null ||
+      refSize != null ||
       size != null ||
       paddingY != null ||
-      textColor != null ||
       display != null ||
-      font != null ||
-      textTransform != null;
+      textColor != null ||
+      bgColor != null ||
+      opacity != null ||
+      shadow != null;
 }
 
 /// Punto focal de imagen (object-cover). Defaults: x=50, y=50, zoom=1.
