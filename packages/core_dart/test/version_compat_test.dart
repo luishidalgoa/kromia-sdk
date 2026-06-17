@@ -1,6 +1,8 @@
 /// Tests propios del paquete Dart (no tienen equivalente directo en TS porque
 /// `isCompatible` es nuevo de KRO-65). Cubren el SemVer compare + la politica
 /// de compatibilidad major-based que la app Flutter usa al cargar un album.
+import 'dart:io';
+
 import 'package:test/test.dart';
 import 'package:kromia_core/kromia_core.dart';
 
@@ -36,8 +38,13 @@ void main() {
     test('es un SemVer parseable', () {
       expect(() => Semver.parse(protocolVersion), returnsNormally);
     });
-    test('matchea el major del SDK TS (2.x)', () {
-      expect(Semver.parse(protocolVersion).major, 2);
+    test('iguala la versión del paquete (anti-drift; TS deriva PROTOCOL_VERSION de pkg.version)', () {
+      final pubspec = File('pubspec.yaml').readAsStringSync();
+      final m = RegExp(r'^version:\s*(\S+)', multiLine: true).firstMatch(pubspec);
+      expect(m, isNotNull, reason: 'pubspec.yaml debe declarar version');
+      // El pubspec puede llevar build (+N); el protocolo es solo major.minor.patch.
+      final pkgVersion = m!.group(1)!.split('+').first;
+      expect(protocolVersion, pkgVersion);
     });
   });
 }

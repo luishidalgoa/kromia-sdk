@@ -180,6 +180,18 @@ if (tsVersion !== dartVersion) {
   console.log(`::warning::Versión de core_dart (${dartVersion}) ≠ TS canónico (${tsVersion}). CONVENCIÓN: pubspec.yaml#version debe igualar packages/core/package.json#version. El TS lidera — no bumpees pubspec de forma independiente.`);
 }
 
+// KRO-33 — la CONSTANTE `protocolVersion` (version_compat.dart) es el cliente que la
+// app usa en el gate de compat. El TS deriva PROTOCOL_VERSION de pkg.version, así que
+// esta constante DEBE igualar la versión del paquete; si se queda atrás (pasó: 2.2.1
+// vs 3.1.0), la app rechaza como "incompatible" álbumes/QRs del protocolo actual.
+// Punto ciego del chequeo de arriba (que solo mira pubspec↔package.json, no la constante).
+const protoMatch = /const\s+String\s+protocolVersion\s*=\s*'([^']+)'/.exec(dart);
+const dartProtocol = protoMatch ? protoMatch[1].split('+')[0] : '?';
+console.log(`  Protocolo embebido: core_dart protocolVersion = ${dartProtocol} (debe = ${tsVersion})`);
+if (dartProtocol !== tsVersion) {
+  console.log(`::warning::core_dart protocolVersion (${dartProtocol}) ≠ versión del paquete (${tsVersion}). La app rechazaría como "incompatible" el protocolo actual — sincronízalo en core_dart/lib/src/version_compat.dart.`);
+}
+
 if (missing.length === 0) {
   console.log('✅ Paridad de API OK — todos los símbolos contract-críticos están en core_dart.');
   process.exit(0);

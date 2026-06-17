@@ -6,8 +6,10 @@
 /// no existia helper equivalente en el TS todavia.)
 
 /// Version del protocolo de ESTE paquete. DEBE matchear @kromia/core
-/// (packages/core/package.json#version). KRO-64 lo verifica en CI.
-const String protocolVersion = '2.2.1';
+/// (packages/core/package.json#version, de donde el TS deriva PROTOCOL_VERSION).
+/// El script de paridad (KRO-64) lo verifica: si difiere de la versión del
+/// paquete, la app rechazaría como "incompatible" álbumes/QRs del protocolo actual.
+const String protocolVersion = '3.1.0';
 
 /// SemVer parseado (major.minor.patch). Ignora sufijos (-beta, +build).
 class Semver {
