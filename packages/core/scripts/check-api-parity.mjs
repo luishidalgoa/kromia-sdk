@@ -176,8 +176,14 @@ const missing = MUST_MIRROR.filter(sym =>
 
 console.log(`KRP API parity TS↔Dart — ${MUST_MIRROR.length} símbolos must-mirror, ${missing.length} sin espejar.`);
 console.log(`  Versiones: TS canónico = ${tsVersion} | core_dart = ${dartVersion}`);
+// El drift de VERSIÓN/PROTOCOLO es un INVARIANTE DURO → rompe CI SIEMPRE (::error::),
+// no warn. Es exactamente lo que dejó pasar el 2.2.1 a producción: un warning en el log
+// no impide el merge. Los símbolos sin espejar, en cambio, son un subconjunto gradual
+// (Flutter poniéndose al día) → warn, salvo KRP_PARITY_STRICT.
+let versionDrift = false;
 if (tsVersion !== dartVersion) {
-  console.log(`::warning::Versión de core_dart (${dartVersion}) ≠ TS canónico (${tsVersion}). CONVENCIÓN: pubspec.yaml#version debe igualar packages/core/package.json#version. El TS lidera — no bumpees pubspec de forma independiente.`);
+  versionDrift = true;
+  console.log(`::error::Versión de core_dart (${dartVersion}) ≠ TS canónico (${tsVersion}). CONVENCIÓN: pubspec.yaml#version debe igualar packages/core/package.json#version. El TS lidera — no bumpees pubspec de forma independiente.`);
 }
 
 // KRO-33 — la CONSTANTE `protocolVersion` (version_compat.dart) es el cliente que la
@@ -189,29 +195,36 @@ const protoMatch = /const\s+String\s+protocolVersion\s*=\s*'([^']+)'/.exec(dart)
 const dartProtocol = protoMatch ? protoMatch[1].split('+')[0] : '?';
 console.log(`  Protocolo embebido: core_dart protocolVersion = ${dartProtocol} (debe = ${tsVersion})`);
 if (dartProtocol !== tsVersion) {
-  console.log(`::warning::core_dart protocolVersion (${dartProtocol}) ≠ versión del paquete (${tsVersion}). La app rechazaría como "incompatible" el protocolo actual — sincronízalo en core_dart/lib/src/version_compat.dart.`);
+  versionDrift = true;
+  console.log(`::error::core_dart protocolVersion (${dartProtocol}) ≠ versión del paquete (${tsVersion}). La app rechazaría como "incompatible" el protocolo actual — sincronízalo en core_dart/lib/src/version_compat.dart.`);
 }
 
-if (missing.length === 0) {
-  console.log('✅ Paridad de API OK — todos los símbolos contract-críticos están en core_dart.');
-  process.exit(0);
+if (missing.length > 0) {
+  console.log('');
+  console.log('Símbolos pendientes de espejar en core_dart:');
+  for (const sym of missing) {
+    const meta = SYMBOL_META[sym];
+    const src   = meta?.src   ? `  Fuente TS : packages/core/${meta.src}` : '';
+    const tests = meta?.tests ? `  Corpus    : packages/core/${meta.tests}` : '';
+    const note  = meta?.note  ? `  Nota      : ${meta.note}` : '';
+    const lines = [src, tests, note].filter(Boolean).join(' | ');
+    console.log(`::warning::${sym} — NO espejado en core_dart. ${lines}`);
+  }
 }
 
 console.log('');
-console.log('Símbolos pendientes de espejar en core_dart:');
-for (const sym of missing) {
-  const meta = SYMBOL_META[sym];
-  const src   = meta?.src   ? `  Fuente TS : packages/core/${meta.src}` : '';
-  const tests = meta?.tests ? `  Corpus    : packages/core/${meta.tests}` : '';
-  const note  = meta?.note  ? `  Nota      : ${meta.note}` : '';
-  const lines = [src, tests, note].filter(Boolean).join(' | ');
-  console.log(`::warning::${sym} — NO espejado en core_dart. ${lines}`);
-}
-
-console.log('');
-if (strict) {
-  console.error(`❌ FAIL (KRP_PARITY_STRICT): ${missing.length} símbolo(s) sin espejar: ${missing.join(', ')}`);
+const symbolFail = strict && missing.length > 0;
+if (versionDrift || symbolFail) {
+  const reasons = [
+    versionDrift ? 'drift de versión/protocolo (invariante duro)' : null,
+    symbolFail ? `${missing.length} símbolo(s) sin espejar (KRP_PARITY_STRICT)` : null,
+  ].filter(Boolean).join(' + ');
+  console.error(`❌ FAIL: ${reasons}.`);
   process.exit(1);
 }
-console.log(`⚠️  WARN: ${missing.length} símbolo(s) sin espejar (no bloqueante). Pon KRP_PARITY_STRICT=1 para hacerlo gate duro.`);
+if (missing.length > 0) {
+  console.log(`⚠️  WARN: ${missing.length} símbolo(s) sin espejar (no bloqueante). Pon KRP_PARITY_STRICT=1 para hacerlo gate duro.`);
+} else {
+  console.log('✅ Paridad de API OK — versiones sincronizadas y símbolos contract-críticos espejados.');
+}
 process.exit(0);
