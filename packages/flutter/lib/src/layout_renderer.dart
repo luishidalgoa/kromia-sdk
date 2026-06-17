@@ -1,7 +1,9 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_layout_grid/flutter_layout_grid.dart' hide GridPlacement;
 import 'package:kromia_core/kromia_core.dart';
 
 import 'component_content.dart';
+import 'grid_layout.dart';
 import 'render_ctx.dart';
 import 'slot_content.dart';
 import 'tokens.dart';
@@ -93,77 +95,103 @@ class LayoutRenderer extends StatelessWidget {
     );
   }
 
-  /// Grid emulado (Flutter no tiene CSS-grid): asigna celdas colStart/colSpan +
-  /// auto-flow + track fr→flex. rowSpan aproximado a 1 fila (limitación conocida).
+  /// Grid 2D NATIVO (KRO-83) vía flutter_layout_grid — port de CSS Grid: track
+  /// sizing (fr/auto) + colStart/Span + **rowStart/Span** (antes el rowSpan se
+  /// colapsaba a 1 fila). `computeGrid` resuelve la geometría espejando el
+  /// @kromia/react (tracks + colocación); aquí solo montamos el widget, dando a
+  /// cada hijo su celda explícita (sin depender del auto-placement del paquete).
   Widget _grid(LayoutContainerNode node, List<LayoutNode> children) {
-    final cols = gridCols(node);
-    final occupied = <String>{};
-    var freeCol = 1, freeRow = 1;
-    final placed = <({LayoutNode node, int col, int span, int row})>[];
-    for (final ch in children) {
-      final p = _placeOf(ch);
-      int col, span, row;
-      if (p?.colStart != null || p?.rowStart != null) {
-        col = (p?.colStart ?? 1).toInt().clamp(1, cols);
-        span = (p?.colSpan ?? 1).toInt().clamp(1, cols - col + 1);
-        row = (p?.rowStart ?? 1).toInt();
-      } else {
-        while (occupied.contains('$freeRow:$freeCol')) {
-          freeCol++;
-          if (freeCol > cols) {
-            freeCol = 1;
-            freeRow++;
-          }
-        }
-        col = freeCol;
-        span = (p?.colSpan ?? 1).toInt().clamp(1, cols - col + 1);
-        row = freeRow;
-      }
-      for (var c = col; c < col + span; c++) {
-        occupied.add('$row:$c');
-      }
-      placed.add((node: ch, col: col, span: span, row: row));
-    }
-    final maxRow = placed.isEmpty ? 1 : placed.map((p) => p.row).reduce((a, b) => a > b ? a : b);
+    final g = computeGrid(node, children);
     final gap = KromiaTokens.gap(node.gap);
-    final weights = _columnWeights(node, cols);
+    // 2D REAL (algún rowSpan>1) → motor flutter_layout_grid, que sí estira una
+    // celda por varias filas. Estos grids son de nivel superior (no los mide un
+    // grid padre por intrínsecos), así que el LayoutBuilder de _layoutGrid es
+    // seguro. El resto (1×N, N×1, filas sin span — TODOS los presets) va por la
+    // emulación Column/Row, robusta ante el protocolo intrínseco anidado y con el
+    // MISMO resultado (esos grids nunca usan rowSpan).
+    final needs2D = g.cells.any((c) => c.rowSpan > 1);
+    return needs2D ? _layoutGrid(node, g, gap) : _emulatedGrid(node, children, g, gap);
+  }
 
+  /// Grid 2D nativo (flutter_layout_grid). `LayoutBuilder` + columnas `fr` fijadas
+  /// a píxeles: con altura sin acotar (scroll), el grid mide el alto de cada fila
+  /// `auto` pasando a los hijos el ancho de su columna; si fuese `fr` ese ancho es
+  /// ∞ y un hijo con alto∝ancho (AspectRatio) devolvería alto ∞ y reventaría.
+  Widget _layoutGrid(LayoutContainerNode node, GridResult g, double gap) {
+    final kids = <Widget>[
+      for (var i = 0; i < g.cells.length; i++)
+        _node(g.children[i]).withGridPlacement(
+          columnStart: g.cells[i].columnStart,
+          columnSpan: g.cells[i].columnSpan,
+          rowStart: g.cells[i].rowStart,
+          rowSpan: g.cells[i].rowSpan,
+        ),
+    ];
+    return LayoutBuilder(
+      builder: (context, constraints) => LayoutGrid(
+        gridFit: GridFit.passthrough,
+        columnGap: gap,
+        rowGap: gap,
+        columnSizes: _resolveColumnTracks(g.columns, constraints.maxWidth, gap),
+        rowSizes: g.rows,
+        children: kids,
+      ),
+    );
+  }
+
+  /// Emulación 1D del grid (Column de Rows con celdas `Expanded` ponderadas por
+  /// los tracks `fr`). Sin rowSpan (innecesario aquí) y sin intrínsecos frágiles.
+  Widget _emulatedGrid(LayoutContainerNode node, List<LayoutNode> children, GridResult g, double gap) {
+    final cols = g.columns.length;
+    final weights = [for (final t in g.columns) t is FlexibleTrackSize ? t.flex.round().clamp(1, 999) : 1];
+    final maxRow = g.rows.length;
     final rows = <Widget>[];
-    for (var r = 1; r <= maxRow; r++) {
-      final inRow = placed.where((p) => p.row == r).toList()..sort((a, b) => a.col.compareTo(b.col));
+    for (var r = 0; r < maxRow; r++) {
+      final inRow = <({int col, int span, Widget w})>[];
+      for (var i = 0; i < children.length; i++) {
+        if (g.cells[i].rowStart == r) {
+          inRow.add((col: g.cells[i].columnStart, span: g.cells[i].columnSpan, w: _node(children[i])));
+        }
+      }
+      inRow.sort((a, b) => a.col.compareTo(b.col));
       final cells = <Widget>[];
-      var cursor = 1;
+      var cursor = 0;
       for (final p in inRow) {
-        if (p.col > cursor) cells.add(Expanded(flex: _weightSpan(weights, cursor, p.col - cursor), child: const SizedBox()));
-        cells.add(Expanded(flex: _weightSpan(weights, p.col, p.span), child: _node(p.node)));
+        if (p.col > cursor) cells.add(Expanded(flex: _weightOf(weights, cursor, p.col - cursor), child: const SizedBox()));
+        cells.add(Expanded(flex: _weightOf(weights, p.col, p.span), child: p.w));
         cursor = p.col + p.span;
       }
-      if (cursor <= cols) cells.add(Expanded(flex: _weightSpan(weights, cursor, cols - cursor + 1), child: const SizedBox()));
+      if (cursor < cols) cells.add(Expanded(flex: _weightOf(weights, cursor, cols - cursor), child: const SizedBox()));
       final spaced = <Widget>[];
       for (var i = 0; i < cells.length; i++) {
         if (i > 0 && gap > 0) spaced.add(SizedBox(width: gap));
         spaced.add(cells[i]);
       }
-      if (r > 1 && gap > 0) rows.add(SizedBox(height: gap));
+      if (r > 0 && gap > 0) rows.add(SizedBox(height: gap));
       rows.add(Row(crossAxisAlignment: _crossAlign(node.align, allowStretch: false), children: spaced));
     }
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: rows);
   }
 
-  List<int> _columnWeights(LayoutContainerNode node, int cols) {
-    final sizes = node.columnSizes;
-    return List.generate(cols, (i) {
-      final tk = (sizes != null && i < sizes.length) ? sizes[i] : '1fr';
-      return switch (tk) { '2fr' => 2, '3fr' => 3, _ => 1 };
-    });
-  }
-
-  int _weightSpan(List<int> weights, int colStart1, int span) {
+  int _weightOf(List<int> weights, int start0, int span) {
     var sum = 0;
-    for (var c = colStart1; c < colStart1 + span && c - 1 < weights.length; c++) {
-      sum += weights[c - 1];
+    for (var c = start0; c < start0 + span && c < weights.length; c++) {
+      sum += weights[c];
     }
     return sum < 1 ? 1 : sum;
+  }
+
+  /// Fija las columnas `fr` a píxeles cuando el ancho está acotado y TODAS son
+  /// flexibles (el caso que reventaba: `fr` + fila `auto` + AspectRatio). Con
+  /// columnas `auto`/`content` se respeta la medición intrínseca del paquete.
+  List<TrackSize> _resolveColumnTracks(List<TrackSize> tracks, double maxWidth, double gap) {
+    if (!maxWidth.isFinite || tracks.isEmpty) return tracks;
+    if (!tracks.every((t) => t is FlexibleTrackSize)) return tracks;
+    final flexes = [for (final t in tracks) (t as FlexibleTrackSize).flex];
+    final sum = flexes.fold<double>(0, (a, b) => a + b);
+    final content = maxWidth - gap * (tracks.length - 1);
+    if (sum <= 0 || content <= 0) return tracks;
+    return [for (final f in flexes) FixedTrackSize(content * (f / sum))];
   }
 
   Widget _absolute(LayoutNode child) {

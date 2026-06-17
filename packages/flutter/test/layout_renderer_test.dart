@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_layout_grid/flutter_layout_grid.dart' show LayoutGrid;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kromia_core/kromia_core.dart';
 import 'package:kromia_flutter/kromia_flutter.dart';
@@ -53,6 +54,28 @@ void main() {
     ]));
     expect(find.text('Pelé'), findsOneWidget);
     expect(find.text('Santos'), findsOneWidget);
+  });
+
+  testWidgets('grid SIN rowSpan → emulación Column/Row (no instancia LayoutGrid)', (t) async {
+    await pump(t, const LayoutContainerNode(kind: 'grid', columns: 2, children: [
+      LayoutSlotNode(slot: 'title', place: GridPlacement(colStart: 1)),
+      LayoutSlotNode(slot: 'subtitle', place: GridPlacement(colStart: 2)),
+    ]));
+    expect(find.byType(LayoutGrid), findsNothing);
+    expect(find.text('Pelé'), findsOneWidget);
+    expect(find.text('Santos'), findsOneWidget);
+  });
+
+  testWidgets('grid 2D con rowSpan → usa el motor LayoutGrid y renderiza sin crash', (t) async {
+    await pump(t, const LayoutContainerNode(kind: 'grid', columns: 2, children: [
+      LayoutSlotNode(slot: 'title', place: GridPlacement(colStart: 1, rowStart: 1, rowSpan: 2)),
+      LayoutSlotNode(slot: 'subtitle', place: GridPlacement(colStart: 2, rowStart: 1)),
+      LayoutSlotNode(slot: 'tipo', place: GridPlacement(colStart: 2, rowStart: 2)),
+    ]));
+    expect(find.byType(LayoutGrid), findsOneWidget); // tomó el camino 2D
+    expect(find.text('Pelé'), findsOneWidget); // celda con rowSpan:2
+    expect(find.text('Santos'), findsOneWidget);
+    expect(find.text('Delantero'), findsOneWidget); // fila 2
   });
 
   testWidgets('stack → Stack + contenido', (t) async {

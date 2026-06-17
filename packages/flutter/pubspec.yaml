@@ -18,6 +18,11 @@ dependencies:
   # Modelo + lógica pura (LayoutNode/validateLayout/recipe_presets/components…).
   kromia_core:
     path: ../core_dart
+  # KRO-83 — port puro-Dart de CSS Grid (track sizing fr/auto + colStart/Span +
+  # rowStart/Span + auto-placement). Permite espejar 1:1 el grid 2D del TS
+  # (gridColumnsTemplate/gridRowsTemplate de @kromia/react), incluido rowSpan,
+  # que el _grid anterior colapsaba a 1 fila.
+  flutter_layout_grid: ^2.0.0
 
 dev_dependencies:
   flutter_test:
