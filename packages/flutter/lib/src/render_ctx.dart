@@ -33,6 +33,10 @@ class RenderCtx {
   final List<FieldDefLike> fieldDefs;
   final KromiaImageBuilder imageBuilder;
   final CardRefTap? onCardRefTap;
+
+  /// Formato de carta del álbum → nº de columnas de las rejillas de mini-refs
+  /// (miniRefGridColumns). null → default (2:3 standard → 3 columnas).
+  final CardFormat? cardFormat;
   final Map<String, FieldDefLike> _byKey;
 
   RenderCtx({
@@ -41,8 +45,17 @@ class RenderCtx {
     this.fieldDefs = const [],
     KromiaImageBuilder? imageBuilder,
     this.onCardRefTap,
+    this.cardFormat,
   })  : imageBuilder = imageBuilder ?? _defaultImage,
         _byKey = {for (final f in fieldDefs) f.key: f};
+
+  /// Columnas de la rejilla de mini-refs (honra appearance.refColumns; si no,
+  /// deriva del cardFormat vía miniRefGridColumns; default 3).
+  int refColumns(SlotAppearance? ap) {
+    final override = ap?.refColumns;
+    if (override != null) return int.tryParse(override) ?? 3;
+    return miniRefGridColumns(cardFormat ?? defaultCardFormat);
+  }
 
   Map<String, SlotComposition> get slots => composition.slots;
   FieldDefLike? defFor(String? key) => key == null ? null : _byKey[key];

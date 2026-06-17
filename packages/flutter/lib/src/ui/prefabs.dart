@@ -12,7 +12,7 @@ Widget imageBox(RenderCtx ctx, String url, SlotAppearance? ap, {int? count}) {
   final isCircle = appearanceIsCircle(ap);
   final radius = appearanceCornerRadius(ap);
   // fill = aspect sin size (banner/cover a ancho completo); si no, thumb fijo.
-  Widget img = ctx.imageBuilder(url, fit: BoxFit.cover, alignment: appearanceImageAlignment(ap));
+  Widget img = ctx.imageBuilder(url, fit: appearanceBoxFit(ap), alignment: appearanceImageAlignment(ap));
   if (aspect != null && ap?.size == null) {
     img = AspectRatio(aspectRatio: aspect, child: img);
   } else {
@@ -45,12 +45,12 @@ Widget badgePill(String text, SlotAppearance? ap) => Container(
           style: applyAppearanceText(KromiaTokens.pill.copyWith(color: KromiaTokens.orangeDeep), ap)),
     );
 
-/// Rejilla de mini-cartas (card-ref) — 3 columnas (aprox; el TS deriva las
-/// columnas de cardFormat vía miniRefGridColumns, no espejado aún).
-Widget refsGrid(List<String> refs) {
+/// Rejilla de mini-cartas (card-ref). [columns] lo deriva el caller de
+/// `RenderCtx.refColumns` (miniRefGridColumns del cardFormat / appearance.refColumns).
+Widget refsGrid(List<String> refs, {int columns = 3}) {
   if (refs.isEmpty) return const SizedBox.shrink();
   return GridView.count(
-    crossAxisCount: 3,
+    crossAxisCount: columns,
     mainAxisSpacing: KromiaTokens.space2,
     crossAxisSpacing: KromiaTokens.space2,
     childAspectRatio: 0.7,

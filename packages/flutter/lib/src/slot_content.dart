@@ -75,7 +75,7 @@ Widget? slotContent(RenderCtx ctx, String slotId) {
     final refs = raw is List
         ? raw.map((e) => e.toString()).toList()
         : (raw != null ? <String>[raw.toString()] : <String>[]);
-    return wrap(refsGrid(refs));
+    return wrap(refsGrid(refs, columns: ctx.refColumns(ap)));
   }
 
   // Texto.

@@ -30,9 +30,36 @@ TextAlign? appearanceTextAlign(SlotAppearance? a) => switch (a?.align) {
       _ => null,
     };
 
-// NOTA: lineHeight/tracking/italic/underline/textShadow/objectFit del TS aún NO
-// están en el SlotAppearance de core_dart (gap appearance-parity, no usados por
-// los presets) → no se mapean aquí todavía.
+double? _lineHeight(SlotAppearance? a) => switch (a?.lineHeight) {
+      'tight' => 1.15,
+      'normal' => 1.4,
+      'relaxed' => 1.6,
+      _ => null,
+    };
+
+double? _tracking(SlotAppearance? a) => switch (a?.tracking) {
+      'tight' => -0.3,
+      'normal' => 0.0,
+      'wide' => 1.0,
+      _ => null,
+    };
+
+List<Shadow>? _textShadow(SlotAppearance? a) => switch (a?.textShadow) {
+      'sm' => const [Shadow(blurRadius: 2, color: Color(0x66000000), offset: Offset(0, 1))],
+      'md' => const [Shadow(blurRadius: 4, color: Color(0x99000000), offset: Offset(0, 1))],
+      _ => null,
+    };
+
+/// objectFit → BoxFit. 'contain' = encaja entera; 'cover' (def) = rellena recortando.
+BoxFit appearanceBoxFit(SlotAppearance? a) => a?.objectFit == 'contain' ? BoxFit.contain : BoxFit.cover;
+
+/// opacity → factor 0..1 ('100'/'90'/'75'/'50').
+double appearanceOpacity(SlotAppearance? a) => switch (a?.opacity) {
+      '90' => 0.9,
+      '75' => 0.75,
+      '50' => 0.5,
+      _ => 1.0,
+    };
 
 /// textColor (token de paleta) → Color. 'field:<col>' lo resuelve el render con
 /// el item (color_hex) → aquí null.
@@ -52,6 +79,11 @@ TextStyle applyAppearanceText(TextStyle base, SlotAppearance? a) {
     fontSize: appearanceFontSize(a) ?? base.fontSize,
     color: appearanceTextColor(a) ?? base.color,
     fontFamily: a.font == 'serif' ? 'serif' : base.fontFamily,
+    fontStyle: a.italic == true ? FontStyle.italic : base.fontStyle,
+    decoration: a.underline == true ? TextDecoration.underline : base.decoration,
+    letterSpacing: _tracking(a) ?? base.letterSpacing,
+    height: _lineHeight(a) ?? base.height,
+    shadows: _textShadow(a) ?? base.shadows,
   );
 }
 

@@ -28,7 +28,7 @@ Widget? componentContent(RenderCtx ctx, LayoutComponentNode node) {
     case 'card':
       inner = _card(ctx, node);
     case 'ref_gallery':
-      inner = isHidden('refs') ? null : refsGrid(rawList('refs'));
+      inner = isHidden('refs') ? null : refsGrid(rawList('refs'), columns: ctx.refColumns(ctx.slots[sidOf('refs')]?.appearance));
     case 'carousel_peek':
     case 'carousel_centered':
       inner = isHidden('images') ? null : imageRow(ctx, rawList('images'));
