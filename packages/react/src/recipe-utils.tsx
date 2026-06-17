@@ -26,6 +26,7 @@ import { isMockupImage,
   type AccentSettings       as SdkAccentSettings,
   type SlotAppearance,
   type SlotComposition,
+  type ImageTransform,
 } from '@kromia/core';
 
 // KRO-73 — Re-export desde el SDK: FieldDefLike + AccentSettings + helpers
@@ -460,6 +461,27 @@ export function imageFocusStyle(a: SlotAppearance | undefined): CSSProperties {
 function clamp(n: number, min: number, max: number): number {
   if (!Number.isFinite(n)) return min;
   return Math.max(min, Math.min(max, n));
+}
+
+/** KRO-33 — estilos inline para aplicar un `ImageTransform` (calibración POR
+ *  CARTA) a un `<img>` con object-cover. Espejo de `imageFocusStyle`, pero la
+ *  fuente es el transform del DATO de la carta (offsetX/Y ∈ [0,1] + scale +
+ *  rotation), no la `appearance` del slot del template. Sin transform → `{}`. */
+export function imageTransformStyle(t: ImageTransform | undefined): CSSProperties {
+  if (!t) return {};
+  const x = clamp(t.offsetX, 0, 1) * 100;
+  const y = clamp(t.offsetY, 0, 1) * 100;
+  const z = Number.isFinite(t.scale) ? Math.max(1, t.scale) : 1;
+  const rot = Number.isFinite(t.rotation) ? (t.rotation as number) : 0;
+  const style: CSSProperties = { objectPosition: `${x}% ${y}%` };
+  const transforms: string[] = [];
+  if (z !== 1) transforms.push(`scale(${z})`);
+  if (rot) transforms.push(`rotate(${rot}deg)`);
+  if (transforms.length) {
+    style.transform = transforms.join(' ');
+    style.transformOrigin = `${x}% ${y}%`;
+  }
+  return style;
 }
 
 /** Trunca el texto por número de caracteres (`appearance.truncateChars`)

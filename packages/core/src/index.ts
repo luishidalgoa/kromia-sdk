@@ -45,6 +45,8 @@ export type {
   CardEffect3D,
   LayerDepth,
   CardDepthLayer,
+  ImageTransform,
+  CalibrationState,
   RaritySource,
   RarityBucket,
   // KRO-133 — árbol de layout (constructor visual de recetas)
@@ -384,6 +386,24 @@ export {
   type DepthLayerIssue,
   type DepthLayerValidationResult,
 } from './card-layers';
+
+// KRO-33 — calibración fina de imágenes por carta (write-back Flutter→Studio).
+// Metadata de carta (offset/scale/rotation por imagen + estado), vive en el dato
+// → sin bump. Render compartido: Studio (CSS `imageTransformStyle`) y Flutter.
+export {
+  IMAGE_TRANSFORMS_KEY,
+  CALIBRATION_STATE_KEY,
+  CALIBRATION_STATES,
+  IDENTITY_IMAGE_TRANSFORM,
+  isValidImageTransform,
+  normalizeImageTransform,
+  getCardImageTransforms,
+  getCardImageTransform,
+  getCardCalibrationState,
+  setCardImageTransform,
+  markCardAutoCalibrated,
+  setCardCalibrationState,
+} from './image-calibration';
 
 // ── Árbol de LAYOUT (constructor visual de recetas, KRO-133) ─────────────────
 // La composición pasa de `slots` plano a un ÁRBOL editable (contenedores

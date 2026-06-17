@@ -226,6 +226,38 @@ export interface SlotAppearance {
 }
 
 /**
+ * KRO-33 — Calibración fina de la imagen de una carta dentro de su frame
+ * (`cardFormat`). El publisher ajusta el encuadre en Flutter (pinch/zoom/drag,
+ * UX táctil nativa) y se hace WRITE-BACK a Studio: Studio = editor estructural,
+ * Flutter = renderer (no hay cropper web). Studio NO recorta el blob — guarda
+ * solo este transform como metadata → recalibrable más tarde sin perder calidad.
+ *
+ * Es metadata de carta (vive en el DATO de la carta, ver `image-calibration.ts`),
+ * NO entra al `.json` del contrato KRP → sin bump de PROTOCOL_VERSION. Render
+ * agnóstico: Studio (CSS, `imageTransformStyle`) y Flutter (Transform) lo espejan.
+ * Análogo per-CARTA de `SlotAppearance.imageFocus` (que es per-SLOT del template).
+ */
+export interface ImageTransform {
+  /** Punto focal horizontal 0..1 (0.5 = centro): qué parte queda centrada en el frame. */
+  offsetX: number;
+  /** Punto focal vertical 0..1 (0.5 = centro). */
+  offsetY: number;
+  /** Escala ≥ 1 (1 = fit natural al frame, >1 = zoom in). */
+  scale: number;
+  /** Rotación en grados (opcional, default 0; raramente útil). */
+  rotation?: number;
+}
+
+/**
+ * KRO-33 — estado de calibración de la imagen de UNA carta:
+ *  - `pending_calibration`: imagen subida pero sin ajustar (Flutter no la ha tocado).
+ *  - `calibrated`: tiene un `ImageTransform` aplicado desde Flutter.
+ *  - `auto_calibrated`: sin transform; el publisher aceptó el fallback `cover + center`.
+ * Es PER-CARTA (no per-composición) → vive en el dato de la carta, nunca en el contrato.
+ */
+export type CalibrationState = 'pending_calibration' | 'calibrated' | 'auto_calibrated';
+
+/**
  * Composición anidada — subset de ViewComposition sin action/expand/linkField
  * porque la receta anidada se renderiza inline dentro del slot padre (no es
  * interactiva por sí misma, hereda el comportamiento del slot).

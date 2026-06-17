@@ -153,6 +153,19 @@ const EXPECTED_EXPORTS = [
   'depthToParallaxFactor',
   'getCardDepthLayers',
   'validateCardDepthLayers',
+  // KRO-33 — calibración fina de imágenes por carta (write-back Flutter→Studio)
+  'IMAGE_TRANSFORMS_KEY',
+  'CALIBRATION_STATE_KEY',
+  'CALIBRATION_STATES',
+  'IDENTITY_IMAGE_TRANSFORM',
+  'isValidImageTransform',
+  'normalizeImageTransform',
+  'getCardImageTransforms',
+  'getCardImageTransform',
+  'getCardCalibrationState',
+  'setCardImageTransform',
+  'markCardAutoCalibrated',
+  'setCardCalibrationState',
   // KRO-101 — autoridad de acceso a medios (capabilities del bucket)
   'mediaCapability',
   'isPrivatePath',
@@ -366,7 +379,10 @@ describe('Type exports compile-check', () => {
       null as unknown as import('../src/palette').PaletteRole,
       null as unknown as import('../src/layout').LayoutValidationResult,
       null as unknown as import('../src/layout').LayoutIssue,
+      // KRO-33 — calibración de imágenes por carta
+      null as unknown as import('../src/types').ImageTransform,
+      null as unknown as import('../src/types').CalibrationState,
     ];
-    expect(_checks.length).toBe(61);
+    expect(_checks.length).toBe(63);
   });
 });
