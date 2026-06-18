@@ -1,6 +1,6 @@
 {
   "name": "@kromia/react",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "private": true,
   "description": "Renderers React del SDK Kromia. Contiene los 8 recipe components + utilities (AvatarBox, ScalarText, ComposableSlot, InitialsAvatar) que Studio y el futuro consumer Flutter (via @kromia/flutter, paquete espejo) consumen como Legos para componer pantallas. Lógica del modelo viene de @kromia/core; este package solo aporta el JSX/CSS.",
   "main": "./src/index.ts",

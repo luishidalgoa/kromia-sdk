@@ -69,6 +69,10 @@ export { AccordionWithActionsRecipe } from './recipes/AccordionWithActionsRecipe
 export { RecipeRenderer }       from './recipes/RecipeRenderer';
 export { NestedRecipeRenderer } from './recipes/NestedRecipeRenderer';
 export { RefGallery, MiniCardRefs, type CardRefResolver } from './recipes/RefGallery';
+// KRO-133 — zoom de galería: capacidad (contexto) + visor reutilizable. El host
+// envuelve su subtree en ImageZoomProvider y monta ImageZoomOverlay donde toque.
+export { ImageZoomProvider, useImageZoom, type OpenImageZoom } from './recipes/ImageZoomContext';
+export { ImageZoomOverlay, type ImageZoomOverlayProps } from './recipes/ImageZoomOverlay';
 // KRO-133 F2/F3 — motor de render genérico del árbol de layout (grid 2D) +
 // render de celda reutilizable por el editor visual de Studio.
 export { LayoutRenderer, SlotContent, ComponentContent, containerSurfaceClasses, scrimClass, type LayoutRendererProps, type SlotContentProps, type ComponentContentProps } from './recipes/LayoutRenderer';

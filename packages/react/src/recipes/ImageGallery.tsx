@@ -12,12 +12,18 @@
  *                 (estilo "Momento").
  *   · grid      → mosaico en rejilla de 3 columnas, hasta 6 (estilo "Editorial").
  *
- * Mobile-first. Espejo Flutter pendiente (KRO-83).
+ * ZOOM (KRO-133): si hay un `ImageZoomProvider` arriba (`useImageZoom`), cada
+ * imagen REAL pasa a ser tappable → abre el visor a pantalla completa
+ * (`ImageZoomOverlay`) con pinch/pan/swipe. Sin provider, la galería se mantiene
+ * estática (backward-compat). El host monta el visor donde toca (in-frame en
+ * Studio). Mobile-first. Espejo Flutter pendiente (KRO-83).
  */
 import { useRef, useState, type CSSProperties } from 'react';
+import { ZoomIn } from 'lucide-react';
 import { isMockupImage } from '@kromia/core';
 import { cn } from '../lib/cn';
 import { MockupImageSkeleton } from '../recipe-utils';
+import { useImageZoom } from './ImageZoomContext';
 
 export type ImageGalleryVariant = 'peek' | 'centered' | 'grid';
 
@@ -33,6 +39,38 @@ export interface ImageGalleryProps {
   className?: string;
 }
 
+/** Celda de imagen: skeleton para mockups; `<button>` ampliable (cursor-zoom-in
+ *  + hint al hover) cuando hay host de zoom y la imagen es REAL; si no, `<div>`
+ *  estático. La caja recorta (overflow-hidden) → el overlay de hover queda dentro. */
+function GalleryCell({
+  url, boxClass, style, imgStyle, onZoom,
+}: {
+  url:       string;
+  boxClass:  string;
+  style?:    CSSProperties;
+  imgStyle?: CSSProperties;
+  onZoom?:   () => void;
+}) {
+  const mockup = isMockupImage(url);
+  const media = mockup
+    ? <MockupImageSkeleton />
+    // eslint-disable-next-line @next/next/no-img-element
+    : <img src={url} alt="" style={imgStyle} className="w-full h-full object-cover" />;
+
+  // Solo las imágenes REALES son ampliables (un skeleton no tiene nada que ampliar).
+  if (onZoom && !mockup) {
+    return (
+      <button type="button" onClick={onZoom} title="Ampliar imagen" className={cn(boxClass, 'group relative cursor-zoom-in')} style={style}>
+        {media}
+        <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/0 group-hover:bg-black/20 transition-all">
+          <ZoomIn className="h-5 w-5 text-white drop-shadow" />
+        </span>
+      </button>
+    );
+  }
+  return <div className={boxClass} style={style}>{media}</div>;
+}
+
 export function ImageGallery({ urls, variant = 'peek', imgStyle, label, className }: ImageGalleryProps) {
   // KRO-155 — dots de posición en los carruseles (peek/centered): el índice
   // activo se deriva del scroll (stride medio = scrollWidth / nº slides), así un
@@ -40,6 +78,8 @@ export function ImageGallery({ urls, variant = 'peek', imgStyle, label, classNam
   // del early-return para respetar las reglas de hooks.
   const scrollRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
+  // KRO-133 — opener del visor de zoom (null si no hay host → galería estática).
+  const openZoom = useImageZoom();
   const clean = (urls ?? []).filter((u): u is string => typeof u === 'string' && u.trim() !== '');
   const onScroll = () => {
     const el = scrollRef.current;
@@ -64,16 +104,29 @@ export function ImageGallery({ urls, variant = 'peek', imgStyle, label, classNam
     ? (
       <div className="grid grid-cols-3 gap-2">
         {gridShown.map((url, i) => (
-          <div key={i} className="aspect-square rounded-lg bg-muted overflow-hidden">
-            {isMockupImage(url) ? <MockupImageSkeleton /> :
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={url} alt="" style={imgStyle} className="w-full h-full object-cover" />}
-          </div>
+          <GalleryCell
+            key={i}
+            url={url}
+            boxClass="aspect-square rounded-lg bg-muted overflow-hidden"
+            imgStyle={imgStyle}
+            onZoom={openZoom ? () => openZoom(clean, i) : undefined}
+          />
         ))}
         {gridOverflow > 0 && (
-          <div className="aspect-square rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/40 flex items-center justify-center">
-            <span className="text-sm font-bold text-muted-foreground">+{gridOverflow}</span>
-          </div>
+          openZoom ? (
+            <button
+              type="button"
+              onClick={() => openZoom(clean, gridShown.length)}
+              title="Ver todas"
+              className="aspect-square rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/40 flex items-center justify-center cursor-zoom-in hover:bg-muted/60 transition-colors"
+            >
+              <span className="text-sm font-bold text-muted-foreground">+{gridOverflow}</span>
+            </button>
+          ) : (
+            <div className="aspect-square rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/40 flex items-center justify-center">
+              <span className="text-sm font-bold text-muted-foreground">+{gridOverflow}</span>
+            </div>
+          )
         )}
       </div>
     )
@@ -81,17 +134,16 @@ export function ImageGallery({ urls, variant = 'peek', imgStyle, label, classNam
       <>
         <div ref={scrollRef} onScroll={onScroll} className="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-1">
           {clean.map((url, i) => (
-            <div
+            <GalleryCell
               key={i}
-              className={variant === 'centered'
+              url={url}
+              boxClass={variant === 'centered'
                 ? 'snap-center shrink-0 w-64 aspect-[4/3] rounded-lg bg-muted overflow-hidden'
                 : 'snap-start shrink-0 aspect-[4/3] rounded-lg bg-muted overflow-hidden'}
               style={variant === 'peek' ? { width: '70%' } : undefined}
-            >
-              {isMockupImage(url) ? <MockupImageSkeleton /> :
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={url} alt="" style={imgStyle} className="w-full h-full object-cover" />}
-            </div>
+              imgStyle={imgStyle}
+              onZoom={openZoom ? () => openZoom(clean, i) : undefined}
+            />
           ))}
         </div>
         {/* KRO-155 — dots de posición (solo con ≥2 slides). El activo se ensancha. */}
