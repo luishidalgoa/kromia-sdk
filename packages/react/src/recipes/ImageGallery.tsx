@@ -57,8 +57,10 @@ function GalleryCell({
     // eslint-disable-next-line @next/next/no-img-element
     : <img src={url} alt="" style={imgStyle} className="w-full h-full object-cover" />;
 
-  // Solo las imágenes REALES son ampliables (un skeleton no tiene nada que ampliar).
-  if (onZoom && !mockup) {
+  // Tappable cuando hay host de zoom (incluye los mockups: en el preview del
+  // wizard las imágenes son sintéticas y aún así el publisher debe poder
+  // DESCUBRIR y probar el gesto; el visor las muestra como "imagen de ejemplo").
+  if (onZoom) {
     return (
       <button type="button" onClick={onZoom} title="Ampliar imagen" className={cn(boxClass, 'group relative cursor-zoom-in')} style={style}>
         {media}

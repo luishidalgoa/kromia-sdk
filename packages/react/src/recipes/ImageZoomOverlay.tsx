@@ -285,10 +285,15 @@ export function ImageZoomOverlay({ urls, index, onClose, onIndexChange, classNam
           {i + 1} / {clean.length}
         </div>
       )}
-      {/* Hint de zoom (solo a escala 1, imagen real) */}
+      {/* Hint de zoom (solo a escala 1, imagen real) / nota de imagen sintética */}
       {t.scale === 1 && !mockup && (
         <div className="absolute bottom-9 left-1/2 -translate-x-1/2 z-10 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/40 text-white/80 text-[10px] pointer-events-none">
           <ZoomIn className="h-3 w-3" /> Rueda o doble-click para ampliar
+        </div>
+      )}
+      {mockup && (
+        <div className="absolute bottom-9 left-1/2 -translate-x-1/2 z-10 px-2 py-0.5 rounded-full bg-black/40 text-white/70 text-[10px] pointer-events-none">
+          Imagen de ejemplo (sintética)
         </div>
       )}
 
