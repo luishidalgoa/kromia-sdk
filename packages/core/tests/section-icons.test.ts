@@ -62,9 +62,9 @@ describe('lucideIconName — nombre lucide canónico (fuente única Studio↔Flu
 
   it('usa el nombre lucide declarado donde difiere del id', () => {
     const cases: Record<string, string> = {
-      cards: 'wallet-cards', dice: 'dices', book: 'book-open', wand: 'wand-2',
+      cards: 'wallet-cards', dice: 'dices', book: 'book-open', wand: 'wand-sparkles',
       flask: 'flask-conical', crystal: 'eye', paw: 'paw-print', bolt: 'zap',
-      building: 'building-2', ball: 'goal',
+      building: 'building-2', ball: 'goal', home: 'house',
     };
     for (const [id, lucide] of Object.entries(cases)) {
       const def = SECTION_ICONS.find(d => d.id === id)!;
