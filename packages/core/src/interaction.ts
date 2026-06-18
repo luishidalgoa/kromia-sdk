@@ -138,6 +138,14 @@ export function resolveDetailComposition(
       recipe:  hop.recipe,
       action:  hop.action,
       slots,
+      // KRO-133 — el DETALLE puede tener su propio diseño por BLOQUES
+      // (`layout`) + slots deshabilitados/custom (`slotOverrides`) + posición de
+      // acento. El tipo `TargetComposition` los declara y Studio los persiste,
+      // pero antes se PERDÍAN aquí → el cliente (Flutter) caía siempre al preset
+      // en vez de pintar el lienzo guardado. Se propagan tal cual.
+      ...(hop.layout         ? { layout: hop.layout }                 : {}),
+      ...(hop.slotOverrides  ? { slotOverrides: hop.slotOverrides }   : {}),
+      ...(hop.accentPosition ? { accentPosition: hop.accentPosition } : {}),
       ...(hop.targetComposition ? { targetComposition: hop.targetComposition } : {}),
       ...(hop.expand            ? { expand: hop.expand }                         : {}),
       ...(hop.linkField         ? { linkField: hop.linkField }                   : {}),

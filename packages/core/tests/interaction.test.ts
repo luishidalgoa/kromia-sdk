@@ -109,6 +109,26 @@ describe('resolveDetailComposition', () => {
     expect(detail.slots.title?.fields).toContain('nombre');
   });
 
+  it('KRO-133 — targetComposition con diseño por BLOQUES propaga layout + slotOverrides + accentPosition', () => {
+    const layout = { type: 'container', kind: 'grid', columns: 1, rows: 1,
+      children: [{ type: 'slot', slot: 'title', place: { colStart: 1, rowStart: 1 } }] } as any;
+    const vc = base({
+      action: 'navigate_to_detail',
+      targetComposition: {
+        recipe: 'editorial', action: 'none',
+        slots: { title: { fields: ['nombre'] } },
+        layout,
+        slotOverrides: { disabled: ['subtitle'] },
+        accentPosition: 'left',
+      } as any,
+    });
+    const detail = resolveDetailComposition(vc, fields);
+    // El lienzo guardado del detalle DEBE llegar al cliente (antes se perdía → preset).
+    expect((detail as any).layout).toEqual(layout);
+    expect((detail as any).slotOverrides?.disabled).toEqual(['subtitle']);
+    expect((detail as any).accentPosition).toBe('left');
+  });
+
   it('targetComposition preserva el siguiente salto (action + targetComposition anidado)', () => {
     const vc = base({
       action: 'navigate_to_detail',
