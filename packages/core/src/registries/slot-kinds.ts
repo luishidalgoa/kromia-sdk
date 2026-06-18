@@ -243,6 +243,20 @@ const APPEARANCE_PROPS_BY_KIND: Record<SlotAcceptKind, ReadonlyArray<AppearanceP
 };
 
 /**
+ * TODAS las props de `SlotAppearance` que un renderer puede aplicar, en orden de
+ * presentación. Lista RUNTIME canónica (la del type `AppearanceProp`) — la usan
+ * `getAvailableAppearanceProps` y el ratchet de conformidad (cualquier prop
+ * nueva debe entrar aquí y quedar cubierta por el fixture → fuerza a Flutter a
+ * implementarla). KRO-133.
+ */
+export const ALL_APPEARANCE_PROPS: readonly AppearanceProp[] = [
+  'shape', 'aspect', 'objectFit', 'imageFocus', 'align', 'weight', 'italic', 'underline',
+  'textTransform', 'font', 'lineHeight', 'tracking', 'textShadow', 'size', 'display',
+  'textColor', 'bgColor', 'truncate', 'truncateChars', 'accentPosition', 'refSize',
+  'refColumns', 'refTap', 'paddingY', 'opacity', 'shadow',
+];
+
+/**
  * Devuelve la lista de props de `SlotAppearance` editables para un slot
  * cuyo kind/accept es el dado. Un slot con múltiples `accepts` recibe la
  * UNIÓN de props relevantes.
@@ -251,12 +265,11 @@ export function getAvailableAppearanceProps(
   accepts: ReadonlyArray<SlotAcceptKind>,
 ): AppearanceProp[] {
   if (accepts.length === 0) return [];
-  const order: AppearanceProp[] = ['shape', 'aspect', 'objectFit', 'imageFocus', 'align', 'weight', 'italic', 'underline', 'textTransform', 'font', 'lineHeight', 'tracking', 'textShadow', 'size', 'display', 'textColor', 'bgColor', 'truncate', 'truncateChars', 'accentPosition', 'refSize', 'refColumns', 'refTap', 'paddingY', 'opacity', 'shadow'];
   const union = new Set<AppearanceProp>();
   for (const kind of accepts) {
     for (const prop of APPEARANCE_PROPS_BY_KIND[kind]) {
       union.add(prop);
     }
   }
-  return order.filter(p => union.has(p));
+  return ALL_APPEARANCE_PROPS.filter(p => union.has(p));
 }

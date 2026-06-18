@@ -126,6 +126,7 @@ export {
   getSlotAcceptKindOptions,
   formatSlotAccepts,
   getAvailableAppearanceProps,
+  ALL_APPEARANCE_PROPS,
   type AppearanceProp,
 } from './registries/slot-kinds';
 
@@ -473,6 +474,15 @@ export {
 // KRO-133 F5 — recetas → presets de layout (grid). "Activar diseño por bloques"
 // parte del diseño REAL de la receta, no de una columna naíf.
 export { recipeToComposition } from './recipe-presets';
+
+// KRO-133 — ratchet de conformidad del motor de layout (corpus golden +
+// cobertura del catálogo). Flutter renderiza el fixture como golden; el test
+// falla si el catálogo crece sin cobertura → anti-drift al escalar slots.
+export {
+  LAYOUT_CONFORMANCE_FIXTURE,
+  conformanceContainerKinds, conformanceComponents, conformanceAppearanceProps,
+  CONFORMANCE_CATALOG,
+} from './layout-conformance';
 
 // KRO-178 — galería de variantes de plantilla de layout. FUERA del contrato
 // KRP (mismo criterio que SECTION_ICONS): se consumen en EDICIÓN para sembrar

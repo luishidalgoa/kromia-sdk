@@ -51,6 +51,7 @@ const EXPECTED_EXPORTS = [
   'getSlotAcceptKindOptions',
   'formatSlotAccepts',
   'getAvailableAppearanceProps',
+  'ALL_APPEARANCE_PROPS',
   // Classification / validation
   'classifyField',
   'isFieldCompatibleWithSlot',
@@ -227,6 +228,12 @@ const EXPECTED_EXPORTS = [
   'FIELD_COLOR_PREFIX',
   // KRO-133 F5 — recetas → presets de layout
   'recipeToComposition',
+  // KRO-133 — ratchet de conformidad del motor de layout
+  'LAYOUT_CONFORMANCE_FIXTURE',
+  'conformanceContainerKinds',
+  'conformanceComponents',
+  'conformanceAppearanceProps',
+  'CONFORMANCE_CATALOG',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
