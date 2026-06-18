@@ -221,6 +221,10 @@ export { normalizeComposition, RECIPE_ALIASES, COMPONENT_ALIASES } from './norma
 // (fuente única) que Studio (lucide-react) y Flutter (fuente lucide) renderizan.
 export { SECTION_ICONS, suggestSectionIcon, lucideIconName, type SectionIconDef } from './section-icons';
 
+// Markdown inline (behavior 'markdown'): tokenizador PURO compartido — Studio y
+// Flutter renderizan los mismos tokens con su piel (JSX / TextSpan).
+export { parseInlineMarkdown, type MarkdownToken } from './markdown';
+
 // ── Synth (AppPreview / playgrounds) ───────────────────────────────────
 // KRO-72: migrado desde kromia-studio. Permite a cualquier consumer
 // (Studio, drift detector, futuro Flutter) generar items sintéticos

@@ -182,6 +182,8 @@ const EXPECTED_EXPORTS = [
   'SECTION_ICONS',
   'suggestSectionIcon',
   'lucideIconName',
+  // KRO-131 — tokenizador de markdown inline (compartido Studio↔Flutter)
+  'parseInlineMarkdown',
   // KRO-178 — galería de variantes de plantilla de layout (fuera del KRP)
   'layoutTemplatesFor',
   'applyLayoutTemplate',
@@ -310,6 +312,7 @@ import type {
   ValidationIssue,
   ValidationResult,
   ValidateCompositionOptions,
+  MarkdownToken,
 } from '../src/index';
 
 describe('Type exports compile-check', () => {
@@ -383,7 +386,9 @@ describe('Type exports compile-check', () => {
       // KRO-33 — calibración de imágenes por carta
       null as unknown as import('../src/types').ImageTransform,
       null as unknown as import('../src/types').CalibrationState,
+      // KRO-131 — token de markdown inline
+      null as unknown as MarkdownToken,
     ];
-    expect(_checks.length).toBe(63);
+    expect(_checks.length).toBe(64);
   });
 });

@@ -22,6 +22,7 @@ import { isMockupImage,
   extractAccentSettings    as sdkExtractAccentSettings,
   composeSlotValues,
   paletteClass,
+  parseInlineMarkdown,
   type FieldDefLike         as SdkFieldDefLike,
   type AccentSettings       as SdkAccentSettings,
   type SlotAppearance,
@@ -632,43 +633,31 @@ export function ComposableSlot({
 
 // ── Inline markdown (KRO-131) ─────────────────────────────────────────────────
 //
-// Render minimalista de markdown INLINE para slots de texto largo cuyo field
-// tiene behavior `markdown` (body de editorial/momento/hero). Soporta
-// **negrita**, *cursiva*, _cursiva_, `code` y [texto](url), más saltos de línea.
-// NO es un parser de bloque (sin listas/headings/tablas) — cubre el grueso del
-// lore de cartas sin meter una dependencia de markdown en el package (clave para
-// mantenerlo ligero y espejable en Flutter). Para prosa rica de wiki, Studio usa
-// su propio <Markdown> completo; esto es solo para el render de cartas.
+// Render de markdown INLINE para fields con behavior `markdown` (body de
+// editorial/momento/hero, lore de cartas). El TOKENIZADO vive en `@kromia/core`
+// (`parseInlineMarkdown`) → una sola fuente que Flutter espeja con su piel
+// (`TextSpan`); aquí solo mapeamos los tokens a JSX. Soporta **negrita**,
+// *cursiva*/_cursiva_, `code`, [texto](url) y saltos de línea. NO es parser de
+// bloque (sin listas/headings/tablas); para prosa rica de wiki Studio usa su
+// `<Markdown>` completo — esto es solo para el render de cartas/secciones.
 
-function parseInlineMd(text: string, kp: string): ReactNode[] {
-  const nodes: ReactNode[] = [];
-  // Orden: negrita (**) · code (`) · link ([..](..)) · cursiva (* o _).
-  const re = /\*\*([^*]+)\*\*|`([^`]+)`|\[([^\]]+)\]\(([^)]+)\)|\*([^*]+)\*|_([^_]+)_/g;
-  let last = 0, i = 0;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(text)) !== null) {
-    if (m.index > last) nodes.push(<span key={`${kp}-t${i}`}>{text.slice(last, m.index)}</span>);
-    if (m[1] != null)      nodes.push(<strong key={`${kp}-${i}`}>{m[1]}</strong>);
-    else if (m[2] != null) nodes.push(<code key={`${kp}-${i}`} className="font-mono text-[0.85em] bg-muted/60 rounded px-1 py-0.5">{m[2]}</code>);
-    else if (m[3] != null) nodes.push(<span key={`${kp}-${i}`} className="underline underline-offset-2">{m[3]}</span>);
-    else if (m[5] != null) nodes.push(<em key={`${kp}-${i}`}>{m[5]}</em>);
-    else if (m[6] != null) nodes.push(<em key={`${kp}-${i}`}>{m[6]}</em>);
-    last = re.lastIndex; i++;
-  }
-  if (last < text.length) nodes.push(<span key={`${kp}-end`}>{text.slice(last)}</span>);
-  return nodes;
-}
-
-/** Render de markdown inline (negrita/cursiva/code/links) + saltos de línea.
- *  Úsalo en el body de las recetas detalle cuando `def.behavior === 'markdown'`;
- *  si no, renderiza el string plano. */
+/** Render de markdown inline desde los tokens del SDK. Úsalo cuando
+ *  `def.behavior === 'markdown'`; si no, renderiza el string plano. */
 export function MarkdownText({ text }: { text: string }) {
-  const out: ReactNode[] = [];
-  text.split('\n').forEach((line, li) => {
-    if (li > 0) out.push(<br key={`br${li}`} />);
-    out.push(...parseInlineMd(line, `l${li}`));
-  });
-  return <>{out}</>;
+  return (
+    <>
+      {parseInlineMarkdown(text).map((tk, i) => {
+        switch (tk.type) {
+          case 'break':  return <br key={i} />;
+          case 'bold':   return <strong key={i}>{tk.value}</strong>;
+          case 'italic': return <em key={i}>{tk.value}</em>;
+          case 'code':   return <code key={i} className="font-mono text-[0.85em] bg-muted/60 rounded px-1 py-0.5">{tk.value}</code>;
+          case 'link':   return <span key={i} className="underline underline-offset-2">{tk.value}</span>;
+          default:       return <span key={i}>{tk.value}</span>;
+        }
+      })}
+    </>
+  );
 }
 
 // ── Renderers especializados por tipo de slot ────────────────────────────────
