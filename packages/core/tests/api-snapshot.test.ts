@@ -178,9 +178,10 @@ const EXPECTED_EXPORTS = [
   'normalizeComposition',
   'RECIPE_ALIASES',
   'COMPONENT_ALIASES',
-  // KRO-189 — iconos de sección (catálogo + heurística)
+  // KRO-189 — iconos de sección (catálogo + heurística + nombre lucide canónico)
   'SECTION_ICONS',
   'suggestSectionIcon',
+  'lucideIconName',
   // KRO-178 — galería de variantes de plantilla de layout (fuera del KRP)
   'layoutTemplatesFor',
   'applyLayoutTemplate',

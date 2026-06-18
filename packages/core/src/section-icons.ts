@@ -19,33 +19,51 @@ export interface SectionIconDef {
   label: string;
   /** Disparadores de la sugerencia automática (minúsculas, sin acentos). */
   keywords: ReadonlyArray<string>;
+  /**
+   * Nombre del icono en **lucide** (kebab-case, el id canónico de lucide.dev).
+   * FUENTE ÚNICA del render anti-drift: Studio lo mapea a su componente
+   * lucide-react y Flutter al icono de la fuente lucide → el MISMO glifo en
+   * ambos. **Omitido cuando coincide con `id`** (la mayoría); presente solo en
+   * los que difieren, p.ej. `flask` → `flask-conical`, `bolt` → `zap`. Resuélvelo
+   * con `lucideIconName(def)` (default = `id`).
+   */
+  lucide?: string;
+}
+
+/**
+ * Nombre lucide canónico de un icono del catálogo (kebab-case). Default = `id`
+ * (la mayoría coinciden); las excepciones lo declaran en `lucide`. Tanto Studio
+ * (lucide-react) como Flutter (fuente lucide) renderizan desde ESTE nombre.
+ */
+export function lucideIconName(def: SectionIconDef): string {
+  return def.lucide ?? def.id;
 }
 
 export const SECTION_ICONS: ReadonlyArray<SectionIconDef> = [
   // ── Colección / juego ──
-  { id: 'cards',     label: 'Cartas',      keywords: ['carta', 'cartas', 'cromo', 'cromos', 'cards', 'deck'] },
+  { id: 'cards',     label: 'Cartas',      keywords: ['carta', 'cartas', 'cromo', 'cromos', 'cards', 'deck'], lucide: 'wallet-cards' },
   { id: 'star',      label: 'Estrella',    keywords: ['estrella', 'destacado', 'favorito', 'star'] },
   { id: 'sparkles',  label: 'Destellos',   keywords: ['especial', 'brillo', 'raros', 'sparkle'] },
   { id: 'trophy',    label: 'Trofeo',      keywords: ['trofeo', 'logros', 'campeonato', 'trophy', 'torneo'] },
   { id: 'medal',     label: 'Medalla',     keywords: ['medalla', 'premio', 'medal'] },
-  { id: 'dice',      label: 'Dados',       keywords: ['dado', 'dados', 'azar', 'dice', 'juego'] },
+  { id: 'dice',      label: 'Dados',       keywords: ['dado', 'dados', 'azar', 'dice', 'juego'], lucide: 'dices' },
   { id: 'puzzle',    label: 'Puzzle',      keywords: ['puzzle', 'pieza', 'reto'] },
   { id: 'gift',      label: 'Regalo',      keywords: ['regalo', 'sobre', 'sobres', 'gift', 'pack'] },
   // ── Fantasía / lore ──
   { id: 'crown',     label: 'Corona',      keywords: ['reino', 'reinos', 'corona', 'rey', 'reyes', 'kingdom', 'imperio'] },
-  { id: 'book',      label: 'Libro',       keywords: ['leyenda', 'leyendas', 'historia', 'historias', 'lore', 'relato', 'libro', 'book'] },
+  { id: 'book',      label: 'Libro',       keywords: ['leyenda', 'leyendas', 'historia', 'historias', 'lore', 'relato', 'libro', 'book'], lucide: 'book-open' },
   { id: 'scroll',    label: 'Pergamino',   keywords: ['pergamino', 'mision', 'misiones', 'quest', 'scroll'] },
   { id: 'swords',    label: 'Espadas',     keywords: ['espada', 'espadas', 'batalla', 'batallas', 'combate', 'guerra', 'duelo'] },
   { id: 'shield',    label: 'Escudo',      keywords: ['escudo', 'defensa', 'clan', 'clanes', 'hermandad', 'gremio'] },
-  { id: 'wand',      label: 'Varita',      keywords: ['magia', 'hechizo', 'hechizos', 'varita', 'conjuro', 'magic'] },
-  { id: 'flask',     label: 'Poción',      keywords: ['pocion', 'pociones', 'alquimia', 'elixir', 'laboratorio'] },
-  { id: 'crystal',   label: 'Bola mágica', keywords: ['profecia', 'oraculo', 'vidente', 'cristal'] },
+  { id: 'wand',      label: 'Varita',      keywords: ['magia', 'hechizo', 'hechizos', 'varita', 'conjuro', 'magic'], lucide: 'wand-2' },
+  { id: 'flask',     label: 'Poción',      keywords: ['pocion', 'pociones', 'alquimia', 'elixir', 'laboratorio'], lucide: 'flask-conical' },
+  { id: 'crystal',   label: 'Bola mágica', keywords: ['profecia', 'oraculo', 'vidente', 'cristal'], lucide: 'eye' },
   { id: 'skull',     label: 'Calavera',    keywords: ['jefe', 'jefes', 'villano', 'villanos', 'boss', 'calavera', 'muerte'] },
   { id: 'ghost',     label: 'Fantasma',    keywords: ['fantasma', 'fantasmas', 'espiritu', 'espiritus', 'ghost'] },
   { id: 'castle',    label: 'Castillo',    keywords: ['castillo', 'castillos', 'fortaleza', 'ciudadela'] },
   { id: 'key',       label: 'Llave',       keywords: ['llave', 'llaves', 'secreto', 'secretos', 'key'] },
   // ── Criaturas ──
-  { id: 'paw',       label: 'Huella',      keywords: ['bestia', 'bestias', 'criatura', 'criaturas', 'animal', 'animales', 'mascota', 'mascotas'] },
+  { id: 'paw',       label: 'Huella',      keywords: ['bestia', 'bestias', 'criatura', 'criaturas', 'animal', 'animales', 'mascota', 'mascotas'], lucide: 'paw-print' },
   { id: 'bug',       label: 'Insecto',     keywords: ['insecto', 'insectos', 'bicho', 'bichos', 'bug'] },
   { id: 'fish',      label: 'Pez',         keywords: ['pez', 'peces', 'mar', 'oceano', 'acuatico'] },
   { id: 'feather',   label: 'Pluma',       keywords: ['ave', 'aves', 'pajaro', 'pajaros', 'pluma', 'vuelo'] },
@@ -57,7 +75,7 @@ export const SECTION_ICONS: ReadonlyArray<SectionIconDef> = [
   { id: 'snowflake', label: 'Copo',        keywords: ['hielo', 'nieve', 'invierno', 'frio', 'ice'] },
   { id: 'sun',       label: 'Sol',         keywords: ['sol', 'dia', 'verano', 'luz', 'sun'] },
   { id: 'moon',      label: 'Luna',        keywords: ['luna', 'noche', 'nocturno', 'moon'] },
-  { id: 'bolt',      label: 'Rayo',        keywords: ['rayo', 'rayos', 'energia', 'electrico', 'trueno'] },
+  { id: 'bolt',      label: 'Rayo',        keywords: ['rayo', 'rayos', 'energia', 'electrico', 'trueno'], lucide: 'zap' },
   { id: 'mountain',  label: 'Montaña',     keywords: ['montana', 'montanas', 'cumbre', 'cordillera', 'pico'] },
   { id: 'trees',     label: 'Bosque',      keywords: ['bosque', 'bosques', 'arbol', 'arboles', 'selva', 'naturaleza'] },
   { id: 'gem',       label: 'Gema',        keywords: ['gema', 'gemas', 'joya', 'joyas', 'diamante', 'tesoro', 'tesoros', 'cristales'] },
@@ -67,7 +85,7 @@ export const SECTION_ICONS: ReadonlyArray<SectionIconDef> = [
   { id: 'globe',     label: 'Globo',       keywords: ['mundo', 'planeta', 'planetas', 'paises', 'global'] },
   { id: 'rocket',    label: 'Cohete',      keywords: ['espacio', 'cohete', 'galaxia', 'nave', 'naves', 'sci-fi'] },
   { id: 'home',      label: 'Casa',        keywords: ['casa', 'casas', 'pueblo', 'pueblos', 'aldea', 'hogar'] },
-  { id: 'building',  label: 'Edificio',    keywords: ['ciudad', 'ciudades', 'edificio', 'edificios', 'urbano'] },
+  { id: 'building',  label: 'Edificio',    keywords: ['ciudad', 'ciudades', 'edificio', 'edificios', 'urbano'], lucide: 'building-2' },
   { id: 'anchor',    label: 'Ancla',       keywords: ['barco', 'barcos', 'puerto', 'puertos', 'nautico', 'marina'] },
   { id: 'flag',      label: 'Bandera',     keywords: ['bandera', 'banderas', 'pais', 'nacion', 'naciones', 'flag'] },
   // ── Gente / cultura ──
@@ -80,7 +98,7 @@ export const SECTION_ICONS: ReadonlyArray<SectionIconDef> = [
   { id: 'calendar',  label: 'Calendario',  keywords: ['momento', 'momentos', 'evento', 'eventos', 'fecha', 'fechas', 'temporada', 'temporadas'] },
   { id: 'clock',     label: 'Reloj',       keywords: ['epoca', 'epocas', 'era', 'eras', 'tiempo', 'cronologia'] },
   // ── Deporte / motor ──
-  { id: 'ball',      label: 'Balón',       keywords: ['futbol', 'balon', 'deporte', 'deportes', 'liga', 'equipos', 'football'] },
+  { id: 'ball',      label: 'Balón',       keywords: ['futbol', 'balon', 'deporte', 'deportes', 'liga', 'equipos', 'football'], lucide: 'goal' },
   { id: 'car',       label: 'Coche',       keywords: ['coche', 'coches', 'carrera', 'carreras', 'motor', 'rally'] },
   { id: 'coins',     label: 'Monedas',     keywords: ['moneda', 'monedas', 'economia', 'mercado', 'tienda', 'coins'] },
 ];

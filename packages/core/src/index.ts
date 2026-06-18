@@ -217,8 +217,9 @@ export { normalizeComposition, RECIPE_ALIASES, COMPONENT_ALIASES } from './norma
 
 // ── Iconos de sección (KRO-189) ─────────────────────────────────────────
 // Catálogo curado + heurística de sugerencia por nombre. Los ids son
-// agnósticos de plataforma: Studio → lucide, Flutter → Material icons.
-export { SECTION_ICONS, suggestSectionIcon, type SectionIconDef } from './section-icons';
+// agnósticos de plataforma; `lucideIconName(def)` da el nombre lucide canónico
+// (fuente única) que Studio (lucide-react) y Flutter (fuente lucide) renderizan.
+export { SECTION_ICONS, suggestSectionIcon, lucideIconName, type SectionIconDef } from './section-icons';
 
 // ── Synth (AppPreview / playgrounds) ───────────────────────────────────
 // KRO-72: migrado desde kromia-studio. Permite a cualquier consumer
