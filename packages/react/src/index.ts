@@ -46,6 +46,7 @@ export {
   slotDebugAttrs,
   imageFocusStyle,
   imageTransformStyle,
+  slotImageTransform,
   // SDK core re-exports
   formatScalar,
   extractAccentSettings,
