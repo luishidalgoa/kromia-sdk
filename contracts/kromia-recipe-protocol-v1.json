@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
-  "protocolVersion": "3.1.0",
-  "generatedAt": "2026-06-15T21:36:34.734Z",
+  "protocolVersion": "3.2.0",
+  "generatedAt": "2026-06-19T00:33:27.380Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -1483,6 +1483,322 @@
       ]
     }
   ],
+  "appearance": {
+    "props": [
+      "shape",
+      "aspect",
+      "objectFit",
+      "imageFocus",
+      "align",
+      "weight",
+      "italic",
+      "underline",
+      "textTransform",
+      "font",
+      "lineHeight",
+      "tracking",
+      "textShadow",
+      "size",
+      "display",
+      "textColor",
+      "bgColor",
+      "truncate",
+      "truncateChars",
+      "accentPosition",
+      "refSize",
+      "refColumns",
+      "refTap",
+      "paddingY",
+      "opacity",
+      "shadow"
+    ],
+    "propsByKind": {
+      "text-short": [
+        "align",
+        "weight",
+        "italic",
+        "underline",
+        "textTransform",
+        "font",
+        "lineHeight",
+        "tracking",
+        "textShadow",
+        "size",
+        "display",
+        "textColor",
+        "bgColor",
+        "truncate",
+        "truncateChars",
+        "paddingY"
+      ],
+      "text-long": [
+        "align",
+        "weight",
+        "italic",
+        "underline",
+        "textTransform",
+        "font",
+        "lineHeight",
+        "tracking",
+        "textShadow",
+        "size",
+        "display",
+        "textColor",
+        "bgColor",
+        "truncate",
+        "truncateChars",
+        "paddingY"
+      ],
+      "number": [
+        "align",
+        "weight",
+        "italic",
+        "underline",
+        "textTransform",
+        "lineHeight",
+        "tracking",
+        "textShadow",
+        "size",
+        "display",
+        "textColor",
+        "bgColor",
+        "truncate",
+        "truncateChars",
+        "paddingY"
+      ],
+      "date": [
+        "align",
+        "weight",
+        "italic",
+        "underline",
+        "textTransform",
+        "lineHeight",
+        "tracking",
+        "textShadow",
+        "size",
+        "display",
+        "textColor",
+        "bgColor",
+        "truncate",
+        "truncateChars",
+        "paddingY"
+      ],
+      "badge": [
+        "size",
+        "textColor",
+        "bgColor",
+        "truncate",
+        "truncateChars",
+        "paddingY",
+        "opacity",
+        "shadow"
+      ],
+      "color": [
+        "size",
+        "accentPosition",
+        "paddingY"
+      ],
+      "image": [
+        "shape",
+        "aspect",
+        "objectFit",
+        "imageFocus",
+        "size",
+        "paddingY",
+        "opacity",
+        "shadow"
+      ],
+      "image-avatar": [
+        "shape",
+        "aspect",
+        "objectFit",
+        "imageFocus",
+        "size",
+        "paddingY",
+        "opacity",
+        "shadow"
+      ],
+      "image-cover": [
+        "shape",
+        "aspect",
+        "objectFit",
+        "imageFocus",
+        "size",
+        "paddingY",
+        "opacity",
+        "shadow"
+      ],
+      "image-banner": [
+        "shape",
+        "aspect",
+        "objectFit",
+        "imageFocus",
+        "size",
+        "paddingY",
+        "opacity",
+        "shadow"
+      ],
+      "image-array": [
+        "shape",
+        "aspect",
+        "objectFit",
+        "imageFocus",
+        "size",
+        "paddingY",
+        "opacity",
+        "shadow"
+      ],
+      "card-ref": [
+        "shape",
+        "refSize",
+        "refColumns",
+        "refTap"
+      ],
+      "url": [
+        "align",
+        "weight",
+        "italic",
+        "underline",
+        "textTransform",
+        "lineHeight",
+        "tracking",
+        "textShadow",
+        "size",
+        "truncate",
+        "truncateChars",
+        "paddingY"
+      ],
+      "any": [
+        "shape",
+        "aspect",
+        "objectFit",
+        "imageFocus",
+        "align",
+        "weight",
+        "italic",
+        "underline",
+        "textTransform",
+        "textShadow",
+        "size",
+        "truncate",
+        "truncateChars",
+        "paddingY",
+        "opacity",
+        "shadow"
+      ]
+    },
+    "variants": {
+      "shape": [
+        "circle",
+        "square",
+        "rounded"
+      ],
+      "aspect": [
+        "1:1",
+        "16:9",
+        "4:3",
+        "3:4",
+        "9:16",
+        "free"
+      ],
+      "objectFit": [
+        "cover",
+        "contain"
+      ],
+      "align": [
+        "left",
+        "center",
+        "right"
+      ],
+      "weight": [
+        "regular",
+        "semibold",
+        "bold"
+      ],
+      "textTransform": [
+        "none",
+        "uppercase"
+      ],
+      "font": [
+        "sans",
+        "serif"
+      ],
+      "lineHeight": [
+        "tight",
+        "normal",
+        "relaxed"
+      ],
+      "tracking": [
+        "tight",
+        "normal",
+        "wide"
+      ],
+      "textShadow": [
+        "none",
+        "sm",
+        "md"
+      ],
+      "size": [
+        "sm",
+        "md",
+        "lg",
+        "xl"
+      ],
+      "display": [
+        "text",
+        "badge"
+      ],
+      "truncate": [
+        "1",
+        "2",
+        "3",
+        "none"
+      ],
+      "paddingY": [
+        "none",
+        "sm",
+        "md",
+        "lg"
+      ],
+      "opacity": [
+        "100",
+        "90",
+        "75",
+        "50"
+      ],
+      "shadow": [
+        "none",
+        "sm",
+        "md",
+        "lg"
+      ],
+      "accentPosition": [
+        "auto",
+        "top",
+        "left",
+        "right",
+        "bottom",
+        "none"
+      ],
+      "refColumns": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "refTap": [
+        "none",
+        "focus"
+      ],
+      "italic": "boolean",
+      "underline": "boolean",
+      "truncateChars": "number",
+      "refSize": "number",
+      "imageFocus": "object",
+      "textColor": "palette",
+      "bgColor": "palette"
+    }
+  },
   "compatibilityMatrix": {
     "compact_avatar": {
       "kindRole": "list-source",

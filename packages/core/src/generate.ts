@@ -43,7 +43,16 @@ import { execSync } from 'node:child_process';
 
 import { allRecipes, type RecipeManifest } from './registries/recipes';
 import type { SlotDefinition } from './registries/recipes';
-import { SLOT_ACCEPT_KIND_META } from './registries/slot-kinds';
+import { SLOT_ACCEPT_KIND_META, ALL_APPEARANCE_PROPS, getAvailableAppearanceProps } from './registries/slot-kinds';
+import {
+  OPTIONS_APPEARANCE_SHAPE, OPTIONS_APPEARANCE_ASPECT, OPTIONS_APPEARANCE_OBJECT_FIT,
+  OPTIONS_APPEARANCE_ALIGN, OPTIONS_APPEARANCE_WEIGHT, OPTIONS_APPEARANCE_TEXT_TRANSFORM,
+  OPTIONS_APPEARANCE_FONT, OPTIONS_APPEARANCE_LINE_HEIGHT, OPTIONS_APPEARANCE_TRACKING,
+  OPTIONS_APPEARANCE_TEXTSHADOW, OPTIONS_APPEARANCE_SIZE, OPTIONS_APPEARANCE_DISPLAY,
+  OPTIONS_APPEARANCE_TRUNCATE, OPTIONS_APPEARANCE_PADDING_Y, OPTIONS_APPEARANCE_OPACITY,
+  OPTIONS_APPEARANCE_SHADOW, OPTIONS_APPEARANCE_ACCENT_POSITION, OPTIONS_APPEARANCE_REF_COLUMNS,
+  OPTIONS_APPEARANCE_REF_TAP,
+} from './options';
 import { allBehaviors, type BehaviorDefinition } from './registries/behaviors';
 import { allActions, type ActionDefinition } from './registries/actions';
 import { allFieldTypes, type FieldTypeDefinition } from './registries/field-types';
@@ -80,8 +89,27 @@ interface ProtocolJson {
   fieldTypes:          FieldTypeJson[];
   visualEffects:       VisualEffectJson[];
   components:          ComponentJson[];
+  appearance:          AppearanceSection;
   compatibilityMatrix: Record<string, CompatibilityEntry>;
   connections:         ConnectionsSection;
+}
+
+/**
+ * KRO-133 — contrato de APPEARANCE de slot (la "personalización CSS" por slot).
+ * Va en el .json para que CUALQUIER variante o prop nueva cambie el contrato →
+ * dispare `contract-drift` + auto-bump de `protocolVersion` → alarme a los
+ * clientes (Flutter) de que deben implementarla. Derivado de los catálogos
+ * (ALL_APPEARANCE_PROPS + OPTIONS_APPEARANCE_* + APPEARANCE_PROPS_BY_KIND), así
+ * que no hay que mantenerlo a mano.
+ */
+interface AppearanceSection {
+  /** Todas las props de appearance (orden canónico). */
+  props:       string[];
+  /** Props editables por cada slot-kind (qué se puede tocar en cada slot). */
+  propsByKind: Record<string, string[]>;
+  /** Valores válidos por prop: lista de ids (discretas) o tag de tipo
+   *  ('boolean'|'number'|'object'|'palette') para las no enumerables. */
+  variants:    Record<string, string[] | string>;
 }
 
 interface ConnectionsSection {
@@ -395,6 +423,53 @@ function buildConnections(
   return { nodes, edges };
 }
 
+/**
+ * KRO-133 — serializa el contrato de appearance DERIVADO de los catálogos.
+ * Añadir una prop (ALL_APPEARANCE_PROPS), un mapeo por-kind
+ * (APPEARANCE_PROPS_BY_KIND vía getAvailableAppearanceProps) o un valor de
+ * variante (OPTIONS_APPEARANCE_*) cambia esta sección → cambia el .json →
+ * `contract-drift` falla hasta regenerar + `protocolVersion` se auto-bumpea.
+ */
+function buildAppearance(): AppearanceSection {
+  const propsByKind: Record<string, string[]> = {};
+  for (const kind of Object.keys(SLOT_ACCEPT_KIND_META) as SlotAcceptKind[]) {
+    propsByKind[kind] = getAvailableAppearanceProps([kind]);
+  }
+  const ids = (cat: ReadonlyArray<{ id: string }>): string[] => cat.map(o => o.id);
+  const variants: Record<string, string[] | string> = {
+    // Enumerables (de su catálogo OPTIONS_APPEARANCE_*).
+    shape:          ids(OPTIONS_APPEARANCE_SHAPE),
+    aspect:         ids(OPTIONS_APPEARANCE_ASPECT),
+    objectFit:      ids(OPTIONS_APPEARANCE_OBJECT_FIT),
+    align:          ids(OPTIONS_APPEARANCE_ALIGN),
+    weight:         ids(OPTIONS_APPEARANCE_WEIGHT),
+    textTransform:  ids(OPTIONS_APPEARANCE_TEXT_TRANSFORM),
+    font:           ids(OPTIONS_APPEARANCE_FONT),
+    lineHeight:     ids(OPTIONS_APPEARANCE_LINE_HEIGHT),
+    tracking:       ids(OPTIONS_APPEARANCE_TRACKING),
+    textShadow:     ids(OPTIONS_APPEARANCE_TEXTSHADOW),
+    size:           ids(OPTIONS_APPEARANCE_SIZE),
+    display:        ids(OPTIONS_APPEARANCE_DISPLAY),
+    truncate:       ids(OPTIONS_APPEARANCE_TRUNCATE),
+    paddingY:       ids(OPTIONS_APPEARANCE_PADDING_Y),
+    opacity:        ids(OPTIONS_APPEARANCE_OPACITY),
+    shadow:         ids(OPTIONS_APPEARANCE_SHADOW),
+    accentPosition: ids(OPTIONS_APPEARANCE_ACCENT_POSITION),
+    refColumns:     ids(OPTIONS_APPEARANCE_REF_COLUMNS),
+    refTap:         ids(OPTIONS_APPEARANCE_REF_TAP),
+    // No enumerables: el contrato declara su TIPO (un cambio de prop nueva en
+    // ALL_APPEARANCE_PROPS también dispara el drift vía `props`).
+    italic:         'boolean',
+    underline:      'boolean',
+    truncateChars:  'number',
+    refSize:        'number',
+    imageFocus:     'object',
+    textColor:      'palette',
+    bgColor:        'palette',
+  };
+  return { props: [...ALL_APPEARANCE_PROPS], propsByKind, variants };
+}
+
 // ── Builder del payload ────────────────────────────────────────────────
 
 /**
@@ -431,6 +506,7 @@ export function buildPayload(version: string, generatedAt?: string): ProtocolJso
     fieldTypes: fieldTypes.map(serializeFieldType),
     visualEffects,
     components,
+    appearance: buildAppearance(),
     compatibilityMatrix,
     connections,
   };
