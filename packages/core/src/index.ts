@@ -445,6 +445,8 @@ export {
   SURFACE_RADIUS_CORNERS,
   SURFACE_SHADOWS,
   SURFACE_PADDINGS,
+  ALL_SURFACE_PROPS,
+  ALL_TRACK_PROPS,
   TRACK_SIZES,
   trackToCss,
   gridColumnsTemplate,
@@ -481,6 +483,7 @@ export { recipeToComposition } from './recipe-presets';
 export {
   LAYOUT_CONFORMANCE_FIXTURE,
   conformanceContainerKinds, conformanceComponents, conformanceAppearanceProps,
+  conformanceSurfaceProps, conformanceTrackProps,
   CONFORMANCE_CATALOG,
 } from './layout-conformance';
 

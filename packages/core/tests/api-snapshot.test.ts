@@ -213,6 +213,9 @@ const EXPECTED_EXPORTS = [
   'SURFACE_RADIUS_CORNERS',
   'SURFACE_SHADOWS',
   'SURFACE_PADDINGS',
+  // KRO-133 — ratchet anti-drift de decoración + track de contenedor
+  'ALL_SURFACE_PROPS',
+  'ALL_TRACK_PROPS',
   'TRACK_SIZES',
   'trackToCss',
   'gridColumnsTemplate',
@@ -233,6 +236,8 @@ const EXPECTED_EXPORTS = [
   'conformanceContainerKinds',
   'conformanceComponents',
   'conformanceAppearanceProps',
+  'conformanceSurfaceProps',
+  'conformanceTrackProps',
   'CONFORMANCE_CATALOG',
 ] as const;
 

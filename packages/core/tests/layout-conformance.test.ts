@@ -11,6 +11,7 @@ import { describe, it, expect } from 'vitest';
 import {
   LAYOUT_CONFORMANCE_FIXTURE,
   conformanceContainerKinds, conformanceComponents, conformanceAppearanceProps,
+  conformanceSurfaceProps, conformanceTrackProps,
   CONFORMANCE_CATALOG,
 } from '../src/layout-conformance';
 
@@ -31,6 +32,16 @@ describe('layout conformance ratchet (KRO-133)', () => {
   it('el fixture cubre TODAS las props de appearance', () => {
     const m = missing(CONFORMANCE_CATALOG.appearanceProps, conformanceAppearanceProps());
     expect(m, `appearance props sin cobertura: ${m.join(', ')} — añádelas a un slot del fixture y al golden de Flutter`).toEqual([]);
+  });
+
+  it('el fixture cubre TODAS las props de surface (decoración de contenedor)', () => {
+    const m = missing(CONFORMANCE_CATALOG.surfaceProps, conformanceSurfaceProps());
+    expect(m, `surface props sin cobertura: ${m.join(', ')} — añádelas a la surface de un contenedor del fixture y al golden de Flutter`).toEqual([]);
+  });
+
+  it('el fixture cubre TODAS las props de track sizing (columnSizes/rowSizes)', () => {
+    const m = missing(CONFORMANCE_CATALOG.trackProps, conformanceTrackProps());
+    expect(m, `track props sin cobertura: ${m.join(', ')} — añádelas a un contenedor grid del fixture y al golden de Flutter`).toEqual([]);
   });
 
   it('el fixture es una composición válida con árbol de layout', () => {

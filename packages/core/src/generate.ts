@@ -53,6 +53,14 @@ import {
   OPTIONS_APPEARANCE_SHADOW, OPTIONS_APPEARANCE_ACCENT_POSITION, OPTIONS_APPEARANCE_REF_COLUMNS,
   OPTIONS_APPEARANCE_REF_TAP,
 } from './options';
+// KRO-133 — catálogos de DECORACIÓN de contenedor + track sizing + estructura,
+// para la sección `container` del contrato (paridad de render de cajas Flutter).
+import {
+  LAYOUT_CONTAINER_KINDS, LAYOUT_DIRECTIONS, LAYOUT_ALIGNS, LAYOUT_JUSTIFY, LAYOUT_GAPS,
+  SURFACE_BACKGROUNDS, SURFACE_BORDER_WIDTHS, SURFACE_BORDER_SIDES, SURFACE_BORDER_COLORS,
+  SURFACE_BORDER_STYLES, SURFACE_RADII, SURFACE_RADIUS_CORNERS, SURFACE_SHADOWS, SURFACE_PADDINGS,
+  TRACK_SIZES, ALL_SURFACE_PROPS, ALL_TRACK_PROPS,
+} from './layout';
 import { allBehaviors, type BehaviorDefinition } from './registries/behaviors';
 import { allActions, type ActionDefinition } from './registries/actions';
 import { allFieldTypes, type FieldTypeDefinition } from './registries/field-types';
@@ -90,6 +98,7 @@ interface ProtocolJson {
   visualEffects:       VisualEffectJson[];
   components:          ComponentJson[];
   appearance:          AppearanceSection;
+  container:           ContainerSection;
   compatibilityMatrix: Record<string, CompatibilityEntry>;
   connections:         ConnectionsSection;
 }
@@ -110,6 +119,31 @@ interface AppearanceSection {
   /** Valores válidos por prop: lista de ids (discretas) o tag de tipo
    *  ('boolean'|'number'|'object'|'palette') para las no enumerables. */
   variants:    Record<string, string[] | string>;
+}
+
+/**
+ * KRO-133 — contrato de DECORACIÓN + ESTRUCTURA + TRACK SIZING de un CONTENEDOR
+ * (la "personalización CSS" por caja, paralela a `appearance` que es por slot).
+ * Va en el .json para que CUALQUIER token nuevo de surface (background, borde,
+ * radio, sombra, padding), eje de track (columnSizes/rowSizes) o primitivo
+ * estructural (kind/gap/align/justify) cambie el contrato → dispare
+ * `contract-drift` + auto-bump de `protocolVersion` → alarme a Flutter de que
+ * debe implementarlo. Derivado de los catálogos de `layout.ts` (ALL_SURFACE_PROPS
+ * + ALL_TRACK_PROPS + los catálogos SURFACE_, TRACK_SIZES y LAYOUT_), sin
+ * mantenimiento a mano.
+ */
+interface ContainerSection {
+  /** Tipos de contenedor (cómo dispone a sus hijos). */
+  kinds:        string[];
+  /** Props de decoración de la caja (surface), orden canónico. */
+  surfaceProps: string[];
+  /** Props de track sizing del grid (columnSizes/rowSizes). */
+  trackProps:   string[];
+  /** Valores válidos por prop (estructura/surface/track): lista de ids
+   *  (discretas) o tag de tipo ('number'|'object'|'palette') para las no
+   *  enumerables. `border` se declara 'object' y sus sub-props (borderWidth/
+   *  borderSides/borderColor/borderStyle) van aparte como enumerables. */
+  variants:     Record<string, string[] | string>;
 }
 
 interface ConnectionsSection {
@@ -470,6 +504,48 @@ function buildAppearance(): AppearanceSection {
   return { props: [...ALL_APPEARANCE_PROPS], propsByKind, variants };
 }
 
+/**
+ * KRO-133 — serializa el contrato de CONTENEDOR (surface + track + estructura)
+ * DERIVADO de los catálogos de `layout.ts`. Añadir una prop a ALL_SURFACE_PROPS
+ * o ALL_TRACK_PROPS, o un valor a los catálogos SURFACE_, TRACK_SIZES o LAYOUT_,
+ * cambia esta sección → cambia el .json → `contract-drift` falla hasta regenerar
+ * + `protocolVersion` se auto-bumpea → Flutter se entera de que debe espejarlo.
+ */
+function buildContainer(): ContainerSection {
+  const arr = (cat: ReadonlyArray<string>): string[] => [...cat];
+  return {
+    kinds:        arr(LAYOUT_CONTAINER_KINDS),
+    surfaceProps: [...ALL_SURFACE_PROPS],
+    trackProps:   [...ALL_TRACK_PROPS],
+    variants: {
+      // Estructura del contenedor.
+      direction: arr(LAYOUT_DIRECTIONS),
+      gap:       arr(LAYOUT_GAPS),
+      align:     arr(LAYOUT_ALIGNS),
+      justify:   arr(LAYOUT_JUSTIFY),
+      rowSize:   ['auto', 'equal'],
+      columns:   'number',
+      rows:      'number',
+      // Decoración (surface). `border` es objeto; sus sub-props enumerables van
+      // explícitas para que Flutter conozca los valores válidos.
+      background:    arr(SURFACE_BACKGROUNDS),
+      bgColor:       'palette',
+      border:        'object',
+      borderWidth:   arr(SURFACE_BORDER_WIDTHS),
+      borderSides:   arr(SURFACE_BORDER_SIDES),
+      borderColor:   arr(SURFACE_BORDER_COLORS),
+      borderStyle:   arr(SURFACE_BORDER_STYLES),
+      radius:        arr(SURFACE_RADII),
+      radiusCorners: arr(SURFACE_RADIUS_CORNERS),
+      shadow:        arr(SURFACE_SHADOWS),
+      padding:       arr(SURFACE_PADDINGS),
+      // Track sizing (mismos tokens para columnas y filas).
+      columnSizes:   arr(TRACK_SIZES),
+      rowSizes:      arr(TRACK_SIZES),
+    },
+  };
+}
+
 // ── Builder del payload ────────────────────────────────────────────────
 
 /**
@@ -507,6 +583,7 @@ export function buildPayload(version: string, generatedAt?: string): ProtocolJso
     visualEffects,
     components,
     appearance: buildAppearance(),
+    container: buildContainer(),
     compatibilityMatrix,
     connections,
   };

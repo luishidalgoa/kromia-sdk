@@ -18,7 +18,7 @@
  */
 import { COMPONENT_IDS } from './registries/components';
 import { ALL_APPEARANCE_PROPS } from './registries/slot-kinds';
-import { LAYOUT_CONTAINER_KINDS } from './layout';
+import { LAYOUT_CONTAINER_KINDS, ALL_SURFACE_PROPS, ALL_TRACK_PROPS } from './layout';
 import type { LayoutNode, LayoutContainerNode, ViewComposition, SlotComposition } from './types';
 
 // ── Slots con appearance que, en conjunto, cubren TODAS las props ──────────────
@@ -74,13 +74,32 @@ const zStack: LayoutContainerNode = {
   ],
 };
 
+// Grid 2×1 que ejercita track sizing (columnSizes/rowSizes) + una `surface` que
+// cubre las 7 props de ContainerSurface (background, bgColor, border completo
+// con sides/color/style, radius, radiusCorners, shadow, padding). Junto con la
+// surface de la raíz, garantiza cobertura del catálogo de decoración (ratchet).
+const gridDuo: LayoutContainerNode = {
+  type: 'container', kind: 'grid', columns: 2, rows: 1, gap: 'sm',
+  columnSizes: ['2fr', 'content'], rowSizes: ['auto'],
+  surface: {
+    background: 'muted', bgColor: 'slate-100',
+    border: { width: 'medium', sides: ['top', 'bottom'], color: 'accent', style: 'dashed' },
+    radius: 'md', radiusCorners: ['tl', 'tr'], shadow: 'sm', padding: 'sm',
+  },
+  children: [
+    { type: 'slot', slot: 'title', place: { colStart: 1, rowStart: 1 } },
+    { type: 'slot', slot: 'badge', place: { colStart: 2, rowStart: 1 } },
+  ],
+};
+
 const root: LayoutContainerNode = {
-  type: 'container', kind: 'grid', columns: 1, rows: componentNodes.length + 2,
+  type: 'container', kind: 'grid', columns: 1, rows: componentNodes.length + 3,
   gap: 'md', surface: { background: 'card', radius: 'lg', border: { width: 'thin' }, shadow: 'sm', padding: 'md' },
   children: [
     { ...flexRow, place: { colStart: 1, rowStart: 1 } },
     { ...zStack,  place: { colStart: 1, rowStart: 2 } },
     ...componentNodes,
+    { ...gridDuo, place: { colStart: 1, rowStart: componentNodes.length + 3 } },
   ],
 };
 
@@ -121,9 +140,33 @@ export function conformanceAppearanceProps(comp: ViewComposition = LAYOUT_CONFOR
   return out;
 }
 
+/** Props de `surface` (decoración de caja) presentes en CUALQUIER nodo del
+ *  fixture (contenedor o componente — ambos llevan `surface?`). KRO-133. */
+export function conformanceSurfaceProps(comp: ViewComposition = LAYOUT_CONFORMANCE_FIXTURE): Set<string> {
+  const out = new Set<string>();
+  if (comp.layout) walk(comp.layout, n => {
+    const surface = (n as { surface?: Record<string, unknown> }).surface;
+    if (surface) for (const k of Object.keys(surface)) out.add(k);
+  });
+  return out;
+}
+
+/** Props de track sizing (columnSizes/rowSizes) presentes en algún contenedor
+ *  del fixture. KRO-133. */
+export function conformanceTrackProps(comp: ViewComposition = LAYOUT_CONFORMANCE_FIXTURE): Set<string> {
+  const out = new Set<string>();
+  if (comp.layout) walk(comp.layout, n => {
+    if (n.type !== 'container') return;
+    for (const k of ALL_TRACK_PROPS) if ((n as unknown as Record<string, unknown>)[k] !== undefined) out.add(k);
+  });
+  return out;
+}
+
 /** Catálogos esperados (re-export para el golden de Flutter). */
 export const CONFORMANCE_CATALOG = {
   containerKinds: LAYOUT_CONTAINER_KINDS,
   components: COMPONENT_IDS,
   appearanceProps: ALL_APPEARANCE_PROPS,
+  surfaceProps: ALL_SURFACE_PROPS,
+  trackProps: ALL_TRACK_PROPS,
 } as const;

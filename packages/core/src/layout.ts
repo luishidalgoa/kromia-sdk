@@ -119,6 +119,27 @@ export function gridRowsTemplate(node: LayoutContainerNode): string {
 export const SURFACE_SHADOWS       = ['none', 'sm', 'md', 'lg', 'xl'] as const;
 export const SURFACE_PADDINGS      = ['none', 'xs', 'sm', 'md', 'lg', 'xl'] as const;
 
+/**
+ * KRO-133 — props de `ContainerSurface` que un renderer aplica a una caja, en
+ * orden canónico. Lista RUNTIME (espeja `ALL_APPEARANCE_PROPS`): es el RATCHET
+ * anti-drift de la DECORACIÓN de contenedor. Cualquier prop nueva de surface
+ * debe entrar aquí → la cubre el fixture de conformidad → entra en el contrato
+ * `.json` (sección `container`) → `contract-drift` + auto-bump de
+ * `protocolVersion` → alarma a Flutter de que debe implementarla.
+ */
+export const ALL_SURFACE_PROPS: readonly (keyof import('./types').ContainerSurface)[] = [
+  'background', 'bgColor', 'border', 'radius', 'radiusCorners', 'shadow', 'padding',
+];
+
+/**
+ * KRO-133 — props de TRACK SIZING (dimensionado por columna/fila del grid). Mismo
+ * ratchet que `ALL_SURFACE_PROPS`: si se añade un eje nuevo de dimensionado, entra
+ * aquí, lo cubre el fixture y bumpea el contrato. Los TOKENS válidos viven en
+ * `TRACK_SIZES`. */
+export const ALL_TRACK_PROPS: readonly ('columnSizes' | 'rowSizes')[] = [
+  'columnSizes', 'rowSizes',
+];
+
 /** Profundidad máxima de anidamiento de contenedores (raíz = 1). */
 export const MAX_LAYOUT_DEPTH = 5;
 /** Máximo de columnas de un contenedor `grid`. */

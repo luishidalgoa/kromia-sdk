@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
-  "protocolVersion": "3.2.0",
-  "generatedAt": "2026-06-19T00:33:27.380Z",
+  "protocolVersion": "3.3.0",
+  "generatedAt": "2026-06-19T17:07:22.485Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -1797,6 +1797,133 @@
       "imageFocus": "object",
       "textColor": "palette",
       "bgColor": "palette"
+    }
+  },
+  "container": {
+    "kinds": [
+      "flex",
+      "grid",
+      "stack"
+    ],
+    "surfaceProps": [
+      "background",
+      "bgColor",
+      "border",
+      "radius",
+      "radiusCorners",
+      "shadow",
+      "padding"
+    ],
+    "trackProps": [
+      "columnSizes",
+      "rowSizes"
+    ],
+    "variants": {
+      "direction": [
+        "row",
+        "column"
+      ],
+      "gap": [
+        "none",
+        "xs",
+        "sm",
+        "md",
+        "lg"
+      ],
+      "align": [
+        "start",
+        "center",
+        "end",
+        "stretch"
+      ],
+      "justify": [
+        "start",
+        "center",
+        "end",
+        "between",
+        "around"
+      ],
+      "rowSize": [
+        "auto",
+        "equal"
+      ],
+      "columns": "number",
+      "rows": "number",
+      "background": [
+        "none",
+        "card",
+        "muted",
+        "accent",
+        "primary"
+      ],
+      "bgColor": "palette",
+      "border": "object",
+      "borderWidth": [
+        "thin",
+        "medium",
+        "thick"
+      ],
+      "borderSides": [
+        "top",
+        "right",
+        "bottom",
+        "left"
+      ],
+      "borderColor": [
+        "border",
+        "muted",
+        "accent",
+        "primary",
+        "foreground"
+      ],
+      "borderStyle": [
+        "solid",
+        "dashed",
+        "dotted"
+      ],
+      "radius": [
+        "none",
+        "sm",
+        "md",
+        "lg",
+        "xl",
+        "full"
+      ],
+      "radiusCorners": [
+        "tl",
+        "tr",
+        "bl",
+        "br"
+      ],
+      "shadow": [
+        "none",
+        "sm",
+        "md",
+        "lg",
+        "xl"
+      ],
+      "padding": [
+        "none",
+        "xs",
+        "sm",
+        "md",
+        "lg",
+        "xl"
+      ],
+      "columnSizes": [
+        "1fr",
+        "2fr",
+        "3fr",
+        "auto",
+        "content"
+      ],
+      "rowSizes": [
+        "1fr",
+        "2fr",
+        "3fr",
+        "auto",
+        "content"
+      ]
     }
   },
   "compatibilityMatrix": {
