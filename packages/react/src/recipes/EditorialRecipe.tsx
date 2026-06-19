@@ -31,6 +31,7 @@ import { MockupImageSkeleton,
   resolveSlot, isSlotDisabled, MarkdownText,
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass,
   applyAppearanceTruncate, imageFocusStyle, slotDebugAttrs, extractAccentSettings, AccentFrame,
+  slotImageTransform,
   type FieldDefLike,
 } from '../recipe-utils';
 import type { ViewComposition } from '@kromia/core';
@@ -78,7 +79,7 @@ export function EditorialRecipe({
           publisher no podía ni rellenar ni quitar desde el editor. */}
       {cover && !isSlotDisabled(composition, 'cover') && (
         <span {...slotDebugAttrs('cover', cover)} className="block">
-          <BannerBox url={coverUrl} alt="" className="rounded-none" appearance={cover?.appearance} />
+          <BannerBox url={coverUrl} alt="" className="rounded-none" appearance={cover?.appearance} imageTransform={slotImageTransform(cover, item)} />
         </span>
       )}
 

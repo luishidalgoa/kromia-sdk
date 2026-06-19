@@ -24,7 +24,7 @@ import { cn } from '../lib/cn';
 import {
   resolveSlot, isSlotDisabled, AccentFrame, extractAccentSettings, formatScalar,
   ScalarText, ComposableSlot, ThumbBox, BadgePill, slotDebugAttrs, appearancePaddingClass,
-  appearanceTextClasses, appearanceTruncateClass, appearanceEffectClasses,
+  appearanceTextClasses, appearanceTruncateClass, appearanceEffectClasses, slotImageTransform,
   type FieldDefLike,
 } from '../recipe-utils';
 import {
@@ -339,7 +339,7 @@ export function SlotContent({ slot, composition, item, fieldDefs, cardFormat, re
     const fill = !!ap?.aspect && ap.aspect !== 'free' && !ap.size;
     return (
       <div className={appearancePaddingClass(ap)} {...slotDebugAttrs(slot, resolved)}>
-        <ThumbBox url={url} alt={String(first?.value ?? '')} appearance={ap} fill={fill} count={count} />
+        <ThumbBox url={url} alt={String(first?.value ?? '')} appearance={ap} fill={fill} count={count} imageTransform={slotImageTransform(resolved, item)} />
       </div>
     );
   }

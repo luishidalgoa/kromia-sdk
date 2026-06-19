@@ -21,7 +21,7 @@
 import { cn } from '../lib/cn';
 import { simpleHash } from '../lib/hash';
 import {
-  AvatarBox, BannerBox, ComposableSlot, ScalarText, resolveSlot,
+  AvatarBox, BannerBox, ComposableSlot, ScalarText, resolveSlot, slotImageTransform,
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass, slotDebugAttrs,
   type FieldDefLike,
 } from '../recipe-utils';
@@ -55,7 +55,7 @@ export function HeroHeader({ composition, item, fieldDefs, className, hiddenSlot
           patrón abstracto de círculos, como el mockup del diseñador. */}
       {!isHidden('banner') && (bannerUrl
         ? <span {...slotDebugAttrs('banner', banner)} className="block">
-            <BannerBox url={bannerUrl} alt="" className="rounded-none" appearance={banner?.appearance} />
+            <BannerBox url={bannerUrl} alt="" className="rounded-none" appearance={banner?.appearance} imageTransform={slotImageTransform(banner, item)} />
           </span>
         : <GradientBanner seed={titleText} />)}
 
@@ -72,6 +72,7 @@ export function HeroHeader({ composition, item, fieldDefs, className, hiddenSlot
               size={96}
               className="ring-4 ring-card shadow-md"
               appearance={avatar?.appearance}
+              imageTransform={slotImageTransform(avatar, item)}
             />
           </div>
           )}

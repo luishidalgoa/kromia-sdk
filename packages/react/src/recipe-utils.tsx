@@ -23,6 +23,7 @@ import { isMockupImage,
   composeSlotValues,
   paletteClass,
   parseInlineMarkdown,
+  getCardImageTransform,
   type FieldDefLike         as SdkFieldDefLike,
   type AccentSettings       as SdkAccentSettings,
   type SlotAppearance,
@@ -485,6 +486,19 @@ export function imageTransformStyle(t: ImageTransform | undefined): CSSPropertie
   return style;
 }
 
+/** KRO-33 — resuelve el `ImageTransform` (calibración por carta) del slot de
+ *  imagen: usa el PRIMER field del slot (el de la imagen) como clave. Las cajas
+ *  de imagen (AvatarBox/ThumbBox/BannerBox) lo prefieren sobre `imageFocus` del
+ *  template → el preview de Studio muestra la carta calibrada igual que el
+ *  coleccionista. undefined si no hay slot, field o transform. */
+export function slotImageTransform(
+  resolved: ResolvedSlot | undefined,
+  item:     Record<string, any>,
+): ImageTransform | undefined {
+  const key = resolved?.fields?.[0]?.key;
+  return key ? getCardImageTransform(item, key) : undefined;
+}
+
 /** Trunca el texto por número de caracteres (`appearance.truncateChars`)
  *  añadiendo "…" si se aplicó corte. Si `truncateChars` no está set o el
  *  texto ya es más corto, devuelve el original sin tocar.
@@ -673,7 +687,7 @@ export function MarkdownText({ text }: { text: string }) {
  *  como círculos con ES/BR/AR cuando no hay foto.
  */
 export function AvatarBox({
-  url, alt, size = 48, className, appearance,
+  url, alt, size = 48, className, appearance, imageTransform,
 }: {
   url?:        string;
   alt?:        string;
@@ -682,6 +696,8 @@ export function AvatarBox({
   /** KRO-69: shape (circle/square/rounded) + size scaling. Aspect no aplica
    *  (avatar es siempre 1:1) y align/weight/size text tampoco. */
   appearance?: SlotAppearance;
+  /** KRO-33 — calibración por carta; prevalece sobre `appearance.imageFocus`. */
+  imageTransform?: ImageTransform;
 }) {
   // El tamaño base lo da el recipe; appearance.size lo escala.
   const effectiveSize = appearanceSizePx(appearance, size);
@@ -714,7 +730,7 @@ export function AvatarBox({
         <img
           src={url}
           alt={alt ?? ''}
-          style={imageFocusStyle(appearance)}
+          style={imageTransform ? imageTransformStyle(imageTransform) : imageFocusStyle(appearance)}
           className={cn('w-full h-full', appearanceObjectFitClass(appearance))}
         />
       )}
@@ -812,13 +828,15 @@ export function StatusDot({
 /** Thumb cuadrada (rectangular si aspect ≠ 1). value es URL.
  *  KRO-69: appearance honra shape (rounded default) + aspect + size. */
 export function ThumbBox({
-  url, alt, size = 64, className, appearance, fill = false, count,
+  url, alt, size = 64, className, appearance, fill = false, count, imageTransform,
 }: {
   url?:        string;
   alt?:        string;
   size?:       number;
   className?:  string;
   appearance?: SlotAppearance;
+  /** KRO-33 — calibración por carta; prevalece sobre `appearance.imageFocus`. */
+  imageTransform?: ImageTransform;
   /**
    * KRO-133 — `fill`: la imagen ocupa el ANCHO del contenedor (banner/cover)
    * en vez de un tamaño fijo en px. La altura la da el `aspect` (por eso solo
@@ -868,7 +886,7 @@ export function ThumbBox({
         <img
           src={url}
           alt={alt ?? ''}
-          style={imageFocusStyle(appearance)}
+          style={imageTransform ? imageTransformStyle(imageTransform) : imageFocusStyle(appearance)}
           className={cn('w-full h-full', appearanceObjectFitClass(appearance))}
         />
       )}
@@ -884,12 +902,14 @@ export function ThumbBox({
 /** Banner ancho (aspect 16:9 por defecto).
  *  KRO-69: appearance honra shape (rounded-lg default) + aspect. */
 export function BannerBox({
-  url, alt, className, appearance,
+  url, alt, className, appearance, imageTransform,
 }: {
   url?:        string;
   alt?:        string;
   className?:  string;
   appearance?: SlotAppearance;
+  /** KRO-33 — calibración por carta; prevalece sobre `appearance.imageFocus`. */
+  imageTransform?: ImageTransform;
 }) {
   // Default banner = rounded-lg + 16:9. Overrides cambian.
   const shapeClass = appearance?.shape ? appearanceShapeClass(appearance) : 'rounded-lg';
@@ -903,7 +923,7 @@ export function BannerBox({
         <img
           src={url}
           alt={alt ?? ''}
-          style={imageFocusStyle(appearance)}
+          style={imageTransform ? imageTransformStyle(imageTransform) : imageFocusStyle(appearance)}
           className={cn('w-full h-full', appearanceObjectFitClass(appearance))}
         />
       )}

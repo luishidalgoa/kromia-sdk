@@ -20,7 +20,7 @@ import { cn } from '../lib/cn';
 import {
   AvatarBox, ComposableSlot, ScalarText, StatusDot, resolveSlot, isSlotDisabled,
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass,
-  slotDebugAttrs, extractAccentSettings, AccentFrame,
+  slotDebugAttrs, extractAccentSettings, AccentFrame, slotImageTransform,
   type FieldDefLike,
 } from '../recipe-utils';
 import type { ViewComposition } from '@kromia/core';
@@ -83,6 +83,7 @@ export function CompactAvatarRecipe({
             alt={titleField?.value as string ?? ''}
             size={48}
             appearance={avatar?.appearance}
+            imageTransform={slotImageTransform(avatar, item)}
           />
         </div>
       )}
