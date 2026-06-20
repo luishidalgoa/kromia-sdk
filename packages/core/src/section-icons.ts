@@ -125,7 +125,6 @@ export const SECTION_ICONS: ReadonlyArray<SectionIconDef> = [
   { id: 'plane',       label: 'Avión',       keywords: ['avion', 'viaje', 'viajes', 'aviacion', 'vuelo', 'turismo'] },
   { id: 'utensils',    label: 'Cubiertos',   keywords: ['comida', 'gastronomia', 'cocina', 'restaurante', 'recetas'] },
   { id: 'shirt',       label: 'Camiseta',    keywords: ['moda', 'ropa', 'camiseta', 'fashion', 'estilo'] },
-  { id: 'waves',       label: 'Olas',        keywords: ['olas', 'surf', 'marea'] },
 ];
 
 /** Pliega acentos y normaliza para el matching (igual criterio que keywords). */
