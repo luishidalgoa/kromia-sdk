@@ -220,7 +220,7 @@ export { normalizeComposition, RECIPE_ALIASES, COMPONENT_ALIASES } from './norma
 // Catálogo curado + heurística de sugerencia por nombre. Los ids son
 // agnósticos de plataforma; `lucideIconName(def)` da el nombre lucide canónico
 // (fuente única) que Studio (lucide-react) y Flutter (fuente lucide) renderizan.
-export { SECTION_ICONS, suggestSectionIcon, lucideIconName, type SectionIconDef } from './section-icons';
+export { SECTION_ICONS, suggestSectionIcon, lucideIconName, sectionIconSvg, resolveSectionIconId, type SectionIconDef } from './section-icons';
 
 // Markdown inline (behavior 'markdown'): tokenizador PURO compartido — Studio y
 // Flutter renderizan los mismos tokens con su piel (JSX / TextSpan).

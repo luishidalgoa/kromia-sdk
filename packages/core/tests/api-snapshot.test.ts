@@ -183,6 +183,8 @@ const EXPECTED_EXPORTS = [
   'SECTION_ICONS',
   'suggestSectionIcon',
   'lucideIconName',
+  'sectionIconSvg',
+  'resolveSectionIconId',
   // KRO-131 — tokenizador de markdown inline (compartido Studio↔Flutter)
   'parseInlineMarkdown',
   // KRO-178 — galería de variantes de plantilla de layout (fuera del KRP)

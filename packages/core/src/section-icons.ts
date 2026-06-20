@@ -28,6 +28,15 @@ export interface SectionIconDef {
    * con `lucideIconName(def)` (default = `id`).
    */
   lucide?: string;
+  /**
+   * Glifo SVG INLINE para iconos que lucide NO tiene (p.ej. balón de fútbol o de
+   * baloncesto). Markup INTERIOR de un `<svg viewBox="0 0 24 24">` con estilo
+   * lucide (`fill="none" stroke="currentColor" stroke-width="2"`, que aplica el
+   * wrapper). Es el contrato compartido: Studio lo pinta inline y Flutter desde el
+   * MISMO markup (`flutter_svg`). Mutuamente excluyente con `lucide`. Contenido
+   * CURADO (no entra de usuario) → render inline seguro.
+   */
+  svg?: string;
 }
 
 /**
@@ -98,7 +107,12 @@ export const SECTION_ICONS: ReadonlyArray<SectionIconDef> = [
   { id: 'calendar',  label: 'Calendario',  keywords: ['momento', 'momentos', 'evento', 'eventos', 'fecha', 'fechas', 'temporada', 'temporadas'] },
   { id: 'clock',     label: 'Reloj',       keywords: ['epoca', 'epocas', 'era', 'eras', 'tiempo', 'cronologia'] },
   // ── Deporte / motor ──
-  { id: 'ball',      label: 'Balón',       keywords: ['futbol', 'balon', 'deporte', 'deportes', 'liga', 'equipos', 'football'], lucide: 'goal' },
+  { id: 'ball',      label: 'Portería',    keywords: ['deporte', 'deportes', 'liga', 'equipos', 'meta', 'goal'], lucide: 'goal' },
+  // Balones por deporte — lucide no los trae, glifo SVG inline (Studio + Flutter).
+  { id: 'soccer-ball', label: 'Balón de fútbol', keywords: ['futbol', 'balon', 'soccer', 'football', 'pelota'],
+    svg: '<circle cx="12" cy="12" r="10"/><path d="M12 8.9 15 11 13.8 14.5 10.2 14.5 9 11Z"/><path d="M12 8.9V2.5"/><path d="M15 11 20.6 9.2"/><path d="M13.8 14.5 17.3 19.3"/><path d="M10.2 14.5 6.7 19.3"/><path d="M9 11 3.4 9.2"/>' },
+  { id: 'basketball',  label: 'Baloncesto',      keywords: ['baloncesto', 'basket', 'basketball', 'canasta', 'nba'],
+    svg: '<circle cx="12" cy="12" r="10"/><path d="M12 2v20"/><path d="M2 12h20"/><path d="M12 2a14 14 0 0 0 0 20"/><path d="M12 2a14 14 0 0 1 0 20"/>' },
   { id: 'car',       label: 'Coche',       keywords: ['coche', 'coches', 'carrera', 'carreras', 'motor', 'rally', 'automovilismo'] },
   { id: 'coins',     label: 'Monedas',     keywords: ['moneda', 'monedas', 'economia', 'mercado', 'tienda', 'coins'] },
   { id: 'bike',       label: 'Bici',        keywords: ['ciclismo', 'bici', 'bicicleta', 'bike', 'mtb'] },
@@ -147,4 +161,21 @@ export function suggestSectionIcon(nameOrKey: string): string | null {
     }
   }
   return null;
+}
+
+/** Markup SVG inline de un icono del catálogo, si es un glifo no-lucide. */
+export function sectionIconSvg(id: string | undefined | null): string | undefined {
+  if (!id) return undefined;
+  return SECTION_ICONS.find(d => d.id === id)?.svg;
+}
+
+/**
+ * Id EFECTIVO del icono de una sección: el elegido por el publisher si existe en
+ * el catálogo (lucide o glifo SVG), si no la sugerencia por nombre, si no `null`
+ * (→ el render cae al monograma). Es la resolución unificada que usan tanto el
+ * render lucide como el de glifos SVG inline (anti-drift Studio↔Flutter).
+ */
+export function resolveSectionIconId(icon: string | undefined, nameOrKey: string): string | null {
+  if (icon && SECTION_ICONS.some(d => d.id === icon)) return icon;
+  return suggestSectionIcon(nameOrKey);
 }
