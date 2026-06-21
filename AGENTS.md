@@ -3,8 +3,13 @@
 Lectura rápida para devs (humanos o IA) que entran a tocar este repo.
 Si ya conoces el contexto, salta a [Tabla de helpers](#qué-helper-uso-para-qué) o [Workflow](#workflow-de-bump--cross-repo).
 
-> Para CONSUMIR el SDK desde un cliente (Studio, futuro Flutter) ver
+> Para CONSUMIR el SDK desde un cliente (Studio, Flutter) ver
 > [`README.md`](README.md). Este doc cubre **mantener el SDK desde dentro**.
+>
+> **Flutter está ACTIVO** (consume el SDK vía el espejo `core_dart`). La
+> **coordinación entre los dos chats** (Studio/backend ↔ Flutter) — reparto,
+> contract-first, canal de handoff y cola viva — vive en
+> [`COORDINATION.md`](COORDINATION.md). Léelo si trabajas algo cross-platform.
 
 ---
 

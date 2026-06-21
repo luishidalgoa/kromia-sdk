@@ -1,0 +1,72 @@
+# COORDINACIÓN entre chats: Studio/Backend ↔ Flutter
+
+Dos agentes (Claude Code) construyen Kromia en paralelo. Este doc es el **acuerdo
+de trabajo** para no pisarse ni driftar, y la **fuente de verdad del reparto y de
+la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
+
+## Reparto — quién toca qué (regla dura)
+
+| Chat | Repos / propiedad |
+|---|---|
+| **Studio** (sesión *"Kromia studio"*) | `@kromia/core` (TS **canónico**) · `@kromia/react` · `kromia-studio` · `Kromia_NodeJS` (backend) |
+| **Flutter** (sesión *"Kromia flutter"*, `local_18daf528-575f-4eb5-b26a-ad1f212fabcf`) | `core_dart` (espejo Dart de `@kromia/core`) · `kromia_flutter` · la app |
+
+> **Nadie edita los ficheros del otro.** Si crees que el otro lado debe cambiar,
+> **pídelo** por el canal (abajo) — no lo toques. Si aparece WIP sin commitear del
+> otro chat (p.ej. `auth.controller.ts`), NO lo commitees.
+
+## El contrato es la frontera (contract-first)
+
+- La lógica/forma **compartida** vive en **`@kromia/core` (TS) = fuente única**.
+  Flutter la **espeja** en `core_dart` (mismas APIs, otra plataforma). Ver
+  `AGENTS.md` del SDK (mapa de helpers + matriz SemVer + bump).
+- ¿Flutter necesita un cambio de contrato? → lo **pide** → **Studio lo hace en
+  `@kromia/core`** (+ bump SemVer + tag) → Flutter **espeja** en `core_dart`. Nunca
+  al revés (no se edita el TS desde el chat de Flutter).
+- Lo que **NO** entra al `.json` del contrato (data de álbum/carta: foil, capas 3D,
+  colección, ownership…) se documenta igualmente como **spec en `docs/`** para que
+  ambas plataformas rendericen/implementen idéntico. Ese es justo el hueco donde el
+  drift-sync NO mira → la spec lo cubre.
+
+## Canal de handoff (de más a menos directo)
+
+1. **Directo — `send_message`** (`mcp__ccd_session_mgmt__send_message`): llega al
+   otro chat como turno *"From {título}"* con enlace de vuelta; **pide confirmación
+   al user**. Para pasar trabajo, pedir un cambio de contrato o avisar de un hallazgo.
+   - Studio → Flutter: `session_id = local_18daf528-575f-4eb5-b26a-ad1f212fabcf`.
+   - Flutter → Studio: `list_sessions` → busca la sesión de Studio.
+2. **Durable — spec en `kromia-sdk/docs/<tema>.md`**: para cualquier cosa no trivial,
+   el mensaje **apunta** a la spec (no metas el detalle largo en el mensaje). Ej:
+   `docs/holographic-3d-foil-spec.md`.
+3. **Tracking — Jira (KRO)**: cada ticket cross-platform lleva **nota de reparto**;
+   los issues de paridad usan el status **Drift Sync** (id `10091`); cross-link entre
+   issues hermanos (p.ej. Epic KRO-215).
+
+## Red de seguridad anti-drift (mecánica, no confianza)
+
+- `packages/core/tests/contract-drift.test.ts` — regenera el `.json` del KRP y
+  compara; salta si tocaste un registry sin `pnpm gen`.
+- Tests de paridad TS↔Dart en `core_dart/test/` (corpus 1:1).
+- `tests/validate-album-data-coverage.test.ts` — behaviors sin validador.
+
+## Checklist al hacer un cambio cross-platform
+
+1. ¿Es **contrato**? → `@kromia/core` (Studio) + bump + tag. Si no → **spec en `docs/`**.
+2. **Avisa** al otro chat por `send_message`: *qué* · link a la spec · ticket KRO.
+3. El otro **espeja** (`core_dart`) / **implementa** (app o Studio) y responde.
+4. **Verifica** con los tests de drift / paridad.
+
+## Cola de handoffs abierta (vivo — mantener)
+
+- **Studio → Flutter** · Sistema holográfico 3D / foil / contornos → implementar en
+  `core_dart` + app según `docs/holographic-3d-foil-spec.md` (espejar `card_layers.dart`;
+  añadir `fieldKey`/`customLayers` a `tag_styles.dart`; máscara por **luminancia**;
+  **parallax diferencial** 0.15/0.45/1.0 con giroscopio; alineación de máscara `cover`).
+- **Studio → Flutter** · KRO-214 colección sin QR → UI "Mi colección" (endpoints
+  `addCards`/`removeCards`/`?owned`, repetidas por `quantity`) + **aviso de
+  responsabilidad** en álbumes self-declared. Backend listo.
+- **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
+
+## Last updated
+
+2026-06-21 — sesión Studio. Mantener la cola de handoffs + el reparto al día.
