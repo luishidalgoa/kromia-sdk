@@ -37,6 +37,12 @@ typedef CardRefResolver = ({String? imageUrl, String? title})? Function(Object r
 /// sobre `resolveCardRef`/`onCardRefTap` (la celda gestiona su propio tap).
 typedef CardRefCellBuilder = Widget Function(Object ref);
 
+/// Tap en una imagen de galería/carrusel (`carousel_*`/`gallery_grid`): abre un
+/// visor (lightbox) con la lista completa de imágenes posicionado en [index].
+/// Análogo a [CardRefTap] para refs de carta; espejo del onClick de imagen del
+/// `@kromia/react` (paridad de UX, KRO-133).
+typedef ImageTap = void Function(List<String> images, int index);
+
 /// Contexto de render: composición + datos del item + defs + builder de imagen.
 class RenderCtx {
   final ViewComposition composition;
@@ -44,6 +50,9 @@ class RenderCtx {
   final List<FieldDefLike> fieldDefs;
   final KromiaImageBuilder imageBuilder;
   final CardRefTap? onCardRefTap;
+
+  /// Tap en imágenes de galería/carrusel → visor. null = no interactivo.
+  final ImageTap? onImageTap;
 
   /// Resolución de refs de carta a su arte/título (las mini-cartas relacionadas).
   final CardRefResolver? resolveCardRef;
@@ -63,6 +72,7 @@ class RenderCtx {
     this.fieldDefs = const [],
     KromiaImageBuilder? imageBuilder,
     this.onCardRefTap,
+    this.onImageTap,
     this.resolveCardRef,
     this.cardRefCell,
     this.cardFormat,

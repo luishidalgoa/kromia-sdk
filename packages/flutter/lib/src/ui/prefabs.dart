@@ -167,6 +167,17 @@ Widget cardsCarousel(List<String> refs) {
   );
 }
 
+/// Envuelve [child] en un tap → visor de imagen si la app cableó `onImageTap`
+/// (galerías/carruseles clicables). KRO-133 — no altera el render, solo el gesto.
+Widget _tappableImage(RenderCtx ctx, List<String> urls, int i, Widget child) =>
+    ctx.onImageTap == null
+        ? child
+        : GestureDetector(
+            onTap: () => ctx.onImageTap!(urls, i),
+            behavior: HitTestBehavior.opaque,
+            child: child,
+          );
+
 /// Carrusel horizontal de imágenes (carousel_peek/centered). [label] = etiqueta
 /// del campo mapeado (paridad `ImageGallery label=`).
 Widget imageRow(RenderCtx ctx, List<String> urls, {String? label}) {
@@ -179,9 +190,14 @@ Widget imageRow(RenderCtx ctx, List<String> urls, {String? label}) {
         scrollDirection: Axis.horizontal,
         itemCount: urls.length,
         separatorBuilder: (_, __) => const SizedBox(width: KromiaTokens.space3),
-        itemBuilder: (_, i) => ClipRRect(
-          borderRadius: BorderRadius.circular(KromiaTokens.radiusMd),
-          child: ctx.imageBuilder(urls[i], fit: BoxFit.cover, width: 160, height: 120),
+        itemBuilder: (_, i) => _tappableImage(
+          ctx,
+          urls,
+          i,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(KromiaTokens.radiusMd),
+            child: ctx.imageBuilder(urls[i], fit: BoxFit.cover, width: 160, height: 120),
+          ),
         ),
       ),
     ),
@@ -209,10 +225,15 @@ Widget imageGrid(RenderCtx ctx, List<String> urls, {String? label}) {
         spacing: gap,
         runSpacing: gap,
         children: [
-          for (final u in urls.take(9))
-            ClipRRect(
-              borderRadius: BorderRadius.circular(KromiaTokens.radiusLg),
-              child: ctx.imageBuilder(u, fit: BoxFit.cover, width: cell, height: cell),
+          for (var i = 0; i < urls.length && i < 9; i++)
+            _tappableImage(
+              ctx,
+              urls,
+              i,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(KromiaTokens.radiusLg),
+                child: ctx.imageBuilder(urls[i], fit: BoxFit.cover, width: cell, height: cell),
+              ),
             ),
         ],
       );
