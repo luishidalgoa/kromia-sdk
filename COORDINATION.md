@@ -65,8 +65,15 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 - **Studio → Flutter** · KRO-214 colección sin QR → UI "Mi colección" (endpoints
   `addCards`/`removeCards`/`?owned`, repetidas por `quantity`) + **aviso de
   responsabilidad** en álbumes self-declared. Backend listo.
+- **Studio → Flutter** · KRO-198 composición de detalle de carta (modo focus) →
+  `docs/kro198-detail-composition-flutter.md`. Render-only (NO bumpea PROTOCOL_VERSION).
+  Añadir `hiddenSlots` al renderer Dart (strip de slots + reenvío a HeroHeader) +
+  consumir `CardSchema.detailComposition` en el detalle con `hiddenSlots = [slots de
+  imagen del recipe] + 'title'` (panel "solo datos"). SDK-TS + Studio + backend listos
+  (SDK `6fac65e`, backend `de13c54`, Studio `70c8433`).
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
 
-2026-06-21 — sesión Studio. Mantener la cola de handoffs + el reparto al día.
+2026-06-21 — sesión Studio. KRO-198 (detalle de carta) shipped en TS/Studio/backend;
+handoff Flutter en la cola. Mantener la cola de handoffs + el reparto al día.
