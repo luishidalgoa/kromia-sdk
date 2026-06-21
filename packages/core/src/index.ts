@@ -428,6 +428,7 @@ export {
   cellCovered,
   migrateSlotsToLayout,
   migrateSlotsToGrid,
+  computeHiddenHeroRoles,  // KRO-198 — ocultado de roles de cabecera (hero_header)
   layoutDepth,
   collectLayoutSlots,
   clampPlaceToGrid,

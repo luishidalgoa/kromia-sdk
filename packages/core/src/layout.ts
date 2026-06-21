@@ -461,6 +461,32 @@ function validatePlacement(
   }
 }
 
+// ── Ocultado de roles de cabecera (KRO-198) ──────────────────────────────────
+
+/**
+ * KRO-198 — decide qué ROLES de una cabecera de imagen (`hero_header`: banner,
+ * avatar, title, subtitle) deben ocultarse al renderizar. Un rol se oculta si:
+ *   - el publisher lo marcó oculto en el nodo (`nodeHidden`), o
+ *   - el slot al que mapea (`nodeSlots[role]`) está en los `hiddenSlots` globales
+ *     (el panel "solo datos" del detalle de carta: la imagen ya es la HoloCard 3D).
+ *
+ * Pura + espejable a Flutter: el `LayoutRenderer` (TS y, a futuro, Dart) la usa
+ * para suprimir banner/avatar y sus placeholders sin reimplementar la regla.
+ */
+export function computeHiddenHeroRoles(
+  roles:       readonly string[],
+  nodeHidden:  readonly string[] | undefined,
+  nodeSlots:   Record<string, string> | undefined,
+  hiddenSlots: readonly string[] | undefined,
+): string[] {
+  const out = new Set<string>(nodeHidden ?? []);
+  for (const role of roles) {
+    const sid = nodeSlots?.[role];
+    if (sid && hiddenSlots?.includes(sid)) out.add(role);
+  }
+  return [...out];
+}
+
 // ── Auto-migración (slots-plano → árbol) ─────────────────────────────────────
 
 /**

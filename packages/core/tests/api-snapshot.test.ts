@@ -197,6 +197,7 @@ const EXPECTED_EXPORTS = [
   'cellCovered',
   'migrateSlotsToLayout',
   'migrateSlotsToGrid',
+  'computeHiddenHeroRoles',  // KRO-198
   'layoutDepth',
   'collectLayoutSlots',
   'clampPlaceToGrid',

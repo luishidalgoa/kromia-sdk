@@ -29,7 +29,7 @@ import {
 } from '../recipe-utils';
 import {
   migrateSlotsToLayout, paletteClass, resolveFieldColor, gridColumnsTemplate, gridRowsTemplate,
-  classifyField, clampPlaceToGrid, getRecipeManifest,
+  classifyField, clampPlaceToGrid, getRecipeManifest, computeHiddenHeroRoles,
   type LayoutNode, type LayoutContainerNode, type LayoutComponentNode, type LayoutGap, type LayoutAlign,
   type LayoutJustify, type GridPlacement, type ContainerSurface, type SurfaceBorder, type ViewComposition,
   type CardFormat,
@@ -271,6 +271,8 @@ interface NodeCtx {
   /** KRO-133 — tap en una mini-carta (el host abre el modo focus). Solo se
    *  invoca cuando el slot tiene appearance.refTap === 'focus'. */
   onCardRefTap?: (ref: string | number) => void;
+  /** KRO-198 — slot ids ocultos globalmente (ver LayoutRendererProps). */
+  hiddenSlots?: ReadonlyArray<string>;
 }
 
 /** ¿El field del slot es una imagen? (decide caja-imagen vs texto). */
@@ -566,14 +568,24 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
       // que la receta `hero_protagonico` (placeholders + inicial del título).
       // Los roles OCULTOS no se mapean y se le indican a HeroHeader para que
       // tampoco pinte sus placeholders.
+      //
+      // KRO-198 — un rol también se considera oculto si su slotId está en los
+      // `hiddenSlots` globales (panel "solo datos" del detalle de carta): así el
+      // banner/avatar no pinta ni su imagen ni su placeholder degradado aunque la
+      // composición venga de un layout-tree del lienzo.
+      const HERO_ROLES = ['banner', 'avatar', 'title', 'subtitle'] as const;
+      // node.hidden (publisher) + global hiddenSlots (panel "solo datos") — la
+      // regla vive en core (`computeHiddenHeroRoles`), espejable a Flutter.
+      const hiddenRoles = computeHiddenHeroRoles(HERO_ROLES, node.hidden, node.slots, ctx.hiddenSlots);
+      const hiddenSet   = new Set(hiddenRoles);
       const heroSlots: ViewComposition['slots'] = {};
-      for (const role of ['banner', 'avatar', 'title', 'subtitle'] as const) {
-        if (isHidden(role)) continue;
+      for (const role of HERO_ROLES) {
+        if (hiddenSet.has(role)) continue;
         const sid = node.slots?.[role];
         const sc  = sid ? ctx.composition.slots[sid] : undefined;
         if (sc) heroSlots[role] = sc;
       }
-      return <HeroHeader composition={{ slots: heroSlots }} item={ctx.item} fieldDefs={ctx.fieldDefs} hiddenSlots={node.hidden} />;
+      return <HeroHeader composition={{ slots: heroSlots }} item={ctx.item} fieldDefs={ctx.fieldDefs} hiddenSlots={hiddenRoles} />;
     }
     default:
       return null;
@@ -707,6 +719,11 @@ export interface LayoutRendererProps {
   resolveCardRef?: CardRefResolver;
   /** KRO-133 — tap en mini-carta (gated por appearance.refTap === 'focus'). */
   onCardRefTap?: (ref: string | number) => void;
+  /** KRO-198 — slot ids ocultos globalmente (panel "solo datos" del detalle de
+   *  carta). Además del strip de slots que ya hizo RecipeRenderer, se cruza con
+   *  los roles de los componentes con cabecera de imagen (hero_header) para que
+   *  no pinten su placeholder (banner degradado / avatar con inicial). */
+  hiddenSlots?: ReadonlyArray<string>;
 }
 
 /**
@@ -714,11 +731,11 @@ export interface LayoutRendererProps {
  * árbol derivado de los slots si no lo trae) dentro del AccentFrame de la receta.
  */
 export function LayoutRenderer({
-  composition, item, fieldDefs, onClick, className, cardFormat, resolveCardRef, onCardRefTap,
+  composition, item, fieldDefs, onClick, className, cardFormat, resolveCardRef, onCardRefTap, hiddenSlots,
 }: LayoutRendererProps) {
   const rawRoot: LayoutContainerNode = composition.layout ?? migrateSlotsToLayout(composition);
   const accent  = extractAccentSettings(composition, item, fieldDefs, 'top');
-  const ctx: NodeCtx = { composition, item, fieldDefs, cardFormat, resolveCardRef, onCardRefTap };
+  const ctx: NodeCtx = { composition, item, fieldDefs, cardFormat, resolveCardRef, onCardRefTap, hiddenSlots };
   const clickable = !!onClick;
   const isDetail = getRecipeManifest(composition.recipe)?.kind === 'detail';
   // KRO-133 fidelidad — una pantalla de DETALLE es pantalla completa: el nodo

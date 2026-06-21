@@ -118,6 +118,7 @@ export function RecipeRenderer({
         cardFormat={cardFormat}
         resolveCardRef={resolveCardRef}
         onCardRefTap={onCardRefTap}
+        hiddenSlots={hiddenSlots}
       />
     );
   }
@@ -228,6 +229,7 @@ export function RecipeRenderer({
           cardFormat={cardFormat}
           resolveCardRef={resolveCardRef}
           onCardRefTap={onCardRefTap}
+          hiddenSlots={hiddenSlots}
         />
       );
     }
