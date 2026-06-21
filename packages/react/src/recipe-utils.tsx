@@ -649,7 +649,7 @@ export function ComposableSlot({
   const arr0 = Array.isArray(f0?.value)
     ? (f0!.value as unknown[]).map(v => (v == null ? '' : String(v))).filter(v => v.trim() !== '')
     : null;
-  if (arr0 && arr0.length > 0 && (beh0 === 'tags' || beh0 === 'url_list' || beh0 === 'email_list')) {
+  if (arr0 && arr0.length > 0) {
     if (beh0 === 'tags') {
       return (
         <span className={cn('inline-flex flex-wrap gap-1 align-middle', textClasses, className)}>
@@ -659,14 +659,28 @@ export function ComposableSlot({
         </span>
       );
     }
+    if (beh0 === 'url_list' || beh0 === 'email_list') {
+      return (
+        <span className={cn('inline-flex flex-col items-start gap-0.5 align-top', textClasses, className)}>
+          {arr0.map((t, i) => {
+            const href = beh0 === 'email_list' ? `mailto:${t}` : linkHrefFor('url', t);
+            return href
+              ? <a key={i} href={href} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 text-primary break-all">{t}</a>
+              : <span key={i}>{t}</span>;
+          })}
+        </span>
+      );
+    }
+    // KRO-198 — array GENÉRICO (array<string>/<number>/year_list…): une los
+    // elementos con el separador, NO el JSON crudo que daría formatScalar.
     return (
-      <span className={cn('inline-flex flex-col items-start gap-0.5 align-top', textClasses, className)}>
-        {arr0.map((t, i) => {
-          const href = beh0 === 'email_list' ? `mailto:${t}` : linkHrefFor('url', t);
-          return href
-            ? <a key={i} href={href} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 text-primary break-all">{t}</a>
-            : <span key={i}>{t}</span>;
-        })}
+      <span className={cn(textClasses, className)}>
+        {arr0.map((t, i) => (
+          <span key={i}>
+            {i > 0 && <span className="text-muted-foreground/60">{` ${separator} `}</span>}
+            {t}
+          </span>
+        ))}
       </span>
     );
   }

@@ -368,8 +368,11 @@ export function SlotContent({ slot, composition, item, fieldDefs, cardFormat, re
     );
   }
 
-  // Texto: composable (varios fields / vertical) vs escalar simple.
-  const isComposable = resolved.fields.length > 1 || resolved.orientation === 'vertical';
+  // Texto: composable (varios fields / vertical / un campo ARRAY) vs escalar
+  // simple. KRO-198 — un slot de UN campo array (tags/listas/array genérico) va a
+  // ComposableSlot (chips/enlaces/unido), no a ScalarText (que daría JSON crudo).
+  const isComposable = resolved.fields.length > 1 || resolved.orientation === 'vertical'
+    || Array.isArray(first?.value);
   const content = isComposable
     ? <ComposableSlot slot={resolved} />
     : <ScalarText value={first?.value} def={first?.def} appearance={resolved.appearance} />;
