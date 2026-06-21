@@ -64,24 +64,65 @@ class KromiaTokens {
   static const double space4 = 8;
 
   static List<BoxShadow> shadow(String? s) => switch (s) {
-        'sm' => _soft,
-        'md' || 'lg' || 'xl' => _card,
+        'sm' => _shSm,
+        'md' => _shMd,
+        'lg' => _shLg,
+        'xl' => _shXl,
         _ => const [],
       };
-  static final List<BoxShadow> _soft = [BoxShadow(color: const Color(0xFF000000).withValues(alpha: 0.10), blurRadius: 3, offset: const Offset(1, 2))];
-  static final List<BoxShadow> _card = [BoxShadow(color: const Color(0xFF2D6B45).withValues(alpha: 0.18), blurRadius: 8, offset: const Offset(0, 2))];
+  // Sombras NEUTRAS escala Tailwind (shadow-sm/md/lg/xl), espejo de @kromia/react.
+  // Antes era UNA sola sombra verde-tintada que no distinguía md/lg/xl = drift.
+  static const List<BoxShadow> _shSm = [BoxShadow(color: Color(0x0D000000), blurRadius: 2, offset: Offset(0, 1))];
+  static const List<BoxShadow> _shMd = [
+    BoxShadow(color: Color(0x1A000000), blurRadius: 6, spreadRadius: -1, offset: Offset(0, 4)),
+    BoxShadow(color: Color(0x1A000000), blurRadius: 4, spreadRadius: -2, offset: Offset(0, 2)),
+  ];
+  static const List<BoxShadow> _shLg = [
+    BoxShadow(color: Color(0x1A000000), blurRadius: 15, spreadRadius: -3, offset: Offset(0, 10)),
+    BoxShadow(color: Color(0x1A000000), blurRadius: 6, spreadRadius: -4, offset: Offset(0, 4)),
+  ];
+  static const List<BoxShadow> _shXl = [
+    BoxShadow(color: Color(0x1A000000), blurRadius: 25, spreadRadius: -5, offset: Offset(0, 20)),
+    BoxShadow(color: Color(0x1A000000), blurRadius: 10, spreadRadius: -6, offset: Offset(0, 8)),
+  ];
 
-  /// Color de un token de paleta (background/border/text). 'field:<col>' lo
-  /// resuelve el render con el item (color_hex). Default = hairline (borde).
-  static Color paletteColor(String? id, {Color fallback = const Color(0xFF1A2E1A)}) => switch (id) {
-        'muted' => muted,
-        'accent' => green,
-        'primary' => green,
-        'foreground' => text,
-        'border' => hairline,
-        'card' => bgSurface,
-        _ => fallback,
-      };
+  /// Color de un id de la PALETA (palette.dart). Tokens de tema (semánticos) +
+  /// rejilla Tailwind de 10 tonos × 5 intensidades (`red-500`, `slate-600`…).
+  /// 'field:<col>' lo resuelve el render con el item (color_hex). Espejo en hex de
+  /// `PALETTE`: el id es el contrato cross-language; Flutter mapea cada uno a Color.
+  static Color paletteColor(String? id, {Color fallback = const Color(0xFF1A2E1A)}) {
+    switch (id) {
+      case 'muted':
+        return muted;
+      case 'accent':
+        return green;
+      case 'primary':
+        return green;
+      case 'foreground':
+        return text;
+      case 'border':
+        return hairline;
+      case 'card':
+        return bgSurface;
+    }
+    return _paletteGrid[id] ?? fallback;
+  }
+
+  /// Rejilla de color Tailwind (hue-shade → Color) — valores estándar Tailwind v3.
+  /// Tonos: slate/red/orange/amber/emerald/teal/sky/blue/violet/pink; intensidades
+  /// 200/400/500/600/800 (= PALETTE_HUES × PALETTE_SHADES de palette.dart).
+  static const Map<String, Color> _paletteGrid = {
+    'slate-200': Color(0xFFE2E8F0), 'slate-400': Color(0xFF94A3B8), 'slate-500': Color(0xFF64748B), 'slate-600': Color(0xFF475569), 'slate-800': Color(0xFF1E293B),
+    'red-200': Color(0xFFFECACA), 'red-400': Color(0xFFF87171), 'red-500': Color(0xFFEF4444), 'red-600': Color(0xFFDC2626), 'red-800': Color(0xFF991B1B),
+    'orange-200': Color(0xFFFED7AA), 'orange-400': Color(0xFFFB923C), 'orange-500': Color(0xFFF97316), 'orange-600': Color(0xFFEA580C), 'orange-800': Color(0xFF9A3412),
+    'amber-200': Color(0xFFFDE68A), 'amber-400': Color(0xFFFBBF24), 'amber-500': Color(0xFFF59E0B), 'amber-600': Color(0xFFD97706), 'amber-800': Color(0xFF92400E),
+    'emerald-200': Color(0xFFA7F3D0), 'emerald-400': Color(0xFF34D399), 'emerald-500': Color(0xFF10B981), 'emerald-600': Color(0xFF059669), 'emerald-800': Color(0xFF065F46),
+    'teal-200': Color(0xFF99F6E4), 'teal-400': Color(0xFF2DD4BF), 'teal-500': Color(0xFF14B8A6), 'teal-600': Color(0xFF0D9488), 'teal-800': Color(0xFF115E59),
+    'sky-200': Color(0xFFBAE6FD), 'sky-400': Color(0xFF38BDF8), 'sky-500': Color(0xFF0EA5E9), 'sky-600': Color(0xFF0284C7), 'sky-800': Color(0xFF075985),
+    'blue-200': Color(0xFFBFDBFE), 'blue-400': Color(0xFF60A5FA), 'blue-500': Color(0xFF3B82F6), 'blue-600': Color(0xFF2563EB), 'blue-800': Color(0xFF1E40AF),
+    'violet-200': Color(0xFFDDD6FE), 'violet-400': Color(0xFFA78BFA), 'violet-500': Color(0xFF8B5CF6), 'violet-600': Color(0xFF7C3AED), 'violet-800': Color(0xFF5B21B6),
+    'pink-200': Color(0xFFFBCFE8), 'pink-400': Color(0xFFF472B6), 'pink-500': Color(0xFFEC4899), 'pink-600': Color(0xFFDB2777), 'pink-800': Color(0xFF9D174D),
+  };
 
   /// Fondo semántico (surface.background) → Color.
   static Color background(String? bg) => switch (bg) {

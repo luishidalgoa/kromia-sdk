@@ -26,6 +26,17 @@ Widget _defaultImage(String url, {BoxFit fit = BoxFit.cover, Alignment alignment
 /// Tap en una mini-carta (ref) cuando appearance.refTap == 'focus'.
 typedef CardRefTap = void Function(Object ref);
 
+/// Resuelve una ref de carta (índice/id) → arte + título de la carta referenciada,
+/// para pintar la mini-carta REAL (no un placeholder con el índice). Espejo de
+/// `CardRefResolver` (@kromia/react). null/sin imageUrl → degradado a placeholder.
+typedef CardRefResolver = ({String? imageUrl, String? title})? Function(Object ref);
+
+/// Builder de la CELDA completa de una mini-carta de ref. Permite a la app
+/// inyectar SU MISMA celda de la grid de "Cartas" (arte + número + estados + tap)
+/// → la relación entre cartas se ve idéntica a la grid. Si se provee, prevalece
+/// sobre `resolveCardRef`/`onCardRefTap` (la celda gestiona su propio tap).
+typedef CardRefCellBuilder = Widget Function(Object ref);
+
 /// Contexto de render: composición + datos del item + defs + builder de imagen.
 class RenderCtx {
   final ViewComposition composition;
@@ -33,6 +44,13 @@ class RenderCtx {
   final List<FieldDefLike> fieldDefs;
   final KromiaImageBuilder imageBuilder;
   final CardRefTap? onCardRefTap;
+
+  /// Resolución de refs de carta a su arte/título (las mini-cartas relacionadas).
+  final CardRefResolver? resolveCardRef;
+
+  /// Celda completa de mini-carta de ref inyectada por la app (reutiliza la celda
+  /// de la grid de Cartas). Si está, prevalece sobre resolveCardRef/onCardRefTap.
+  final CardRefCellBuilder? cardRefCell;
 
   /// Formato de carta del álbum → nº de columnas de las rejillas de mini-refs
   /// (miniRefGridColumns). null → default (2:3 standard → 3 columnas).
@@ -45,6 +63,8 @@ class RenderCtx {
     this.fieldDefs = const [],
     KromiaImageBuilder? imageBuilder,
     this.onCardRefTap,
+    this.resolveCardRef,
+    this.cardRefCell,
     this.cardFormat,
   })  : imageBuilder = imageBuilder ?? _defaultImage,
         _byKey = {for (final f in fieldDefs) f.key: f};

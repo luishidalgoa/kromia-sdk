@@ -13,6 +13,8 @@ final _fieldDefs = <FieldDefLike>[
   const FieldDefLike(key: 'goles', label: 'Goles', type: 'number'),
   const FieldDefLike(key: 'asist', label: 'Asist', type: 'number'),
   const FieldDefLike(key: 'tipo', type: 'text'),
+  const FieldDefLike(key: 'lore', type: 'text', behavior: 'markdown'),
+  const FieldDefLike(key: 'imagenes', label: 'Imágenes', type: 'array<image>'),
 ];
 
 final _slots = <String, SlotComposition>{
@@ -20,9 +22,15 @@ final _slots = <String, SlotComposition>{
   'subtitle': const SlotComposition(fields: ['equipo']),
   'stats': const SlotComposition(fields: ['goles', 'asist']),
   'tipo': const SlotComposition(fields: ['tipo']),
+  'body': const SlotComposition(fields: ['lore']),
+  'gallery': const SlotComposition(fields: ['imagenes']),
 };
 
-const _item = <String, dynamic>{'nombre': 'Pelé', 'equipo': 'Santos', 'goles': 643, 'asist': 200, 'tipo': 'Delantero'};
+const _item = <String, dynamic>{
+  'nombre': 'Pelé', 'equipo': 'Santos', 'goles': 643, 'asist': 200, 'tipo': 'Delantero',
+  'lore': 'Forjado por **Ignis** el brasaduende',
+  'imagenes': ['http://x.test/a.png', 'http://x.test/b.png'],
+};
 
 Future<void> pump(WidgetTester t, LayoutContainerNode root, {String recipe = 'compact_avatar', Map<String, SlotComposition>? slots}) async {
   final ctx = RenderCtx(
@@ -132,6 +140,21 @@ void main() {
     testWidgets('componente desconocido → no rompe', (t) async {
       await pump(t, const LayoutContainerNode(children: [LayoutComponentNode(component: 'no_existe', slots: {})]));
       expect(find.byType(LayoutRenderer), findsOneWidget);
+    });
+    testWidgets('gallery_grid → etiqueta del campo (def.label en MAYÚSCULAS)', (t) async {
+      await pump(t, const LayoutContainerNode(children: [LayoutComponentNode(component: 'gallery_grid', slots: {'images': 'gallery'})]));
+      expect(find.text('IMÁGENES'), findsOneWidget);
+    });
+  });
+
+  // KRO-133 — el body de un field `behavior:'markdown'` se pinta como markdown
+  // inline (tokens del SDK), NO el string crudo: `**Ignis**` → "Ignis" en negrita.
+  group('markdown inline (slot behavior:markdown)', () {
+    testWidgets('slot body markdown → sin asteriscos literales, texto presente', (t) async {
+      await pump(t, const LayoutContainerNode(children: [LayoutSlotNode(slot: 'body')]));
+      expect(find.textContaining('**'), findsNothing);
+      expect(find.textContaining('Ignis'), findsOneWidget);
+      expect(find.textContaining('brasaduende'), findsOneWidget);
     });
   });
 

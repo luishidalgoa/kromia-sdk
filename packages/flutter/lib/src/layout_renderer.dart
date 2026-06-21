@@ -27,7 +27,15 @@ class LayoutRenderer extends StatelessWidget {
     final isDetail = getRecipeManifest(ctx.composition.recipe)?.kind == 'detail';
     final accent = extractAccentSettings(ctx.composition, ctx.item, ctx.fieldDefs, 'top');
 
-    Widget tree = _AccentFrame(accent: accent, width: isDetail ? 4 : 3, child: _node(root));
+    Widget content = _node(root);
+    // Lienzo raíz SIN surface → padding por defecto p-3 (12px), espejo de react
+    // LayoutRenderer (`!rootHasSurface && 'p-3'`). Con surface, el padding ya lo
+    // pone la propia surface. Sin esto el contenido (p. ej. la imagen del
+    // feature_card) salía a sangre, pegado a los bordes de la tarjeta.
+    if (root.surface == null) {
+      content = Padding(padding: const EdgeInsets.all(12), child: content);
+    }
+    Widget tree = _AccentFrame(accent: accent, width: isDetail ? 4 : 3, child: content);
     if (onTap != null) tree = GestureDetector(onTap: onTap, behavior: HitTestBehavior.opaque, child: tree);
     return tree;
   }
@@ -103,13 +111,15 @@ class LayoutRenderer extends StatelessWidget {
   Widget _grid(LayoutContainerNode node, List<LayoutNode> children) {
     final g = computeGrid(node, children);
     final gap = KromiaTokens.gap(node.gap);
-    // 2D REAL (algún rowSpan>1) → motor flutter_layout_grid, que sí estira una
-    // celda por varias filas. Estos grids son de nivel superior (no los mide un
-    // grid padre por intrínsecos), así que el LayoutBuilder de _layoutGrid es
-    // seguro. El resto (1×N, N×1, filas sin span — TODOS los presets) va por la
-    // emulación Column/Row, robusta ante el protocolo intrínseco anidado y con el
-    // MISMO resultado (esos grids nunca usan rowSpan).
-    final needs2D = g.cells.any((c) => c.rowSpan > 1);
+    // 2D REAL SOLO si hay MÚLTIPLES columnas Y algún rowSpan>1 (una celda alta
+    // junto a otras que rellenan filas adyacentes → necesita el motor
+    // flutter_layout_grid). Con 1 columna, rowSpan es solo extensión vertical = un
+    // Column: va por la emulación, que NO pide dimensiones intrínsecas (un hijo con
+    // scroll shrink-wrap —refsGrid/galería— NO las soporta → lanza
+    // `RenderShrinkWrappingViewport does not support intrinsic dimensions` → el
+    // detalle salía EN BLANCO). Los lienzos de detalle del publisher (hero) usan
+    // grids de 1 columna con rowSpan → este es el caso real.
+    final needs2D = g.columns.length > 1 && g.cells.any((c) => c.rowSpan > 1);
     return needs2D ? _layoutGrid(node, g, gap) : _emulatedGrid(node, children, g, gap);
   }
 
@@ -153,12 +163,26 @@ class LayoutRenderer extends StatelessWidget {
           inRow.add((col: g.cells[i].columnStart, span: g.cells[i].columnSpan, w: _node(children[i])));
         }
       }
+      // Fila sin hijos = hueco de un `rowSpan` (la celda alta ya pintó su
+      // contenido en su rowStart) → no emitimos Row ni gap (si no, salía un hueco
+      // vertical fantasma entre cabecera y cuerpo).
+      if (inRow.isEmpty) continue;
       inRow.sort((a, b) => a.col.compareTo(b.col));
       final cells = <Widget>[];
       var cursor = 0;
       for (final p in inRow) {
         if (p.col > cursor) cells.add(Expanded(flex: _weightOf(weights, cursor, p.col - cursor), child: const SizedBox()));
-        cells.add(Expanded(flex: _weightOf(weights, p.col, p.span), child: p.w));
+        // Columna 'fr' → Expanded ponderado (reparte el espacio restante). Columna
+        // 'content'/'auto' → tamaño de CONTENIDO con **flex:0** → NO participa en el
+        // reparto: se mide primero a su contenido y el/los `fr` absorben el resto,
+        // empujándola al final (espejo de CSS `grid-template-columns: 1fr content`).
+        // Con `Flexible(loose)` SIN flex:0 (flex:1 por defecto) competía 50/50 con el
+        // `fr` → el badge del feature_card quedaba al centro con hueco a la derecha.
+        if (_spanFlexible(g.columns, p.col, p.span)) {
+          cells.add(Expanded(flex: _weightOf(weights, p.col, p.span), child: p.w));
+        } else {
+          cells.add(Flexible(flex: 0, fit: FlexFit.loose, child: p.w));
+        }
         cursor = p.col + p.span;
       }
       if (cursor < cols) cells.add(Expanded(flex: _weightOf(weights, cursor, cols - cursor), child: const SizedBox()));
@@ -167,10 +191,19 @@ class LayoutRenderer extends StatelessWidget {
         if (i > 0 && gap > 0) spaced.add(SizedBox(width: gap));
         spaced.add(cells[i]);
       }
-      if (r > 0 && gap > 0) rows.add(SizedBox(height: gap));
+      if (rows.isNotEmpty && gap > 0) rows.add(SizedBox(height: gap));
       rows.add(Row(crossAxisAlignment: _crossAlign(node.align, allowStretch: false), children: spaced));
     }
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: rows);
+  }
+
+  /// ¿Todas las pistas que cubre el span [start0, start0+span) son flexibles ('fr')?
+  /// Si alguna es 'content'/'auto'/fija, la celda debe medir su contenido (no Expanded).
+  bool _spanFlexible(List<TrackSize> cols, int start0, int span) {
+    for (var c = start0; c < start0 + span && c < cols.length; c++) {
+      if (cols[c] is! FlexibleTrackSize) return false;
+    }
+    return true;
   }
 
   int _weightOf(List<int> weights, int start0, int span) {

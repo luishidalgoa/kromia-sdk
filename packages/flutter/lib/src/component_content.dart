@@ -15,6 +15,17 @@ Widget? componentContent(RenderCtx ctx, LayoutComponentNode node) {
   bool isHidden(String r) => hidden.contains(r);
   String? sidOf(String r) => node.slots?[r];
 
+  // KRO-133 fidelidad — etiqueta del campo mapeado a un rol (las recetas pintan el
+  // `def.label` de la galería: "IMÁGENES"/"BESTIAS"…). Espejo de `roleLabel`
+  // (LayoutRenderer.tsx): rol → slot → primer field → def.label.
+  String? roleLabel(String r) {
+    final sid = sidOf(r);
+    if (sid == null) return null;
+    final comp = ctx.slots[sid];
+    final fk = (comp != null && comp.fields.isNotEmpty) ? comp.fields.first : null;
+    return fk == null ? null : ctx.defFor(fk)?.label;
+  }
+
   List<String> rawList(String r) {
     final sid = sidOf(r);
     if (sid == null) return const [];
@@ -28,12 +39,24 @@ Widget? componentContent(RenderCtx ctx, LayoutComponentNode node) {
     case 'card':
       inner = _card(ctx, node);
     case 'ref_gallery':
-      inner = isHidden('refs') ? null : refsGrid(rawList('refs'), columns: ctx.refColumns(ctx.slots[sidOf('refs')]?.appearance));
+      {
+        final refsAp = ctx.slots[sidOf('refs')]?.appearance;
+        inner = isHidden('refs')
+            ? null
+            : refsGrid(
+                ctx,
+                rawList('refs'),
+                columns: ctx.refColumns(refsAp),
+                label: roleLabel('refs'),
+                refSize: refsAp?.refSize,
+                onRefTap: (refsAp?.refTap == 'focus' && ctx.onCardRefTap != null) ? (r) => ctx.onCardRefTap!(r) : null,
+              );
+      }
     case 'carousel_peek':
     case 'carousel_centered':
-      inner = isHidden('images') ? null : imageRow(ctx, rawList('images'));
+      inner = isHidden('images') ? null : imageRow(ctx, rawList('images'), label: roleLabel('images'));
     case 'gallery_grid':
-      inner = isHidden('images') ? null : imageGrid(ctx, rawList('images'));
+      inner = isHidden('images') ? null : imageGrid(ctx, rawList('images'), label: roleLabel('images'));
     case 'cards_carousel':
       inner = isHidden('cards') ? null : cardsCarousel(rawList('cards'));
     case 'divider':
