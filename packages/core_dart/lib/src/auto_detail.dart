@@ -5,12 +5,60 @@
 /// `(fields) → ViewComposition` con `recipe: hero_protagonico`, `action: none`.
 library;
 
+import 'classify.dart';
 import 'composition.dart';
 import 'field_def.dart';
+import 'recipes.dart';
 
-/// Build una `ViewComposition` automática para el detalle de una sección.
-/// Heurísticas (primer match gana), idénticas al TS.
-ViewComposition buildAutoDetailComposition(List<FieldDefLike> fields) {
+/// Build una `ViewComposition` automática para el DETALLE de una sección —
+/// espejo 1:1 de `auto-detail.ts` (incl. la rama recipe-aware KRO-131).
+///
+/// Si [recipeId] es una receta de detalle distinta de `hero_protagonico` (p.ej.
+/// `editorial`, `momento`), mapea a los slots REALES de ESA receta por
+/// COMPATIBILIDAD (cover ← primer field imagen, incluso `type:image` SIN
+/// behavior; title ← text-short; body ← text-long; …) — NO a los de hero (lo que
+/// dejaba la portada vacía al cambiar la receta). Sin [recipeId], o con hero →
+/// la heurística hero legacy.
+ViewComposition buildAutoDetailComposition(List<FieldDefLike> fields, [String? recipeId]) {
+  if (recipeId != null && recipeId != 'hero_protagonico') {
+    final m = getRecipeManifest(recipeId);
+    if (m != null) {
+      final out = <String, SlotComposition>{};
+      final used = <String>{};
+      bool compat(FieldDefLike f, SlotDefinition slot) =>
+          !used.contains(f.key) &&
+          isFieldCompatibleWithSlot(
+              FieldSpec(f.type, behavior: f.behavior), SlotSpec(slot.accepts));
+      for (final slot in m.slots) {
+        if (slot.kind == 'composable') {
+          final ks = fields.where((f) => compat(f, slot)).take(4).map((f) => f.key).toList();
+          if (ks.isNotEmpty) {
+            out[slot.id] = SlotComposition(fields: ks);
+            used.addAll(ks);
+          }
+        } else {
+          FieldDefLike? found;
+          for (final f in fields) {
+            if (compat(f, slot)) {
+              found = f;
+              break;
+            }
+          }
+          if (found != null) {
+            out[slot.id] = SlotComposition(fields: [found.key]);
+            used.add(found.key);
+          }
+        }
+      }
+      return ViewComposition(recipe: recipeId, action: 'none', slots: out);
+    }
+  }
+  return _buildHeroLegacy(fields);
+}
+
+/// Heurística legacy `hero_protagonico` (default sin targetRecipe o con hero).
+/// Se conserva intacta (los tests la fijan).
+ViewComposition _buildHeroLegacy(List<FieldDefLike> fields) {
   final slots = <String, SlotComposition>{};
 
   String? pickFirst(bool Function(FieldDefLike) pred) {

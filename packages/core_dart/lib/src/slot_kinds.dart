@@ -101,53 +101,79 @@ String formatSlotAccepts(List<String> accepts) {
 // ── KRO-69 V6 — Appearance overrides per-slot ─────────────────────────────
 
 /// Tag de propiedad de apariencia editable. Hay un control UI por cada uno.
+/// Espejo del type `AppearanceProp` de TS (26 props). Orden canónico = [allAppearanceProps].
 class AppearanceProp {
   AppearanceProp._();
   static const String shape = 'shape';
   static const String aspect = 'aspect';
+  static const String objectFit = 'objectFit';
   static const String imageFocus = 'imageFocus';
   static const String align = 'align';
   static const String weight = 'weight';
+  static const String italic = 'italic';
+  static const String underline = 'underline';
+  static const String textTransform = 'textTransform';
+  static const String font = 'font';
+  static const String lineHeight = 'lineHeight';
+  static const String tracking = 'tracking';
+  static const String textShadow = 'textShadow';
   static const String size = 'size';
+  static const String display = 'display';
+  static const String textColor = 'textColor';
+  static const String bgColor = 'bgColor';
   static const String truncate = 'truncate';
   static const String truncateChars = 'truncateChars';
   static const String accentPosition = 'accentPosition';
+  static const String refSize = 'refSize';
+  static const String refColumns = 'refColumns';
+  static const String refTap = 'refTap';
   static const String paddingY = 'paddingY';
+  static const String opacity = 'opacity';
+  static const String shadow = 'shadow';
 }
 
-/// Qué props de apariencia aplican a cada kind (= TS APPEARANCE_PROPS_BY_KIND).
+/// Qué props de apariencia aplican a cada kind (= TS `APPEARANCE_PROPS_BY_KIND`).
+/// KRO-147 F3 — imagen suma objectFit + opacity/shadow; texto suma tipografía
+/// rica (italic/underline/font/lineHeight/tracking/textShadow) + display/textColor/
+/// bgColor; badge suma opacity/shadow; card-ref usa shape/refSize/refColumns/refTap.
 const Map<String, List<String>> appearancePropsByKind = <String, List<String>>{
-  SlotAcceptKind.image: ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  SlotAcceptKind.imageAvatar: ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  SlotAcceptKind.imageBanner: ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  SlotAcceptKind.imageCover: ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  SlotAcceptKind.imageArray: ['shape', 'aspect', 'imageFocus', 'size', 'paddingY'],
-  SlotAcceptKind.textShort: ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  SlotAcceptKind.textLong: ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  SlotAcceptKind.number: ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  SlotAcceptKind.date: ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  SlotAcceptKind.url: ['align', 'weight', 'size', 'truncate', 'truncateChars', 'paddingY'],
-  SlotAcceptKind.badge: ['size', 'truncate', 'truncateChars', 'paddingY'],
+  SlotAcceptKind.image: ['shape', 'aspect', 'objectFit', 'imageFocus', 'size', 'paddingY', 'opacity', 'shadow'],
+  SlotAcceptKind.imageAvatar: ['shape', 'aspect', 'objectFit', 'imageFocus', 'size', 'paddingY', 'opacity', 'shadow'],
+  SlotAcceptKind.imageBanner: ['shape', 'aspect', 'objectFit', 'imageFocus', 'size', 'paddingY', 'opacity', 'shadow'],
+  SlotAcceptKind.imageCover: ['shape', 'aspect', 'objectFit', 'imageFocus', 'size', 'paddingY', 'opacity', 'shadow'],
+  SlotAcceptKind.imageArray: ['shape', 'aspect', 'objectFit', 'imageFocus', 'size', 'paddingY', 'opacity', 'shadow'],
+  SlotAcceptKind.textShort: ['align', 'weight', 'italic', 'underline', 'textTransform', 'font', 'lineHeight', 'tracking', 'textShadow', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
+  SlotAcceptKind.textLong: ['align', 'weight', 'italic', 'underline', 'textTransform', 'font', 'lineHeight', 'tracking', 'textShadow', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
+  SlotAcceptKind.number: ['align', 'weight', 'italic', 'underline', 'textTransform', 'lineHeight', 'tracking', 'textShadow', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
+  SlotAcceptKind.date: ['align', 'weight', 'italic', 'underline', 'textTransform', 'lineHeight', 'tracking', 'textShadow', 'size', 'truncate', 'truncateChars', 'display', 'textColor', 'bgColor', 'paddingY'],
+  SlotAcceptKind.url: ['align', 'weight', 'italic', 'underline', 'textTransform', 'lineHeight', 'tracking', 'textShadow', 'size', 'truncate', 'truncateChars', 'paddingY'],
+  SlotAcceptKind.badge: ['size', 'truncate', 'truncateChars', 'textColor', 'bgColor', 'paddingY', 'opacity', 'shadow'],
   SlotAcceptKind.color: ['accentPosition', 'size', 'paddingY'],
-  SlotAcceptKind.cardRef: ['paddingY'],
-  SlotAcceptKind.any: [
-    'shape', 'aspect', 'imageFocus', 'align', 'weight', 'size',
-    'truncate', 'truncateChars', 'paddingY',
-  ],
+  SlotAcceptKind.cardRef: ['shape', 'refSize', 'refColumns', 'refTap'],
+  SlotAcceptKind.any: ['shape', 'aspect', 'objectFit', 'imageFocus', 'align', 'weight', 'textTransform', 'italic', 'underline', 'textShadow', 'size', 'truncate', 'truncateChars', 'paddingY', 'opacity', 'shadow'],
 };
+
+/// Catálogo COMPLETO de props de `SlotAppearance` (= TS `ALL_APPEARANCE_PROPS`).
+/// Orden canónico estable. El ratchet de conformidad (layout_conformance.dart)
+/// exige que el fixture golden las cubra TODAS → fuerza a Flutter a implementarlas.
+/// Si añades una prop al modelo `SlotAppearance`, añádela aquí y al fixture.
+const List<String> allAppearanceProps = <String>[
+  'shape', 'aspect', 'objectFit', 'imageFocus', 'align', 'weight', 'italic', 'underline',
+  'textTransform', 'font', 'lineHeight', 'tracking', 'textShadow', 'size', 'display',
+  'textColor', 'bgColor', 'truncate', 'truncateChars', 'accentPosition', 'refSize',
+  'refColumns', 'refTap', 'paddingY', 'opacity', 'shadow',
+];
 
 /// Props de `SlotAppearance` editables para un slot con esos accepts. Multi-
 /// accept → UNIÓN de props, en orden canónico estable.
 List<String> getAvailableAppearanceProps(List<String> accepts) {
   if (accepts.isEmpty) return <String>[];
-  const order = <String>[
-    'shape', 'aspect', 'imageFocus', 'align', 'weight', 'size',
-    'truncate', 'truncateChars', 'accentPosition', 'paddingY',
-  ];
   final union = <String>{};
   for (final kind in accepts) {
     final props = appearancePropsByKind[kind];
     if (props != null) union.addAll(props);
   }
-  return order.where(union.contains).toList(growable: false);
+  // Orden canónico estable = el del catálogo completo (espejo de TS:
+  // `ALL_APPEARANCE_PROPS.filter(p => union.has(p))`).
+  return allAppearanceProps.where(union.contains).toList(growable: false);
 }

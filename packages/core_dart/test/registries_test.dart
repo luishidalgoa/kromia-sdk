@@ -317,14 +317,25 @@ void main() {
       expect(formatSlotAccepts([]), '');
     });
 
-    test('getAvailableAppearanceProps: image → shape/aspect/imageFocus', () {
+    test('getAvailableAppearanceProps: image → forma + objectFit + efectos (KRO-147 F3)', () {
       final props = getAvailableAppearanceProps(['image']);
-      expect(props, containsAll(<String>['shape', 'aspect', 'imageFocus']));
+      expect(props,
+          containsAll(<String>['shape', 'aspect', 'objectFit', 'imageFocus', 'size', 'paddingY', 'opacity', 'shadow']));
     });
 
-    test('getAvailableAppearanceProps: text-short → align/weight/truncate', () {
+    test('getAvailableAppearanceProps: text-short → tipografía rica + color (KRO-147 F3)', () {
       final props = getAvailableAppearanceProps(['text-short']);
-      expect(props, containsAll(<String>['align', 'weight', 'truncate']));
+      expect(
+          props,
+          containsAll(<String>[
+            'align', 'weight', 'italic', 'underline', 'textTransform', 'font',
+            'lineHeight', 'tracking', 'textShadow', 'display', 'textColor', 'bgColor', 'truncate',
+          ]));
+    });
+
+    test('getAvailableAppearanceProps: card-ref → shape/refSize/refColumns/refTap', () {
+      final props = getAvailableAppearanceProps(['card-ref']);
+      expect(props, containsAll(<String>['shape', 'refSize', 'refColumns', 'refTap']));
     });
 
     test('getAvailableAppearanceProps: accepts vacío → []', () {
@@ -334,6 +345,21 @@ void main() {
     test('getAvailableAppearanceProps: multi-accept retorna unión de props', () {
       final props = getAvailableAppearanceProps(['image', 'text-short']);
       expect(props, containsAll(<String>['shape', 'align']));
+    });
+
+    test('getAvailableAppearanceProps respeta el orden del catálogo (allAppearanceProps)', () {
+      final props = getAvailableAppearanceProps(['image', 'text-short', 'card-ref']);
+      final idx = props.map(allAppearanceProps.indexOf).toList();
+      expect(idx, equals(List<int>.of(idx)..sort()), reason: 'orden estable = allAppearanceProps');
+    });
+
+    // Ratchet (KRO-133): TODA prop del catálogo debe gatearla al menos un kind.
+    // Falla si `appearancePropsByKind` queda incompleto vs `allAppearanceProps`
+    // (el render aplica las 26; la metadata del editor debe gatearlas todas).
+    test('appearancePropsByKind cubre TODO el catálogo (sin props huérfanas)', () {
+      final gated = <String>{for (final list in appearancePropsByKind.values) ...list};
+      final missing = allAppearanceProps.where((p) => !gated.contains(p)).toList();
+      expect(missing, isEmpty, reason: 'props del catálogo que ningún kind gatea: ${missing.join(', ')}');
     });
   });
 }

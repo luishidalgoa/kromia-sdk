@@ -5,6 +5,7 @@
 /// Pure: sin side effects, sin I/O. Mismas entradas → mismas issues.
 library;
 
+import 'card_layers.dart';
 import 'visual_effects.dart';
 
 /// Mapeo valor-de-tag → efecto visual. Vive en `albumSchema.tagStyles`. Una
@@ -13,21 +14,46 @@ class TagStyle {
   /// Valor EXACTO de la tag que dispara el efecto (ej. "Holográfica").
   final String value;
 
-  /// ID del efecto del catálogo (ej. "holographic_effect").
+  /// ID del efecto del catálogo (ej. "holographic_effect"), o 'custom_foil'.
   final String effect;
 
   /// Config opcional del efecto. Keys + espacio de valores los define el efecto
   /// (valores `String | num`).
   final Map<String, Object>? config;
 
-  const TagStyle({required this.value, required this.effect, this.config});
+  /// KRO-120 — ancla a un campo concreto (incl. el de rareza enum/ordinal_enum).
+  /// Con `fieldKey`, matchea si el valor de ESE campo del item == [value]. Sin él,
+  /// matchea [value] contra los campos con `behavior:'tags'` del item (clásico).
+  final String? fieldKey;
 
-  factory TagStyle.fromJson(Map<String, dynamic> json) => TagStyle(
-        value: (json['value'] as String?) ?? '',
-        effect: (json['effect'] as String?) ?? '',
-        config: (json['config'] as Map?)
-            ?.map((k, v) => MapEntry(k.toString(), v as Object)),
-      );
+  /// KRO-122 — foil PERSONALIZADO: si está presente, el render usa estas capas en
+  /// vez del catálogo (efecto importado de toda la carta).
+  final List<EffectLayer>? customLayers;
+
+  const TagStyle({
+    required this.value,
+    required this.effect,
+    this.config,
+    this.fieldKey,
+    this.customLayers,
+  });
+
+  factory TagStyle.fromJson(Map<String, dynamic> json) {
+    final raw = json['customLayers'];
+    return TagStyle(
+      value: (json['value'] as String?) ?? '',
+      effect: (json['effect'] as String?) ?? '',
+      config: (json['config'] as Map?)
+          ?.map((k, v) => MapEntry(k.toString(), v as Object)),
+      fieldKey: json['fieldKey'] as String?,
+      customLayers: raw is List
+          ? raw
+              .whereType<Map>()
+              .map((e) => EffectLayer.fromJson(e.cast<String, dynamic>()))
+              .toList(growable: false)
+          : null,
+    );
+  }
 }
 
 /// Un issue del validador de tag styles. Espejo de `TagStyleValidationIssue`.

@@ -254,6 +254,16 @@ class TargetComposition {
   final String? linkField;
   final TargetComposition? targetComposition;
 
+  /// KRO-133 — la pantalla de detalle es editable como una composición completa
+  /// (mismo editor que la sección): admite su propio árbol de LAYOUT (modo
+  /// Bloques editado en el canvas), overrides de slots y posición del accent.
+  /// Espejo de `TargetComposition.layout/slotOverrides/accentPosition` (types.ts).
+  /// SIN estos campos, el lienzo que el publisher edita en Studio se descartaba al
+  /// parsear → el detalle caía al preset de la receta (drift TS↔Dart).
+  final SlotOverrides? slotOverrides;
+  final String? accentPosition;
+  final LayoutContainerNode? layout;
+
   const TargetComposition({
     required this.recipe,
     required this.action,
@@ -261,6 +271,9 @@ class TargetComposition {
     this.expand,
     this.linkField,
     this.targetComposition,
+    this.slotOverrides,
+    this.accentPosition,
+    this.layout,
   });
 
   factory TargetComposition.fromJson(Map<String, dynamic> json) => TargetComposition(
@@ -275,6 +288,13 @@ class TargetComposition {
             ? null
             : TargetComposition.fromJson(
                 json['targetComposition'] as Map<String, dynamic>),
+        slotOverrides: json['slotOverrides'] == null
+            ? null
+            : SlotOverrides.fromJson(json['slotOverrides'] as Map<String, dynamic>),
+        accentPosition: json['accentPosition'] as String?,
+        layout: json['layout'] is Map
+            ? LayoutContainerNode.fromJson((json['layout'] as Map).cast<String, dynamic>())
+            : null,
       );
 }
 
