@@ -75,6 +75,24 @@ describe('formatScalar — behavior=currency', () => {
     const out = formatScalar(1234.5, def('currency'));
     expect(out).toMatch(/^1[.,]?234,50 €$/);
   });
+  // KRO-198 — símbolo dinámico vía behaviorConfig.currency.
+  const defCur = (code?: string): FieldDefLike =>
+    ({ key: 'x', type: 'number', behavior: 'currency', behaviorConfig: code ? { currency: code } : undefined });
+  it('USD → "19,99 $"', () => {
+    expect(formatScalar(19.99, defCur('USD'))).toBe('19,99 $');
+  });
+  it('GBP → "19,99 £"', () => {
+    expect(formatScalar(19.99, defCur('GBP'))).toBe('19,99 £');
+  });
+  it('JPY → sin decimales (forma robusta)', () => {
+    expect(formatScalar(1500, defCur('JPY'))).toMatch(/^1[.,]?500 ¥$/);
+  });
+  it('código desconocido → usa el propio código como símbolo', () => {
+    expect(formatScalar(5, defCur('ZZZ'))).toBe('5,00 ZZZ');
+  });
+  it('código en minúsculas se normaliza a mayúsculas', () => {
+    expect(formatScalar(5, defCur('usd'))).toBe('5,00 $');
+  });
 });
 
 describe('formatScalar — behavior=percentage', () => {
@@ -109,8 +127,20 @@ describe('formatScalar — behavior=rating', () => {
 });
 
 describe('formatScalar — behavior=measurement', () => {
-  it('número → string', () => {
+  it('número → string (sin unidad)', () => {
     expect(formatScalar(12.5, def('measurement'))).toBe('12.5');
+  });
+  // KRO-198 — unidad vía behaviorConfig.unit.
+  const defUnit = (unit?: string): FieldDefLike =>
+    ({ key: 'x', type: 'number', behavior: 'measurement', behaviorConfig: unit ? { unit } : undefined });
+  it('12.5 + {unit:"cm"} → "12.5 cm"', () => {
+    expect(formatScalar(12.5, defUnit('cm'))).toBe('12.5 cm');
+  });
+  it('70 + {unit:"kg"} → "70 kg"', () => {
+    expect(formatScalar(70, defUnit('kg'))).toBe('70 kg');
+  });
+  it('unidad vacía → número plano', () => {
+    expect(formatScalar(9, defUnit('  '))).toBe('9');
   });
 });
 

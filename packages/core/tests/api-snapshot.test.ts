@@ -187,6 +187,8 @@ const EXPECTED_EXPORTS = [
   'resolveSectionIconId',
   // KRO-131 — tokenizador de markdown inline (compartido Studio↔Flutter)
   'parseInlineMarkdown',
+  // KRO-198 — tokenizador de HTML inline seguro (behavior 'html', allowlist)
+  'parseInlineHtml',
   // KRO-178 — galería de variantes de plantilla de layout (fuera del KRP)
   'layoutTemplatesFor',
   'applyLayoutTemplate',

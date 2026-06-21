@@ -22,7 +22,8 @@ import type { FieldDefLike } from './types';
 // ── Helpers internos ────────────────────────────────────────────────────
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
-  EUR: '€', USD: '$', GBP: '£', JPY: '¥',
+  EUR: '€', USD: '$', GBP: '£', JPY: '¥', CHF: 'CHF', CAD: '$', AUD: '$',
+  MXN: '$', BRL: 'R$', ARS: '$', CNY: '¥', KRW: '₩', INR: '₹',
 };
 
 /** True si el valor es null/undefined/'' o array vacío. Privado al módulo. */
@@ -63,9 +64,19 @@ export function formatScalar(
     catch { return value; }
   }
 
-  // Currency: 19.99 → "19,99 €".
+  // Currency: 19.99 → "19,99 €". KRO-198 — el código de moneda viene de
+  // behaviorConfig.currency (ISO: EUR/USD/GBP/JPY/…); fallback EUR. Símbolo
+  // SIEMPRE tras el número (formato es-ES uniforme, determinista cross-lang);
+  // si el código no tiene símbolo conocido, se usa el propio código. JPY/KRW
+  // sin decimales.
   if (b === 'currency' && typeof value === 'number') {
-    return `${value.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${CURRENCY_SYMBOLS.EUR}`;
+    const cfg  = (def?.behaviorConfig ?? {}) as Record<string, unknown>;
+    const code = typeof cfg.currency === 'string' && cfg.currency.trim()
+      ? cfg.currency.trim().toUpperCase() : 'EUR';
+    const symbol  = CURRENCY_SYMBOLS[code] ?? code;
+    const noCents = code === 'JPY' || code === 'KRW';
+    const digits  = noCents ? 0 : 2;
+    return `${value.toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits })} ${symbol}`;
   }
 
   // Percentage: 75 → "75 %".
@@ -78,9 +89,13 @@ export function formatScalar(
     return '★'.repeat(v) + '☆'.repeat(max - v);
   }
 
-  // Measurement: 12.5 → "12.5" (la unidad la define behaviorConfig del
-  // editor, no la receta).
-  if (b === 'measurement') return String(value);
+  // Measurement: 12.5 → "12.5 cm". KRO-198 — la unidad viene de
+  // behaviorConfig.unit (string libre: cm/kg/ml/…); sin unidad → número plano.
+  if (b === 'measurement') {
+    const cfg  = (def?.behaviorConfig ?? {}) as Record<string, unknown>;
+    const unit = typeof cfg.unit === 'string' && cfg.unit.trim() ? ` ${cfg.unit.trim()}` : '';
+    return `${value}${unit}`;
+  }
 
   // Incremental (contador / dorsal) — KRO-84 V2: zero-padding + prefijo/sufijo
   // OPCIONALES vía behaviorConfig. Solo PRESENTACIÓN: en BD se guarda el number

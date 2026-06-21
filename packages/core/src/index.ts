@@ -225,6 +225,9 @@ export { SECTION_ICONS, suggestSectionIcon, lucideIconName, sectionIconSvg, reso
 // Markdown inline (behavior 'markdown'): tokenizador PURO compartido — Studio y
 // Flutter renderizan los mismos tokens con su piel (JSX / TextSpan).
 export { parseInlineMarkdown, type MarkdownToken } from './markdown';
+// HTML inline (behavior 'html'): allowlist seguro → MISMOS tokens que markdown
+// (sin DOMPurify ni innerHTML; href sanitizado, entidades decodificadas). KRO-198.
+export { parseInlineHtml } from './html-inline';
 
 // ── Synth (AppPreview / playgrounds) ───────────────────────────────────
 // KRO-72: migrado desde kromia-studio. Permite a cualquier consumer

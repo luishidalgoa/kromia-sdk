@@ -23,6 +23,8 @@ import { isMockupImage,
   composeSlotValues,
   paletteClass,
   parseInlineMarkdown,
+  parseInlineHtml,
+  type MarkdownToken,
   getCardImageTransform,
   type FieldDefLike         as SdkFieldDefLike,
   type AccentSettings       as SdkAccentSettings,
@@ -581,6 +583,37 @@ export function ScalarText({
       </span>
     );
   }
+  // KRO-198 — HTML inline seguro (allowlist del SDK). Usa el valor CRUDO (no el
+  // truncado: cortar a media etiqueta rompería el parseo).
+  if (def?.behavior === 'html') {
+    return (
+      <span className={cn(appearanceTextClasses(appearance), className)}>
+        <HtmlText html={String(value)} />
+      </span>
+    );
+  }
+  // KRO-198 — code: monoespaciado con fondo sutil.
+  if (def?.behavior === 'code') {
+    return (
+      <code className={cn('font-mono text-[0.9em] bg-muted/60 rounded px-1.5 py-0.5 break-words', className)}>
+        {finalText}
+      </code>
+    );
+  }
+  // KRO-198 — url/email/phone: enlace navegable con href saneado.
+  const href = linkHrefFor(def?.behavior, value);
+  if (href) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cn('underline underline-offset-2 text-primary break-words', appearanceTextClasses(appearance), className)}
+      >
+        {finalText}
+      </a>
+    );
+  }
   return (
     <span className={cn(appearanceTextClasses(appearance), className)}>
       {finalText}
@@ -607,6 +640,36 @@ export function ComposableSlot({
 
   // KRO-69: appearance text classes (align/weight/size) viajan en el wrapper.
   const textClasses = appearanceTextClasses(slot.appearance);
+
+  // KRO-198 — fields array con behavior tags/url_list/email_list: render por
+  // ELEMENTO (chips / enlaces navegables), no el JSON crudo que daría
+  // `composeSlotValues` al pasar el array entero por `formatScalar`.
+  const f0   = slot.fields[0];
+  const beh0 = f0?.def?.behavior;
+  const arr0 = Array.isArray(f0?.value)
+    ? (f0!.value as unknown[]).map(v => (v == null ? '' : String(v))).filter(v => v.trim() !== '')
+    : null;
+  if (arr0 && arr0.length > 0 && (beh0 === 'tags' || beh0 === 'url_list' || beh0 === 'email_list')) {
+    if (beh0 === 'tags') {
+      return (
+        <span className={cn('inline-flex flex-wrap gap-1 align-middle', textClasses, className)}>
+          {arr0.map((t, i) => (
+            <span key={i} className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[0.8em] text-muted-foreground">{t}</span>
+          ))}
+        </span>
+      );
+    }
+    return (
+      <span className={cn('inline-flex flex-col items-start gap-0.5 align-top', textClasses, className)}>
+        {arr0.map((t, i) => {
+          const href = beh0 === 'email_list' ? `mailto:${t}` : linkHrefFor('url', t);
+          return href
+            ? <a key={i} href={href} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 text-primary break-all">{t}</a>
+            : <span key={i}>{t}</span>;
+        })}
+      </span>
+    );
+  }
 
   // KRO-73: si el SDK aplicó truncate, renderizamos el string plano cortado.
   // El estilo del separador se pierde (trade-off aceptado del KRO-69 follow-up).
@@ -657,21 +720,60 @@ export function ComposableSlot({
 
 /** Render de markdown inline desde los tokens del SDK. Úsalo cuando
  *  `def.behavior === 'markdown'`; si no, renderiza el string plano. */
+/** KRO-198 — esquemas de URL seguros para `href` (defensa en el render, además
+ *  del sanitizado del tokenizador). Bloquea javascript:/data:/vbscript:. */
+function safeHref(href: string | undefined | null): string | null {
+  if (!href) return null;
+  const h = href.trim();
+  if (h === '') return null;
+  const low = h.toLowerCase();
+  if (low.startsWith('javascript:') || low.startsWith('data:') || low.startsWith('vbscript:')) return null;
+  const scheme = /^([a-z][a-z0-9+.-]*):/.exec(low);
+  if (scheme && !['http', 'https', 'mailto', 'tel'].includes(scheme[1])) return null;
+  return h;
+}
+
+/** KRO-198 — href para un field escalar url/email/phone. `url` sin esquema → https://. */
+function linkHrefFor(behavior: string | undefined, value: unknown): string | null {
+  if (typeof value !== 'string' || value.trim() === '') return null;
+  const v = value.trim();
+  if (behavior === 'email') return `mailto:${v}`;
+  if (behavior === 'phone') return `tel:${v.replace(/[^\d+]/g, '')}`;
+  if (behavior === 'url') {
+    const withScheme = /^[a-z][a-z0-9+.-]*:/i.test(v) || v.startsWith('/') || v.startsWith('#') ? v : `https://${v}`;
+    return safeHref(withScheme);
+  }
+  return null;
+}
+
+/** Mapea un `MarkdownToken` a JSX. `clickable` → los links son `<a>` reales
+ *  (href ya saneado) en vez de texto subrayado (markdown los deja inertes en el
+ *  preview; el HTML inline sí los hace navegables). KRO-198. */
+function renderInlineToken(tk: MarkdownToken, key: number, clickable: boolean) {
+  switch (tk.type) {
+    case 'break':  return <br key={key} />;
+    case 'bold':   return <strong key={key}>{tk.value}</strong>;
+    case 'italic': return <em key={key}>{tk.value}</em>;
+    case 'code':   return <code key={key} className="font-mono text-[0.85em] bg-muted/60 rounded px-1 py-0.5">{tk.value}</code>;
+    case 'link': {
+      const href = clickable ? safeHref(tk.href) : null;
+      return href
+        ? <a key={key} href={href} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 text-primary break-words">{tk.value}</a>
+        : <span key={key} className="underline underline-offset-2">{tk.value}</span>;
+    }
+    default:       return <span key={key}>{tk.value}</span>;
+  }
+}
+
+/** Render markdown inline (behavior 'markdown'). Links NO clicables (preview). */
 export function MarkdownText({ text }: { text: string }) {
-  return (
-    <>
-      {parseInlineMarkdown(text).map((tk, i) => {
-        switch (tk.type) {
-          case 'break':  return <br key={i} />;
-          case 'bold':   return <strong key={i}>{tk.value}</strong>;
-          case 'italic': return <em key={i}>{tk.value}</em>;
-          case 'code':   return <code key={i} className="font-mono text-[0.85em] bg-muted/60 rounded px-1 py-0.5">{tk.value}</code>;
-          case 'link':   return <span key={i} className="underline underline-offset-2">{tk.value}</span>;
-          default:       return <span key={i}>{tk.value}</span>;
-        }
-      })}
-    </>
-  );
+  return <>{parseInlineMarkdown(text).map((tk, i) => renderInlineToken(tk, i, false))}</>;
+}
+
+/** Render HTML inline SEGURO (behavior 'html'): allowlist del SDK → tokens → JSX.
+ *  Links clicables con href saneado. NUNCA innerHTML (cero XSS). KRO-198. */
+export function HtmlText({ html }: { html: string }) {
+  return <>{parseInlineHtml(html).map((tk, i) => renderInlineToken(tk, i, true))}</>;
 }
 
 // ── Renderers especializados por tipo de slot ────────────────────────────────
