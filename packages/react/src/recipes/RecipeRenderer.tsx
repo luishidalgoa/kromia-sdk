@@ -56,10 +56,19 @@ export interface RecipeRendererProps {
   resolveCardRef?: CardRefResolver;
   /** KRO-133 — tap en una mini-carta de refs (gated por appearance.refTap). */
   onCardRefTap?: (ref: string | number) => void;
+  /**
+   * KRO-198 — slots a OCULTAR del render (por id). El host los quita de la
+   * composición antes de despachar y, en recetas con cabecera de imagen
+   * (hero_protagonico), se reenvía a `HeroHeader` para que tampoco pinte su
+   * placeholder degradado. Caso de uso: el panel de detalle de la carta en el
+   * modo focus, donde la imagen ya la muestra la HoloCard 3D y el panel debe
+   * ser "solo datos" (sin duplicar la imagen). Ausente/vacío = sin cambios.
+   */
+  hiddenSlots?: ReadonlyArray<string>;
 }
 
 export function RecipeRenderer({
-  composition, item, fieldDefs, onItemClick, className, cardFormat, resolveCardRef, onCardRefTap,
+  composition, item, fieldDefs, onItemClick, className, cardFormat, resolveCardRef, onCardRefTap, hiddenSlots,
 }: RecipeRendererProps) {
   // navigate_to_detail, modal y expand_inline disparan onItemClick — la
   // receta no distingue. El wrapper interactivo (RecipeInteractive) decide
@@ -80,6 +89,20 @@ export function RecipeRenderer({
     ? composition as ViewComposition
     : { ...composition, action: 'none' as const } as ViewComposition;
 
+  // KRO-198 — strip de los slots ocultos ANTES de despachar. Recetas como
+  // editorial/momento omiten su imagen al faltar el slot (sin placeholder), así
+  // que para ellas el strip basta; hero_protagonico además necesita `hiddenSlots`
+  // reenviado a HeroHeader (su banner cae a un degradado de placeholder si no hay
+  // slot). Sin hiddenSlots → misma referencia (cero cambio de comportamiento).
+  const filteredComposition = (hiddenSlots && hiddenSlots.length)
+    ? {
+        ...safeComposition,
+        slots: Object.fromEntries(
+          Object.entries(safeComposition.slots).filter(([id]) => !hiddenSlots.includes(id)),
+        ),
+      } as ViewComposition
+    : safeComposition;
+
   // KRO-133 F2 — si la composición trae un árbol de LAYOUT explícito (lo compuso
   // el publisher en el canvas DnD, o es un preset de F5), lo renderiza el MOTOR
   // GENÉRICO. Si no, caemos a los componentes de receta hardcodeados de siempre
@@ -87,7 +110,7 @@ export function RecipeRenderer({
   if ('layout' in safeComposition && safeComposition.layout) {
     return (
       <LayoutRenderer
-        composition={safeComposition}
+        composition={filteredComposition}
         item={item}
         fieldDefs={fieldDefs}
         onClick={onClick}
@@ -136,20 +159,21 @@ export function RecipeRenderer({
     case 'hero_protagonico':
       return (
         <HeroProtagonicoRecipe
-          composition={safeComposition}
+          composition={filteredComposition}
           item={item}
           fieldDefs={fieldDefs}
           className={className}
           cardFormat={cardFormat}
           resolveCardRef={resolveCardRef}
           onCardRefTap={onCardRefTap}
+          hiddenSlots={hiddenSlots}
         />
       );
 
     case 'editorial':
       return (
         <EditorialRecipe
-          composition={safeComposition}
+          composition={filteredComposition}
           item={item}
           fieldDefs={fieldDefs}
           className={className}
@@ -159,7 +183,7 @@ export function RecipeRenderer({
     case 'momento':
       return (
         <MomentoRecipe
-          composition={safeComposition}
+          composition={filteredComposition}
           item={item}
           fieldDefs={fieldDefs}
           className={className}
@@ -193,7 +217,7 @@ export function RecipeRenderer({
     // `recipeToComposition` cae a un grid naíf si no hay preset, así que siempre
     // renderiza algo razonable en vez del antiguo placeholder ámbar.
     default: {
-      const withLayout = recipeToComposition(safeComposition);
+      const withLayout = recipeToComposition(filteredComposition);
       return (
         <LayoutRenderer
           composition={withLayout}

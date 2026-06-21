@@ -62,10 +62,15 @@ export interface HeroProtagonicoRecipeProps {
   resolveCardRef?: CardRefResolver;
   /** KRO-133 — tap en mini-carta (gated por appearance.refTap === 'focus'). */
   onCardRefTap?: (ref: string | number) => void;
+  /** KRO-198 — slots a ocultar (banner/avatar/gallery…). Se reenvía a HeroHeader
+   *  para que NO pinte ni el banner degradado de placeholder ni el avatar con
+   *  inicial. Caso de uso: panel "solo datos" del detalle (la imagen ya es el
+   *  hero 3D). El strip de body-slots (gallery) ya lo hizo RecipeRenderer. */
+  hiddenSlots?: ReadonlyArray<string>;
 }
 
 export function HeroProtagonicoRecipe({
-  composition, item, fieldDefs, className, cardFormat, resolveCardRef, onCardRefTap,
+  composition, item, fieldDefs, className, cardFormat, resolveCardRef, onCardRefTap, hiddenSlots,
 }: HeroProtagonicoRecipeProps) {
   // Cabecera (banner/avatar/title/subtitle) la resuelve + pinta HeroHeader.
   // Aquí solo el TÍTULO (seed de las mini-cartas) + los slots del CUERPO.
@@ -249,7 +254,7 @@ export function HeroProtagonicoRecipe({
       {/* Cabecera (banner + avatar superpuesto + título + subtítulo) — COMPARTIDA
           con el componente de bloques `hero_header` vía HeroHeader, para que la
           versión "diseño por bloques" del detalle la reproduzca IDÉNTICA. */}
-      <HeroHeader composition={composition} item={item} fieldDefs={fieldDefs} />
+      <HeroHeader composition={composition} item={item} fieldDefs={fieldDefs} hiddenSlots={hiddenSlots} />
 
       {/* BODY BLOCKS — en orden de section.fields del primer field de cada slot.
           (El -mt-12 del solape vive en HeroHeader; el cuerpo fluye debajo igual
