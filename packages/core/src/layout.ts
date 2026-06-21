@@ -144,8 +144,11 @@ export const ALL_TRACK_PROPS: readonly ('columnSizes' | 'rowSizes')[] = [
 export const MAX_LAYOUT_DEPTH = 5;
 /** Máximo de columnas de un contenedor `grid`. */
 export const MAX_GRID_COLUMNS = 6;
-/** Máximo de filas EXPLÍCITAS de un contenedor `grid` (KRO-133 F3). */
-export const MAX_GRID_ROWS = 6;
+/** Máximo de filas EXPLÍCITAS de un contenedor `grid` (KRO-133 F3). KRO-198 — subido
+ *  de 6 a 30: el detalle de carta "basado en campos" es una hoja de datos vertical
+ *  (un bloque por campo), alta y estrecha — las columnas siguen acotadas, las filas
+ *  no. No está en el contrato KRP → no bumpea PROTOCOL_VERSION. */
+export const MAX_GRID_ROWS = 30;
 
 // ── Validación ───────────────────────────────────────────────────────────────
 
