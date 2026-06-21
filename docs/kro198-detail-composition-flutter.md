@@ -13,6 +13,8 @@ Ya shipeado en TS:
 1. `RecipeRenderer` acepta `hiddenSlots?: string[]` → (a) **strip** de esos slot ids de `composition.slots` antes de despachar y (b) **reenvío** del array a `HeroProtagonicoRecipe → HeroHeader`, que con esos ids **no pinta ni el slot ni su placeholder** (banner degradado / avatar con inicial).
 2. `CardSchema.detailComposition` (`ViewComposition` opcional, **render-only**, validada con `validateComposition` contra `cardFields`) ya persiste en backend.
 3. En Studio, el panel "Detalles" del modo focus renderiza esa composición con `hiddenSlots = [slots de imagen del recipe] + 'title'` → panel "solo datos" (la imagen ya es la HoloCard 3D, el título ya está en la cabecera de la hoja).
+4. **NUEVO (5410852)** — el detalle se construye en el **lienzo** (árbol `layout`). Para que siga siendo "solo datos" con layout-tree, `LayoutRenderer` también acepta `hiddenSlots` y oculta los roles del `hero_header` cuyo slotId esté en la lista. La decisión vive en core: **`computeHiddenHeroRoles(roles, nodeHidden, nodeSlots, hiddenSlots)`** (pura) → ver §7.
+5. **NUEVO (53808fb)** — render por **behavior** completo: currency/measurement con `behaviorConfig`, `html` seguro (`parseInlineHtml`, allowlist), code/url/email/phone/tags/url_list/email_list → ver §8.
 
 Flutter debe replicar **exactamente** esta semántica en su renderer Dart.
 
@@ -95,14 +97,68 @@ En el panel/sheet de detalle de carta:
 
 ---
 
-## 6. Follow-ups conocidos (V2, NO bloquean V1)
+## 7. LayoutRenderer (árbol `layout`) — `hiddenSlots` + `computeHiddenHeroRoles`
 
-- **Layout-tree explícito**: si en el futuro se persiste un `detailComposition` con árbol `layout` (diseño por bloques), el strip de `slots` no quita la imagen del árbol → habría que reenviar `hiddenSlots` también al `LayoutRenderer` o hacer el strip layout-aware. En V1 NO se alcanza: el editor solo emite `buildAutoDetailComposition` (sin `layout`).
-- **Fine-tuning por slot**: V1 del editor solo elige la receta (auto-mapeo de slots). El editor de slots completo del detalle llegará reutilizando `ViewCompositionEditor`.
+El detalle de carta se diseña en el **lienzo** → la composición trae un árbol `layout`
+y se renderiza por el motor genérico (`LayoutRenderer`), no por el componente de receta.
+El strip de `slots` (§1.A) ya hace que las hojas-slot ocultas resuelvan a nada. **Pero**
+el componente prefab `hero_header` reconstruye sus slots desde `node.slots` (mapeo
+rol→slotId) y, si falta el slot, pinta el placeholder degradado → hay que cruzarlo con
+los `hiddenSlots` globales.
+
+Regla canónica (core, **pura, ya en TS — espejar en Dart**):
+
+```
+// computeHiddenHeroRoles(roles, nodeHidden, nodeSlots, hiddenSlots) -> List<String>
+// Un rol se oculta si: lo marcó el publisher (nodeHidden) O su slotId
+// (nodeSlots[role]) está en los hiddenSlots globales.
+Set<String> out = { ...(nodeHidden ?? []) };
+for (final role in roles) {                 // roles = [banner, avatar, title, subtitle]
+  final sid = nodeSlots?[role];
+  if (sid != null && hiddenSlots.contains(sid)) out.add(role);
+}
+return out.toList();
+```
+
+En el `LayoutRenderer` Dart, al pintar un `hero_header`:
+- `hiddenRoles = computeHiddenHeroRoles([banner,avatar,title,subtitle], node.hidden, node.slots, hiddenSlots)`.
+- NO añadir a `heroSlots` los roles en `hiddenRoles`.
+- Pasar `hiddenRoles` como `hiddenSlots` del `HeroHeader` (para que tampoco pinte placeholder).
+- `RecipeRenderer` Dart debe **reenviar `hiddenSlots` al `LayoutRenderer`** (ruta layout + default), igual que en TS.
+
+---
+
+## 8. Render por **behavior** del valor de un slot
+
+Cierra los behaviors que caían a texto plano. **Formateo** en core (espejar en `core_dart`),
+**presentación** en cada cliente.
+
+**core (`format-scalar` + `html-inline`):**
+- `currency` (number): símbolo por `behaviorConfig.currency` (ISO: EUR/USD/GBP/JPY/…; JPY/KRW sin decimales; código desconocido → se usa el propio código). Símbolo SIEMPRE tras el número (es-ES). Default EUR.
+- `measurement` (number): unidad por `behaviorConfig.unit` (`"12.5 cm"`); sin unidad → número plano.
+- `parseInlineHtml(html)` (behavior `html`): tokeniza un **allowlist** (b/strong, i/em, code, a[href], br, p/li) a los MISMOS `MarkdownToken` que markdown. **Seguro por construcción**: href sanitizado (solo http/https/mailto/tel), entidades decodificadas como texto, tags fuera de la allowlist eliminados, `<script>`/`onerror` fuera. **NUNCA** innerHTML/DOMPurify. Dart: replicar el allowlist + render por tokens (`TextSpan`).
+
+**presentación (cada cliente):**
+- `code`: monoespaciado con fondo sutil.
+- `url`/`email`/`phone`: enlace navegable con href saneado (`url` sin esquema → `https://`; `email`→`mailto:`; `phone`→`tel:`).
+- `tags` (array): chips.
+- `url_list`/`email_list` (array): un enlace navegable por elemento (NO el JSON crudo del array).
+- markdown: links **inertes** (no navegables) en el preview; html: links **clicables**.
+
+---
+
+## 9. Follow-ups conocidos (NO bloquean)
+
+- ~~Layout-tree explícito → reenviar hiddenSlots al LayoutRenderer~~ **RESUELTO** (§7, `5410852`).
+- **Editor de lienzo (canvas DnD)**: en Studio el publisher elige una plantilla (sembrada como layout) y la edita en el `LayoutEditor`. Flutter es **renderer puro**: consume el `detailComposition` resultante (con su `layout`) — no necesita editor.
+- `<u>` (underline) en `html`: no soportado en V1 (su contenido cae a texto).
 
 ---
 
 **Referencias de lectura obligada (TS canónico):**
-- `packages/react/src/recipes/RecipeRenderer.tsx` (props `hiddenSlots`, bloque `filteredComposition`, reenvío a hero).
-- `packages/react/src/recipes/HeroHeader.tsx` (`isHidden`, banner/avatar/subtitle gating, `-mt-12` condicional al banner).
-- Studio: `src/components/album/CardFocusOverlay.tsx` (`detailHiddenSlots`, `IMAGE_ACCEPT_KINDS`, panel "solo datos").
+- `packages/react/src/recipes/RecipeRenderer.tsx` (props `hiddenSlots`, `filteredComposition`, reenvío a hero + LayoutRenderer).
+- `packages/react/src/recipes/LayoutRenderer.tsx` (caso `hero_header`, `computeHiddenHeroRoles`).
+- `packages/react/src/recipes/HeroHeader.tsx` (`isHidden`, gating banner/avatar/subtitle, `-mt-12` condicional).
+- `packages/core/src/layout.ts` (`computeHiddenHeroRoles`), `format-scalar.ts`, `html-inline.ts`.
+- `packages/react/src/recipe-utils.tsx` (`ScalarText`/`ComposableSlot`/`HtmlText`/`renderInlineToken`).
+- Studio: `src/components/album/CardFocusOverlay.tsx` (`detailHiddenSlots`, `IMAGE_ACCEPT_KINDS`).

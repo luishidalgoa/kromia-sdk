@@ -66,11 +66,15 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   `addCards`/`removeCards`/`?owned`, repetidas por `quantity`) + **aviso de
   responsabilidad** en álbumes self-declared. Backend listo.
 - **Studio → Flutter** · KRO-198 composición de detalle de carta (modo focus) →
-  `docs/kro198-detail-composition-flutter.md`. Render-only (NO bumpea PROTOCOL_VERSION).
-  Añadir `hiddenSlots` al renderer Dart (strip de slots + reenvío a HeroHeader) +
-  consumir `CardSchema.detailComposition` en el detalle con `hiddenSlots = [slots de
-  imagen del recipe] + 'title'` (panel "solo datos"). SDK-TS + Studio + backend listos
-  (SDK `6fac65e`, backend `de13c54`, Studio `70c8433`).
+  `docs/kro198-detail-composition-flutter.md` (ACTUALIZADO, §7-8). Render-only (NO
+  bumpea PROTOCOL_VERSION). Paridad Dart pendiente de:
+  (1) `hiddenSlots` en RecipeRenderer (strip + reenvío a HeroHeader) + consumir
+  `CardSchema.detailComposition` con `hiddenSlots = [slots imagen del recipe] + 'title'`;
+  (2) **`computeHiddenHeroRoles`** + `hiddenSlots` en `LayoutRenderer`/`hero_header`
+  (detalle construido en lienzo = árbol layout); (3) **render por behavior**:
+  currency/measurement por `behaviorConfig`, `parseInlineHtml` (allowlist seguro),
+  code/url/email/phone/tags/url_list/email_list. SDK-TS `5410852` + Studio `385d36f` +
+  backend `de13c54` listos. El editor de lienzo (canvas) es Studio-only; Flutter = renderer puro.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
