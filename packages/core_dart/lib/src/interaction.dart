@@ -143,20 +143,24 @@ ViewComposition resolveDetailComposition(
       targetComposition: hop.targetComposition,
       expand: hop.expand,
       linkField: hop.linkField,
+      // KRO-133 — si el publisher editó el detalle por Bloques en el canvas, su
+      // `layout` (+ slotOverrides/accent) viaja en el targetComposition: se
+      // propaga TAL CUAL para que el render lo respete (espejo de
+      // `detailCompositionAt`/`materializeDetailComp` de Studio). Antes se perdía
+      // → el detalle caía al preset de la receta.
+      layout: hop.layout,
+      slotOverrides: hop.slotOverrides,
+      accentPosition: hop.accentPosition,
     );
   }
 
-  // 2. Legacy targetRecipe.
+  // 2. Legacy targetRecipe → slots recipe-aware de ESA receta (KRO-131): cover ←
+  //    imagen sin behavior, etc., en vez de los slots de hero.
   final targetRecipe = composition.targetRecipe;
   if (targetRecipe != null) {
     final manifest = getRecipeManifest(targetRecipe);
     if (manifest != null && manifest.kind == 'detail') {
-      final auto = buildAutoDetailComposition(fieldDefs);
-      return ViewComposition(
-        recipe: targetRecipe,
-        action: auto.action,
-        slots: auto.slots,
-      );
+      return buildAutoDetailComposition(fieldDefs, targetRecipe);
     }
   }
 

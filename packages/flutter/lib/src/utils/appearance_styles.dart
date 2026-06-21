@@ -31,18 +31,25 @@ TextAlign? appearanceTextAlign(SlotAppearance? a) => switch (a?.align) {
     };
 
 double? _lineHeight(SlotAppearance? a) => switch (a?.lineHeight) {
-      'tight' => 1.15,
-      'normal' => 1.4,
-      'relaxed' => 1.6,
+      'tight' => 1.25, // leading-tight
+      'normal' => 1.5, // leading-normal
+      'relaxed' => 1.625, // leading-relaxed
       _ => null,
     };
 
-double? _tracking(SlotAppearance? a) => switch (a?.tracking) {
-      'tight' => -0.3,
-      'normal' => 0.0,
-      'wide' => 1.0,
-      _ => null,
-    };
+/// tracking (letter-spacing). React usa `em` (relativo al fontSize); Flutter usa
+/// px absoluto → calculamos `em × fontSize` para que el espaciado escale igual a
+/// cualquier tamaño. `uppercase` añade el `tracking-wider` (0.05em) implícito de
+/// react cuando no hay tracking explícito.
+double? _letterSpacing(SlotAppearance? a, double fontSize) {
+  final em = switch (a?.tracking) {
+    'tight' => -0.025, // tracking-tight
+    'normal' => 0.0, // tracking-normal
+    'wide' => 0.025, // tracking-wide
+    _ => a?.textTransform == 'uppercase' ? 0.05 : null, // tracking-wider implícito
+  };
+  return em == null ? null : em * fontSize;
+}
 
 List<Shadow>? _textShadow(SlotAppearance? a) => switch (a?.textShadow) {
       'sm' => const [Shadow(blurRadius: 2, color: Color(0x66000000), offset: Offset(0, 1))],
@@ -69,11 +76,24 @@ Color? appearanceTextColor(SlotAppearance? a) {
   return KromiaTokens.paletteColor(c, fallback: KromiaTokens.text);
 }
 
+/// bgColor (token de paleta) → Color de fondo del bloque de texto. Espejo de
+/// `paletteClass(a.bgColor,'bg')` en `appearanceTextClasses`. 'field:' → null.
+Color? appearanceBgColor(SlotAppearance? a) {
+  final c = a?.bgColor;
+  if (c == null || c.startsWith('field:')) return null;
+  return KromiaTokens.paletteColor(c, fallback: KromiaTokens.bgSurface2);
+}
+
+/// shadow del SLOT (efecto, KRO-147 F3) → boxShadow. Espejo de
+/// `SLOT_SHADOW_CLASSES` (none/sm/md/lg). Se aplica al wrapper de cualquier slot.
+List<BoxShadow> appearanceSlotShadow(SlotAppearance? a) => KromiaTokens.shadow(a?.shadow);
+
 /// Aplica weight/size/color/font/italic/underline/tracking/lineHeight sobre un
 /// estilo base (espejo de appearanceTextClasses). El uppercase se aplica al TEXTO
 /// (ver [appearanceTransform]), no al estilo.
 TextStyle applyAppearanceText(TextStyle base, SlotAppearance? a) {
   if (a == null) return base;
+  final fontSize = appearanceFontSize(a) ?? base.fontSize ?? KromiaTokens.tBody;
   return base.copyWith(
     fontWeight: appearanceFontWeight(a) ?? base.fontWeight,
     fontSize: appearanceFontSize(a) ?? base.fontSize,
@@ -81,7 +101,7 @@ TextStyle applyAppearanceText(TextStyle base, SlotAppearance? a) {
     fontFamily: a.font == 'serif' ? 'serif' : base.fontFamily,
     fontStyle: a.italic == true ? FontStyle.italic : base.fontStyle,
     decoration: a.underline == true ? TextDecoration.underline : base.decoration,
-    letterSpacing: _tracking(a) ?? base.letterSpacing,
+    letterSpacing: _letterSpacing(a, fontSize) ?? base.letterSpacing,
     height: _lineHeight(a) ?? base.height,
     shadows: _textShadow(a) ?? base.shadows,
   );

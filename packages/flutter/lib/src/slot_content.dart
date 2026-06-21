@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:kromia_core/kromia_core.dart';
 
+import 'markdown_text.dart';
 import 'render_ctx.dart';
 import 'tokens.dart';
 import 'ui/prefabs.dart';
@@ -59,7 +60,16 @@ Widget? slotContent(RenderCtx ctx, String slotId) {
   final first = r.fields.isEmpty ? null : r.fields.first;
   final ap = r.appearance;
   final pad = appearancePaddingY(ap);
-  Widget wrap(Widget w) => pad > 0 ? Padding(padding: EdgeInsets.symmetric(vertical: pad), child: w) : w;
+  Widget wrap(Widget w) {
+    if (pad > 0) w = Padding(padding: EdgeInsets.symmetric(vertical: pad), child: w);
+    // KRO-147 F3 — efecto de slot (shadow + opacity) sobre el wrapper de
+    // cualquier slot (imagen/badge/texto/refs). Espejo de `appearanceEffectClasses`.
+    final shadow = appearanceSlotShadow(ap);
+    if (shadow.isNotEmpty) w = DecoratedBox(decoration: BoxDecoration(boxShadow: shadow), child: w);
+    final op = appearanceOpacity(ap);
+    if (op < 1.0) w = Opacity(opacity: op, child: w);
+    return w;
+  }
 
   // Imagen (array<image> → 1ª url + chip "+N").
   if (_isImage(first?.def)) {
@@ -69,13 +79,21 @@ Widget? slotContent(RenderCtx ctx, String slotId) {
     return wrap(imageBox(ctx, url, ap, count: raw is List ? raw.length : null));
   }
 
-  // Referencias → rejilla de mini-cartas.
+  // Referencias → rejilla de mini-cartas. Honra refSize (ancho % de la carta en
+  // su celda) y refTap='focus' (celda tappable → ctx.onCardRefTap). Espejo de
+  // `MiniCardRefs` (@kromia/react RefGallery).
   if (_isRef(first?.def)) {
     final raw = first?.value;
     final refs = raw is List
         ? raw.map((e) => e.toString()).toList()
         : (raw != null ? <String>[raw.toString()] : <String>[]);
-    return wrap(refsGrid(refs, columns: ctx.refColumns(ap)));
+    return wrap(refsGrid(
+      ctx,
+      refs,
+      columns: ctx.refColumns(ap),
+      refSize: ap?.refSize,
+      onRefTap: (ap?.refTap == 'focus' && ctx.onCardRefTap != null) ? (r) => ctx.onCardRefTap!(r) : null,
+    ));
   }
 
   // Texto.
@@ -85,11 +103,31 @@ Widget? slotContent(RenderCtx ctx, String slotId) {
   if (ap?.display == 'badge') return wrap(badgePill(shown, ap));
 
   final longText = _isLongText(first?.def);
-  return wrap(Text(
-    shown,
-    maxLines: appearanceMaxLines(ap, def: longText ? null : 1),
-    overflow: TextOverflow.ellipsis,
-    textAlign: appearanceTextAlign(ap),
-    style: applyAppearanceText(KromiaTokens.body, ap),
-  ));
+  final maxLines = appearanceMaxLines(ap, def: longText ? null : 1);
+
+  // KRO-133 — field con `behavior:'markdown'` (body de editorial/momento/hero,
+  // lore): se pinta como markdown INLINE (negrita/cursiva/code/links), no string
+  // crudo. Espejo de `ScalarText`→`MarkdownText` (@kromia/react): antes salía
+  // `**Ignis**` literal porque el motor de bloques pintaba `Text` plano.
+  Widget textW;
+  if (first?.def?.behavior == 'markdown') {
+    textW = markdownText(
+      shown,
+      base: applyAppearanceText(KromiaTokens.body, ap),
+      maxLines: maxLines,
+      textAlign: appearanceTextAlign(ap),
+    );
+  } else {
+    textW = Text(
+      shown,
+      maxLines: maxLines,
+      overflow: TextOverflow.ellipsis,
+      textAlign: appearanceTextAlign(ap),
+      style: applyAppearanceText(KromiaTokens.body, ap),
+    );
+  }
+  // bgColor → fondo del bloque de texto (espejo de paletteClass(bgColor,'bg')).
+  final bg = appearanceBgColor(ap);
+  if (bg != null) textW = Container(color: bg, child: textW);
+  return wrap(textW);
 }

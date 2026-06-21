@@ -4,7 +4,7 @@
 library kromia_flutter;
 
 export 'src/layout_renderer.dart' show LayoutRenderer;
-export 'src/render_ctx.dart' show RenderCtx, KromiaImageBuilder, CardRefTap;
+export 'src/render_ctx.dart' show RenderCtx, KromiaImageBuilder, CardRefTap, CardRefResolver, CardRefCellBuilder;
 export 'src/slot_content.dart' show slotContent, resolveSlot, ResolvedSlot, composeText;
 export 'src/component_content.dart' show componentContent;
 export 'src/tokens.dart' show KromiaTokens;
