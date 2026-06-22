@@ -72,3 +72,89 @@ export function resolveFieldColor(id: string | undefined | null, item: Record<st
   const v = item?.[key];
   return typeof v === 'string' && v ? v : undefined;
 }
+
+// ── KRO-198 — Contraste WCAG sobre la paleta ───────────────────────────────
+//
+// Comprobación de legibilidad texto↔fondo SIN tocar el render: el editor avisa
+// y `validateAppearance` emite un `warn` cuando el publisher fija dos tonos
+// CRUDOS de la rejilla con poco contraste. Es el único hueco de a11y que llega
+// al coleccionista (los tokens de TEMA ya resuelven a pares fondo/texto
+// coherentes por construcción, así que el riesgo real es mezclar shades).
+
+/**
+ * Hex de referencia (Tailwind) de cada tono de la REJILLA. Los tokens de TEMA
+ * (card/muted/accent/primary/foreground) se adaptan a claro/oscuro → NO se
+ * incluyen aquí a propósito: el verificador solo evalúa tonos crudos (el riesgo
+ * documentado) y para todo lo demás devuelve `null` (no verificable) en vez de
+ * un falso aviso. Flutter espeja este mapa (mismos ids → mismos Color).
+ */
+export const PALETTE_HEX: Readonly<Record<string, string>> = {
+  'slate-200':   '#e2e8f0', 'slate-400':   '#94a3b8', 'slate-500':   '#64748b', 'slate-600':   '#475569', 'slate-800':   '#1e293b',
+  'red-200':     '#fecaca', 'red-400':     '#f87171', 'red-500':     '#ef4444', 'red-600':     '#dc2626', 'red-800':     '#991b1b',
+  'orange-200':  '#fed7aa', 'orange-400':  '#fb923c', 'orange-500':  '#f97316', 'orange-600':  '#ea580c', 'orange-800':  '#9a3412',
+  'amber-200':   '#fde68a', 'amber-400':   '#fbbf24', 'amber-500':   '#f59e0b', 'amber-600':   '#d97706', 'amber-800':   '#92400e',
+  'emerald-200': '#a7f3d0', 'emerald-400': '#34d399', 'emerald-500': '#10b981', 'emerald-600': '#059669', 'emerald-800': '#065f46',
+  'teal-200':    '#99f6e4', 'teal-400':    '#2dd4bf', 'teal-500':    '#14b8a6', 'teal-600':    '#0d9488', 'teal-800':    '#115e59',
+  'sky-200':     '#bae6fd', 'sky-400':     '#38bdf8', 'sky-500':     '#0ea5e9', 'sky-600':     '#0284c7', 'sky-800':     '#075985',
+  'blue-200':    '#bfdbfe', 'blue-400':    '#60a5fa', 'blue-500':    '#3b82f6', 'blue-600':    '#2563eb', 'blue-800':    '#1e40af',
+  'violet-200':  '#ddd6fe', 'violet-400':  '#a78bfa', 'violet-500':  '#8b5cf6', 'violet-600':  '#7c3aed', 'violet-800':  '#5b21b6',
+  'pink-200':    '#fbcfe8', 'pink-400':    '#f472b6', 'pink-500':    '#ec4899', 'pink-600':    '#db2777', 'pink-800':    '#9d174d',
+};
+
+/** Hex de un id de paleta SI es un tono crudo de la rejilla; `null` para tokens
+ *  de tema (adaptativos), vinculaciones `field:` o ids desconocidos. */
+export function paletteHex(id: string | undefined | null): string | null {
+  if (!id) return null;
+  return PALETTE_HEX[id] ?? null;
+}
+
+function hexToRgb(hex: string): [number, number, number] | null {
+  const m = /^#?([0-9a-fA-F]{6})$/.exec(hex.trim());
+  if (!m) return null;
+  const n = parseInt(m[1], 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+/** Luminancia relativa WCAG (0..1) de un RGB 0..255. */
+function relativeLuminance([r, g, b]: [number, number, number]): number {
+  const lin = (c: number) => {
+    const cs = c / 255;
+    return cs <= 0.03928 ? cs / 12.92 : Math.pow((cs + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+/**
+ * Ratio de contraste WCAG (1..21) entre dos ids de paleta. Devuelve `null`
+ * cuando alguno NO es un tono crudo de la rejilla (token de tema, `field:`,
+ * desconocido) → "no verificable". Pura: misma fórmula en web y Flutter.
+ */
+export function paletteContrastRatio(idA: string | undefined | null, idB: string | undefined | null): number | null {
+  const a = paletteHex(idA), b = paletteHex(idB);
+  if (!a || !b) return null;
+  const ra = hexToRgb(a), rb = hexToRgb(b);
+  if (!ra || !rb) return null;
+  const la = relativeLuminance(ra), lb = relativeLuminance(rb);
+  const hi = Math.max(la, lb), lo = Math.min(la, lb);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+export type ContrastLevel = 'aa' | 'aa-large' | 'fail' | 'unknown';
+
+/** Umbral mínimo WCAG AA para texto normal. */
+export const CONTRAST_AA = 4.5;
+/** Umbral WCAG AA para texto grande/negrita. */
+export const CONTRAST_AA_LARGE = 3;
+
+/**
+ * Veredicto de contraste de un texto sobre un fondo (ambos ids de paleta).
+ * 'aa' ≥4.5 · 'aa-large' ≥3 (válido solo para texto grande/bold) · 'fail' <3 ·
+ * 'unknown' si no es verificable (token de tema / field: / desconocido).
+ */
+export function contrastLevel(textId: string | undefined | null, bgId: string | undefined | null): ContrastLevel {
+  const r = paletteContrastRatio(textId, bgId);
+  if (r == null) return 'unknown';
+  if (r >= CONTRAST_AA)       return 'aa';
+  if (r >= CONTRAST_AA_LARGE) return 'aa-large';
+  return 'fail';
+}

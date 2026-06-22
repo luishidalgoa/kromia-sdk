@@ -38,8 +38,12 @@ import {
   OPTIONS_APPEARANCE_OBJECT_FIT,
   OPTIONS_APPEARANCE_OPACITY,
   OPTIONS_APPEARANCE_SHADOW,
+  OPTIONS_APPEARANCE_TEXTSHADOW,
+  OPTIONS_APPEARANCE_DISPLAY,
+  OPTIONS_APPEARANCE_TEXT_TRANSFORM,
   OPTIONS_COMPOSABLE_DISPLAY,
 } from './options';
+import { paletteContrastRatio, CONTRAST_AA } from './palette';
 
 // ─────────────────────────────────────────────────────────────────────────
 // Tipos públicos
@@ -94,6 +98,11 @@ const TRACKING_IDS    = new Set(OPTIONS_APPEARANCE_TRACKING.map(o => o.id));
 const OBJECT_FIT_IDS  = new Set(OPTIONS_APPEARANCE_OBJECT_FIT.map(o => o.id));
 const OPACITY_IDS     = new Set(OPTIONS_APPEARANCE_OPACITY.map(o => o.id));
 const SHADOW_IDS      = new Set(OPTIONS_APPEARANCE_SHADOW.map(o => o.id));
+// KRO-155 / KRO-169 — antes validados con arrays literales inline (verdad
+// duplicada). Derivados del catálogo para que no puedan divergir del editor.
+const TEXTSHADOW_IDS     = new Set(OPTIONS_APPEARANCE_TEXTSHADOW.map(o => o.id));
+const DISPLAY_IDS        = new Set(OPTIONS_APPEARANCE_DISPLAY.map(o => o.id));
+const TEXT_TRANSFORM_IDS = new Set(OPTIONS_APPEARANCE_TEXT_TRANSFORM.map(o => o.id));
 const COMPOSABLE_DISPLAY_IDS = new Set(OPTIONS_COMPOSABLE_DISPLAY.map(o => o.id));
 
 function validateAppearance(
@@ -136,7 +145,7 @@ function validateAppearance(
   if (appearance.font !== undefined && !FONT_IDS.has(appearance.font)) {
     issues.push({ path: `${path}.font`, level: 'error', message: `font "${appearance.font}" no es válido` });
   }
-  if (appearance.display !== undefined && !['text', 'badge'].includes(appearance.display)) {
+  if (appearance.display !== undefined && !DISPLAY_IDS.has(appearance.display)) {
     issues.push({ path: `${path}.display`, level: 'error', message: `display "${appearance.display}" no es válido` });
   }
   // textColor/bgColor son ids de paleta o 'field:<key>' (string libre — el
@@ -147,8 +156,11 @@ function validateAppearance(
   if (appearance.bgColor !== undefined && (typeof appearance.bgColor !== 'string' || appearance.bgColor.length === 0)) {
     issues.push({ path: `${path}.bgColor`, level: 'error', message: 'bgColor debe ser un string no vacío' });
   }
-  if (appearance.textTransform !== undefined && !['none', 'uppercase'].includes(appearance.textTransform)) {
+  if (appearance.textTransform !== undefined && !TEXT_TRANSFORM_IDS.has(appearance.textTransform)) {
     issues.push({ path: `${path}.textTransform`, level: 'error', message: `textTransform "${appearance.textTransform}" no es válido` });
+  }
+  if (appearance.textShadow !== undefined && !TEXTSHADOW_IDS.has(appearance.textShadow)) {
+    issues.push({ path: `${path}.textShadow`, level: 'error', message: `textShadow "${appearance.textShadow}" no es válido` });
   }
   // KRO-147 F3 — tipografía rica + caja/efectos.
   if (appearance.italic !== undefined && typeof appearance.italic !== 'boolean') {
@@ -195,6 +207,22 @@ function validateAppearance(
         path:    `${path}.truncateChars`,
         level:   'error',
         message: `truncateChars debe ser entero entre 1 y 500, recibido: ${appearance.truncateChars}`,
+      });
+    }
+  }
+
+  // KRO-198 — aviso (no error) de contraste insuficiente texto↔fondo. Solo
+  // cuando AMBOS son tonos CRUDOS de la rejilla (paletteContrastRatio devuelve
+  // null para tokens de tema / `field:` → no verificable, sin falso aviso). El
+  // `warn` no invalida la composición (el cliente renderiza igual): es una
+  // señal para el publisher de que la carta puede quedar ilegible.
+  if (appearance.textColor !== undefined && appearance.bgColor !== undefined) {
+    const ratio = paletteContrastRatio(appearance.textColor, appearance.bgColor);
+    if (ratio != null && ratio < CONTRAST_AA) {
+      issues.push({
+        path:    `${path}.textColor`,
+        level:   'warn',
+        message: `Contraste texto/fondo bajo (${ratio.toFixed(1)}:1, recomendado ≥${CONTRAST_AA}:1) — el texto puede quedar poco legible`,
       });
     }
   }

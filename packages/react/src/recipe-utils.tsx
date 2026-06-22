@@ -670,11 +670,22 @@ export function ComposableSlot({
           .filter(e => e.value !== '');
     if (entries.length === 0) return null;
 
+    // KRO-198 — color TEMABLE de los elementos (pastillas/valores/etiquetas).
+    // Antes hardcodeaban bg-muted/text-muted-foreground/text-foreground, así que
+    // el override de color del slot no llegaba a cada elemento. Se deriva de la
+    // appearance (paletteClass devuelve '' para tokens `field:` → cae al default
+    // muted, sin romper). Los tonos van en los elementos, no solo en el wrapper.
+    const elBg   = paletteClass(slot.appearance?.bgColor, 'bg');
+    const elText = paletteClass(slot.appearance?.textColor, 'text');
+
     if (display === 'chips') {
+      // Cada valor es una pastilla. El fondo del slot va EN las pastillas (no
+      // en el wrapper, que se cancela con bg-transparent vía twMerge) para que
+      // floten sobre el lienzo en vez de quedar sobre una banda sólida.
       return (
-        <span className={cn('inline-flex flex-wrap gap-1 align-middle', textClasses, className)}>
+        <span className={cn('inline-flex flex-wrap gap-1 align-middle', textClasses, elBg && 'bg-transparent', className)}>
           {entries.map((e, i) => (
-            <span key={i} className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[0.8em] text-muted-foreground">{e.value}</span>
+            <span key={i} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]', elBg || 'bg-muted', elText || 'text-muted-foreground')}>{e.value}</span>
           ))}
         </span>
       );
@@ -700,7 +711,7 @@ export function ComposableSlot({
         <span className={cn('inline-grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 align-top text-left', textClasses, className)}>
           {entries.map((e, i) => (
             <Fragment key={i}>
-              <span className="text-muted-foreground/80 text-[0.85em]">{e.label}</span>
+              <span className={cn('text-[0.85em]', elText || 'text-muted-foreground/80')}>{e.label}</span>
               <span>{e.value}</span>
             </Fragment>
           ))}
@@ -727,8 +738,8 @@ export function ComposableSlot({
         <span className={cn('inline-grid w-full grid-flow-col auto-cols-fr gap-2 border-y border-border py-3 align-top', textClasses, className)}>
           {entries.map((e, i) => (
             <span key={i} className="inline-flex flex-col items-center text-center min-w-0">
-              <span className="text-lg font-bold text-foreground tabular-nums truncate max-w-full">{e.value}</span>
-              {e.label && <span className="text-[10px] uppercase tracking-wider text-muted-foreground truncate max-w-full">{e.label}</span>}
+              <span className={cn('text-lg font-bold tabular-nums truncate max-w-full', elText || 'text-foreground')}>{e.value}</span>
+              {e.label && <span className={cn('text-[10px] uppercase tracking-wider truncate max-w-full', elText || 'text-muted-foreground')}>{e.label}</span>}
             </span>
           ))}
         </span>

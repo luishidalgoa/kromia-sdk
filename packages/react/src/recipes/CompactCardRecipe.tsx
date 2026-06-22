@@ -20,10 +20,12 @@ import { cn } from '../lib/cn';
 import {
   ThumbBox, ComposableSlot, ScalarText, BadgePill, resolveSlot, isSlotDisabled,
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass,
+  appearanceEffectClasses,
   slotDebugAttrs, extractAccentSettings, AccentFrame, slotImageTransform,
   type FieldDefLike,
 } from '../recipe-utils';
 import type { ViewComposition } from '@kromia/core';
+import { resolveFieldColor } from '@kromia/core';
 
 export interface CompactCardRecipeProps {
   composition: ViewComposition;
@@ -111,22 +113,35 @@ export function CompactCardRecipe({
         )}
       </div>
 
-      {/* KRO-69: badge no debe ser shrink-0 forzado; max-w cap + truncate. */}
-      {badgeField && (
+      {/* KRO-69: badge no debe ser shrink-0 forzado; max-w cap + truncate.
+          KRO-198 — paridad con el motor de bloques (SlotContent badge): el pill
+          honra opacity/shadow (appearanceEffectClasses) y el color DINÁMICO
+          (color_hex por campo → style inline), no solo peso/font/color/size. */}
+      {badgeField && (() => {
+        const ba = badge?.appearance;
+        const badgeColor = ba ? (() => {
+          const color           = resolveFieldColor(ba.textColor, item);
+          const backgroundColor = resolveFieldColor(ba.bgColor, item);
+          return (color || backgroundColor)
+            ? { ...(color && { color }), ...(backgroundColor && { backgroundColor }) }
+            : undefined;
+        })() : undefined;
+        return (
         <div
           className={cn(
             'max-w-[35%]',
-            !badge?.appearance?.truncate && 'truncate',
-            appearancePaddingClass(badge?.appearance),
-            appearanceTruncateClass(badge?.appearance),
+            !ba?.truncate && 'truncate',
+            appearancePaddingClass(ba),
+            appearanceTruncateClass(ba),
           )}
           {...slotDebugAttrs('badge', badge)}
         >
-          <BadgePill>
-            <ScalarText value={badgeField.value} def={badgeField.def} appearance={badge?.appearance} />
+          <BadgePill className={cn(appearanceTextClasses(ba), appearanceEffectClasses(ba))} style={badgeColor}>
+            <ScalarText value={badgeField.value} def={badgeField.def} appearance={ba} />
           </BadgePill>
         </div>
-      )}
+        );
+      })()}
     </div>
     </AccentFrame>
   );

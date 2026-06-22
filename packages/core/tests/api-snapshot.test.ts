@@ -235,6 +235,13 @@ const EXPECTED_EXPORTS = [
   'colorFieldKey',
   'resolveFieldColor',
   'FIELD_COLOR_PREFIX',
+  // KRO-198 — contraste WCAG sobre la paleta
+  'PALETTE_HEX',
+  'paletteHex',
+  'paletteContrastRatio',
+  'contrastLevel',
+  'CONTRAST_AA',
+  'CONTRAST_AA_LARGE',
   // KRO-133 F5 — recetas → presets de layout
   'recipeToComposition',
   // KRO-133 — ratchet de conformidad del motor de layout

@@ -250,6 +250,48 @@ describe('validateComposition — appearance', () => {
       level: 'error',
     }));
   });
+
+  // KRO-198 — textShadow/display/textTransform validados contra el catálogo
+  it('textShadow inválido → error (antes pasaba sin validar)', () => {
+    const c = makeValidComposition();
+    c.slots.title.appearance = { textShadow: 'xl' as any };
+    const r = validateComposition(c);
+    expect(r.valid).toBe(false);
+    expect(r.issues).toContainEqual(expect.objectContaining({
+      path: 'slots.title.appearance.textShadow', level: 'error',
+    }));
+  });
+
+  it('textShadow/display/textTransform válidos → ok', () => {
+    const c = makeValidComposition();
+    c.slots.title.appearance = { textShadow: 'md', display: 'badge', textTransform: 'uppercase' };
+    expect(validateComposition(c).valid).toBe(true);
+  });
+
+  // KRO-198 — aviso (warn, no error) de contraste texto↔fondo bajo
+  it('contraste bajo entre dos tonos crudos → warn (no invalida)', () => {
+    const c = makeValidComposition();
+    c.slots.title.appearance = { textColor: 'slate-800', bgColor: 'blue-800' };
+    const r = validateComposition(c);
+    expect(r.valid).toBe(true); // warn NO invalida
+    expect(r.issues).toContainEqual(expect.objectContaining({
+      path: 'slots.title.appearance.textColor', level: 'warn',
+    }));
+  });
+
+  it('contraste alto → sin warn', () => {
+    const c = makeValidComposition();
+    c.slots.title.appearance = { textColor: 'slate-800', bgColor: 'amber-200' };
+    const r = validateComposition(c);
+    expect(r.issues.filter(i => i.level === 'warn' && i.message.includes('Contraste'))).toEqual([]);
+  });
+
+  it('color no verificable (token de tema / field:) → sin warn de contraste', () => {
+    const c = makeValidComposition();
+    c.slots.title.appearance = { textColor: 'foreground', bgColor: 'card' };
+    const r = validateComposition(c);
+    expect(r.issues.filter(i => i.message.includes('Contraste'))).toEqual([]);
+  });
 });
 
 // ── orientation ────────────────────────────────────────────────────

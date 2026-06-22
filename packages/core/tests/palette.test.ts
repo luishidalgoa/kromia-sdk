@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { paletteClass, colorFieldKey, resolveFieldColor, FIELD_COLOR_PREFIX } from '../src/palette';
+import {
+  paletteClass, colorFieldKey, resolveFieldColor, FIELD_COLOR_PREFIX,
+  paletteHex, paletteContrastRatio, contrastLevel, PALETTE_HEX, PALETTE,
+} from '../src/palette';
 
 describe('paletteClass', () => {
   it('tokens de tema → clases semánticas', () => {
@@ -46,5 +49,67 @@ describe('resolveFieldColor', () => {
     expect(resolveFieldColor('field:color', {})).toBeUndefined();
     expect(resolveFieldColor('field:color', { color: '' })).toBeUndefined();
     expect(resolveFieldColor('field:color', { color: 123 })).toBeUndefined();
+  });
+});
+
+// ── KRO-198 — contraste WCAG ───────────────────────────────────────────────
+
+describe('paletteHex', () => {
+  it('devuelve hex de los tonos de la rejilla', () => {
+    expect(paletteHex('red-500')).toBe('#ef4444');
+    expect(paletteHex('slate-800')).toBe('#1e293b');
+  });
+  it('null para tokens de tema, field: y desconocidos', () => {
+    expect(paletteHex('card')).toBeNull();        // token de tema (adaptativo)
+    expect(paletteHex('primary')).toBeNull();
+    expect(paletteHex('field:tint')).toBeNull();
+    expect(paletteHex('no-existe')).toBeNull();
+    expect(paletteHex(undefined)).toBeNull();
+  });
+  it('cubre TODOS los tonos crudos de la rejilla (PALETTE group=color)', () => {
+    for (const sw of PALETTE) {
+      if (sw.group === 'color') {
+        expect(PALETTE_HEX[sw.id], `falta hex de ${sw.id}`).toBeTruthy();
+        expect(PALETTE_HEX[sw.id]).toMatch(/^#[0-9a-f]{6}$/i);
+      }
+    }
+  });
+});
+
+describe('paletteContrastRatio', () => {
+  it('blanco-ish vs negro-ish da ratio alto', () => {
+    const r = paletteContrastRatio('slate-200', 'slate-800');
+    expect(r).not.toBeNull();
+    expect(r!).toBeGreaterThan(7); // claro sobre oscuro = legible
+  });
+  it('oscuro sobre oscuro da ratio bajo (el footgun que avisamos)', () => {
+    const r = paletteContrastRatio('slate-800', 'blue-800');
+    expect(r).not.toBeNull();
+    expect(r!).toBeLessThan(4.5);
+  });
+  it('simétrico (orden de args no importa)', () => {
+    expect(paletteContrastRatio('red-500', 'slate-200'))
+      .toBeCloseTo(paletteContrastRatio('slate-200', 'red-500')!, 5);
+  });
+  it('null si algún color no es verificable (tema / field:)', () => {
+    expect(paletteContrastRatio('card', 'red-500')).toBeNull();
+    expect(paletteContrastRatio('red-500', 'field:tint')).toBeNull();
+  });
+  it('rango WCAG válido (1..21)', () => {
+    const r = paletteContrastRatio('amber-200', 'slate-800')!;
+    expect(r).toBeGreaterThanOrEqual(1);
+    expect(r).toBeLessThanOrEqual(21);
+  });
+});
+
+describe('contrastLevel', () => {
+  it('aa para combinaciones legibles', () => {
+    expect(contrastLevel('slate-800', 'amber-200')).toBe('aa');
+  });
+  it('fail para oscuro sobre oscuro', () => {
+    expect(contrastLevel('slate-800', 'blue-800')).toBe('fail');
+  });
+  it('unknown cuando no es verificable', () => {
+    expect(contrastLevel('foreground', 'card')).toBe('unknown');
   });
 });
