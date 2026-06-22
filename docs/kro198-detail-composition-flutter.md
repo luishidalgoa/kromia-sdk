@@ -15,6 +15,7 @@ Ya shipeado en TS:
 3. En Studio, el panel "Detalles" del modo focus renderiza esa composición con `hiddenSlots = [slots de imagen del recipe] + 'title'` → panel "solo datos" (la imagen ya es la HoloCard 3D, el título ya está en la cabecera de la hoja).
 4. **NUEVO (5410852)** — el detalle se construye en el **lienzo** (árbol `layout`). Para que siga siendo "solo datos" con layout-tree, `LayoutRenderer` también acepta `hiddenSlots` y oculta los roles del `hero_header` cuyo slotId esté en la lista. La decisión vive en core: **`computeHiddenHeroRoles(roles, nodeHidden, nodeSlots, hiddenSlots)`** (pura) → ver §7.
 5. **NUEVO (53808fb)** — render por **behavior** completo: currency/measurement con `behaviorConfig`, `html` seguro (`parseInlineHtml`, allowlist), code/url/email/phone/tags/url_list/email_list → ver §8.
+6. **NUEVO 2026-06-22 (§10)** — 4 puntos de render más (todos meta, render-only): `conditionalStyle` (estilo por valor, integrar en `resolveSlot`), chips/tabla/stats **temables**, paridad del **badge** (opacity/shadow + color dinámico), y el contenedor raíz del **detalle llena la pantalla**. Acabados (THEME_PRESETS) y contraste = **solo-edición, Flutter los ignora**.
 
 Flutter debe replicar **exactamente** esta semántica en su renderer Dart.
 
@@ -201,6 +202,18 @@ campo en `core_dart` + las 5 ramas en el ComposableSlot de Flutter:**
 - `'chips'`: cada valor como pastilla/badge.
 - `'table'`: filas etiqueta–valor (usa la etiqueta de cada field;
   array-de-un-field sin etiquetas → cae a `list`).
+- `'stats'` (**NUEVO `da0007f`**): fila de estadísticas — cada field = VALOR
+  grande (números tabulares) + ETIQUETA debajo en mayúsculas, en columnas iguales
+  con borde superior/inferior. Replica el componente `stats_row`. Sin etiquetas
+  (array-de-un-field) → cae a `chips`. **Importante:** al *descomponer* el
+  componente `stats_row` en bloques, Studio auto-setea `composableDisplay:'stats'`
+  en el slot resultante para no perder el estilo.
+
+> **Colores TEMABLES (NUEVO `a99f11d`):** en `chips`, `table` y `stats` el color de
+> cada pastilla/valor/etiqueta se deriva ahora de la appearance del slot
+> (`paletteClass(bgColor,'bg')`/`textColor` con fallback muted), NO hardcodeado. En
+> chips el fondo va EN las pastillas (wrapper a transparente). Espéjalo: tus
+> chips/tabla/stats deben tomar el color de la appearance.
 
 Ref TS: `packages/react/src/recipe-utils.tsx` `ComposableSlot` (rama
 `display !== 'auto'`) + `resolveSlot` (`composableDisplay: sc.composableDisplay ??
@@ -218,6 +231,78 @@ Ref TS: `packages/react/src/recipe-utils.tsx` `ComposableSlot` (rama
   "Volver a la receta"). Flutter es **renderer puro**: consume el `detailComposition`
   resultante (con su `layout` + `slots` + `appearance`) — no necesita editor.
 - `<u>` (underline) en `html`: no soportado en V1 (su contenido cae a texto).
+
+---
+
+## 10. Cambios 2026-06-22 — más render que espejar (KRO-198 cont.)
+
+Cuatro puntos de RENDER nuevos (todos **meta / render-only**, NO bumpean
+`PROTOCOL_VERSION`; contract-drift VERDE). Commits SDK: `a99f11d`, `581ff9d`,
+`5bebd85`, `f00d55d`. **Antes de tocar el detalle: el detalle se construye con el
+MISMO motor que las SECCIONES** (misma `SlotComposition` + `LayoutRenderer` +
+recetas + `resolveSlot`). Investiga cómo tienes montado el render de SECCIONES en
+`core_dart` y reutilízalo — no es un sistema nuevo.
+
+### 10.1 — `SlotComposition.conditionalStyle` (estilo por valor) · `5bebd85`
+
+NUEVO campo opcional en `SlotComposition`. Modelo:
+
+```
+ConditionalStyle { fieldKey: String, cases: List<ConditionalStyleCase> }
+ConditionalStyleCase { op?: String, value?: String, appearance?: SlotAppearance }
+// op ∈ eq|neq|contains|gt|gte|lt|lte|truthy|falsy  (default 'eq')
+```
+
+Semántica: "la apariencia del slot cambia según el valor de un campo del dato"
+(color por rareza, rojo si stock 0…). El **PRIMER caso que matchea gana**; su
+`appearance` se **MERGE-a sobre la base** (`slot.appearance`). Sin match / sin
+item → base intacta. Comparación de texto case-insensitive + trim; gt/gte/lt/lte
+numéricas; truthy/falsy ignoran `value`.
+
+Espejo TS puro en `packages/core/src/conditional-style.ts`:
+`matchConditionalCase(case, raw)` + `resolveConditionalAppearance(cond, base, item)`.
+**Punto de integración: `resolveSlot`** (donde resuelves la appearance efectiva del
+slot) — TS hace `appearance: resolveConditionalAppearance(sc.conditionalStyle,
+sc.appearance, item)` y TODOS los renders (SlotContent/LayoutRenderer,
+ComposableSlot, recetas) heredan. Hazlo en el mismo sitio en Dart → un solo cambio.
+Validación estructural en `validate.ts` (ops + appearance de cada caso).
+
+### 10.2 — chips/tabla/stats TEMABLES · `a99f11d`
+
+Ver el blockquote de §8.1: deriva el color de los elementos internos de la
+appearance del slot, no fijo. (Antes hardcodeaban `text-muted-foreground`/`bg-muted`).
+
+### 10.3 — Paridad del BADGE · `a99f11d`
+
+Un slot mostrado como badge (`appearance.display == 'badge'`) debe honrar
+**opacity/shadow** (effect classes) **+ color DINÁMICO** (color_hex por campo →
+estilo inline), igual que el render del motor de bloques (`SlotContent`). En TS lo
+arreglé en `CompactCardRecipe` (su pill no recibía esas clases). Revisa tu receta
+lista equivalente en Dart: el badge debe pasar las mismas clases/estilo que el
+contenido de un slot badge del LayoutRenderer.
+
+### 10.4 — El contenedor raíz del DETALLE llena la pantalla · `f00d55d`
+
+Un detalle es **pantalla completa**: su contenedor raíz debe **estirarse a la
+altura disponible**, no quedar a altura-contenido dejando un hueco vacío bajo el
+fondo/decoración. En TS (`LayoutRenderer`): cuando `kind == 'detail'`, el wrapper es
+`flex flex-col min-h-full` y el contenedor RAÍZ recibe `grow shrink-0`
+(= `flex: 1 0 auto`: crece para llenar, **nunca encoge bajo su contenido** → texto
+largo scrollea). El host (pantalla) ya da la altura definida. En Flutter: el body
+del Scaffold del detalle debe dar altura completa y la composición raíz llenarla
+(`Expanded`/`double.infinity` + el fondo/decoración cubre todo). Solo aplica a
+`kind == 'detail'`; las listas no cambian.
+
+### 10.5 — SOLO-EDICIÓN (Studio): el renderer Dart NO necesita nada
+
+- **Acabados / `THEME_PRESETS`** (`581ff9d`): `applyThemePreset(composition, id)`
+  transforma la composición **en EDICIÓN** → produce `appearance`/`surface`
+  NORMAL (recolor coordinado y legible). El renderer solo ve el resultado, que ya
+  pinta. Como el editor de layout vive solo en Studio (Flutter = renderer puro),
+  **no hay mirror necesario**. Si algún día Flutter edita, espejaría el catálogo.
+- **Contraste WCAG** (`paletteContrastRatio`/`contrastLevel` + aviso) y
+  **validación de `textShadow`/`display`/`textTransform`**: a11y y validación del
+  EDITOR. El render no cambia (Flutter ya pinta `textShadow`).
 
 ---
 

@@ -79,14 +79,26 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   behavior**: currency/measurement por `behaviorConfig`, `parseInlineHtml` (allowlist seguro),
   code/url/email/phone/tags/url_list/email_list. SDK-TS `5410852` + Studio `385d36f` +
   backend `de13c54` listos. El editor de lienzo (canvas) es Studio-only; Flutter = renderer puro.
-  **(4) NUEVO `8e8e700`** — `SlotComposition.composableDisplay`
-  (`auto|inline|list|chips|table`): variante de render del slot composable, meta de
-  composición (NO contrato, NO bump). Espejar el campo en `core_dart` + las 5 ramas en el
-  ComposableSlot de Flutter. `'auto'` = comportamiento histórico (backward-compatible). Ver
-  `docs/kro198-detail-composition-flutter.md` §8.1.
+  **(4) NUEVO `8e8e700`/`da0007f`** — `SlotComposition.composableDisplay`
+  (`auto|inline|list|chips|table|stats`): variante de render del slot composable, meta de
+  composición (NO contrato, NO bump). Espejar el campo en `core_dart` + las 6 ramas en el
+  ComposableSlot de Flutter. `'auto'` = comportamiento histórico (backward-compatible).
+  `'stats'` replica el componente stats_row. Ver `docs/kro198-detail-composition-flutter.md` §8.1.
+  **(5) NUEVO 2026-06-22 (§10, commits `a99f11d`/`581ff9d`/`5bebd85`/`f00d55d`)** — 4 puntos de
+  render más, todos META/render-only (NO bump): **(a)** `SlotComposition.conditionalStyle`
+  (estilo por valor: `{fieldKey, cases:[{op,value,appearance}]}`; primer caso que matchea
+  MERGE-a su appearance sobre la base — integrar en `resolveSlot` vía `resolveConditionalAppearance`);
+  **(b)** chips/tabla/stats **temables** (color desde appearance, no muted fijo); **(c)** paridad
+  del **badge** (opacity/shadow + color dinámico); **(d)** contenedor raíz del **detalle llena la
+  pantalla** (kind=detail → raíz `grow shrink-0`, host da la altura). **Acabados (THEME_PRESETS)
+  y contraste WCAG = SOLO-EDICIÓN Studio → Flutter renderer los ignora.** El detalle usa el MISMO
+  motor que las secciones: reutiliza tu render de secciones. Ver §10 + §8.1 del doc.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
 
-2026-06-21 — sesión Studio. KRO-198 (detalle de carta) shipped en TS/Studio/backend;
-handoff Flutter en la cola. Mantener la cola de handoffs + el reparto al día.
+2026-06-22 — sesión Studio. KRO-198 ampliado: auditoría del sistema de decoración/
+apariencia → 7 mejoras shipped en TS/Studio (contraste WCAG, chips/stats temables,
+paridad badge, THEME_PRESETS/acabados, conditionalStyle/estilo por valor, validación,
+microcopy) + fix de altura del contenedor de detalle. Todo META (NO bump). Handoff
+Flutter ampliado en la cola (§10 del doc). Mantener cola + reparto al día.
