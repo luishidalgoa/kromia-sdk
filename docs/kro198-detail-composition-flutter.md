@@ -317,6 +317,40 @@ motor: Studio quita el `padding-bottom` reservado en el detalle.)
 
 ---
 
+## 11. Cambios 2026-06-22 (cont.) — decoración: esquinas + acabado de imagen
+
+Tres puntos de RENDER más (meta/render-only, NO bumpean PROTOCOL_VERSION;
+`cornerRadii` NO entra en `ALL_SURFACE_PROPS`). Commits SDK: `b5ecf71`, `74e36ce`,
+`c4219cb`.
+
+### 11.1 — El WRAPPER raíz sigue el radius del surface · `b5ecf71`
+El `surface.radius` se aplicaba al grid interno, pero el contenedor que RECORTA
+(overflow-hidden, cuyas esquinas se ven) era siempre `rounded-lg`. Como el
+AccentFrame solo aplana el lado del acento, el opuesto se quedaba redondo →
+'Rectas'/none no llegaba a esas esquinas. Ahora el wrapper raíz toma
+`radiusClasses(root.surface)` (respeta radiusCorners/cornerRadii) en las 4
+esquinas; sin surface-radius, el default. **En Flutter: aplica el radius del
+surface al ClipRRect/Container raíz que recorta, no solo al hijo interno.**
+
+### 11.2 — La caja de IMAGEN toma `appearance.bgColor` · `74e36ce`
+`ThumbBox` (caja de imagen/placeholder) usaba `bg-muted` fijo → con un acabado
+oscuro dejaba un cuadro claro. Ahora el fondo de la caja sigue
+`appearance.bgColor` si está fijado (fallback bg-muted). **Flutter: la caja de
+imagen usa el bgColor del slot como fondo del placeholder.** (`applyThemePreset`
+fija ese bgColor al papel en los slots de imagen, pero eso es EDIT-only Studio —
+Flutter solo ve el resultado.)
+
+### 11.3 — `ContainerSurface.cornerRadii` (radio POR ESQUINA) · `c4219cb`
+NUEVO campo opcional `cornerRadii?: { tl?, tr?, bl?, br?: 'none'|'sm'|'md'|'lg'|
+'xl'|'full' }`. Cada esquina su propio tamaño; PREVALECE sobre `radius`/
+`radiusCorners`; esquinas ausentes = 'none'. **Render-only meta** (NO en
+`ALL_SURFACE_PROPS` → contract-drift verde, sin bump). Espeja el campo en
+`ContainerSurface` de `core_dart` y aplícalo per-corner en el ClipRRect
+(`BorderRadius.only(topLeft, topRight, bottomLeft, bottomRight)`). Ref:
+`LayoutRenderer.radiusClasses` (rama `cornerRadii` con precedencia).
+
+---
+
 **Referencias de lectura obligada (TS canónico):**
 - `packages/react/src/recipes/RecipeRenderer.tsx` (props `hiddenSlots`, `filteredComposition`, reenvío a hero + LayoutRenderer).
 - `packages/react/src/recipes/LayoutRenderer.tsx` (caso `hero_header`, `computeHiddenHeroRoles`).

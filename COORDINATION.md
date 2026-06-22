@@ -93,6 +93,11 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   pantalla** (kind=detail → raíz `grow shrink-0`, host da la altura). **Acabados (THEME_PRESETS)
   y contraste WCAG = SOLO-EDICIÓN Studio → Flutter renderer los ignora.** El detalle usa el MISMO
   motor que las secciones: reutiliza tu render de secciones. Ver §10 + §8.1 del doc.
+  **(6) NUEVO 2026-06-22 §11 (commits `b5ecf71`/`74e36ce`/`c4219cb`)** — decoración: (a) el
+  WRAPPER raíz sigue el radius del surface (no solo el grid) → las 4 esquinas; (b) la caja de
+  IMAGEN (ThumbBox) usa `appearance.bgColor` de fondo (el acabado la tiñe); (c) NUEVO
+  `ContainerSurface.cornerRadii` (radio POR ESQUINA, render-only, NO en ALL_SURFACE_PROPS → sin
+  bump) → espéjalo per-corner en el ClipRRect. Ver §11 del doc.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
