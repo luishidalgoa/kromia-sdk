@@ -80,5 +80,7 @@ export function extractAccentSettings(
     }
   }
   const position = resolved === 'auto' ? recipeDefault : resolved;
-  return { color, position };
+  // KRO-198 — `colorFieldKey` viaja en el resultado: el host suprime como celda el
+  // slot que mapea ese campo cuando el acento está activo (no duplica swatch + raya).
+  return { color, position, colorFieldKey };
 }

@@ -20,9 +20,10 @@
  * usa los componentes de receta. Si llega sin layout, se deriva con
  * `migrateSlotsToLayout`. Mobile-first (sin breakpoints). Paridad Flutter (F4).
  */
+import type { CSSProperties } from 'react';
 import { cn } from '../lib/cn';
 import {
-  resolveSlot, isSlotDisabled, AccentFrame, extractAccentSettings, formatScalar,
+  resolveSlot, isSlotDisabled, buildAccentBorderStyle, extractAccentSettings, formatScalar,
   ScalarText, ComposableSlot, ThumbBox, BadgePill, slotDebugAttrs, appearancePaddingClass,
   appearanceTextClasses, appearanceTruncateClass, appearanceEffectClasses, slotImageTransform,
   type FieldDefLike,
@@ -300,6 +301,9 @@ interface NodeCtx {
   onCardRefTap?: (ref: string | number) => void;
   /** KRO-198 — slot ids ocultos globalmente (ver LayoutRendererProps). */
   hiddenSlots?: ReadonlyArray<string>;
+  /** KRO-198 — slot ids que ALIMENTAN el acento (su campo color_hex es la raya):
+   *  NO se pintan como celda (la celda colapsa). Su color ya es el strip del raíz. */
+  accentSlots?: ReadonlySet<string>;
 }
 
 /** ¿El field del slot es una imagen? (decide caja-imagen vs texto). */
@@ -444,6 +448,9 @@ export function SlotContent({ slot, composition, item, fieldDefs, cardFormat, re
 
 /** Render de una hoja (slot) dentro del árbol. */
 function SlotLeaf({ slot, ctx }: { slot: string; ctx: NodeCtx }) {
+  // KRO-198 — el slot que alimenta el acento NO se pinta como celda: su color ya
+  // es la raya del contenedor raíz (sin duplicar swatch + raya). La celda colapsa.
+  if (ctx.accentSlots?.has(slot)) return null;
   return <SlotContent slot={slot} composition={ctx.composition} item={ctx.item} fieldDefs={ctx.fieldDefs} cardFormat={ctx.cardFormat} resolveCardRef={ctx.resolveCardRef} onCardRefTap={ctx.onCardRefTap} />;
 }
 
@@ -662,7 +669,7 @@ export function ComponentContent({ node, composition, item, fieldDefs, cardForma
 /** Render recursivo de un nodo del árbol. `className` extra solo lo pasa la
  *  RAÍZ (p.ej. `grow shrink-0` para que el contenedor de un DETALLE llene la
  *  pantalla) — las llamadas recursivas no lo propagan. */
-function LayoutNodeView({ node, ctx, className }: { node: LayoutNode; ctx: NodeCtx; className?: string }) {
+function LayoutNodeView({ node, ctx, className, extraStyle }: { node: LayoutNode; ctx: NodeCtx; className?: string; extraStyle?: CSSProperties }) {
   if (node.type === 'slot') return <SlotLeaf slot={node.slot} ctx={ctx} />;
   if (node.type === 'component') return <ComponentNodeView node={node} ctx={ctx} />;
 
@@ -674,7 +681,11 @@ function LayoutNodeView({ node, ctx, className }: { node: LayoutNode; ctx: NodeC
     : undefined;
   // Color dinámico (fondo/borde) vinculado a un campo color_hex → estilo inline.
   const surfaceColor = surfaceFieldColorStyle(node.surface, ctx.item);
-  const containerStyle = gridStyle || surfaceColor ? { ...gridStyle, ...surfaceColor } : undefined;
+  // KRO-198 — `extraStyle` (la raya de acento, box-shadow inset) se aplica SOLO al
+  // contenedor raíz (no recursivo: los hijos no lo reciben). Va en ESTE div, que es
+  // el que tiene el bgColor del acabado → el inset se pinta SOBRE su propio fondo y
+  // ya no lo tapa (paint order), curvándose con el radius del raíz (fix §12.1 intacto).
+  const containerStyle = (gridStyle || surfaceColor || extraStyle) ? { ...gridStyle, ...surfaceColor, ...extraStyle } : undefined;
   // Con radio, recortamos el contenido para que las esquinas redondeadas se vean
   // (si no, los hijos desbordan y tapan el redondeo).
   const clip = node.surface?.radius && node.surface.radius !== 'none' ? 'overflow-hidden' : undefined;
@@ -767,17 +778,23 @@ export function LayoutRenderer({
 }: LayoutRendererProps) {
   const rawRoot: LayoutContainerNode = composition.layout ?? migrateSlotsToLayout(composition);
   const accent  = extractAccentSettings(composition, item, fieldDefs, 'top');
-  const ctx: NodeCtx = { composition, item, fieldDefs, cardFormat, resolveCardRef, onCardRefTap, hiddenSlots };
+  // KRO-198 — slots que ALIMENTAN el acento (mapean su colorFieldKey) cuando está
+  // activo (position != 'none'): se suprimen como celda (su color ya ES la raya).
+  const accentSlots = accent && accent.position !== 'none' && accent.colorFieldKey
+    ? new Set(Object.entries(composition.slots ?? {})
+        .filter(([, sc]) => sc?.fields?.includes(accent.colorFieldKey!))
+        .map(([id]) => id))
+    : undefined;
+  const ctx: NodeCtx = { composition, item, fieldDefs, cardFormat, resolveCardRef, onCardRefTap, hiddenSlots, accentSlots };
   const clickable = !!onClick;
   const isDetail = getRecipeManifest(composition.recipe)?.kind === 'detail';
-  // KRO-133 fidelidad — una pantalla de DETALLE es pantalla completa: el nodo
-  // RAÍZ nunca lleva esquinas redondeadas, borde NI fondo semántico propio.
-  // El radius/border taparían la raya de acento en las esquinas y enmarcarían
-  // algo que la pantalla real no muestra; el `background: 'card'` opaco del
-  // raíz PINTABA ENCIMA del box-shadow inset del AccentFrame (que vive en el
-  // wrapper) → "desaparecía el color de la raya". El wrapper ya provee bg-card.
-  // Se neutralizan AQUÍ (no solo en los presets) para cubrir también layouts ya
-  // guardados. `bgColor` custom (paleta) y los contenedores INTERNOS se respetan.
+  // KRO-133 fidelidad — una pantalla de DETALLE es pantalla completa: el nodo RAÍZ
+  // nunca lleva esquinas redondeadas, borde NI fondo semántico propio (enmarcarían
+  // algo que la pantalla real no muestra; el wrapper ya provee bg-card). Se
+  // neutralizan AQUÍ (no solo en los presets) para cubrir también layouts ya
+  // guardados. `bgColor` custom (paleta, p.ej. acabado) y los contenedores INTERNOS
+  // se respetan — y la raya de acento vive ahora en el inline del raíz (sobre su
+  // propio bgColor), así que ya no la tapa nada.
   const root: LayoutContainerNode = isDetail && rawRoot.surface
     ? { ...rawRoot, surface: { ...rawRoot.surface, radius: undefined, border: undefined, background: undefined } }
     : rawRoot;
@@ -790,46 +807,50 @@ export function LayoutRenderer({
   // Las recetas de DETALLE enmarcan con accent width 4 (pantalla protagonista);
   // las de lista con 3. Igualamos según el kind de la receta.
   const accentWidth = isDetail ? 4 : 3;
+  // KRO-198 — la raya de acento (box-shadow inset) se aplica AL DIV DEL CONTENEDOR
+  // RAÍZ (vía `extraStyle`), NO a un wrapper externo. Antes vivía en un AccentFrame
+  // sobre el wrapper y el bgColor del raíz (acabado) lo PINTABA ENCIMA (paint order:
+  // el inset del padre queda debajo del fondo del hijo) → la raya desaparecía al
+  // aplicar un acabado. En el raíz, el inset se pinta SOBRE su propio bgColor y las
+  // celdas hijas (con padding/gap) no lo tapan; se curva con el radius del raíz
+  // (fix §12.1 intacto). undefined si no hay acento o position 'none'.
+  const accentStyle = buildAccentBorderStyle(accent, accentWidth);
 
-  // KRO-198 — el radius del SURFACE raíz manda en el WRAPPER (que es quien
-  // recorta con overflow-hidden y cuyas esquinas se ven). Antes el wrapper era
-  // siempre `rounded-lg` (clickable) → un `surface.radius` 'none'/'Rectas' no
-  // llegaba a las esquinas. Y el AccentFrame aplanaba el lado del acento (top),
-  // dejando el opuesto (bottom) redondo = esquinas asimétricas. Doble fix: el
-  // wrapper sigue el radius (radiusClasses respeta radiusCorners) Y el AccentFrame
-  // ya no aplana (el inset se curva con el radius) → las 4 esquinas uniformes.
-  // Sin surface-radius, el default de antes (rounded-lg si es clickable).
+  // KRO-198 — el radius del SURFACE raíz manda en el WRAPPER (que es quien recorta
+  // con overflow-hidden y cuyas esquinas se ven). Antes el wrapper era siempre
+  // `rounded-lg` (clickable) → un `surface.radius` 'none'/'Rectas' no llegaba a las
+  // esquinas. Ahora el wrapper sigue el radius (radiusClasses respeta radiusCorners);
+  // sin surface-radius, el default de antes (rounded-lg si es clickable).
   const wrapperRadius = (root.surface && radiusClasses(root.surface)) || (clickable ? 'rounded-lg' : undefined);
   return (
-    <AccentFrame accent={accent} width={accentWidth}>
-      <div
-        onClick={onClick}
-        className={cn(
-          // overflow-hidden en la raíz: nada sobresale del contenedor principal.
-          'bg-card overflow-hidden',
-          wrapperRadius,
-          !rootHasSurface && 'p-3',
-          // KRO-198 — una pantalla de DETALLE es pantalla completa: el wrapper se
-          // estira a la altura disponible (flex col + min-h-full) y el contenedor
-          // raíz crece para llenarla (`grow` abajo) → su fondo/decoración cubre
-          // TODA la pantalla en vez de quedar a altura-contenido con hueco debajo.
-          // El host (preview / pantalla Flutter) ya da una altura definida.
-          isDetail && 'flex flex-col min-h-full',
-          // KRO-155 — feedback REAL de tappable (antes `transition-colors` no
-          // transicionaba nada): atenúa al hover y hunde+atenúa al presionar.
-          // `brightness` funciona sobre cualquier fondo (no reemplaza bg-card).
-          clickable && 'cursor-pointer transition hover:brightness-95 active:scale-[0.98] active:brightness-90',
-          className,
-        )}
-      >
-        {/* `grow shrink-0` (= flex:1 0 auto): crece para llenar la pantalla pero
-            nunca se encoge por debajo de su contenido (texto largo → scroll).
-            `content-start`: al ser grid, `align-content:normal` se comporta como
-            STRETCH → con el box alto las filas `auto` se estirarían y el contenido
-            quedaría con huecos enormes. Forzamos start → filas a altura-contenido
-            empacadas ARRIBA y el sobrante (fondo/decoración) llena ABAJO. */}
-        <LayoutNodeView node={root} ctx={ctx} className={isDetail ? 'grow shrink-0 content-start' : undefined} />
-      </div>
-    </AccentFrame>
+    <div
+      onClick={onClick}
+      className={cn(
+        // overflow-hidden en la raíz: nada sobresale del contenedor principal.
+        'bg-card overflow-hidden',
+        wrapperRadius,
+        !rootHasSurface && 'p-3',
+        // KRO-198 — una pantalla de DETALLE es pantalla completa: el wrapper se
+        // estira a la altura disponible (flex col + min-h-full) y el contenedor
+        // raíz crece para llenarla (`grow` abajo) → su fondo/decoración cubre
+        // TODA la pantalla en vez de quedar a altura-contenido con hueco debajo.
+        // El host (preview / pantalla Flutter) ya da una altura definida.
+        isDetail && 'flex flex-col min-h-full',
+        // KRO-155 — feedback REAL de tappable (antes `transition-colors` no
+        // transicionaba nada): atenúa al hover y hunde+atenúa al presionar.
+        // `brightness` funciona sobre cualquier fondo (no reemplaza bg-card).
+        clickable && 'cursor-pointer transition hover:brightness-95 active:scale-[0.98] active:brightness-90',
+        className,
+      )}
+    >
+      {/* `grow shrink-0` (= flex:1 0 auto): crece para llenar la pantalla pero
+          nunca se encoge por debajo de su contenido (texto largo → scroll).
+          `content-start`: al ser grid, `align-content:normal` se comporta como
+          STRETCH → con el box alto las filas `auto` se estirarían y el contenido
+          quedaría con huecos enormes. Forzamos start → filas a altura-contenido
+          empacadas ARRIBA y el sobrante (fondo/decoración) llena ABAJO.
+          `extraStyle` = la raya de acento, solo en el raíz (no recursivo). */}
+      <LayoutNodeView node={root} ctx={ctx} extraStyle={accentStyle} className={isDetail ? 'grow shrink-0 content-start' : undefined} />
+    </div>
   );
 }

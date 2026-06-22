@@ -19,7 +19,21 @@ describe('extractAccentSettings — color hex detection', () => {
       [colorField],
       'top',
     );
-    expect(r).toEqual({ color: '#ff0000', position: 'top' });
+    expect(r).toEqual({ color: '#ff0000', position: 'top', colorFieldKey: 'color' });
+  });
+
+  it('expone colorFieldKey del campo que alimenta el acento (KRO-198)', () => {
+    const r = extractAccentSettings(
+      undefined,
+      { c1: '#ff0000', c2: '#00ff00' },
+      [
+        { key: 'c1', type: 'text', behavior: 'color_hex' },
+        { key: 'c2', type: 'text', behavior: 'color_hex' },
+      ],
+      'top',
+    );
+    // El primero gana → su key es la que el host suprime como celda.
+    expect(r?.colorFieldKey).toBe('c1');
   });
 
   it('color hex sin "#" (ff0000) → añade el prefix', () => {

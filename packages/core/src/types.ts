@@ -853,4 +853,8 @@ export interface FieldDefLike {
 export interface AccentSettings {
   color:    string;
   position: 'top' | 'right' | 'bottom' | 'left' | 'none';
+  /** KRO-198 — clave del campo `color_hex` que ALIMENTA el acento. El host la usa
+   *  para suprimir como celda el slot que mapea ese campo cuando el acento está
+   *  activo (su color ya ES la raya, no se duplica como swatch). */
+  colorFieldKey?: string;
 }
