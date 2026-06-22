@@ -786,8 +786,12 @@ export function LayoutRenderer({
         )}
       >
         {/* `grow shrink-0` (= flex:1 0 auto): crece para llenar la pantalla pero
-            nunca se encoge por debajo de su contenido (texto largo → scroll). */}
-        <LayoutNodeView node={root} ctx={ctx} className={isDetail ? 'grow shrink-0' : undefined} />
+            nunca se encoge por debajo de su contenido (texto largo → scroll).
+            `content-start`: al ser grid, `align-content:normal` se comporta como
+            STRETCH → con el box alto las filas `auto` se estirarían y el contenido
+            quedaría con huecos enormes. Forzamos start → filas a altura-contenido
+            empacadas ARRIBA y el sobrante (fondo/decoración) llena ABAJO. */}
+        <LayoutNodeView node={root} ctx={ctx} className={isDetail ? 'grow shrink-0 content-start' : undefined} />
       </div>
     </AccentFrame>
   );
