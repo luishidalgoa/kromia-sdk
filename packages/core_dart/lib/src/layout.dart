@@ -364,6 +364,28 @@ void _validatePlacement(
   }
 }
 
+// ── Ocultado de roles de cabecera (KRO-198 §7) ───────────────────────────────
+
+/// Roles del `hero_header` a OCULTAR: los marcados por el publisher ([nodeHidden])
+/// MÁS aquellos cuyo slotId ([nodeSlots]`[role]`) esté en los [hiddenSlots]
+/// globales (panel "solo datos" del detalle de carta). Pura. Espejo 1:1 de
+/// `computeHiddenHeroRoles` (layout.ts) — **cruza por slotId, no por nombre de
+/// rol**. El motor de layout usa esto para no pintar placeholders (ni acceder a
+/// un slot que el strip de `hiddenSlots` ya quitó del mapa).
+List<String> computeHiddenHeroRoles(
+  List<String> roles,
+  List<String>? nodeHidden,
+  Map<String, String>? nodeSlots,
+  List<String>? hiddenSlots,
+) {
+  final out = <String>{...?nodeHidden};
+  for (final role in roles) {
+    final sid = nodeSlots?[role];
+    if (sid != null && (hiddenSlots?.contains(sid) ?? false)) out.add(role);
+  }
+  return out.toList();
+}
+
 // ── Poda + migración ─────────────────────────────────────────────────────────
 
 /// Poda las hojas-slot inválidas + desmapea roles de componente a slots

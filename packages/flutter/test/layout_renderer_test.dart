@@ -137,6 +137,33 @@ void main() {
       expect(find.text('Pelé'), findsOneWidget);
       expect(find.text('Santos'), findsNothing);
     });
+    // KRO-198 §7 — regresión: un hero con banner/avatar mapeados a un slot que el
+    // strip de `hiddenSlots` quitó de la composición. Antes `ctx.slots[sid]!`
+    // reventaba (Null check). Ahora `computeHiddenHeroRoles` gatea esos roles
+    // (no se pintan, ni placeholder) y el acceso es null-safe.
+    testWidgets('hero_header: banner→slot oculto/ausente no crashea (gating §7)', (t) async {
+      final ctx = RenderCtx(
+        composition: const ViewComposition(
+          recipe: 'detail_profile',
+          action: 'none',
+          // 'arte' NO está en slots (lo quitó el strip de hiddenSlots).
+          slots: {'title': SlotComposition(fields: ['nombre'])},
+          layout: LayoutContainerNode(children: [
+            LayoutComponentNode(component: 'hero_header', slots: {'banner': 'arte', 'avatar': 'arte', 'title': 'title'}),
+          ]),
+        ),
+        item: _item,
+        fieldDefs: _fieldDefs,
+        hiddenSlots: const ['arte'],
+      );
+      await t.pumpWidget(Directionality(
+        textDirection: TextDirection.ltr,
+        child: Center(child: SizedBox(width: 320, child: LayoutRenderer(ctx: ctx))),
+      ));
+      await t.pump();
+      expect(t.takeException(), isNull); // no crash
+      expect(find.text('Pelé'), findsOneWidget); // el título (no oculto) sí se pinta
+    });
     testWidgets('componente desconocido → no rompe', (t) async {
       await pump(t, const LayoutContainerNode(children: [LayoutComponentNode(component: 'no_existe', slots: {})]));
       expect(find.byType(LayoutRenderer), findsOneWidget);

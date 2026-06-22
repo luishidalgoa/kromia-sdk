@@ -64,6 +64,13 @@ class RenderCtx {
   /// Formato de carta del álbum → nº de columnas de las rejillas de mini-refs
   /// (miniRefGridColumns). null → default (2:3 standard → 3 columnas).
   final CardFormat? cardFormat;
+
+  /// KRO-198 §1/§7 — slots a ocultar ("solo datos" del detalle de carta: campos
+  /// imagen + título). El strip de `composition.slots` los quita para las hojas/
+  /// recetas; este set se reenvía al `hero_header` (`computeHiddenHeroRoles`) para
+  /// que tampoco pinte placeholders ni acceda a un slot ya quitado. Vacío =
+  /// comportamiento idéntico al actual (sin gating).
+  final List<String> hiddenSlots;
   final Map<String, FieldDefLike> _byKey;
 
   RenderCtx({
@@ -76,6 +83,7 @@ class RenderCtx {
     this.resolveCardRef,
     this.cardRefCell,
     this.cardFormat,
+    this.hiddenSlots = const [],
   })  : imageBuilder = imageBuilder ?? _defaultImage,
         _byKey = {for (final f in fieldDefs) f.key: f};
 
