@@ -361,32 +361,16 @@ export function buildAccentBorderStyle(
 ): CSSProperties | undefined {
   if (!accent || accent.position === 'none') return undefined;
 
-  // box-shadow inset — strip dentro del wrapper sin añadir dimensión.
-  // Para evitar gaps blancos en los corners (el inset se curva con el
-  // radius del wrapper), forzamos borderRadius=0 en las dos esquinas
-  // del lado del strip. Las opuestas mantienen su radius. Look: "ticket
-  // con cinta" — un lado plano, otro redondeado.
+  // KRO-198 — raya de acento como box-shadow inset (strip dentro del wrapper, sin
+  // añadir dimensión). El inset se CURVA con el radius del wrapper, así que las 4
+  // esquinas mantienen su redondeo (uniforme). Antes se forzaba borderRadius=0 en
+  // el lado del acento ("ticket con cinta") → top recto, bottom redondo, lo cual
+  // se veía como esquinas inconsistentes. Ahora todas siguen el radius.
   switch (accent.position) {
-    case 'top':    return {
-      boxShadow:              `inset 0  ${width}px 0 0 ${accent.color}`,
-      borderTopLeftRadius:    0,
-      borderTopRightRadius:   0,
-    };
-    case 'bottom': return {
-      boxShadow:              `inset 0 -${width}px 0 0 ${accent.color}`,
-      borderBottomLeftRadius: 0,
-      borderBottomRightRadius:0,
-    };
-    case 'left':   return {
-      boxShadow:              `inset  ${width}px 0 0 0 ${accent.color}`,
-      borderTopLeftRadius:    0,
-      borderBottomLeftRadius: 0,
-    };
-    case 'right':  return {
-      boxShadow:              `inset -${width}px 0 0 0 ${accent.color}`,
-      borderTopRightRadius:   0,
-      borderBottomRightRadius:0,
-    };
+    case 'top':    return { boxShadow: `inset 0  ${width}px 0 0 ${accent.color}` };
+    case 'bottom': return { boxShadow: `inset 0 -${width}px 0 0 ${accent.color}` };
+    case 'left':   return { boxShadow: `inset  ${width}px 0 0 0 ${accent.color}` };
+    case 'right':  return { boxShadow: `inset -${width}px 0 0 0 ${accent.color}` };
   }
 }
 
