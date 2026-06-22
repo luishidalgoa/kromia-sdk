@@ -138,9 +138,9 @@ describe('OPTIONS_APPEARANCE_ACCENT_POSITION', () => {
 });
 
 describe('OPTIONS_COMPOSABLE_DISPLAY (KRO-198)', () => {
-  it('5 variantes: auto, inline, list, chips, table', () => {
+  it('6 variantes: auto, inline, list, chips, table, stats', () => {
     expect(OPTIONS_COMPOSABLE_DISPLAY.map(o => o.id)).toEqual([
-      'auto', 'inline', 'list', 'chips', 'table',
+      'auto', 'inline', 'list', 'chips', 'table', 'stats',
     ]);
   });
 

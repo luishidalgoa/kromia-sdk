@@ -174,6 +174,7 @@ export const OPTIONS_COMPOSABLE_DISPLAY: ReadonlyArray<CatalogOption> = [
   { id: 'list',   label: 'Lista',    tooltip: 'Un valor por línea (apilados)' },
   { id: 'chips',  label: 'Chips',    tooltip: 'Cada valor como una pastilla/badge' },
   { id: 'table',  label: 'Tabla',    tooltip: 'Filas etiqueta–valor (usa la etiqueta de cada campo)' },
+  { id: 'stats',  label: 'Stats',    tooltip: 'Fila de estadísticas: valor grande + etiqueta debajo, en columnas (como el bloque stats del detalle)' },
 ];
 
 /** Tamaño relativo al default del manifest. */

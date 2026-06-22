@@ -707,6 +707,33 @@ export function ComposableSlot({
         </span>
       );
     }
+    if (display === 'stats') {
+      // KRO-198 — fila de estadísticas: réplica de <StatsRow> con un slot pelado.
+      // Cada field = VALOR grande (números tabulares) + ETIQUETA debajo en
+      // mayúsculas, en columnas iguales con borde superior/inferior. `inline-grid
+      // w-full` = full-width pero phrasing-safe (válido si el slot va dentro de
+      // <p>). Sin etiquetas (caso array de un field) → cae a chips.
+      const hasLabels = entries.some(e => e.label);
+      if (!hasLabels) {
+        return (
+          <span className={cn('inline-flex flex-wrap gap-1 align-middle', textClasses, className)}>
+            {entries.map((e, i) => (
+              <span key={i} className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[0.8em] text-muted-foreground">{e.value}</span>
+            ))}
+          </span>
+        );
+      }
+      return (
+        <span className={cn('inline-grid w-full grid-flow-col auto-cols-fr gap-2 border-y border-border py-3 align-top', textClasses, className)}>
+          {entries.map((e, i) => (
+            <span key={i} className="inline-flex flex-col items-center text-center min-w-0">
+              <span className="text-lg font-bold text-foreground tabular-nums truncate max-w-full">{e.value}</span>
+              {e.label && <span className="text-[10px] uppercase tracking-wider text-muted-foreground truncate max-w-full">{e.label}</span>}
+            </span>
+          ))}
+        </span>
+      );
+    }
     // display === 'inline' — todos los valores en una línea unidos por separador.
     return (
       <span className={cn(textClasses, className)}>

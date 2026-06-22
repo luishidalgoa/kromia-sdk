@@ -84,11 +84,16 @@ export interface SlotComposition {
    *  - `'list'`   un valor por línea (apilados).
    *  - `'chips'`  cada valor como pastilla/badge.
    *  - `'table'`  filas etiqueta–valor (usa la etiqueta de cada field).
+   *  - `'stats'`  fila de estadísticas: cada field como VALOR grande (números
+   *               tabulares) + su ETIQUETA debajo en mayúsculas, en columnas con
+   *               borde superior/inferior. Replica el componente `stats_row` →
+   *               hace que ese estilo SEA expresable con un slot pelado (antes no
+   *               lo era) y que descomponer el componente no pierda el estilo.
    *
    * Meta de composición (como orientation/separator) → NO entra al contrato KRP,
    * no bumpea PROTOCOL_VERSION. Flutter lo espeja vía el tipo en `core_dart`.
    */
-  composableDisplay?: 'auto' | 'inline' | 'list' | 'chips' | 'table';
+  composableDisplay?: 'auto' | 'inline' | 'list' | 'chips' | 'table' | 'stats';
   /**
    * KRO-43 V4 — Receta anidada para slots `nestable` (typicamente card-ref).
    * Cada item del array referenciado se renderiza con esta mini-receta en
