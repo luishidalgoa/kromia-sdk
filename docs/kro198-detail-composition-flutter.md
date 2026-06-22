@@ -20,6 +20,7 @@ Ya shipeado en TS:
 8. **NUEVO 2026-06-22 (§12)** — la **raya de acento ya no aplana** las esquinas de su lado (se curva con el radius → 4 esquinas uniformes), y nuevo `screenBgHex(bgColor)`: la **pantalla** (lista/detalle) toma el acabado un punto más oscuro que las cartas → éstas resaltan por elevación.
 9. **NUEVO 2026-06-22 (§13)** — **relleno POR LADO** (`ContainerSurface.paddingSides` + `SlotAppearance.paddingSides` → `EdgeInsets.only`, prevalece sobre el padding uniforme), y **separador de lista opcional** (`ViewComposition.listStyle.separator`, `Divider` entre items solo si true; **OFF por defecto**, cambia el aspecto de las listas existentes).
 10. **NUEVO 2026-06-22 (§14)** — acento en BLOQUES: la raya se pinta en la **capa del fondo del root** (no la tapa el acabado), y el **slot cuyo `color_hex` alimenta el acento NO se pinta como celda** (`extractAccentSettings` expone `colorFieldKey`; suprimir esa hoja).
+11. **NUEVO 2026-06-23 (§15)** — **fondo de PANTALLA desacoplado**: nuevo `ContainerSurface.screenBgColor`; la pantalla = `screenBgHex(screenBgColor ?? bgColor)` (fallback); el acabado setea ambos → editar el fondo de la card ya no mueve la pantalla.
 
 Flutter debe replicar **exactamente** esta semántica en su renderer Dart.
 
@@ -447,6 +448,28 @@ incluye ese `colorFieldKey` y NO los renderiza como celda (su color YA es la ray
 veía swatch + raya duplicados). **En Flutter: con el acento activo, suprime la hoja/celda del
 slot cuyo campo es `accent.colorFieldKey` (su color ya es el strip).** Ref: `LayoutRenderer`
 (`accentSlots` en `NodeCtx`; `SlotLeaf` devuelve null). Studio espeja lo mismo en su lienzo.
+
+---
+
+## 15. Cambios 2026-06-23 — fondo de PANTALLA desacoplado del fondo de la card
+
+Un punto de RENDER más (meta/render-only, NO bumpea). Commit SDK: `95917cb`.
+
+### 15.1 — `ContainerSurface.screenBgColor` (independiente de `bgColor`)
+Hasta ahora `layout.surface.bgColor` cumplía DOS roles: fondo de la CARD Y semilla del fondo
+de PANTALLA (`screenBgHex(bgColor)`). Editar el fondo de la card movía AMBOS. NUEVO campo
+`ContainerSurface.screenBgColor?: string` (id de paleta, render-only, fuera del contrato KRP
+como `cornerRadii`/`paddingSides`): es el fondo de la PANTALLA que aloja la card, independiente
+de `bgColor`.
+- **La pantalla se deriva** = `screenBgHex(surface.screenBgColor ?? surface.bgColor)` — MISMO
+  helper, MISMO factor (0.82), con FALLBACK a `bgColor` para no romper composiciones ya guardadas.
+- **`applyThemePreset` setea AMBOS** (`bgColor` + `screenBgColor` = `paperBg`) → un acabado sigue
+  tiñendo la pantalla (cartas resaltan); editar solo `bgColor` (Decoración→Fondo) ya no la mueve.
+**En Flutter: el fondo de la pantalla (Scaffold/host de la lista y del detalle) =
+`screenBgHex(surface.screenBgColor ?? surface.bgColor)` — añade el campo a `ContainerSurface` de
+`core_dart` y aplica el mismo fallback; `applyThemePreset` (si la app edita) escribe ambos.** Los
+3 puntos de derivación hoy son Studio-only (SectionAppPreview lista/detalle + backdrop del lienzo);
+el render real de Flutter debe leer `screenBgColor` del surface persistido para pintar la pantalla.
 
 ---
 

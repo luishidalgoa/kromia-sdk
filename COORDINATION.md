@@ -118,6 +118,11 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   Container raíz o Stack clipado, NO wrapper externo); (b) `extractAccentSettings` expone `colorFieldKey`
   y el slot cuyo campo lo mapea NO se pinta como celda con el acento activo (en Flutter: suprimir esa
   hoja). Render-only, solo bloques (recetas recipe-mode mantienen AccentFrame). Ver §14.
+  **(10) NUEVO 2026-06-23 §15 (commit `95917cb`)** — fondo de PANTALLA DESACOPLADO del fondo de la
+  card: nuevo `ContainerSurface.screenBgColor` (id de paleta, render-only). La pantalla =
+  `screenBgHex(surface.screenBgColor ?? surface.bgColor)` (fallback a bgColor = sin regresión);
+  `applyThemePreset` setea AMBOS (bgColor+screenBgColor=paperBg). En Flutter: añade el campo a
+  `ContainerSurface` de core_dart y pinta el fondo del Scaffold/host con ese fallback. Ver §15.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
@@ -130,5 +135,6 @@ radius, caja de imagen tematizada, cornerRadii) + §12 (esquinas uniformes sin a
 `screenBgHex` = fondo de pantalla derivado del acabado, cartas resaltan) + §13 (relleno
 POR LADO `paddingSides` surface+slot, y separador de lista opcional `listStyle.separator`
 OFF por defecto) + §14 (acento en bloques: la raya en la capa del fondo del root para que
-el acabado no la tape, y el slot de color se vuelve la raya en vez de celda). Todo META
-(NO bump). Handoff Flutter en la cola (§10–§14 del doc). Mantener cola al día.
+el acabado no la tape, y el slot de color se vuelve la raya en vez de celda) + §15 (fondo de
+PANTALLA desacoplado del de la card vía `ContainerSurface.screenBgColor`). Todo META (NO bump).
+Handoff Flutter en la cola (§10–§15 del doc). Mantener cola al día.
