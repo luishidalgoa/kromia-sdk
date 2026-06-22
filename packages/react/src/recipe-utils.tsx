@@ -324,9 +324,9 @@ export function appearanceSizePx(a: SlotAppearance | undefined, basePx: number):
  *  Width: 3px para compact/accordion, 4px para detail (configurable). */
 /** Envuelve una card de receta con el tinte (accent border) aplicado como
  *  `box-shadow inset` al wrapper de la card. NO añade div extra (usa
- *  cloneElement para inyectar el style). Las dos esquinas del lado del
- *  strip se fuerzan a `border-radius: 0`. Look: "ticket con cinta" —
- *  strip recto de borde a borde dentro de la card.
+ *  cloneElement para inyectar el style). El inset se CURVA con el radius del
+ *  wrapper, así que las 4 esquinas conservan su redondeo (uniforme) — la raya
+ *  sigue la esquina en vez de aplanarla.
  *
  *  El parámetro `children` debe ser UN SOLO elemento (el wrapper outer de
  *  la receta, ej. el `<div>` outer de compact_avatar). */
