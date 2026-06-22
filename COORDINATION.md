@@ -66,13 +66,17 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   `addCards`/`removeCards`/`?owned`, repetidas por `quantity`) + **aviso de
   responsabilidad** en álbumes self-declared. Backend listo.
 - **Studio → Flutter** · KRO-198 composición de detalle de carta (modo focus) →
-  `docs/kro198-detail-composition-flutter.md` (ACTUALIZADO, §7-8). Render-only (NO
-  bumpea PROTOCOL_VERSION). Paridad Dart pendiente de:
+  `docs/kro198-detail-composition-flutter.md` (ACTUALIZADO 2026-06-22, **§0 nuevo**).
+  Render-only (NO bumpea PROTOCOL_VERSION). ⚠️ **Modelo ahora BASADO EN CAMPOS**: el
+  `slot.id` de una `detailComposition` es la **clave de un campo** (no un rol); receta
+  portadora `detail_profile`; plantillas = pilas de campos. **No cambia el trabajo de
+  Flutter** (renderiza `layout`+`slots`+`hiddenSlots` igual), solo qué SON los ids — ver §0.
+  Paridad Dart pendiente de:
   (1) `hiddenSlots` en RecipeRenderer (strip + reenvío a HeroHeader) + consumir
-  `CardSchema.detailComposition` con `hiddenSlots = [slots imagen del recipe] + 'title'`;
+  `CardSchema.detailComposition` con `hiddenSlots = [claves de campo imagen] + clave del título`;
   (2) **`computeHiddenHeroRoles`** + `hiddenSlots` en `LayoutRenderer`/`hero_header`
-  (detalle construido en lienzo = árbol layout); (3) **render por behavior**:
-  currency/measurement por `behaviorConfig`, `parseInlineHtml` (allowlist seguro),
+  (defensivo: el hero casi nunca aparece en una composición por campos); (3) **render por
+  behavior**: currency/measurement por `behaviorConfig`, `parseInlineHtml` (allowlist seguro),
   code/url/email/phone/tags/url_list/email_list. SDK-TS `5410852` + Studio `385d36f` +
   backend `de13c54` listos. El editor de lienzo (canvas) es Studio-only; Flutter = renderer puro.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).

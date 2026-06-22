@@ -20,6 +20,46 @@ Flutter debe replicar **exactamente** esta semántica en su renderer Dart.
 
 ---
 
+## 0. Modelo de autoría: **BASADO EN CAMPOS** (actualización 2026-06-22)
+
+> **Lee esto primero.** El detalle evolucionó de "elegir una receta con roles
+> abstractos" a un modelo **basado en campos**. Esto **NO cambia el trabajo de
+> Flutter** (sigues renderizando `detailComposition.layout` + `slots` con
+> `hiddenSlots`), pero sí cambia **qué SON los slots** — para que no te confunda
+> ver ids que no son `banner`/`avatar`/`title` sino claves de campo.
+
+Qué cambió en la autoría (Studio, canónico):
+
+- **Un slot por CAMPO, no por rol.** El `slot.id` de una `detailComposition` es la
+  **clave de un campo** de la carta (`numero`, `nombre`, `arte`, `descubierta`…),
+  no un rol de receta. `slot.fields = [esa misma clave]`.
+- **Receta portadora `detail_profile`.** La composición declara `recipe:
+  'detail_profile'` solo para pasar la validación del SDK; el render usa el árbol
+  **`layout`**, no los roles de esa receta. Slots con id de campo que no están en
+  el manifest de `detail_profile` son **WARN, no ERROR** en `validateComposition`
+  (backend solo bloquea errores) → la composición valida igual.
+- **Plantillas = pilas de campos.** Las plantillas pre-diseñadas (Lista,
+  Destacado, Reportaje, Efeméride) las construye Studio clasificando los campos por
+  tipo y arreglándolos en un `layout` (título destacado, fila de stats, cuerpo…).
+  Son **layouts de campos ya armados**, no recetas con roles. Flutter **no** las
+  conoce ni las necesita — solo consume el `detailComposition` resultante.
+- **`hero_header` casi nunca aparece** en una `detailComposition` por campos (las
+  plantillas son grids planos de campos). El gating de §7 (`computeHiddenHeroRoles`)
+  sigue siendo **obligatorio espejarlo** por robustez: el publisher *puede* insertar
+  un componente hero a mano vía INSERTAR, y si lo hace debe ocultarse igual.
+
+Implicación para `hiddenSlots` (§2/§3): el conjunto a ocultar son las **claves de
+campo de tipo imagen** (`arte`, …) **+ la clave del campo título** (el `text`/PK
+que actúa de nombre), no roles. Studio lo deriva con `detailHiddenSlots(recipe)` en
+`detail-slots.ts` (ver referencias al final). El mecanismo de ocultado es idéntico
+al descrito abajo.
+
+**Resumen normativo:** el contrato de render Flutter es el MISMO; solo cambia la
+naturaleza de los ids de slot (claves de campo). Renderiza `layout` + `slots`,
+aplica `hiddenSlots`, formatea por behavior. No hay nada nuevo que persistir.
+
+---
+
 ## 1. Renderer Dart — añadir `hiddenSlots`
 
 Añadir un parámetro opcional `List<String> hiddenSlots = const []` al entry-point del renderer (equivalente Dart de `RecipeRenderer`).
@@ -63,7 +103,7 @@ Semántica exacta de `HeroHeader` (a replicar en el `HeroHeader` Dart):
 hiddenSlots = [ ...<ids de slots de imagen del recipe>, 'title' ]
 ```
 
-donde "slots de imagen del recipe" = los slot ids del recipe cuyos `accepts` son todos de imagen (`image` / `image-array` / aliases `image-avatar|banner|cover`). Deriva ese conjunto del recipe igual que hace Studio (`detailHiddenSlots` en `CardFocusOverlay.tsx`); **no lo hardcodees** a `'banner'`/`'avatar'`: depende del recipe. El `'title'` se añade siempre.
+donde, en el modelo **basado en campos** (§0), "slots a ocultar" = las **claves de los campos de tipo imagen** (`type: image` / `array<image>`) **+** la **clave del campo título** (el campo de texto que actúa de nombre de la carta). Deriva ese conjunto igual que hace Studio (`detailHiddenSlots(recipe)` en `src/components/album/recipes/detail-slots.ts`); **no lo hardcodees** a `'banner'`/`'avatar'`/`'title'`: dependen de la estructura de la carta, no de la receta.
 
 Racional: la imagen ya la muestra la HoloCard 3D y el título ya está en la cabecera de la hoja de detalle → el panel debe ser **"solo datos"**, sin duplicar imagen ni título.
 
@@ -150,7 +190,12 @@ Cierra los behaviors que caían a texto plano. **Formateo** en core (espejar en 
 ## 9. Follow-ups conocidos (NO bloquean)
 
 - ~~Layout-tree explícito → reenviar hiddenSlots al LayoutRenderer~~ **RESUELTO** (§7, `5410852`).
-- **Editor de lienzo (canvas DnD)**: en Studio el publisher elige una plantilla (sembrada como layout) y la edita en el `LayoutEditor`. Flutter es **renderer puro**: consume el `detailComposition` resultante (con su `layout`) — no necesita editor.
+- **Editor de lienzo (canvas DnD)**: en Studio el publisher elige una plantilla
+  **basada en campos** (un bloque por campo, sembrada como `layout`) y la edita en el
+  `LayoutEditor` — incluida la apariencia por campo (tipografía/color/recorte…). En el
+  detalle se ocultan los controles que vuelven al modelo por-roles ("Plantillas",
+  "Volver a la receta"). Flutter es **renderer puro**: consume el `detailComposition`
+  resultante (con su `layout` + `slots` + `appearance`) — no necesita editor.
 - `<u>` (underline) en `html`: no soportado en V1 (su contenido cae a texto).
 
 ---
@@ -161,4 +206,4 @@ Cierra los behaviors que caían a texto plano. **Formateo** en core (espejar en 
 - `packages/react/src/recipes/HeroHeader.tsx` (`isHidden`, gating banner/avatar/subtitle, `-mt-12` condicional).
 - `packages/core/src/layout.ts` (`computeHiddenHeroRoles`), `format-scalar.ts`, `html-inline.ts`.
 - `packages/react/src/recipe-utils.tsx` (`ScalarText`/`ComposableSlot`/`HtmlText`/`renderInlineToken`).
-- Studio: `src/components/album/CardFocusOverlay.tsx` (`detailHiddenSlots`, `IMAGE_ACCEPT_KINDS`).
+- Studio: `src/components/album/recipes/detail-slots.ts` (`detailHiddenSlots`, `imageSlotIds` — fuente única de qué ocultar) · `CardFocusOverlay.tsx` (lo consume) · `detail-templates.ts` (plantillas basadas en campos) · `DetailCompositionEditor.tsx` (selector + lienzo del detalle).
