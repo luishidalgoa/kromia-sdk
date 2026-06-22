@@ -509,11 +509,15 @@ export interface ContainerSurface {
   bgColor?:   string;
   /** Borde atómico (grosor/lado/color/estilo). */
   border?: SurfaceBorder;
-  /** Redondeo de esquinas. */
+  /** Redondeo de esquinas (uniforme, o el tamaño aplicado a `radiusCorners`). */
   radius?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
   /** KRO-133 F3 — esquinas CONCRETAS donde aplica el radius (multi). Vacío/
    *  undefined = las 4. tl=sup-izq, tr=sup-der, bl=inf-izq, br=inf-der. */
   radiusCorners?: Array<'tl' | 'tr' | 'bl' | 'br'>;
+  /** KRO-198 — tamaño de radio POR ESQUINA, independiente. Si está presente,
+   *  PREVALECE sobre `radius`/`radiusCorners`: cada esquina usa su propio tamaño
+   *  (las ausentes = 'none', rectas). Render-only meta (NO contrato KRP). */
+  cornerRadii?: Partial<Record<'tl' | 'tr' | 'bl' | 'br', 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full'>>;
   /** Sombra/elevación. */
   shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   /** Relleno interno. */

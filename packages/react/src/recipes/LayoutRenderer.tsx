@@ -209,6 +209,12 @@ const CORNER_RADIUS: Record<RCorner, Record<RSize, string>> = {
   br: { none: 'rounded-br-none', sm: 'rounded-br-sm', md: 'rounded-br-md', lg: 'rounded-br-lg', xl: 'rounded-br-xl', full: 'rounded-br-full' },
 };
 function radiusClasses(s: ContainerSurface): string | undefined {
+  // KRO-198 — tamaño POR ESQUINA: prevalece. Cada esquina su tamaño (ausente = none).
+  if (s.cornerRadii) {
+    return (['tl', 'tr', 'bl', 'br'] as const)
+      .map(c => CORNER_RADIUS[c][s.cornerRadii![c] ?? 'none'])
+      .join(' ');
+  }
   if (!s.radius) return undefined;
   if (s.radiusCorners && s.radiusCorners.length) {
     return s.radiusCorners.map(c => CORNER_RADIUS[c][s.radius!]).join(' ');

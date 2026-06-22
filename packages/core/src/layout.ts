@@ -400,6 +400,16 @@ function validateSurface(
   if (surface.radiusCorners?.some(c => !['tl', 'tr', 'bl', 'br'].includes(c))) {
     issues.push({ level: 'error', path: `${path}.radiusCorners`, message: 'radiusCorners solo admite tl/tr/bl/br.' });
   }
+  // KRO-198 — tamaño de radio por esquina (render-only meta, NO contrato).
+  if (surface.cornerRadii) {
+    const RSIZES = ['none', 'sm', 'md', 'lg', 'xl', 'full'];
+    for (const c of ['tl', 'tr', 'bl', 'br'] as const) {
+      const v = surface.cornerRadii[c];
+      if (v !== undefined && !RSIZES.includes(v)) {
+        issues.push({ level: 'error', path: `${path}.cornerRadii.${c}`, message: `cornerRadii.${c} "${v}" no es válido.` });
+      }
+    }
+  }
   if (!inSet(surface.shadow, ['none', 'sm', 'md', 'lg', 'xl'])) {
     issues.push({ level: 'error', path: `${path}.shadow`, message: `shadow "${surface.shadow}" no es válido.` });
   }
