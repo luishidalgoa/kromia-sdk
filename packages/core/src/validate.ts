@@ -38,6 +38,7 @@ import {
   OPTIONS_APPEARANCE_OBJECT_FIT,
   OPTIONS_APPEARANCE_OPACITY,
   OPTIONS_APPEARANCE_SHADOW,
+  OPTIONS_COMPOSABLE_DISPLAY,
 } from './options';
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -93,6 +94,7 @@ const TRACKING_IDS    = new Set(OPTIONS_APPEARANCE_TRACKING.map(o => o.id));
 const OBJECT_FIT_IDS  = new Set(OPTIONS_APPEARANCE_OBJECT_FIT.map(o => o.id));
 const OPACITY_IDS     = new Set(OPTIONS_APPEARANCE_OPACITY.map(o => o.id));
 const SHADOW_IDS      = new Set(OPTIONS_APPEARANCE_SHADOW.map(o => o.id));
+const COMPOSABLE_DISPLAY_IDS = new Set(OPTIONS_COMPOSABLE_DISPLAY.map(o => o.id));
 
 function validateAppearance(
   appearance: SlotAppearance | undefined,
@@ -320,6 +322,15 @@ function validateSlot(
       path:    `${basePath}.orientation`,
       level:   'error',
       message: `orientation "${slot.orientation}" no es válido (esperaba 'horizontal' o 'vertical')`,
+    });
+  }
+
+  // KRO-198 — variante de render del composable (meta, como orientation).
+  if (slot.composableDisplay !== undefined && !COMPOSABLE_DISPLAY_IDS.has(slot.composableDisplay)) {
+    issues.push({
+      path:    `${basePath}.composableDisplay`,
+      level:   'error',
+      message: `composableDisplay "${slot.composableDisplay}" no es válido (esperaba ${[...COMPOSABLE_DISPLAY_IDS].join(' | ')})`,
     });
   }
 

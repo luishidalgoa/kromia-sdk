@@ -30,6 +30,7 @@ import {
   OPTIONS_APPEARANCE_SHADOW,
   OPTIONS_APPEARANCE_LABELS,
   OPTIONS_APPEARANCE_DESCRIPTIONS,
+  OPTIONS_COMPOSABLE_DISPLAY,
   APPEARANCE_PRESETS,
   detectActivePreset,
   // Card format
@@ -133,6 +134,26 @@ describe('OPTIONS_APPEARANCE_ACCENT_POSITION', () => {
   it('"auto" tiene tooltip explicativo del default por receta', () => {
     const auto = OPTIONS_APPEARANCE_ACCENT_POSITION.find(o => o.id === 'auto');
     expect(auto?.tooltip).toMatch(/default|receta/i);
+  });
+});
+
+describe('OPTIONS_COMPOSABLE_DISPLAY (KRO-198)', () => {
+  it('5 variantes: auto, inline, list, chips, table', () => {
+    expect(OPTIONS_COMPOSABLE_DISPLAY.map(o => o.id)).toEqual([
+      'auto', 'inline', 'list', 'chips', 'table',
+    ]);
+  });
+
+  it('todas tienen label + tooltip no vacíos', () => {
+    OPTIONS_COMPOSABLE_DISPLAY.forEach(o => {
+      expect(o.label && o.label.length).toBeTruthy();
+      expect(o.tooltip && o.tooltip.length).toBeTruthy();
+    });
+  });
+
+  it('"auto" explica el render por behavior (default backward-compatible)', () => {
+    const auto = OPTIONS_COMPOSABLE_DISPLAY.find(o => o.id === 'auto');
+    expect(auto?.tooltip).toMatch(/tipo|behavior|chips|enlaces|separador/i);
   });
 });
 

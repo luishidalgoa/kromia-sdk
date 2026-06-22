@@ -15,7 +15,7 @@
 // Tipos `SlotAppearance` / `SlotComposition` vienen de `@kromia/core`
 // (eran duplicación con Studio's `./types`, ahora source-of-truth única).
 import { cn } from './lib/cn';
-import { cloneElement, isValidElement } from 'react';
+import { cloneElement, isValidElement, Fragment } from 'react';
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import { isMockupImage,
   formatScalar             as sdkFormatScalar,
@@ -54,6 +54,9 @@ export interface ResolvedSlot {
   }>;
   orientation: 'horizontal' | 'vertical';
   separator:   string;
+  /** KRO-198 — variante de render del composable (auto/inline/list/chips/table).
+   *  'auto' (default) preserva el comportamiento histórico (behavior-driven). */
+  composableDisplay: NonNullable<SlotComposition['composableDisplay']>;
   /** KRO-69 V6 — Appearance override per-instance. Las recetas pasan esto
    *  a los componentes utility (AvatarBox, ScalarText, etc.) que lo
    *  traducen a clases CSS. undefined o props undefined → fallback al
@@ -101,9 +104,10 @@ export function resolveSlot(
 
   return {
     fields,
-    orientation: sc.orientation ?? 'horizontal',
-    separator:   sc.separator   ?? ' · ',
-    appearance:  sc.appearance,
+    orientation:       sc.orientation ?? 'horizontal',
+    separator:         sc.separator   ?? ' · ',
+    composableDisplay: sc.composableDisplay ?? 'auto',
+    appearance:        sc.appearance,
   };
 }
 
@@ -649,6 +653,73 @@ export function ComposableSlot({
   const arr0 = Array.isArray(f0?.value)
     ? (f0!.value as unknown[]).map(v => (v == null ? '' : String(v))).filter(v => v.trim() !== '')
     : null;
+
+  // KRO-198 — variante de render EXPLÍCITA (chips / en línea / lista / tabla).
+  // Cuando el publisher la fija, manda sobre el render por behavior. 'auto'
+  // (default, y cualquier composición histórica sin el campo) cae al
+  // comportamiento de abajo → backward-compatible, sin drift visual.
+  const display = slot.composableDisplay;
+  if (display !== 'auto') {
+    // Entradas {label, value}: caso A = un field array → cada elemento (sin
+    // etiqueta); caso B = multi-field/escalar → cada field formateado con su
+    // etiqueta. formatScalar evita el JSON crudo que daría un array entero.
+    const entries: Array<{ label?: string; value: string }> = (arr0 && arr0.length > 0)
+      ? arr0.map(v => ({ value: v }))
+      : slot.fields
+          .map(f => ({ label: f.def?.label ?? f.key, value: formatScalar(f.value, f.def) }))
+          .filter(e => e.value !== '');
+    if (entries.length === 0) return null;
+
+    if (display === 'chips') {
+      return (
+        <span className={cn('inline-flex flex-wrap gap-1 align-middle', textClasses, className)}>
+          {entries.map((e, i) => (
+            <span key={i} className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[0.8em] text-muted-foreground">{e.value}</span>
+          ))}
+        </span>
+      );
+    }
+    if (display === 'list') {
+      return (
+        <span className={cn('inline-flex flex-col items-start gap-0.5 align-top', textClasses, className)}>
+          {entries.map((e, i) => <span key={i}>{e.value}</span>)}
+        </span>
+      );
+    }
+    if (display === 'table') {
+      // Filas etiqueta–valor. Sin etiquetas (caso array) → cae a lista apilada.
+      const hasLabels = entries.some(e => e.label);
+      if (!hasLabels) {
+        return (
+          <span className={cn('inline-flex flex-col items-start gap-0.5 align-top', textClasses, className)}>
+            {entries.map((e, i) => <span key={i}>{e.value}</span>)}
+          </span>
+        );
+      }
+      return (
+        <span className={cn('inline-grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 align-top text-left', textClasses, className)}>
+          {entries.map((e, i) => (
+            <Fragment key={i}>
+              <span className="text-muted-foreground/80 text-[0.85em]">{e.label}</span>
+              <span>{e.value}</span>
+            </Fragment>
+          ))}
+        </span>
+      );
+    }
+    // display === 'inline' — todos los valores en una línea unidos por separador.
+    return (
+      <span className={cn(textClasses, className)}>
+        {entries.map((e, i) => (
+          <span key={i}>
+            {i > 0 && <span className="text-muted-foreground/60">{` ${separator} `}</span>}
+            {e.value}
+          </span>
+        ))}
+      </span>
+    );
+  }
+
   if (arr0 && arr0.length > 0) {
     if (beh0 === 'tags') {
       return (

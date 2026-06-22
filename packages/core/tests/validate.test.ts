@@ -270,6 +270,31 @@ describe('validateComposition — orientation', () => {
   });
 });
 
+// ── composableDisplay (KRO-198) ─────────────────────────────────────
+
+describe('validateComposition — composableDisplay', () => {
+  it('composableDisplay inválido → error', () => {
+    const c = makeValidComposition();
+    (c.slots.title as any).composableDisplay = 'grid3d';
+    const r = validateComposition(c);
+    expect(r.valid).toBe(false);
+    expect(r.issues.some(i => i.path.endsWith('.composableDisplay'))).toBe(true);
+  });
+
+  it.each(['auto', 'inline', 'list', 'chips', 'table'] as const)('composableDisplay "%s" → ok', (d) => {
+    const c = makeValidComposition();
+    (c.slots.title as any).composableDisplay = d;
+    const r = validateComposition(c);
+    expect(r.valid).toBe(true);
+  });
+
+  it('composableDisplay ausente → ok (backward-compatible)', () => {
+    const c = makeValidComposition();
+    const r = validateComposition(c);
+    expect(r.valid).toBe(true);
+  });
+});
+
 // ── expand ─────────────────────────────────────────────────────────
 
 describe('validateComposition — expand', () => {

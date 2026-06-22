@@ -160,6 +160,22 @@ export const OPTIONS_APPEARANCE_DISPLAY: ReadonlyArray<CatalogOption> = [
   { id: 'badge', label: 'Badge', tooltip: 'Pill/chip — rarezas, tipos, etiquetas' },
 ];
 
+/**
+ * KRO-198 — variante de RENDER de un slot COMPOSABLE (cómo se disponen sus
+ * múltiples fields). Es meta de `SlotComposition.composableDisplay` (como
+ * orientation/separator), NO una appearance-prop → su nombre NO lleva el prefijo
+ * `OPTIONS_APPEARANCE_` para que `buildAppearance()` NO lo serialice en el
+ * contrato KRP (no bumpea PROTOCOL_VERSION). El editor de Studio lo usa para el
+ * selector "Disposición"; Flutter lo espeja desde el tipo.
+ */
+export const OPTIONS_COMPOSABLE_DISPLAY: ReadonlyArray<CatalogOption> = [
+  { id: 'auto',   label: 'Auto',     tooltip: 'Según el tipo: tags→chips, enlaces→lista de links, resto unido por el separador' },
+  { id: 'inline', label: 'En línea', tooltip: 'Todos los valores en una línea, unidos por el separador' },
+  { id: 'list',   label: 'Lista',    tooltip: 'Un valor por línea (apilados)' },
+  { id: 'chips',  label: 'Chips',    tooltip: 'Cada valor como una pastilla/badge' },
+  { id: 'table',  label: 'Tabla',    tooltip: 'Filas etiqueta–valor (usa la etiqueta de cada campo)' },
+];
+
 /** Tamaño relativo al default del manifest. */
 export const OPTIONS_APPEARANCE_SIZE: ReadonlyArray<CatalogOption> = [
   { id: 'sm', label: 'S',  tooltip: 'Pequeño' },

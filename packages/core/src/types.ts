@@ -74,6 +74,22 @@ export interface SlotComposition {
   /** Para slots composable. Default ' · '. */
   separator?: string;
   /**
+   * KRO-198 — variante de RENDER de un slot COMPOSABLE (cómo se disponen sus
+   * múltiples fields/valores). Solo aplica cuando el slot tiene ≥2 fields o un
+   * field array. Default `'auto'`.
+   *  - `'auto'`   por behavior: tags→chips, url_list/email_list→enlaces, resto =
+   *               join por `separator` respetando `orientation` (comportamiento
+   *               histórico — backward-compatible cuando el campo está ausente).
+   *  - `'inline'` todos los valores en línea, unidos por `separator`.
+   *  - `'list'`   un valor por línea (apilados).
+   *  - `'chips'`  cada valor como pastilla/badge.
+   *  - `'table'`  filas etiqueta–valor (usa la etiqueta de cada field).
+   *
+   * Meta de composición (como orientation/separator) → NO entra al contrato KRP,
+   * no bumpea PROTOCOL_VERSION. Flutter lo espeja vía el tipo en `core_dart`.
+   */
+  composableDisplay?: 'auto' | 'inline' | 'list' | 'chips' | 'table';
+  /**
    * KRO-43 V4 — Receta anidada para slots `nestable` (typicamente card-ref).
    * Cada item del array referenciado se renderiza con esta mini-receta en
    * lugar del fallback (chips de IDs). Solo válido en slots marcados con
