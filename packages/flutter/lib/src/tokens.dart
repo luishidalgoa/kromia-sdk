@@ -22,8 +22,9 @@ class KromiaTokens {
   static final Color hairline = const Color(0xFF7A8A7A).withValues(alpha: 0.18);
   static final Color hairlineStrong = const Color(0xFF7A8A7A).withValues(alpha: 0.35);
 
-  // Escala tipográfica base (px → logical).
-  static const double tBody = 13;
+  // Escala tipográfica base (px → logical). `tBody`=14 casa con `text-sm` del TS
+  // (@kromia/react); antes 13 = drift de −1px que se notaba pequeño en móvil.
+  static const double tBody = 14;
   static const TextStyle body = TextStyle(fontSize: tBody, color: text, height: 1.4);
   static const TextStyle overline = TextStyle(fontSize: 9, fontWeight: FontWeight.w600, letterSpacing: 1.0, color: muted, height: 1.4);
   static const TextStyle title = TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: text, height: 1.15);
