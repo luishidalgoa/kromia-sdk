@@ -275,7 +275,7 @@ export const OPTIONS_APPEARANCE_LABELS: Record<AppearanceProp, string> = {
   refTap:         'Al tocar',
   paddingY:       'Padding',
   opacity:        'Opacidad',
-  shadow:         'Sombra',
+  shadow:         'Sombra de la caja',
 };
 
 /** Tooltip explicando qué hace cada prop — visible al hover del label. */

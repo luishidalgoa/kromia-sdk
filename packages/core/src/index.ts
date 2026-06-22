@@ -505,3 +505,7 @@ export {
 // composition.layout, que es lo que se persiste y lo que el cliente renderiza.
 export { layoutTemplatesFor, applyLayoutTemplate } from './layout-templates';
 export type { LayoutTemplate } from './layout-templates';
+
+// KRO-198 — acabados de marca (recolor coordinado y legible de un click).
+export { THEME_PRESETS, getThemePreset, applyThemePreset } from './themes';
+export type { ThemePreset } from './themes';

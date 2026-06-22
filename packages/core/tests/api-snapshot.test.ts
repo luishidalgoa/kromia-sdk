@@ -242,6 +242,10 @@ const EXPECTED_EXPORTS = [
   'contrastLevel',
   'CONTRAST_AA',
   'CONTRAST_AA_LARGE',
+  // KRO-198 — acabados de marca
+  'THEME_PRESETS',
+  'getThemePreset',
+  'applyThemePreset',
   // KRO-133 F5 — recetas → presets de layout
   'recipeToComposition',
   // KRO-133 — ratchet de conformidad del motor de layout
