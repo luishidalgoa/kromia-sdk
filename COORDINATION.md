@@ -112,6 +112,12 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   `ViewComposition.listStyle.separator` (render-only) → la pantalla de lista pinta `Divider` entre
   items SOLO si true, **OFF por defecto** (`RowTextRecipe` ya no pinta su border-b propio). ⚠️ cambia
   el aspecto de listas existentes. C (acento en bloques) = Studio-only, sin trabajo Flutter. Ver §13.
+  **(9) NUEVO 2026-06-22 §14 (commit `649aaf0`)** — acento en modo BLOQUES (LayoutRenderer): (a) la
+  raya (box-shadow inset) se pinta AHORA en la capa del fondo del CONTENEDOR RAÍZ (no en un wrapper
+  externo) → el `bgColor` del acabado ya no la tapa (en Flutter: foregroundDecoration/Border del
+  Container raíz o Stack clipado, NO wrapper externo); (b) `extractAccentSettings` expone `colorFieldKey`
+  y el slot cuyo campo lo mapea NO se pinta como celda con el acento activo (en Flutter: suprimir esa
+  hoja). Render-only, solo bloques (recetas recipe-mode mantienen AccentFrame). Ver §14.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
@@ -123,5 +129,6 @@ microcopy) + fix de altura del contenedor de detalle + decoración §11 (wrapper
 radius, caja de imagen tematizada, cornerRadii) + §12 (esquinas uniformes sin aplanar +
 `screenBgHex` = fondo de pantalla derivado del acabado, cartas resaltan) + §13 (relleno
 POR LADO `paddingSides` surface+slot, y separador de lista opcional `listStyle.separator`
-OFF por defecto). Todo META (NO bump). Handoff Flutter en la cola (§10–§13 del doc).
-Mantener cola al día.
+OFF por defecto) + §14 (acento en bloques: la raya en la capa del fondo del root para que
+el acabado no la tape, y el slot de color se vuelve la raya en vez de celda). Todo META
+(NO bump). Handoff Flutter en la cola (§10–§14 del doc). Mantener cola al día.

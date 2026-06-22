@@ -19,6 +19,7 @@ Ya shipeado en TS:
 7. **NUEVO 2026-06-22 (§11)** — decoración: el **wrapper raíz** sigue el radius del surface (4 esquinas), la **caja de imagen** toma `appearance.bgColor`, y nuevo `ContainerSurface.cornerRadii` (radio por esquina, render-only).
 8. **NUEVO 2026-06-22 (§12)** — la **raya de acento ya no aplana** las esquinas de su lado (se curva con el radius → 4 esquinas uniformes), y nuevo `screenBgHex(bgColor)`: la **pantalla** (lista/detalle) toma el acabado un punto más oscuro que las cartas → éstas resaltan por elevación.
 9. **NUEVO 2026-06-22 (§13)** — **relleno POR LADO** (`ContainerSurface.paddingSides` + `SlotAppearance.paddingSides` → `EdgeInsets.only`, prevalece sobre el padding uniforme), y **separador de lista opcional** (`ViewComposition.listStyle.separator`, `Divider` entre items solo si true; **OFF por defecto**, cambia el aspecto de las listas existentes).
+10. **NUEVO 2026-06-22 (§14)** — acento en BLOQUES: la raya se pinta en la **capa del fondo del root** (no la tapa el acabado), y el **slot cuyo `color_hex` alimenta el acento NO se pinta como celda** (`extractAccentSettings` expone `colorFieldKey`; suprimir esa hoja).
 
 Flutter debe replicar **exactamente** esta semántica en su renderer Dart.
 
@@ -420,6 +421,32 @@ opera dentro de un item).
 
 > **C (acento en bloques) NO necesita nada en Flutter**: solo se expuso el control de
 > `accentPosition` (ya contrato, ya respetado por el renderer) en el editor de bloques de Studio.
+
+---
+
+## 14. Cambios 2026-06-22 (cont.) — acento: capa del strip + slot de color como acento
+
+Dos puntos de RENDER (meta/render-only, NO bumpean). Commit SDK: `649aaf0`. SOLO afecta
+al modo BLOQUES (`LayoutRenderer`); las recetas recipe-mode mantienen su `AccentFrame`.
+
+### 14.1 — La raya de acento se pinta EN LA CAPA DEL FONDO DEL RAÍZ (no la tapa el acabado)
+Antes el `box-shadow inset` del acento vivía en un wrapper EXTERNO y el `bgColor` del
+contenedor raíz (acabado) lo PINTABA ENCIMA (paint order: el inset del padre queda debajo
+del fondo del hijo) → al aplicar un acabado, la raya desaparecía. Ahora el inset se aplica
+AL PROPIO DIV del contenedor raíz (el que tiene el `bgColor`): se pinta sobre su propio
+fondo y las celdas hijas (con padding/gap) no lo tapan; se curva con el radius del raíz
+(invariante §12.1). **En Flutter: pinta el acento en la MISMA capa que el fondo del root
+(p.ej. `foregroundDecoration`/`Border` del Container raíz, o un `Stack` clipado por el
+`ClipRRect` del root), NO en un wrapper externo — si no, el fondo del acabado lo tapa.**
+Ref: `LayoutRenderer` (`extraStyle` al `LayoutNodeView` del root; ya no hay `AccentFrame`).
+
+### 14.2 — El slot cuyo `color_hex` ALIMENTA el acento NO se pinta como celda
+`extractAccentSettings` ahora devuelve `colorFieldKey` (en `AccentSettings`). Cuando el
+acento está activo (`position != 'none'`), el host deriva el conjunto de slots cuyo `fields`
+incluye ese `colorFieldKey` y NO los renderiza como celda (su color YA es la raya; antes se
+veía swatch + raya duplicados). **En Flutter: con el acento activo, suprime la hoja/celda del
+slot cuyo campo es `accent.colorFieldKey` (su color ya es el strip).** Ref: `LayoutRenderer`
+(`accentSlots` en `NodeCtx`; `SlotLeaf` devuelve null). Studio espeja lo mismo en su lienzo.
 
 ---
 
