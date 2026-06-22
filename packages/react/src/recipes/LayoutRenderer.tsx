@@ -764,6 +764,14 @@ export function LayoutRenderer({
   // las de lista con 3. Igualamos según el kind de la receta.
   const accentWidth = isDetail ? 4 : 3;
 
+  // KRO-198 — el radius del SURFACE raíz manda en el WRAPPER (que es quien
+  // recorta con overflow-hidden y cuyas esquinas se ven). Antes el wrapper era
+  // siempre `rounded-lg` (clickable) → un `surface.radius` 'none'/'Rectas' no
+  // llegaba a las esquinas, y como el AccentFrame solo aplana el lado del acento
+  // (top), el opuesto (bottom) se quedaba redondo. Ahora las 4 esquinas siguen al
+  // publisher (radiusClasses respeta radiusCorners); sin surface-radius, el
+  // default de antes (rounded-lg si es clickable).
+  const wrapperRadius = (root.surface && radiusClasses(root.surface)) || (clickable ? 'rounded-lg' : undefined);
   return (
     <AccentFrame accent={accent} width={accentWidth}>
       <div
@@ -771,6 +779,7 @@ export function LayoutRenderer({
         className={cn(
           // overflow-hidden en la raíz: nada sobresale del contenedor principal.
           'bg-card overflow-hidden',
+          wrapperRadius,
           !rootHasSurface && 'p-3',
           // KRO-198 — una pantalla de DETALLE es pantalla completa: el wrapper se
           // estira a la altura disponible (flex col + min-h-full) y el contenedor
@@ -781,7 +790,7 @@ export function LayoutRenderer({
           // KRO-155 — feedback REAL de tappable (antes `transition-colors` no
           // transicionaba nada): atenúa al hover y hunde+atenúa al presionar.
           // `brightness` funciona sobre cualquier fondo (no reemplaza bg-card).
-          clickable && 'cursor-pointer rounded-lg transition hover:brightness-95 active:scale-[0.98] active:brightness-90',
+          clickable && 'cursor-pointer transition hover:brightness-95 active:scale-[0.98] active:brightness-90',
           className,
         )}
       >
