@@ -144,11 +144,13 @@ Widget _statsRow(RenderCtx ctx, String? sid) {
     final def = ctx.defFor(k);
     cells.add(Expanded(
       child: Column(mainAxisSize: MainAxisSize.min, children: [
+        // KRO-198 — paridad con `StatsRow.tsx`: VALOR `text-lg` (18px) bold
+        // tabular, ETIQUETA `text-[10px]`. Antes 13/9 → ~28% pequeño vs el diseño.
         Text(formatScalar(v, def),
             maxLines: 1, overflow: TextOverflow.ellipsis,
-            style: KromiaTokens.body.copyWith(fontWeight: FontWeight.w700, fontFeatures: const [FontFeature.tabularFigures()])),
+            style: KromiaTokens.body.copyWith(fontSize: 18, fontWeight: FontWeight.w700, fontFeatures: const [FontFeature.tabularFigures()])),
         if (def?.label != null && def!.label!.isNotEmpty)
-          Text(def.label!.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis, style: KromiaTokens.overline),
+          Text(def.label!.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis, style: KromiaTokens.overline.copyWith(fontSize: 10)),
       ]),
     ));
   }
@@ -183,57 +185,79 @@ Widget _sectionTitle(RenderCtx ctx, String? sid) {
 }
 
 Widget _heroHeader(RenderCtx ctx, LayoutComponentNode node) {
-  final hidden = node.hidden ?? const <String>[];
+  // KRO-198 §7 — un rol se oculta si lo marcó el publisher (`node.hidden`) o si
+  // su slotId está en los `hiddenSlots` globales (panel "solo datos"). Sin este
+  // gating, un hero insertado a mano con banner/avatar mapeados a un campo imagen
+  // (que el strip de hiddenSlots quita de `composition.slots`) pintaría
+  // placeholders Y, peor, `ctx.slots[sid]!` reventaría sobre el slot ausente.
+  final hiddenRoles = computeHiddenHeroRoles(
+    const ['banner', 'avatar', 'title', 'subtitle'],
+    node.hidden,
+    node.slots,
+    ctx.hiddenSlots,
+  );
+  bool isHidden(String r) => hiddenRoles.contains(r);
   String? sidOf(String r) => node.slots?[r];
   String slotText(String r) {
     final sid = sidOf(r);
-    if (sid == null || hidden.contains(r)) return '';
+    if (sid == null || isHidden(r)) return '';
     final rs = resolveSlot(ctx, sid);
     return rs == null ? '' : composeText(rs);
   }
   String? slotImage(String r) {
     final sid = sidOf(r);
-    if (sid == null || hidden.contains(r)) return null;
-    final v = ctx.item[ctx.slots[sid]!.fields.isNotEmpty ? ctx.slots[sid]!.fields.first : ''];
+    if (sid == null || isHidden(r)) return null;
+    // Null-safe: el slot puede no estar en el mapa (stripeado por hiddenSlots).
+    final comp = ctx.slots[sid];
+    if (comp == null || comp.fields.isEmpty) return null;
+    final v = ctx.item[comp.fields.first];
     final s = v is List ? (v.isNotEmpty ? v.first?.toString() : null) : v?.toString();
     return (s != null && s.isNotEmpty) ? s : null;
   }
 
   final title = slotText('title');
   final subtitle = slotText('subtitle');
+  final showBanner = !isHidden('banner');
+  final showAvatar = !isHidden('avatar');
   final bannerUrl = slotImage('banner');
   final avatarUrl = slotImage('avatar');
+
+  Widget avatarCircle() => Container(
+        width: 80,
+        height: 80,
+        decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: KromiaTokens.greenLight,
+            border: Border.all(color: KromiaTokens.bgSurface, width: 3)),
+        clipBehavior: Clip.antiAlias,
+        child: avatarUrl != null ? ctx.imageBuilder(avatarUrl, fit: BoxFit.cover) : const SizedBox(),
+      );
 
   return Column(
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.bottomCenter,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 40),
-            child: AspectRatio(
-              aspectRatio: 16 / 9,
-              child: bannerUrl != null
-                  ? ctx.imageBuilder(bannerUrl, fit: BoxFit.cover)
-                  : ColoredBox(color: KromiaTokens.peach),
-            ),
-          ),
-          if (!hidden.contains('avatar'))
-            Positioned(
-              bottom: 0,
-              child: Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(shape: BoxShape.circle, color: KromiaTokens.greenLight, border: Border.all(color: KromiaTokens.bgSurface, width: 3)),
-                clipBehavior: Clip.antiAlias,
-                child: avatarUrl != null ? ctx.imageBuilder(avatarUrl, fit: BoxFit.cover) : const SizedBox(),
+      // banner oculto → ni imagen ni fallback ni solape (§1.B / §3 "solo datos").
+      if (showBanner)
+        Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.bottomCenter,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(bottom: showAvatar ? 40 : 0),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: bannerUrl != null
+                    ? ctx.imageBuilder(bannerUrl, fit: BoxFit.cover)
+                    : ColoredBox(color: KromiaTokens.peach),
               ),
             ),
-        ],
-      ),
+            if (showAvatar) Positioned(bottom: 0, child: avatarCircle()),
+          ],
+        )
+      else if (showAvatar)
+        // sin banner no hay nada que solapar → avatar suelto, centrado.
+        Padding(padding: const EdgeInsets.only(top: KromiaTokens.space4), child: Center(child: avatarCircle())),
       if (title.isNotEmpty)
         Padding(padding: const EdgeInsets.only(top: KromiaTokens.space4), child: Text(title, textAlign: TextAlign.center, style: KromiaTokens.title)),
       if (subtitle.isNotEmpty) Text(subtitle, textAlign: TextAlign.center, style: KromiaTokens.body.copyWith(color: KromiaTokens.muted)),
