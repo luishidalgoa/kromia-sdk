@@ -281,7 +281,7 @@ arreglé en `CompactCardRecipe` (su pill no recibía esas clases). Revisa tu rec
 lista equivalente en Dart: el badge debe pasar las mismas clases/estilo que el
 contenido de un slot badge del LayoutRenderer.
 
-### 10.4 — El contenedor raíz del DETALLE llena la pantalla · `f00d55d`
+### 10.4 — El contenedor raíz del DETALLE llena la pantalla · `f00d55d` + `19e7ce2`
 
 Un detalle es **pantalla completa**: su contenedor raíz debe **estirarse a la
 altura disponible**, no quedar a altura-contenido dejando un hueco vacío bajo el
@@ -292,6 +292,17 @@ largo scrollea). El host (pantalla) ya da la altura definida. En Flutter: el bod
 del Scaffold del detalle debe dar altura completa y la composición raíz llenarla
 (`Expanded`/`double.infinity` + el fondo/decoración cubre todo). Solo aplica a
 `kind == 'detail'`; las listas no cambian.
+
+**Importante — empacar arriba (`19e7ce2`):** al llenar, la raíz (grid) recibe
+también `content-start` (`align-content: start`). En CSS grid, `align-content:
+normal` se comporta como **stretch** → sin esto, las filas `auto` se ESTIRAN al
+tener un box alto y el contenido queda con huecos enormes. Con start, las filas
+quedan a altura-contenido **empacadas ARRIBA** y el sobrante (fondo) llena ABAJO.
+En Flutter: al expandir el contenedor de detalle, **alinea los hijos al inicio**
+(`MainAxisAlignment.start` / no `spaceBetween`/`stretch` de las filas), o tendrás
+el mismo bug de huecos. (El host además puede ir **a sangre** bajo una barra de
+nav flotante translúcida — eso es decisión de pantalla de cada cliente, no del
+motor: Studio quita el `padding-bottom` reservado en el detalle.)
 
 ### 10.5 — SOLO-EDICIÓN (Studio): el renderer Dart NO necesita nada
 
