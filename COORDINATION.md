@@ -98,6 +98,13 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   IMAGEN (ThumbBox) usa `appearance.bgColor` de fondo (el acabado la tiñe); (c) NUEVO
   `ContainerSurface.cornerRadii` (radio POR ESQUINA, render-only, NO en ALL_SURFACE_PROPS → sin
   bump) → espéjalo per-corner en el ClipRRect. Ver §11 del doc.
+  **(7) NUEVO 2026-06-22 §12 (commits `5ac8e7f`/`163f011`)** — (a) la raya de acento
+  (`buildAccentBorderStyle`) ya NO aplana las esquinas de su lado: el inset se curva con el
+  radius → las 4 esquinas uniformes (en Flutter: la franja de acento sigue el ClipRRect, no
+  corta el redondeo); (b) NUEVO `screenBgHex(bgColor)` en `core/palette.ts`: la PANTALLA
+  (lista de sección / detalle) toma el acabado un punto más oscuro que las cartas (papel ×0.82)
+  → las cartas RESALTAN por elevación; null para tokens de tema. Render-only, fuera del
+  contrato. En Flutter: fondo del Scaffold/host = `screenBgHex(layout.surface.bgColor)`. Ver §12.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
@@ -105,5 +112,7 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 2026-06-22 — sesión Studio. KRO-198 ampliado: auditoría del sistema de decoración/
 apariencia → 7 mejoras shipped en TS/Studio (contraste WCAG, chips/stats temables,
 paridad badge, THEME_PRESETS/acabados, conditionalStyle/estilo por valor, validación,
-microcopy) + fix de altura del contenedor de detalle. Todo META (NO bump). Handoff
-Flutter ampliado en la cola (§10 del doc). Mantener cola + reparto al día.
+microcopy) + fix de altura del contenedor de detalle + decoración §11 (wrapper sigue
+radius, caja de imagen tematizada, cornerRadii) + §12 (esquinas uniformes sin aplanar +
+`screenBgHex` = fondo de pantalla derivado del acabado, cartas resaltan). Todo META
+(NO bump). Handoff Flutter ampliado en la cola (§10/§11/§12 del doc). Mantener cola al día.

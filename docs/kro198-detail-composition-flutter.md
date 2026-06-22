@@ -16,6 +16,8 @@ Ya shipeado en TS:
 4. **NUEVO (5410852)** — el detalle se construye en el **lienzo** (árbol `layout`). Para que siga siendo "solo datos" con layout-tree, `LayoutRenderer` también acepta `hiddenSlots` y oculta los roles del `hero_header` cuyo slotId esté en la lista. La decisión vive en core: **`computeHiddenHeroRoles(roles, nodeHidden, nodeSlots, hiddenSlots)`** (pura) → ver §7.
 5. **NUEVO (53808fb)** — render por **behavior** completo: currency/measurement con `behaviorConfig`, `html` seguro (`parseInlineHtml`, allowlist), code/url/email/phone/tags/url_list/email_list → ver §8.
 6. **NUEVO 2026-06-22 (§10)** — 4 puntos de render más (todos meta, render-only): `conditionalStyle` (estilo por valor, integrar en `resolveSlot`), chips/tabla/stats **temables**, paridad del **badge** (opacity/shadow + color dinámico), y el contenedor raíz del **detalle llena la pantalla**. Acabados (THEME_PRESETS) y contraste = **solo-edición, Flutter los ignora**.
+7. **NUEVO 2026-06-22 (§11)** — decoración: el **wrapper raíz** sigue el radius del surface (4 esquinas), la **caja de imagen** toma `appearance.bgColor`, y nuevo `ContainerSurface.cornerRadii` (radio por esquina, render-only).
+8. **NUEVO 2026-06-22 (§12)** — la **raya de acento ya no aplana** las esquinas de su lado (se curva con el radius → 4 esquinas uniformes), y nuevo `screenBgHex(bgColor)`: la **pantalla** (lista/detalle) toma el acabado un punto más oscuro que las cartas → éstas resaltan por elevación.
 
 Flutter debe replicar **exactamente** esta semántica en su renderer Dart.
 
@@ -348,6 +350,40 @@ NUEVO campo opcional `cornerRadii?: { tl?, tr?, bl?, br?: 'none'|'sm'|'md'|'lg'|
 `ContainerSurface` de `core_dart` y aplícalo per-corner en el ClipRRect
 (`BorderRadius.only(topLeft, topRight, bottomLeft, bottomRight)`). Ref:
 `LayoutRenderer.radiusClasses` (rama `cornerRadii` con precedencia).
+
+---
+
+## 12. Cambios 2026-06-22 (cont.) — esquinas uniformes + fondo de pantalla
+
+Dos puntos de RENDER más (meta/render-only, NO bumpean PROTOCOL_VERSION). Commits
+SDK: `5ac8e7f` (esquinas), `163f011` (screenBgHex).
+
+### 12.1 — La raya de acento ya NO aplana las esquinas · `5ac8e7f`
+`buildAccentBorderStyle` forzaba `borderRadius: 0` en las dos esquinas del lado del
+acento ("ticket con cinta") → con el wrapper ya redondeado (§11.1) el lado del
+acento (p.ej. top) quedaba RECTO y el opuesto (bottom) REDONDO = esquinas
+asimétricas que el publisher percibía como bug. Ahora `buildAccentBorderStyle` solo
+aplica el `box-shadow inset` de la raya (que se CURVA con el radius del wrapper) y
+NO toca el border-radius → las 4 esquinas siguen el radius uniformemente.
+**En Flutter: la raya/borde de acento NO debe aplanar la esquina de su lado; píntala
+como una franja que sigue el ClipRRect (inset), no como un borde recto que corta el
+redondeo.** Ref: `recipe-utils.buildAccentBorderStyle` (4 ramas top/bottom/left/right,
+ya sin overrides de `border*Radius`).
+
+### 12.2 — Fondo de PANTALLA derivado del papel: `screenBgHex` · `163f011`
+NUEVO helper `screenBgHex(bgColor): string|null` en `packages/core/src/palette.ts`.
+El acabado teñía las CARTAS pero la PANTALLA (lista de sección / detalle) seguía con
+el fondo de app → un álbum oscuro dejaba las cartas oscuras sobre un fondo crema.
+Ahora la pantalla toma el color del acabado pero un punto MÁS OSCURO que el papel de
+las cartas (mezcla el papel 18% hacia negro) → las cartas RESALTAN por elevación.
+`screenBgHex` devuelve `null` para tokens de tema (la pantalla conserva el fondo de
+app). Es **pura, render-only, fuera del contrato** (no en el `.json`).
+**En Flutter: el fondo de la pantalla que aloja la lista de una sección (y el detalle)
+= `screenBgHex(composition.layout.surface.bgColor)`; si null, fondo de app. La carta
+conserva su `surface.bgColor` pleno → contraste de elevación idéntico al preview de
+Studio.** Mismo factor (0.82) para que el resultado coincida pixel a pixel.
+Studio lo aplica en `SectionAppPreview` (body del `PhoneFrame`) y en el backdrop del
+lienzo de `LayoutEditor`; Flutter lo aplica en el Scaffold/host de la pantalla real.
 
 ---
 
