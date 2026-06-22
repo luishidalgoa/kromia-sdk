@@ -121,7 +121,11 @@ export function applyThemePreset(composition: ViewComposition, themeId: string, 
       ...layout,
       surface: {
         ...(layout.surface ?? {}),
-        ...(theme.paperBg ? { bgColor: theme.paperBg } : {}),
+        // KRO-198 — el acabado tiñe la CARD (bgColor) y la PANTALLA (screenBgColor)
+        // con el mismo papel: la pantalla se deriva un punto más oscuro → cartas
+        // resaltan. Así un acabado sigue tiñendo la pantalla; editar el fondo de la
+        // card a mano (solo bgColor) ya no la mueve.
+        ...(theme.paperBg ? { bgColor: theme.paperBg, screenBgColor: theme.paperBg } : {}),
         ...(theme.surface ?? {}),
       },
     };

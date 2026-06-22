@@ -519,8 +519,16 @@ export interface ContainerSurface {
   /** Fondo de la caja (token semántico; 'primary'/'accent' = tinte suave). */
   background?: 'none' | 'card' | 'muted' | 'accent' | 'primary';
   /** KRO-133 F3 — color de fondo de la PALETA amplia (id; prevalece sobre
-   *  `background` si está presente). */
+   *  `background` si está presente). Es el fondo de la CARD (del contenedor). */
   bgColor?:   string;
+  /** KRO-198 — color de fondo de la PANTALLA que ALOJA la card (id de paleta),
+   *  INDEPENDIENTE de `bgColor` (= fondo de la card). La pantalla se deriva
+   *  `screenBgHex(screenBgColor ?? bgColor)` — un punto más oscuro para que las
+   *  cartas RESALTEN por elevación. Solo aplica al contenedor RAÍZ (la pantalla
+   *  vive fuera de la card). Render-only meta (NO contrato KRP, igual que
+   *  `cornerRadii`/`paddingSides`). Si se toca el fondo de la CARD, este campo NO
+   *  cambia → editar la card no mueve la pantalla. El acabado setea ambos. */
+  screenBgColor?: string;
   /** Borde atómico (grosor/lado/color/estilo). */
   border?: SurfaceBorder;
   /** Redondeo de esquinas (uniforme, o el tamaño aplicado a `radiusCorners`). */
