@@ -632,8 +632,10 @@ export function ComponentContent({ node, composition, item, fieldDefs, cardForma
   return <ComponentNodeView node={node} ctx={{ composition, item, fieldDefs, cardFormat, resolveCardRef, onCardRefTap }} />;
 }
 
-/** Render recursivo de un nodo del árbol. */
-function LayoutNodeView({ node, ctx }: { node: LayoutNode; ctx: NodeCtx }) {
+/** Render recursivo de un nodo del árbol. `className` extra solo lo pasa la
+ *  RAÍZ (p.ej. `grow shrink-0` para que el contenedor de un DETALLE llene la
+ *  pantalla) — las llamadas recursivas no lo propagan. */
+function LayoutNodeView({ node, ctx, className }: { node: LayoutNode; ctx: NodeCtx; className?: string }) {
   if (node.type === 'slot') return <SlotLeaf slot={node.slot} ctx={ctx} />;
   if (node.type === 'component') return <ComponentNodeView node={node} ctx={ctx} />;
 
@@ -655,7 +657,7 @@ function LayoutNodeView({ node, ctx }: { node: LayoutNode; ctx: NodeCtx }) {
   // contenedor pasa a `relative` aunque no haya hijos absolutos.
   const scrim = scrimClass(node.scrim);
   return (
-    <div className={cn(containerClasses(node), surfaceClasses(node.surface), clip, (hasAbsolute || scrim) && 'relative')} style={containerStyle}>
+    <div className={cn(containerClasses(node), surfaceClasses(node.surface), clip, (hasAbsolute || scrim) && 'relative', className)} style={containerStyle}>
       {node.children.map((child, i) => {
         // KRO-133 — hijo ABSOLUTO: fuera del flujo, posicionado en x/y (% del
         // contenedor). Para superposiciones libres (arrastrar por el lienzo).
@@ -770,6 +772,12 @@ export function LayoutRenderer({
           // overflow-hidden en la raíz: nada sobresale del contenedor principal.
           'bg-card overflow-hidden',
           !rootHasSurface && 'p-3',
+          // KRO-198 — una pantalla de DETALLE es pantalla completa: el wrapper se
+          // estira a la altura disponible (flex col + min-h-full) y el contenedor
+          // raíz crece para llenarla (`grow` abajo) → su fondo/decoración cubre
+          // TODA la pantalla en vez de quedar a altura-contenido con hueco debajo.
+          // El host (preview / pantalla Flutter) ya da una altura definida.
+          isDetail && 'flex flex-col min-h-full',
           // KRO-155 — feedback REAL de tappable (antes `transition-colors` no
           // transicionaba nada): atenúa al hover y hunde+atenúa al presionar.
           // `brightness` funciona sobre cualquier fondo (no reemplaza bg-card).
@@ -777,7 +785,9 @@ export function LayoutRenderer({
           className,
         )}
       >
-        <LayoutNodeView node={root} ctx={ctx} />
+        {/* `grow shrink-0` (= flex:1 0 auto): crece para llenar la pantalla pero
+            nunca se encoge por debajo de su contenido (texto largo → scroll). */}
+        <LayoutNodeView node={root} ctx={ctx} className={isDetail ? 'grow shrink-0' : undefined} />
       </div>
     </AccentFrame>
   );
