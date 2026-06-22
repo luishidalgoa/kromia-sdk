@@ -16,7 +16,7 @@
  * `layout.surface`, que es lo que se persiste y lo que Flutter renderiza. La app
  * no necesita el catálogo para pintar — solo si algún día edita.
  */
-import type { ContainerSurface, SlotAppearance, ViewComposition } from './types';
+import type { ContainerSurface, SlotAppearance, ViewComposition, FieldDefLike } from './types';
 
 export interface ThemePreset {
   /** Id estable (contrato cross-language si la app edita). */
@@ -83,19 +83,34 @@ export function getThemePreset(id: string): ThemePreset | undefined {
  * (campos, layout, tamaños, pesos, alineación, truncado…). Es reversible con el
  * undo del editor. Sin match → devuelve la composición sin cambios.
  */
-export function applyThemePreset(composition: ViewComposition, themeId: string): ViewComposition {
+export function applyThemePreset(composition: ViewComposition, themeId: string, fieldDefs?: FieldDefLike[]): ViewComposition {
   const theme = getThemePreset(themeId);
   if (!theme) return composition;
+
+  // KRO-198 — para distinguir slots de IMAGEN (su caja/placeholder debe tomar el
+  // papel, no el color de texto) de los de texto, miramos el tipo del 1er field.
+  const typeByKey = new Map((fieldDefs ?? []).map(d => [d.key, d.type]));
+  const isImageSlot = (fields?: string[]): boolean => {
+    const t = fields && fields.length ? typeByKey.get(fields[0]) : undefined;
+    return t === 'image' || t === 'array<image>';
+  };
 
   const slots: ViewComposition['slots'] = {};
   for (const [id, sc] of Object.entries(composition.slots ?? {})) {
     const ap: SlotAppearance = { ...(sc.appearance ?? {}) };
-    if (theme.textColor) ap.textColor = theme.textColor;
-    if (theme.font)      ap.font = theme.font;
-    // Un slot mostrado como badge (rareza/tipo) recibe el acento coordinado.
-    if (ap.display === 'badge' && theme.accent) {
-      ap.bgColor   = theme.accent.bgColor;
-      ap.textColor = theme.accent.textColor;
+    if (isImageSlot(sc.fields)) {
+      // La CAJA de imagen toma el fondo papel → su placeholder no queda claro
+      // chocando con un acabado oscuro (y tras una imagen con transparencia, el
+      // fondo es coherente). No tocamos color de texto en un slot de imagen.
+      if (theme.paperBg) ap.bgColor = theme.paperBg;
+    } else {
+      if (theme.textColor) ap.textColor = theme.textColor;
+      if (theme.font)      ap.font = theme.font;
+      // Un slot mostrado como badge (rareza/tipo) recibe el acento coordinado.
+      if (ap.display === 'badge' && theme.accent) {
+        ap.bgColor   = theme.accent.bgColor;
+        ap.textColor = theme.accent.textColor;
+      }
     }
     slots[id] = { ...sc, appearance: ap };
   }

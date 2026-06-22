@@ -91,6 +91,29 @@ describe('applyThemePreset', () => {
     expect(c).toEqual(snapshot);
   });
 
+  // KRO-198 — slots de IMAGEN toman el papel en su caja (no el color de texto)
+  it('con fieldDefs: el slot de imagen recibe el papel como bgColor (no textColor)', () => {
+    const c = makeComposition();
+    (c.slots as any).thumb = { fields: ['art'] };
+    const fieldDefs = [
+      { key: 'name', type: 'text' }, { key: 'type', type: 'text' },
+      { key: 'rarity', type: 'text' }, { key: 'art', type: 'image' },
+    ] as any;
+    const out = applyThemePreset(c, 'oro', fieldDefs);
+    // imagen → bgColor = papel, sin textColor del acabado
+    expect(out.slots.thumb.appearance?.bgColor).toBe('slate-800');
+    expect(out.slots.thumb.appearance?.textColor).toBeUndefined();
+    // texto → sigue recibiendo el textColor
+    expect(out.slots.title.appearance?.textColor).toBe('amber-200');
+  });
+
+  it('sin fieldDefs: comportamiento previo (imagen no se distingue → textColor)', () => {
+    const c = makeComposition();
+    (c.slots as any).thumb = { fields: ['art'] };
+    const out = applyThemePreset(c, 'oro');
+    expect(out.slots.thumb.appearance?.textColor).toBe('amber-200');
+  });
+
   it('getThemePreset', () => {
     expect(getThemePreset('bosque')?.label).toBe('Bosque');
     expect(getThemePreset('nope')).toBeUndefined();

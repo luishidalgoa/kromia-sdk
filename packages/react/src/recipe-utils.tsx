@@ -1092,6 +1092,11 @@ export function ThumbBox({
   const useFixedHeight = !aspectClass;
   // Modo banner/cover: ancho completo. Requiere aspect (la altura sale del ratio).
   const fillMode = fill && !!aspectClass;
+  // KRO-198 — el fondo de la CAJA de imagen (placeholder + tras imágenes con
+  // transparencia) sigue el bgColor de la appearance si está fijado. Así un
+  // acabado oscuro tiñe también el slot de imagen y no deja un cuadro claro
+  // chocando. Sin override → bg-muted (placeholder neutro de siempre).
+  const boxBg = (appearance?.bgColor && paletteClass(appearance.bgColor, 'bg')) || 'bg-muted';
 
   return (
     <div
@@ -1101,7 +1106,8 @@ export function ThumbBox({
             ? { width: effectiveSize, height: effectiveSize }
             : { width: effectiveSize })}
       className={cn(
-        'relative bg-muted overflow-hidden',
+        'relative overflow-hidden',
+        boxBg,
         fillMode ? 'w-full' : 'shrink-0',
         shapeClass,
         aspectClass,
