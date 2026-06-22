@@ -104,6 +104,8 @@ const TEXTSHADOW_IDS     = new Set(OPTIONS_APPEARANCE_TEXTSHADOW.map(o => o.id))
 const DISPLAY_IDS        = new Set(OPTIONS_APPEARANCE_DISPLAY.map(o => o.id));
 const TEXT_TRANSFORM_IDS = new Set(OPTIONS_APPEARANCE_TEXT_TRANSFORM.map(o => o.id));
 const COMPOSABLE_DISPLAY_IDS = new Set(OPTIONS_COMPOSABLE_DISPLAY.map(o => o.id));
+// KRO-198 — operadores del estilo condicional por valor.
+const CONDITIONAL_OP_IDS = new Set(['eq', 'neq', 'contains', 'gt', 'gte', 'lt', 'lte', 'truthy', 'falsy']);
 
 function validateAppearance(
   appearance: SlotAppearance | undefined,
@@ -360,6 +362,35 @@ function validateSlot(
       level:   'error',
       message: `composableDisplay "${slot.composableDisplay}" no es válido (esperaba ${[...COMPOSABLE_DISPLAY_IDS].join(' | ')})`,
     });
+  }
+
+  // KRO-198 — estilo condicional por valor (meta, como composableDisplay).
+  if (slot.conditionalStyle !== undefined && slot.conditionalStyle !== null) {
+    const cs = slot.conditionalStyle;
+    const csPath = `${basePath}.conditionalStyle`;
+    if (typeof cs !== 'object' || Array.isArray(cs)) {
+      issues.push({ path: csPath, level: 'error', message: 'conditionalStyle no es un objeto' });
+    } else {
+      if (!cs.fieldKey || typeof cs.fieldKey !== 'string' || !cs.fieldKey.trim()) {
+        issues.push({ path: `${csPath}.fieldKey`, level: 'error', message: 'conditionalStyle.fieldKey vacío o no string' });
+      }
+      if (!Array.isArray(cs.cases) || cs.cases.length === 0) {
+        issues.push({ path: `${csPath}.cases`, level: 'error', message: 'conditionalStyle.cases debe ser un array no vacío' });
+      } else {
+        cs.cases.forEach((c, i) => {
+          const cp = `${csPath}.cases[${i}]`;
+          if (c.op !== undefined && !CONDITIONAL_OP_IDS.has(c.op)) {
+            issues.push({ path: `${cp}.op`, level: 'error', message: `op "${c.op}" no es válido (esperaba ${[...CONDITIONAL_OP_IDS].join(' | ')})` });
+          }
+          if (c.value !== undefined && typeof c.value !== 'string') {
+            issues.push({ path: `${cp}.value`, level: 'error', message: 'value debe ser string' });
+          }
+          // La appearance de cada caso se valida igual que la base (incluye el
+          // aviso de contraste).
+          validateAppearance(c.appearance, `${cp}.appearance`, issues);
+        });
+      }
+    }
   }
 
   // KRO-80 — nestedComposition con depth max=2.

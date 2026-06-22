@@ -115,6 +115,36 @@ export interface SlotComposition {
    * undefined, el renderer usa el default del manifest base de la receta.
    */
   appearance?: SlotAppearance;
+  /**
+   * KRO-198 — Estilo CONDICIONAL por valor: la apariencia del slot cambia
+   * según el valor de un campo del dato (p.ej. "si rareza == legendaria →
+   * texto dorado", "si stock <= 0 → rojo"). El primer caso que matchea gana;
+   * su `appearance` se MERGE-a sobre la base (`appearance`). Si ninguno matchea
+   * (o no hay dato), se usa la base.
+   *
+   * Meta de composición (como composableDisplay) → NO entra al contrato KRP, no
+   * bumpea PROTOCOL_VERSION. Flutter lo espeja vía el tipo en `core_dart`.
+   */
+  conditionalStyle?: ConditionalStyle;
+}
+
+/** KRO-198 — un caso del estilo condicional. */
+export interface ConditionalStyleCase {
+  /** Operador de comparación contra `value`. Default 'eq'.
+   *  'truthy'/'falsy' ignoran `value` (miran si el campo tiene valor). */
+  op?: 'eq' | 'neq' | 'contains' | 'gt' | 'gte' | 'lt' | 'lte' | 'truthy' | 'falsy';
+  /** Valor a comparar (string; gt/gte/lt/lte lo parsean a número). */
+  value?: string;
+  /** Apariencia a aplicar (merge sobre la base del slot) si el caso matchea. */
+  appearance?: SlotAppearance;
+}
+
+/** KRO-198 — mapeo declarativo valor-del-dato → apariencia. */
+export interface ConditionalStyle {
+  /** Key del schema (CardFieldDefinition.key) cuyo valor decide el estilo. */
+  fieldKey: string;
+  /** Casos evaluados EN ORDEN; el PRIMERO que matchea gana (como un switch). */
+  cases: ConditionalStyleCase[];
 }
 
 /**

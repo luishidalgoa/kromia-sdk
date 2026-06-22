@@ -22,6 +22,7 @@ import { isMockupImage,
   extractAccentSettings    as sdkExtractAccentSettings,
   composeSlotValues,
   paletteClass,
+  resolveConditionalAppearance,
   parseInlineMarkdown,
   parseInlineHtml,
   type MarkdownToken,
@@ -107,7 +108,10 @@ export function resolveSlot(
     orientation:       sc.orientation ?? 'horizontal',
     separator:         sc.separator   ?? ' · ',
     composableDisplay: sc.composableDisplay ?? 'auto',
-    appearance:        sc.appearance,
+    // KRO-198 — estilo condicional por valor: resuelto AQUÍ (punto único) para
+    // que TODOS los renders (SlotContent, ComposableSlot, recetas) hereden la
+    // apariencia efectiva sin volver a tocar el dato. Sin condicional → base.
+    appearance:        resolveConditionalAppearance(sc.conditionalStyle, sc.appearance, item),
   };
 }
 

@@ -509,3 +509,7 @@ export type { LayoutTemplate } from './layout-templates';
 // KRO-198 — acabados de marca (recolor coordinado y legible de un click).
 export { THEME_PRESETS, getThemePreset, applyThemePreset } from './themes';
 export type { ThemePreset } from './themes';
+
+// KRO-198 — estilo condicional por valor (color/estilo por rareza, stock, etc.).
+export { matchConditionalCase, resolveConditionalAppearance } from './conditional-style';
+export type { ConditionalStyle, ConditionalStyleCase } from './types';
