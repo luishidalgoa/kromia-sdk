@@ -476,6 +476,8 @@ export {
   // KRO-198 — contraste WCAG sobre la paleta (a11y del editor + validación).
   PALETTE_HEX,
   paletteHex,
+  // KRO-198 — fondo de pantalla derivado del papel (cartas resaltan por elevación).
+  screenBgHex,
   paletteContrastRatio,
   contrastLevel,
   CONTRAST_AA,

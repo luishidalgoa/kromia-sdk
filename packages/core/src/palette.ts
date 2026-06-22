@@ -115,6 +115,24 @@ function hexToRgb(hex: string): [number, number, number] | null {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
+/**
+ * KRO-198 — Fondo de PANTALLA derivado del "papel" de una composición. La pantalla
+ * (lista de cartas o detalle) toma el color del acabado, pero un punto MÁS OSCURO
+ * que el papel de las cartas, para que éstas RESALTEN (metáfora de elevación: las
+ * cartas flotan sobre una superficie recogida). Mezcla el papel hacia negro un 18%.
+ * Devuelve `null` si el id NO es un tono crudo de la rejilla (token de tema = la
+ * pantalla NO se tiñe, conserva el fondo de app). Pura: Flutter ESPEJA esta misma
+ * derivación para que la pantalla real iguale el preview de Studio.
+ */
+export function screenBgHex(bgColor: string | undefined | null): string | null {
+  const hex = paletteHex(bgColor);
+  if (!hex) return null;
+  const rgb = hexToRgb(hex);
+  if (!rgb) return null;
+  const k = 0.82; // 18% hacia negro
+  return '#' + rgb.map(c => Math.round(c * k).toString(16).padStart(2, '0')).join('');
+}
+
 /** Luminancia relativa WCAG (0..1) de un RGB 0..255. */
 function relativeLuminance([r, g, b]: [number, number, number]): number {
   const lin = (c: number) => {
