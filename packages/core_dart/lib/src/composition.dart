@@ -184,6 +184,41 @@ class ImageFocus {
       );
 }
 
+/// KRO-198 — un caso del estilo condicional: si el valor del campo cumple [op] vs
+/// [value], se aplica [appearance]. Espejo de `ConditionalStyleCase` (types.ts).
+class ConditionalStyleCase {
+  final String? op; // eq|neq|contains|gt|gte|lt|lte|truthy|falsy (default 'eq')
+  final String? value;
+  final SlotAppearance? appearance;
+  const ConditionalStyleCase({this.op, this.value, this.appearance});
+
+  factory ConditionalStyleCase.fromJson(Map<String, dynamic> json) =>
+      ConditionalStyleCase(
+        op: json['op'] as String?,
+        value: json['value']?.toString(),
+        appearance: json['appearance'] == null
+            ? null
+            : SlotAppearance.fromJson(json['appearance'] as Map<String, dynamic>),
+      );
+}
+
+/// KRO-198 — estilo condicional por valor: la appearance del slot cambia según el
+/// valor de [fieldKey] en el dato (el PRIMER caso que matchea gana). Espejo de
+/// `ConditionalStyle` (types.ts). Se evalúa en `resolveConditionalAppearance`.
+class ConditionalStyle {
+  final String fieldKey;
+  final List<ConditionalStyleCase> cases;
+  const ConditionalStyle({required this.fieldKey, this.cases = const []});
+
+  factory ConditionalStyle.fromJson(Map<String, dynamic> json) => ConditionalStyle(
+        fieldKey: json['fieldKey']?.toString() ?? '',
+        cases: (json['cases'] as List?)
+                ?.map((e) => ConditionalStyleCase.fromJson(e as Map<String, dynamic>))
+                .toList() ??
+            const [],
+      );
+}
+
 /// Composición de un slot: qué fields van en el hueco + cómo se componen.
 class SlotComposition {
   /// Keys del schema asignadas al slot.
@@ -201,12 +236,17 @@ class SlotComposition {
   /// Override visual per-instance.
   final SlotAppearance? appearance;
 
+  /// KRO-198 — estilo condicional por valor (la appearance cambia según el valor
+  /// de un campo del dato). Se resuelve con `resolveConditionalAppearance`.
+  final ConditionalStyle? conditionalStyle;
+
   const SlotComposition({
     required this.fields,
     this.orientation,
     this.separator,
     this.nestedComposition,
     this.appearance,
+    this.conditionalStyle,
   });
 
   /// Orientación efectiva (aplica el default del SDK).
@@ -227,6 +267,9 @@ class SlotComposition {
         appearance: json['appearance'] == null
             ? null
             : SlotAppearance.fromJson(json['appearance'] as Map<String, dynamic>),
+        conditionalStyle: json['conditionalStyle'] == null
+            ? null
+            : ConditionalStyle.fromJson(json['conditionalStyle'] as Map<String, dynamic>),
       );
 }
 

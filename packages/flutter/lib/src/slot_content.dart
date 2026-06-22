@@ -25,7 +25,9 @@ ResolvedSlot? resolveSlot(RenderCtx ctx, String slotId) {
   if (disabled.contains(slotId)) return null;
   return ResolvedSlot(
     fields: [for (final k in comp.fields) (def: ctx.defFor(k), value: ctx.item[k])],
-    appearance: comp.appearance,
+    // KRO-198 — appearance EFECTIVA tras el estilo condicional por valor; un solo
+    // punto, así lo heredan SlotContent/LayoutRenderer, ComposableSlot y recetas.
+    appearance: resolveConditionalAppearance(comp.conditionalStyle, comp.appearance, ctx.item),
     orientation: comp.effectiveOrientation,
     separator: comp.effectiveSeparator,
   );
