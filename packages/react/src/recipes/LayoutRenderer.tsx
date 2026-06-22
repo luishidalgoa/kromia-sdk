@@ -142,6 +142,27 @@ const SURFACE_SHADOW_CLASSES:  Record<NonNullable<ContainerSurface['shadow']>, s
 const SURFACE_PADDING_CLASSES: Record<NonNullable<ContainerSurface['padding']>, string> = {
   none: 'p-0', xs: 'p-1', sm: 'p-2', md: 'p-3', lg: 'p-5', xl: 'p-8',
 };
+// KRO-198 — relleno POR LADO: matriz lado × tamaño con clases LITERALES (mismas
+// magnitudes que SURFACE_PADDING_CLASSES, una por eje). Literales para que el
+// scanner de Tailwind las recoja del source de @kromia/react (igual que CORNER_RADIUS).
+type PSide = 'top' | 'right' | 'bottom' | 'left';
+type PSize = NonNullable<ContainerSurface['padding']>;
+const PADDING_BY_SIDE: Record<PSide, Record<PSize, string>> = {
+  top:    { none: 'pt-0', xs: 'pt-1', sm: 'pt-2', md: 'pt-3', lg: 'pt-5', xl: 'pt-8' },
+  right:  { none: 'pr-0', xs: 'pr-1', sm: 'pr-2', md: 'pr-3', lg: 'pr-5', xl: 'pr-8' },
+  bottom: { none: 'pb-0', xs: 'pb-1', sm: 'pb-2', md: 'pb-3', lg: 'pb-5', xl: 'pb-8' },
+  left:   { none: 'pl-0', xs: 'pl-1', sm: 'pl-2', md: 'pl-3', lg: 'pl-5', xl: 'pl-8' },
+};
+/** KRO-198 — relleno del contenedor: si `paddingSides` existe PREVALECE (cada lado
+ *  su tamaño, ausente = none); si no, el `padding` uniforme. Espeja radiusClasses. */
+function paddingClasses(s: ContainerSurface): string | undefined {
+  if (s.paddingSides) {
+    return (['top', 'right', 'bottom', 'left'] as const)
+      .map(sd => PADDING_BY_SIDE[sd][s.paddingSides![sd] ?? 'none'])
+      .join(' ');
+  }
+  return s.padding ? SURFACE_PADDING_CLASSES[s.padding] : undefined;
+}
 // KRO-155 — velo (scrim) de legibilidad de texto sobre imagen. Gradiente/oscurecido
 // que se pinta como overlay z-10 (encima del fondo, debajo del texto absoluto z-20).
 type ScrimKind = Exclude<NonNullable<LayoutContainerNode['scrim']>, 'none'>;
@@ -236,7 +257,7 @@ function surfaceClasses(s: ContainerSurface | undefined): string | undefined {
     borderClasses(s.border),
     radiusClasses(s),
     s.shadow && SURFACE_SHADOW_CLASSES[s.shadow],
-    s.padding && SURFACE_PADDING_CLASSES[s.padding],
+    paddingClasses(s),
   );
 }
 export { surfaceClasses as containerSurfaceClasses };

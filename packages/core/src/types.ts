@@ -258,6 +258,10 @@ export interface SlotAppearance {
   size?:      'sm' | 'md' | 'lg' | 'xl';
   /** Padding vertical del wrapper del slot — separación con vecinos. */
   paddingY?:  'none' | 'sm' | 'md' | 'lg';
+  /** KRO-198 — relleno POR LADO del slot (independiente). Si está presente,
+   *  PREVALECE sobre `paddingY`: cada lado (top/right/bottom/left) su tamaño
+   *  (ausente = 'none'). Render-only meta (NO contrato KRP). */
+  paddingSides?: Partial<Record<'top' | 'right' | 'bottom' | 'left', 'none' | 'sm' | 'md' | 'lg'>>;
   /**
    * KRO-133 F3 — cómo se PRESENTA el contenido textual del slot:
    * 'text' (default) = texto plano; 'badge' = pill/chip (como la rareza/tipo
@@ -397,6 +401,16 @@ export interface ViewComposition {
   accentPosition?: 'top' | 'right' | 'bottom' | 'left' | 'none' | 'auto';
 
   /**
+   * KRO-198 — estilo de la LISTA de items de la sección (render-only meta, NO
+   * contrato KRP). `separator`: si `true`, dibuja una línea divisoria entre cada
+   * item; AUSENTE/`false` = SIN separador (default nuevo). Lo lee el host que
+   * pinta la lista (preview de Studio / pantalla de Flutter); el motor de bloques
+   * no lo usa (opera dentro de UN item). Additive: las composiciones legacy no lo
+   * traen → lista sin línea.
+   */
+  listStyle?: { separator?: boolean };
+
+  /**
    * KRO-108 — versión del protocolo (KRP) con la que se creó/guardó esta
    * composición. La estampa `injectProtocolVersion` (KRO-63) y el backend la
    * persiste en `viewCompositionSchema`. **Opcional**: las composiciones legacy
@@ -520,8 +534,13 @@ export interface ContainerSurface {
   cornerRadii?: Partial<Record<'tl' | 'tr' | 'bl' | 'br', 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full'>>;
   /** Sombra/elevación. */
   shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
-  /** Relleno interno. */
+  /** Relleno interno (uniforme en los 4 lados). */
   padding?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  /** KRO-198 — relleno POR LADO, independiente. Si está presente, PREVALECE
+   *  sobre `padding`: cada lado (top/right/bottom/left) usa su propio tamaño
+   *  (los lados ausentes = 'none', sin relleno). Render-only meta (NO contrato
+   *  KRP, igual que `cornerRadii`). */
+  paddingSides?: Partial<Record<'top' | 'right' | 'bottom' | 'left', 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'>>;
 }
 
 /** Hoja del árbol: un slot. Sus fields viven en `ViewComposition.slots[slot]`. */

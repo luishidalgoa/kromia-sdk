@@ -238,6 +238,8 @@ const EXPECTED_EXPORTS = [
   // KRO-198 — contraste WCAG sobre la paleta
   'PALETTE_HEX',
   'paletteHex',
+  // KRO-198 — fondo de pantalla derivado del papel (cartas resaltan)
+  'screenBgHex',
   'paletteContrastRatio',
   'contrastLevel',
   'CONTRAST_AA',

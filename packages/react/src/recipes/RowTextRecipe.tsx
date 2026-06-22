@@ -44,7 +44,9 @@ export function RowTextRecipe({
     <div
       onClick={onClick}
       className={cn(
-        'flex items-baseline gap-3 px-3 py-2 border-b border-border/60 last:border-b-0',
+        // KRO-198 — el separador entre filas ya NO lo dibuja la receta: lo gobierna
+        // el host de la lista (opcional, OFF por defecto vía listStyle.separator).
+        'flex items-baseline gap-3 px-3 py-2',
         clickable && 'cursor-pointer transition-colors',
         className,
       )}

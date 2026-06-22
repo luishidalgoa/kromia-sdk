@@ -188,6 +188,16 @@ const PADDING_Y_CLASSES: Record<NonNullable<SlotAppearance['paddingY']>, string>
   md:   'py-2',
   lg:   'py-4',
 };
+// KRO-198 — relleno POR LADO del slot: matriz lado × tamaño (escala de 4 del slot,
+// mismas magnitudes que PADDING_Y_CLASSES por eje). Literales para el scanner de Tailwind.
+type SlotPSide = 'top' | 'right' | 'bottom' | 'left';
+type SlotPSize = NonNullable<SlotAppearance['paddingSides']>[SlotPSide];
+const SLOT_PADDING_BY_SIDE: Record<SlotPSide, Record<NonNullable<SlotPSize>, string>> = {
+  top:    { none: 'pt-0', sm: 'pt-1', md: 'pt-2', lg: 'pt-4' },
+  right:  { none: 'pr-0', sm: 'pr-1', md: 'pr-2', lg: 'pr-4' },
+  bottom: { none: 'pb-0', sm: 'pb-1', md: 'pb-2', lg: 'pb-4' },
+  left:   { none: 'pl-0', sm: 'pl-1', md: 'pl-2', lg: 'pl-4' },
+};
 
 // KRO-147 F3 — tipografía rica + efectos. Todas LITERALES → safelist
 // automático por @source (no construidas dinámicamente).
@@ -271,8 +281,15 @@ export function appearanceEffectClasses(a: SlotAppearance | undefined): string {
 export function appearanceObjectFitClass(a: SlotAppearance | undefined): string {
   return a?.objectFit === 'contain' ? 'object-contain' : 'object-cover';
 }
-/** Devuelve la clase de padding-Y del wrapper del slot, o '' si no hay override. */
+/** KRO-198 — clases de relleno del wrapper del slot. Si `paddingSides` existe
+ *  PREVALECE (cada lado su tamaño, ausente = none); si no, el `paddingY` vertical.
+ *  '' si no hay override. */
 export function appearancePaddingClass(a: SlotAppearance | undefined): string {
+  if (a?.paddingSides) {
+    return (['top', 'right', 'bottom', 'left'] as const)
+      .map(sd => SLOT_PADDING_BY_SIDE[sd][a.paddingSides![sd] ?? 'none'])
+      .join(' ');
+  }
   return a?.paddingY ? PADDING_Y_CLASSES[a.paddingY] : '';
 }
 

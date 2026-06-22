@@ -416,6 +416,16 @@ function validateSurface(
   if (!inSet(surface.padding, ['none', 'xs', 'sm', 'md', 'lg', 'xl'])) {
     issues.push({ level: 'error', path: `${path}.padding`, message: `padding "${surface.padding}" no es válido.` });
   }
+  // KRO-198 — relleno por lado (render-only meta, NO contrato; espeja cornerRadii).
+  if (surface.paddingSides) {
+    const PSIZES = ['none', 'xs', 'sm', 'md', 'lg', 'xl'];
+    for (const sd of ['top', 'right', 'bottom', 'left'] as const) {
+      const v = surface.paddingSides[sd];
+      if (v !== undefined && !PSIZES.includes(v)) {
+        issues.push({ level: 'error', path: `${path}.paddingSides.${sd}`, message: `paddingSides.${sd} "${v}" no es válido.` });
+      }
+    }
+  }
   if (surface.border) {
     if (!inSet(surface.border.width, ['thin', 'medium', 'thick'])) {
       issues.push({ level: 'error', path: `${path}.border.width`, message: `border.width "${surface.border.width}" no es válido.` });
