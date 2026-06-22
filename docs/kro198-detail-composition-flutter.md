@@ -185,6 +185,27 @@ Cierra los behaviors que caían a texto plano. **Formateo** en core (espejar en 
 - `url_list`/`email_list` (array): un enlace navegable por elemento (NO el JSON crudo del array).
 - markdown: links **inertes** (no navegables) en el preview; html: links **clicables**.
 
+### 8.1 — `SlotComposition.composableDisplay` (NUEVO, `8e8e700`)
+
+Variante de RENDER de un slot COMPOSABLE (cómo se disponen sus varios fields/
+valores), elegible por el publisher. **Meta de composición** (como
+orientation/separator) → NO entra al contrato KRP, NO bumpea PROTOCOL_VERSION.
+Catálogo es-ES en `OPTIONS_COMPOSABLE_DISPLAY` (core/options.ts). **Espejar el
+campo en `core_dart` + las 5 ramas en el ComposableSlot de Flutter:**
+
+- `'auto'` (default, y compositions históricas sin el campo): comportamiento
+  histórico por behavior — tags→chips, url_list/email_list→enlaces, resto = join
+  por `separator` respetando `orientation`. **Backward-compatible: cero drift.**
+- `'inline'`: todos los valores en una línea, unidos por `separator`.
+- `'list'`: un valor por línea (apilados).
+- `'chips'`: cada valor como pastilla/badge.
+- `'table'`: filas etiqueta–valor (usa la etiqueta de cada field;
+  array-de-un-field sin etiquetas → cae a `list`).
+
+Ref TS: `packages/react/src/recipe-utils.tsx` `ComposableSlot` (rama
+`display !== 'auto'`) + `resolveSlot` (`composableDisplay: sc.composableDisplay ??
+'auto'`). Validación: `validate.ts` (junto a `orientation`).
+
 ---
 
 ## 9. Follow-ups conocidos (NO bloquean)

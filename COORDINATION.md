@@ -79,6 +79,11 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   behavior**: currency/measurement por `behaviorConfig`, `parseInlineHtml` (allowlist seguro),
   code/url/email/phone/tags/url_list/email_list. SDK-TS `5410852` + Studio `385d36f` +
   backend `de13c54` listos. El editor de lienzo (canvas) es Studio-only; Flutter = renderer puro.
+  **(4) NUEVO `8e8e700`** — `SlotComposition.composableDisplay`
+  (`auto|inline|list|chips|table`): variante de render del slot composable, meta de
+  composición (NO contrato, NO bump). Espejar el campo en `core_dart` + las 5 ramas en el
+  ComposableSlot de Flutter. `'auto'` = comportamiento histórico (backward-compatible). Ver
+  `docs/kro198-detail-composition-flutter.md` §8.1.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
