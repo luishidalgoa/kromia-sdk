@@ -105,6 +105,13 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   (lista de sección / detalle) toma el acabado un punto más oscuro que las cartas (papel ×0.82)
   → las cartas RESALTAN por elevación; null para tokens de tema. Render-only, fuera del
   contrato. En Flutter: fondo del Scaffold/host = `screenBgHex(layout.surface.bgColor)`. Ver §12.
+  **(8) NUEVO 2026-06-22 §13 (commit `64c0b9d`)** — (a) **relleno POR LADO**: nuevos
+  `ContainerSurface.paddingSides` (escala 6 → px 0/4/8/12/20/32) y `SlotAppearance.paddingSides`
+  (escala 4 → px 0/4/8/16), render-only (NO en ALL_SURFACE_PROPS/ALL_APPEARANCE_PROPS), prevalecen
+  sobre el padding uniforme → en Flutter `EdgeInsets.only`; (b) **separador de lista opcional**:
+  `ViewComposition.listStyle.separator` (render-only) → la pantalla de lista pinta `Divider` entre
+  items SOLO si true, **OFF por defecto** (`RowTextRecipe` ya no pinta su border-b propio). ⚠️ cambia
+  el aspecto de listas existentes. C (acento en bloques) = Studio-only, sin trabajo Flutter. Ver §13.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
@@ -114,5 +121,7 @@ apariencia → 7 mejoras shipped en TS/Studio (contraste WCAG, chips/stats temab
 paridad badge, THEME_PRESETS/acabados, conditionalStyle/estilo por valor, validación,
 microcopy) + fix de altura del contenedor de detalle + decoración §11 (wrapper sigue
 radius, caja de imagen tematizada, cornerRadii) + §12 (esquinas uniformes sin aplanar +
-`screenBgHex` = fondo de pantalla derivado del acabado, cartas resaltan). Todo META
-(NO bump). Handoff Flutter ampliado en la cola (§10/§11/§12 del doc). Mantener cola al día.
+`screenBgHex` = fondo de pantalla derivado del acabado, cartas resaltan) + §13 (relleno
+POR LADO `paddingSides` surface+slot, y separador de lista opcional `listStyle.separator`
+OFF por defecto). Todo META (NO bump). Handoff Flutter en la cola (§10–§13 del doc).
+Mantener cola al día.

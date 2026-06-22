@@ -18,6 +18,7 @@ Ya shipeado en TS:
 6. **NUEVO 2026-06-22 (§10)** — 4 puntos de render más (todos meta, render-only): `conditionalStyle` (estilo por valor, integrar en `resolveSlot`), chips/tabla/stats **temables**, paridad del **badge** (opacity/shadow + color dinámico), y el contenedor raíz del **detalle llena la pantalla**. Acabados (THEME_PRESETS) y contraste = **solo-edición, Flutter los ignora**.
 7. **NUEVO 2026-06-22 (§11)** — decoración: el **wrapper raíz** sigue el radius del surface (4 esquinas), la **caja de imagen** toma `appearance.bgColor`, y nuevo `ContainerSurface.cornerRadii` (radio por esquina, render-only).
 8. **NUEVO 2026-06-22 (§12)** — la **raya de acento ya no aplana** las esquinas de su lado (se curva con el radius → 4 esquinas uniformes), y nuevo `screenBgHex(bgColor)`: la **pantalla** (lista/detalle) toma el acabado un punto más oscuro que las cartas → éstas resaltan por elevación.
+9. **NUEVO 2026-06-22 (§13)** — **relleno POR LADO** (`ContainerSurface.paddingSides` + `SlotAppearance.paddingSides` → `EdgeInsets.only`, prevalece sobre el padding uniforme), y **separador de lista opcional** (`ViewComposition.listStyle.separator`, `Divider` entre items solo si true; **OFF por defecto**, cambia el aspecto de las listas existentes).
 
 Flutter debe replicar **exactamente** esta semántica en su renderer Dart.
 
@@ -384,6 +385,41 @@ conserva su `surface.bgColor` pleno → contraste de elevación idéntico al pre
 Studio.** Mismo factor (0.82) para que el resultado coincida pixel a pixel.
 Studio lo aplica en `SectionAppPreview` (body del `PhoneFrame`) y en el backdrop del
 lienzo de `LayoutEditor`; Flutter lo aplica en el Scaffold/host de la pantalla real.
+
+---
+
+## 13. Cambios 2026-06-22 (cont.) — padding por lado + separador de lista
+
+Dos puntos de RENDER más (meta/render-only, NO bumpean PROTOCOL_VERSION; NO entran en
+`ALL_SURFACE_PROPS`/`ALL_APPEARANCE_PROPS`). Commit SDK: `64c0b9d`.
+
+### 13.1 — Relleno POR LADO · `ContainerSurface.paddingSides` + `SlotAppearance.paddingSides`
+NUEVOS campos opcionales (render-only, espejan `cornerRadii`):
+- `ContainerSurface.paddingSides?: { top?, right?, bottom?, left?: 'none'|'xs'|'sm'|'md'|'lg'|'xl' }`
+  — si presente PREVALECE sobre `padding`; lados ausentes = 'none'. Mapeo px (espeja
+  `p-0/p-1/p-2/p-3/p-5/p-8`): **none=0, xs=4, sm=8, md=12, lg=20, xl=32**.
+- `SlotAppearance.paddingSides?: { top?, right?, bottom?, left?: 'none'|'sm'|'md'|'lg' }`
+  — prevalece sobre `paddingY` (que es solo vertical). Mapeo px (espeja `py-0/1/2/4`):
+  **none=0, sm=4, md=8, lg=16**.
+**En Flutter: `EdgeInsets.only(top/right/bottom/left)` con esos px por lado cuando
+`paddingSides` existe; si no, el padding uniforme actual.** Validado en `validateSurface`
+(bloque `paddingSides` espeja el de `cornerRadii`). Ref render: `LayoutRenderer`
+`PADDING_BY_SIDE` + `paddingClasses`; slot: `recipe-utils` `SLOT_PADDING_BY_SIDE` +
+`appearancePaddingClass`.
+
+### 13.2 — Separador de lista OPCIONAL + OFF por defecto · `ViewComposition.listStyle`
+NUEVO `ViewComposition.listStyle?: { separator?: boolean }` (render-only). Antes la lista
+de una sección SIEMPRE pintaba una línea entre items (un `divide-y` cableado + un `border-b`
+propio de `row_text`). Ahora: el `border-b` de `RowTextRecipe` se quitó (se centraliza) y la
+línea solo se pinta si `listStyle.separator === true`. **Ausente/false = SIN línea (default
+nuevo).** **En Flutter: el host de la lista (la pantalla de sección) usa `Divider` entre items
+SOLO si `composition.listStyle?.separator == true`; por defecto sin separador** (`SizedBox`/
+nada). ⚠️ Cambia el aspecto por defecto de las listas existentes (pierden la línea hasta que el
+publisher la active) — es intencional. Es decisión de PANTALLA (no del motor de bloques, que
+opera dentro de un item).
+
+> **C (acento en bloques) NO necesita nada en Flutter**: solo se expuso el control de
+> `accentPosition` (ya contrato, ya respetado por el renderer) en el editor de bloques de Studio.
 
 ---
 
