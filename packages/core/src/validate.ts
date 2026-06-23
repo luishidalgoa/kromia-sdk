@@ -328,7 +328,13 @@ function validateSlot(
         return;
       }
       // Compatibilidad con accepts kinds del slot.
-      if (recipeSlot) {
+      // KRO-198 — un slot-CAMPO (id = la clave de SU PROPIO field, fields:[slotId])
+      // NO se valida contra el rol homónimo del manifest: su `accepts` real lo
+      // define el field (classifyField), no el rol que casualmente comparte id.
+      // Sin esto, un campo cuya clave coincide con un id de rol (p.ej. 'title')
+      // pero con tipo incompatible bloquearía el guardado de toda la composición.
+      const isFieldSlot = slot.fields.length === 1 && slot.fields[0] === slotId;
+      if (recipeSlot && !isFieldSlot) {
         const compatible = isFieldCompatibleWithSlot(def, recipeSlot as any);
         if (!compatible) {
           const kinds = classifyField(def).join('|');

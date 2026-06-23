@@ -706,13 +706,27 @@ export function ComposableSlot({
   // solo lo aplicaban los displays explícitos). caso A sin key → hereda la base.
   const fa = slot.fieldAppearances;
   const entries: Array<{ key?: string; label?: string; value: string }> = (arr0 && arr0.length > 0)
-    ? arr0.map(v => ({ value: v }))
+    ? arr0.map(v => ({ key: f0?.key, value: v }))   // KRO-198 — key del field array → fieldAppearances[key] casa también en cada chip
     : slot.fields
         .map(f => ({ key: f.key, label: f.def?.label ?? f.key, value: formatScalar(f.value, f.def) }))
         .filter(e => e.value !== '');
-  // Color EFECTIVO por entrada: la base del slot merge-ada con fieldAppearances[key]
-  // (paletteClass devuelve '' para tokens `field:`/sin color → cae al default).
-  const colorFor = (key?: string) => fieldColorClasses(slot.appearance, fa, key);
+  // KRO-198 — apariencia EFECTIVA por ENTRADA: un único molde para TODOS los
+  // branches (antes solo el color, y solo `stats` aplicaba todo). `text` =
+  // tipografía + color (base del slot ← fieldAppearances[key]); `bg` = fondo;
+  // `box` = recorte CSS + relleno + efecto SOLO del override del field (no de la
+  // base, para no alterar recetas ya shipeadas); `val(v)` = el string ya cortado
+  // por `truncateChars` del field. Sin entrada por-field → solo la base (heredada).
+  const styleFor = (key?: string) => {
+    const ap  = mergeFieldAppearance(slot.appearance, fa, key);
+    const own = key ? fa?.[key] : undefined;
+    return {
+      color: paletteClass(ap?.textColor, 'text'),
+      bg:    paletteClass(ap?.bgColor, 'bg'),
+      text:  appearanceTextClasses(ap ? { ...ap, bgColor: undefined } : undefined),
+      box:   cn(appearanceTruncateClass(own), appearancePaddingClass(own), appearanceEffectClasses(own)),
+      val:   (v: string) => applyAppearanceTruncate(v, own),
+    };
+  };
 
   // KRO-198 — variante de render EXPLÍCITA (chips / en línea / lista / tabla).
   // Cuando el publisher la fija, manda sobre el render por behavior. 'auto'
@@ -731,9 +745,9 @@ export function ComposableSlot({
       return (
         <span className={cn('inline-flex flex-wrap gap-1 align-middle', textClasses, elBg && 'bg-transparent', className)}>
           {entries.map((e, i) => {
-            const c = colorFor(e.key);
+            const s = styleFor(e.key);
             return (
-              <span key={i} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]', c.bg || 'bg-muted', c.text || 'text-muted-foreground')}>{e.value}</span>
+              <span key={i} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]', s.bg || 'bg-muted', s.text || 'text-muted-foreground', s.box)}>{s.val(e.value)}</span>
             );
           })}
         </span>
@@ -742,7 +756,7 @@ export function ComposableSlot({
     if (display === 'list') {
       return (
         <span className={cn('inline-flex flex-col items-start gap-0.5 align-top', textClasses, className)}>
-          {entries.map((e, i) => { const c = colorFor(e.key); return <span key={i} className={c.text || undefined}>{e.value}</span>; })}
+          {entries.map((e, i) => { const s = styleFor(e.key); return <span key={i} className={cn(s.text, s.bg, s.box) || undefined}>{s.val(e.value)}</span>; })}
         </span>
       );
     }
@@ -752,18 +766,18 @@ export function ComposableSlot({
       if (!hasLabels) {
         return (
           <span className={cn('inline-flex flex-col items-start gap-0.5 align-top', textClasses, className)}>
-            {entries.map((e, i) => { const c = colorFor(e.key); return <span key={i} className={c.text || undefined}>{e.value}</span>; })}
+            {entries.map((e, i) => { const s = styleFor(e.key); return <span key={i} className={cn(s.text, s.bg, s.box) || undefined}>{s.val(e.value)}</span>; })}
           </span>
         );
       }
       return (
         <span className={cn('inline-grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 align-top text-left', textClasses, className)}>
           {entries.map((e, i) => {
-            const c = colorFor(e.key);
+            const s = styleFor(e.key);
             return (
               <Fragment key={i}>
-                <span className={cn('text-[0.85em]', c.text || 'text-muted-foreground/80')}>{e.label}</span>
-                <span className={c.text || undefined}>{e.value}</span>
+                <span className={cn('text-[0.85em]', s.color || 'text-muted-foreground/80')}>{e.label}</span>
+                <span className={cn(s.text, s.bg, s.box) || undefined}>{s.val(e.value)}</span>
               </Fragment>
             );
           })}
@@ -781,9 +795,9 @@ export function ComposableSlot({
         return (
           <span className={cn('inline-flex flex-wrap gap-1 align-middle', textClasses, className)}>
             {entries.map((e, i) => {
-              const c = colorFor(e.key);
+              const s = styleFor(e.key);
               return (
-                <span key={i} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]', c.bg || 'bg-muted', c.text || 'text-muted-foreground')}>{e.value}</span>
+                <span key={i} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]', s.bg || 'bg-muted', s.text || 'text-muted-foreground', s.box)}>{s.val(e.value)}</span>
               );
             })}
           </span>
@@ -803,12 +817,12 @@ export function ComposableSlot({
                 {isBadge ? (
                   <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-bold tabular-nums max-w-full',
                     bg || 'bg-muted', appearancePaddingClass(ap), appearanceEffectClasses(ap),
-                    appearanceTextClasses(ap ? { ...ap, bgColor: undefined } : undefined) || 'text-foreground')}>{e.value}</span>
+                    appearanceTextClasses(ap ? { ...ap, bgColor: undefined } : undefined) || 'text-foreground')}>{applyAppearanceTruncate(e.value, ap)}</span>
                 ) : (
                   <span className={cn('text-lg font-bold tabular-nums max-w-full text-foreground',
                     !ap?.truncate && 'truncate', appearanceTruncateClass(ap),
                     bg && 'rounded px-1', appearancePaddingClass(ap), appearanceEffectClasses(ap), bg,
-                    appearanceTextClasses(ap ? { ...ap, bgColor: undefined } : undefined))}>{e.value}</span>
+                    appearanceTextClasses(ap ? { ...ap, bgColor: undefined } : undefined))}>{applyAppearanceTruncate(e.value, ap)}</span>
                 )}
                 {e.label && <span className={cn('text-[10px] uppercase tracking-wider truncate max-w-full text-muted-foreground',
                   ap?.textColor && paletteClass(ap.textColor, 'text'))}>{e.label}</span>}
@@ -822,11 +836,11 @@ export function ComposableSlot({
     return (
       <span className={cn(textClasses, className)}>
         {entries.map((e, i) => {
-          const c = colorFor(e.key);
+          const s = styleFor(e.key);
           return (
-            <span key={i} className={c.text || undefined}>
+            <span key={i} className={cn(s.text, s.bg, s.box) || undefined}>
               {i > 0 && <span className="text-muted-foreground/60">{` ${separator} `}</span>}
-              {e.value}
+              {s.val(e.value)}
             </span>
           );
         })}
@@ -835,11 +849,14 @@ export function ComposableSlot({
   }
 
   if (arr0 && arr0.length > 0) {
+    // KRO-198 — TODOS los elementos del array comparten la apariencia POR-FIELD de
+    // su field (f0): color/tipografía/recorte/caja + corte por chars en cada chip.
+    const s = styleFor(f0?.key);
     if (beh0 === 'tags') {
       return (
-        <span className={cn('inline-flex flex-wrap gap-1 align-middle', textClasses, className)}>
+        <span className={cn('inline-flex flex-wrap gap-1 align-middle', textClasses, s.bg && 'bg-transparent', className)}>
           {arr0.map((t, i) => (
-            <span key={i} className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[0.8em] text-muted-foreground">{t}</span>
+            <span key={i} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]', s.bg || 'bg-muted', s.text || 'text-muted-foreground', s.box)}>{s.val(t)}</span>
           ))}
         </span>
       );
@@ -850,8 +867,8 @@ export function ComposableSlot({
           {arr0.map((t, i) => {
             const href = beh0 === 'email_list' ? `mailto:${t}` : linkHrefFor('url', t);
             return href
-              ? <a key={i} href={href} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 text-primary break-all">{t}</a>
-              : <span key={i}>{t}</span>;
+              ? <a key={i} href={href} target="_blank" rel="noopener noreferrer" className={cn('underline underline-offset-2 text-primary break-all', s.box)}>{s.val(t)}</a>
+              : <span key={i} className={cn(s.text, s.box) || undefined}>{s.val(t)}</span>;
           })}
         </span>
       );
@@ -861,9 +878,9 @@ export function ComposableSlot({
     return (
       <span className={cn(textClasses, className)}>
         {arr0.map((t, i) => (
-          <span key={i}>
+          <span key={i} className={cn(s.text, s.bg, s.box) || undefined}>
             {i > 0 && <span className="text-muted-foreground/60">{` ${separator} `}</span>}
-            {t}
+            {s.val(t)}
           </span>
         ))}
       </span>
@@ -886,8 +903,8 @@ export function ComposableSlot({
     // árbol es legalmente phrasing content.
     return (
       <span className={cn('inline-flex flex-col items-start gap-0.5 align-top', textClasses, className)}>
-        {/* KRO-198 — `entries` (con key) + colorFor → color por-chip también en 'auto'. */}
-        {entries.map((e, i) => { const c = colorFor(e.key); return <span key={i} className={cn(c.text, c.bg) || undefined}>{e.value}</span>; })}
+        {/* KRO-198 — apariencia EFECTIVA por entrada (color+tipografía+recorte+caja) también en 'auto'. */}
+        {entries.map((e, i) => { const s = styleFor(e.key); return <span key={i} className={cn(s.text, s.bg, s.box) || undefined}>{s.val(e.value)}</span>; })}
       </span>
     );
   }
@@ -898,14 +915,14 @@ export function ComposableSlot({
   // la derecha sin que se vea la elipsis del padre).
   return (
     <span className={cn(textClasses, className)}>
-      {/* KRO-198 — `entries` (con key) + colorFor → color/fondo por-chip también
-          en 'auto' multi-campo (antes `items` perdía la key → solo color base). */}
+      {/* KRO-198 — apariencia EFECTIVA por entrada (color/fondo/tipografía/recorte/
+          caja + corte por chars) también en 'auto' multi-campo. */}
       {entries.map((e, i) => {
-        const c = colorFor(e.key);
+        const s = styleFor(e.key);
         return (
-          <span key={i} className={cn(c.text, c.bg) || undefined}>
+          <span key={i} className={cn(s.text, s.bg, s.box) || undefined}>
             {i > 0 && <span className="text-muted-foreground/60">{` ${separator} `}</span>}
-            {e.value}
+            {s.val(e.value)}
           </span>
         );
       })}
