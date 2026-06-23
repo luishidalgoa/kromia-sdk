@@ -473,6 +473,54 @@ el render real de Flutter debe leer `screenBgColor` del surface persistido para 
 
 ---
 
+## 16. Cambios 2026-06-23 — apariencia POR-FIELD en slots composable
+
+Commit SDK: `40c8816` (en `main`). Meta de composición (como `composableDisplay`/
+`conditionalStyle`) → **NO** entra al contrato KRP, NO bumpea PROTOCOL_VERSION
+(contract-drift verde). **Requiere paridad en `core_dart` (Drift Sync).**
+
+### 16.1 — `SlotComposition.fieldAppearances`
+Nuevo campo opcional: `fieldAppearances?: Record<string /* field key */, SlotAppearance>`.
+Permite que CADA field de un slot composable lleve su propia apariencia (color de texto/
+fondo, etc.) ENCIMA de la base del slot (`appearance`). Caso de uso: una `stats_row`
+("Estadísticas") con una estadística en dorado y otra en rojo.
+
+### 16.2 — Merge por entrada en el render (`ComposableSlot`)
+En `recipe-utils.tsx`, rama `display !== 'auto'` (chips/list/table/stats/inline): las
+entradas ahora conservan su `key`, y el color efectivo de cada una es
+`{ ...slot.appearance, ...fieldAppearances[key] }` (base ← override del field). Sin entrada
+por-field → base (backward-compatible: sin `fieldAppearances` el render es idéntico). El
+caso "array de un solo field" no tiene key por-elemento → usa la base. `resolveSlot` ya
+propaga `fieldAppearances` en `ResolvedSlot`.
+
+**En Flutter (`core_dart` + render):**
+1. Añade `fieldAppearances: Map<String, SlotAppearance>?` a `SlotComposition`.
+2. En el render del composable (equivalente a `ComposableSlot`), resuelve el estilo de cada
+   field como `base.merge(fieldAppearances?[key])` y aplícalo POR field (no una sola vez para
+   todo el slot). Mismo orden de precedencia: base ← field.
+3. Cascada con `conditionalStyle`: base(condicional-resuelto) ← fieldAppearances.
+
+### 16.3 — Editor (Studio, ya hecho — informativo)
+En `ViewCompositionEditor`, clicar el chip de un field en el slot composable lo selecciona y
+abre un `AppearanceEditor` anclado a `fieldAppearances[key]`. La app Flutter no edita layout →
+no necesita esto.
+
+---
+
+## 17. Cambios 2026-06-23 — el detalle deja de FORZAR "Oculto" (Studio-only, sin trabajo Flutter)
+
+Commit Studio: `99042a2`. Solo cambia el SEEDING de qué nodos van al `layout`; **Flutter
+renderiza el layout tal cual → sin cambios de código**. Awareness:
+- Las plantillas de detalle ya NO colocan `title` ni la imagen en el `layout` por defecto
+  (quedan en `slots` → insertables). Se eliminó el `hiddenSlots` forzado del editor y del
+  render del modo focus (WYSIWYG: lo colocado se renderiza). El detalle de carta ya no mete
+  `'title'` en `hiddenSlots`.
+- Se **borró `detail-slots.ts`** (`detailHiddenSlots`/`imageSlotIds`) en Studio → la
+  referencia de abajo a ese archivo queda OBSOLETA. `computeHiddenHeroRoles`/`hiddenSlots` del
+  SDK siguen intactos (capacidad genérica; ya no la alimenta el detalle de carta).
+
+---
+
 **Referencias de lectura obligada (TS canónico):**
 - `packages/react/src/recipes/RecipeRenderer.tsx` (props `hiddenSlots`, `filteredComposition`, reenvío a hero + LayoutRenderer).
 - `packages/react/src/recipes/LayoutRenderer.tsx` (caso `hero_header`, `computeHiddenHeroRoles`).

@@ -123,6 +123,14 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   `screenBgHex(surface.screenBgColor ?? surface.bgColor)` (fallback a bgColor = sin regresión);
   `applyThemePreset` setea AMBOS (bgColor+screenBgColor=paperBg). En Flutter: añade el campo a
   `ContainerSurface` de core_dart y pinta el fondo del Scaffold/host con ese fallback. Ver §15.
+  **(11) NUEVO 2026-06-23 §16 (commit `40c8816`)** — **apariencia POR-FIELD** en slots
+  composable: nuevo `SlotComposition.fieldAppearances?: Record<fieldKey, SlotAppearance>`
+  (meta, NO bumpea). `ComposableSlot` resuelve el color de CADA chip/estadística como
+  `base ← fieldAppearances[key]`. **Requiere paridad core_dart**: añade el campo + el merge
+  por-field en el render del composable (no un único estilo para todo el slot). Ver §16.
+  **§17 (Studio-only, SIN trabajo Flutter)** — el detalle de carta deja de FORZAR ocultos:
+  ya no mete `'title'` en `hiddenSlots`, las plantillas no colocan título/imagen por defecto,
+  y se borró `detail-slots.ts` en Studio. Flutter renderiza el layout tal cual. Ver §17.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
@@ -136,5 +144,8 @@ radius, caja de imagen tematizada, cornerRadii) + §12 (esquinas uniformes sin a
 POR LADO `paddingSides` surface+slot, y separador de lista opcional `listStyle.separator`
 OFF por defecto) + §14 (acento en bloques: la raya en la capa del fondo del root para que
 el acabado no la tape, y el slot de color se vuelve la raya en vez de celda) + §15 (fondo de
-PANTALLA desacoplado del de la card vía `ContainerSurface.screenBgColor`). Todo META (NO bump).
+PANTALLA desacoplado del de la card vía `ContainerSurface.screenBgColor`) + §16 (apariencia
+POR-FIELD `fieldAppearances` en slots composable: color por chip/estadística — REQUIERE paridad
+core_dart) + §17 (el detalle deja de forzar 'title' oculto, Studio-only sin trabajo Flutter).
+Todo META (NO bump).
 Handoff Flutter en la cola (§10–§15 del doc). Mantener cola al día.
