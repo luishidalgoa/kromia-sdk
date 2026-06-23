@@ -26,7 +26,7 @@ import {
   resolveSlot, isSlotDisabled, buildAccentBorderStyle, extractAccentSettings, formatScalar,
   ScalarText, ComposableSlot, ThumbBox, BadgePill, slotDebugAttrs, appearancePaddingClass,
   appearanceTextClasses, appearanceAlignClass, appearanceTruncateClass, appearanceEffectClasses, slotImageTransform,
-  mergeFieldAppearance,
+  mergeFieldAppearance, applyAppearanceTruncate,
   type FieldDefLike,
 } from '../recipe-utils';
 import {
@@ -616,16 +616,33 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
       const resolved = resolveSlot(ctx.composition, sid, ctx.fieldDefs, ctx.item);
       if (!resolved) return null;
       return (
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap items-center gap-1">
           {resolved.fields.map((f, i) => {
-            if (formatScalar(f.value, f.def) === '') return null;
-            const ap = mergeFieldAppearance(resolved.appearance, resolved.fieldAppearances, f.key);
+            const text = formatScalar(f.value, f.def);
+            if (text === '') return null;
+            // KRO-198 — apariencia EFECTIVA por chip = base del slot + override per-field
+            // (color/fondo/tipografía/RELLENO/OPACIDAD/SOMBRA/recorte). Se aplica el box de
+            // la BASE además del per-field (el chips_row es un componente nuevo, no una
+            // receta shipeada, así que su Apariencia base SÍ debe afectar a los chips).
+            const ap   = mergeFieldAppearance(resolved.appearance, resolved.fieldAppearances, f.key);
+            const shown = applyAppearanceTruncate(text, ap);
+            const box  = cn(
+              appearanceTextClasses(ap ? { ...ap, bgColor: undefined, textColor: undefined } : undefined),
+              appearancePaddingClass(ap), appearanceEffectClasses(ap), appearanceTruncateClass(ap),
+            );
+            // display:'badge' → pastilla BADGE (más marcada); si no → chip sutil.
+            if (ap?.display === 'badge') {
+              return (
+                <BadgePill key={i} className={cn(box, paletteClass(ap?.bgColor, 'bg'), paletteClass(ap?.textColor, 'text'))}>{shown}</BadgePill>
+              );
+            }
             return (
-              <span key={i} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]',
+              <span key={i} className={cn(
+                'inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]',
                 paletteClass(ap?.bgColor, 'bg') || 'bg-muted',
-                paletteClass(ap?.textColor, 'text') || 'text-muted-foreground')}>
-                <ScalarText value={f.value} def={f.def} appearance={ap ? { ...ap, bgColor: undefined } : undefined} />
-              </span>
+                paletteClass(ap?.textColor, 'text') || 'text-muted-foreground',
+                box,
+              )}>{shown}</span>
             );
           })}
         </div>
