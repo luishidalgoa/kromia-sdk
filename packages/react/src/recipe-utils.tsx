@@ -63,6 +63,9 @@ export interface ResolvedSlot {
    *  traducen a clases CSS. undefined o props undefined → fallback al
    *  estilo default del componente. */
   appearance?: SlotAppearance;
+  /** KRO-198 — apariencia POR-FIELD (key → SlotAppearance) para slots composable.
+   *  Se merge-a sobre `appearance` por cada field. Solo la consume ComposableSlot. */
+  fieldAppearances?: Record<string, SlotAppearance>;
 }
 
 export function resolveSlot(
@@ -112,6 +115,10 @@ export function resolveSlot(
     // que TODOS los renders (SlotContent, ComposableSlot, recetas) hereden la
     // apariencia efectiva sin volver a tocar el dato. Sin condicional → base.
     appearance:        resolveConditionalAppearance(sc.conditionalStyle, sc.appearance, item),
+    // KRO-198 — apariencia por-field (la consume ComposableSlot para colorear
+    // cada chip/estadística por separado). Viaja tal cual; el merge sobre la base
+    // se hace en el render por entrada.
+    fieldAppearances:  sc.fieldAppearances,
   };
 }
 
@@ -668,20 +675,27 @@ export function ComposableSlot({
     // Entradas {label, value}: caso A = un field array → cada elemento (sin
     // etiqueta); caso B = multi-field/escalar → cada field formateado con su
     // etiqueta. formatScalar evita el JSON crudo que daría un array entero.
-    const entries: Array<{ label?: string; value: string }> = (arr0 && arr0.length > 0)
+    const fa = slot.fieldAppearances;
+    // Entradas con KEY (caso B = multi-field) → habilita apariencia por-field;
+    // caso A (array de un field) sin key → hereda la base del slot.
+    const entries: Array<{ key?: string; label?: string; value: string }> = (arr0 && arr0.length > 0)
       ? arr0.map(v => ({ value: v }))
       : slot.fields
-          .map(f => ({ label: f.def?.label ?? f.key, value: formatScalar(f.value, f.def) }))
+          .map(f => ({ key: f.key, label: f.def?.label ?? f.key, value: formatScalar(f.value, f.def) }))
           .filter(e => e.value !== '');
     if (entries.length === 0) return null;
 
-    // KRO-198 — color TEMABLE de los elementos (pastillas/valores/etiquetas).
-    // Antes hardcodeaban bg-muted/text-muted-foreground/text-foreground, así que
-    // el override de color del slot no llegaba a cada elemento. Se deriva de la
-    // appearance (paletteClass devuelve '' para tokens `field:` → cae al default
-    // muted, sin romper). Los tonos van en los elementos, no solo en el wrapper.
-    const elBg   = paletteClass(slot.appearance?.bgColor, 'bg');
-    const elText = paletteClass(slot.appearance?.textColor, 'text');
+    // KRO-198 — color TEMABLE por ENTRADA: la base del slot (`slot.appearance`)
+    // merge-ada con la apariencia del field concreto (`fieldAppearances[key]`),
+    // así cada pastilla/estadística puede llevar su propio color de texto/fondo.
+    // Sin entrada por-field → base. paletteClass devuelve '' para tokens `field:`
+    // → cae al default muted, sin romper. Los tonos van en los elementos.
+    const colorFor = (key?: string) => {
+      const ap = (key && fa?.[key]) ? { ...slot.appearance, ...fa[key] } : slot.appearance;
+      return { bg: paletteClass(ap?.bgColor, 'bg'), text: paletteClass(ap?.textColor, 'text') };
+    };
+    // Base para decisiones a nivel WRAPPER (cancelar su bg en chips).
+    const elBg = paletteClass(slot.appearance?.bgColor, 'bg');
 
     if (display === 'chips') {
       // Cada valor es una pastilla. El fondo del slot va EN las pastillas (no
@@ -689,16 +703,19 @@ export function ComposableSlot({
       // floten sobre el lienzo en vez de quedar sobre una banda sólida.
       return (
         <span className={cn('inline-flex flex-wrap gap-1 align-middle', textClasses, elBg && 'bg-transparent', className)}>
-          {entries.map((e, i) => (
-            <span key={i} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]', elBg || 'bg-muted', elText || 'text-muted-foreground')}>{e.value}</span>
-          ))}
+          {entries.map((e, i) => {
+            const c = colorFor(e.key);
+            return (
+              <span key={i} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]', c.bg || 'bg-muted', c.text || 'text-muted-foreground')}>{e.value}</span>
+            );
+          })}
         </span>
       );
     }
     if (display === 'list') {
       return (
         <span className={cn('inline-flex flex-col items-start gap-0.5 align-top', textClasses, className)}>
-          {entries.map((e, i) => <span key={i}>{e.value}</span>)}
+          {entries.map((e, i) => { const c = colorFor(e.key); return <span key={i} className={c.text || undefined}>{e.value}</span>; })}
         </span>
       );
     }
@@ -708,18 +725,21 @@ export function ComposableSlot({
       if (!hasLabels) {
         return (
           <span className={cn('inline-flex flex-col items-start gap-0.5 align-top', textClasses, className)}>
-            {entries.map((e, i) => <span key={i}>{e.value}</span>)}
+            {entries.map((e, i) => { const c = colorFor(e.key); return <span key={i} className={c.text || undefined}>{e.value}</span>; })}
           </span>
         );
       }
       return (
         <span className={cn('inline-grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 align-top text-left', textClasses, className)}>
-          {entries.map((e, i) => (
-            <Fragment key={i}>
-              <span className={cn('text-[0.85em]', elText || 'text-muted-foreground/80')}>{e.label}</span>
-              <span>{e.value}</span>
-            </Fragment>
-          ))}
+          {entries.map((e, i) => {
+            const c = colorFor(e.key);
+            return (
+              <Fragment key={i}>
+                <span className={cn('text-[0.85em]', c.text || 'text-muted-foreground/80')}>{e.label}</span>
+                <span className={c.text || undefined}>{e.value}</span>
+              </Fragment>
+            );
+          })}
         </span>
       );
     }
@@ -733,32 +753,41 @@ export function ComposableSlot({
       if (!hasLabels) {
         return (
           <span className={cn('inline-flex flex-wrap gap-1 align-middle', textClasses, className)}>
-            {entries.map((e, i) => (
-              <span key={i} className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[0.8em] text-muted-foreground">{e.value}</span>
-            ))}
+            {entries.map((e, i) => {
+              const c = colorFor(e.key);
+              return (
+                <span key={i} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]', c.bg || 'bg-muted', c.text || 'text-muted-foreground')}>{e.value}</span>
+              );
+            })}
           </span>
         );
       }
       return (
         <span className={cn('inline-grid w-full grid-flow-col auto-cols-fr gap-2 border-y border-border py-3 align-top', textClasses, className)}>
-          {entries.map((e, i) => (
-            <span key={i} className="inline-flex flex-col items-center text-center min-w-0">
-              <span className={cn('text-lg font-bold tabular-nums truncate max-w-full', elText || 'text-foreground')}>{e.value}</span>
-              {e.label && <span className={cn('text-[10px] uppercase tracking-wider truncate max-w-full', elText || 'text-muted-foreground')}>{e.label}</span>}
-            </span>
-          ))}
+          {entries.map((e, i) => {
+            const c = colorFor(e.key);
+            return (
+              <span key={i} className="inline-flex flex-col items-center text-center min-w-0">
+                <span className={cn('text-lg font-bold tabular-nums truncate max-w-full', c.text || 'text-foreground')}>{e.value}</span>
+                {e.label && <span className={cn('text-[10px] uppercase tracking-wider truncate max-w-full', c.text || 'text-muted-foreground')}>{e.label}</span>}
+              </span>
+            );
+          })}
         </span>
       );
     }
     // display === 'inline' — todos los valores en una línea unidos por separador.
     return (
       <span className={cn(textClasses, className)}>
-        {entries.map((e, i) => (
-          <span key={i}>
-            {i > 0 && <span className="text-muted-foreground/60">{` ${separator} `}</span>}
-            {e.value}
-          </span>
-        ))}
+        {entries.map((e, i) => {
+          const c = colorFor(e.key);
+          return (
+            <span key={i} className={c.text || undefined}>
+              {i > 0 && <span className="text-muted-foreground/60">{` ${separator} `}</span>}
+              {e.value}
+            </span>
+          );
+        })}
       </span>
     );
   }

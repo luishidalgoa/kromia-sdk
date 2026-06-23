@@ -126,6 +126,19 @@ export interface SlotComposition {
    * bumpea PROTOCOL_VERSION. Flutter lo espeja vía el tipo en `core_dart`.
    */
   conditionalStyle?: ConditionalStyle;
+  /**
+   * KRO-198 — apariencia POR-FIELD dentro de un slot COMPOSABLE. key = field key
+   * del schema. Se MERGE-a sobre `appearance` (la base del slot): un field sin
+   * entrada aquí hereda la base; uno con entrada la sobreescribe SOLO para ese
+   * field. Permite, p.ej., dar a cada "estadística" de un `stats_row` su propio
+   * color de texto/fondo. Solo aplica a los displays donde cada field es una
+   * unidad visible (chips/stats/table/list/inline); el caso "array de un solo
+   * field" no tiene key por-elemento → cae a la base.
+   *
+   * Meta de composición (como composableDisplay/conditionalStyle) → NO entra al
+   * contrato KRP, no bumpea PROTOCOL_VERSION. Flutter lo espeja en `core_dart`.
+   */
+  fieldAppearances?: Record<string, SlotAppearance>;
 }
 
 /** KRO-198 — un caso del estilo condicional. */
