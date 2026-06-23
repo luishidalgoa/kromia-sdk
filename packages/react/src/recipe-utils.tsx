@@ -31,6 +31,8 @@ import { isMockupImage,
   type AccentSettings       as SdkAccentSettings,
   type SlotAppearance,
   type SlotComposition,
+  type GridPlacement,
+  type LayoutGap,
   type ImageTransform,
 } from '@kromia/core';
 
@@ -66,6 +68,11 @@ export interface ResolvedSlot {
   /** KRO-198 — apariencia POR-FIELD (key → SlotAppearance) para slots composable.
    *  Se merge-a sobre `appearance` por cada field. Solo la consume ComposableSlot. */
   fieldAppearances?: Record<string, SlotAppearance>;
+  /** KRO-198 — rejilla 2D opcional de los chips (columns + gap). Presente = el render
+   *  de chips pasa de flex-wrap a CSS grid; cada chip se coloca con chipPlacements. */
+  chipGrid?: SlotComposition['chipGrid'];
+  /** KRO-198 — posición (GridPlacement) de cada chip dentro de chipGrid, key = field. */
+  chipPlacements?: Record<string, GridPlacement>;
 }
 
 export function resolveSlot(
@@ -134,6 +141,9 @@ export function resolveSlot(
     appearance,
     // apariencia por-field (la consume ComposableSlot/chips_row para colorear cada chip).
     fieldAppearances,
+    // KRO-198 — rejilla 2D de chips (columns+gap) + posición por chip (GridPlacement).
+    chipGrid:       sc.chipGrid,
+    chipPlacements: sc.chipPlacements,
   };
 }
 
@@ -152,6 +162,52 @@ export function isSlotDisabled(
   slotId:      string,
 ): boolean {
   return composition?.slotOverrides?.disabled?.includes(slotId) ?? false;
+}
+
+// ── KRO-198 — colocación 2D en CSS Grid (compartida motor de bloques ↔ chips) ──
+//
+// Las MISMAS clases col/row que usa el contenedor (LayoutRenderer las importa de
+// aquí) para colocar cada CHIP dentro de la rejilla del slot (`chipGrid`). Literales
+// para que el scanner de Tailwind las recoja. 1-based (CSS Grid nativo, portable a
+// Flutter). Sin colStart/rowStart = auto-flow a la siguiente celda libre.
+const COL_SPAN_CLASSES: Record<number, string> = {
+  1: 'col-span-1', 2: 'col-span-2', 3: 'col-span-3', 4: 'col-span-4', 5: 'col-span-5', 6: 'col-span-6',
+};
+const COL_START_CLASSES: Record<number, string> = {
+  1: 'col-start-1', 2: 'col-start-2', 3: 'col-start-3', 4: 'col-start-4', 5: 'col-start-5', 6: 'col-start-6', 7: 'col-start-7',
+};
+const ROW_SPAN_CLASSES: Record<number, string> = {
+  1: 'row-span-1', 2: 'row-span-2', 3: 'row-span-3', 4: 'row-span-4', 5: 'row-span-5', 6: 'row-span-6',
+};
+const ROW_START_CLASSES: Record<number, string> = {
+  1: 'row-start-1', 2: 'row-start-2', 3: 'row-start-3', 4: 'row-start-4', 5: 'row-start-5', 6: 'row-start-6', 7: 'row-start-7',
+};
+const CHIP_GRID_GAP_CLASSES: Record<LayoutGap, string> = {
+  none: 'gap-0', xs: 'gap-1', sm: 'gap-2', md: 'gap-3', lg: 'gap-5',
+};
+
+/** Clases de colocación de un elemento dentro de un grid padre (celda + span).
+ *  Compartida por el contenedor (hijos) y por los CHIPS de un slot con `chipGrid`. */
+export function placementClasses(place: GridPlacement | undefined): string | undefined {
+  if (!place) return undefined;
+  return cn(
+    place.colStart && COL_START_CLASSES[place.colStart],
+    place.colSpan && COL_SPAN_CLASSES[place.colSpan],
+    place.rowStart && ROW_START_CLASSES[place.rowStart],
+    place.rowSpan && ROW_SPAN_CLASSES[place.rowSpan],
+  );
+}
+
+/** KRO-198 — wrapper de la rejilla de chips: clase (`inline-grid w-full` + gap) y
+ *  estilo inline (`grid-template-columns: repeat(N, minmax(0,1fr))`). El template va
+ *  inline porque el nº de columnas es dinámico (Tailwind no resuelve `grid-cols-${n}`).
+ *  `inline-grid` (no `grid`) = phrasing-safe dentro de `<p>` (el Subtítulo composable);
+ *  `w-full` hace que las columnas `1fr` repartan el ancho disponible. */
+export function chipGridWrapperClass(grid: { gap?: LayoutGap }): string {
+  return cn('inline-grid w-full', CHIP_GRID_GAP_CLASSES[grid.gap ?? 'sm']);
+}
+export function chipGridTemplateStyle(grid: { columns: number }): CSSProperties {
+  return { gridTemplateColumns: `repeat(${Math.max(1, grid.columns)}, minmax(0, 1fr))` };
 }
 
 // ── KRO-69 V6 — Appearance → Tailwind classes ─────────────────────────────
@@ -763,12 +819,22 @@ export function ComposableSlot({
       // Cada valor es una pastilla. El fondo del slot va EN las pastillas (no
       // en el wrapper, que se cancela con bg-transparent vía twMerge) para que
       // floten sobre el lienzo en vez de quedar sobre una banda sólida.
+      // KRO-198 — REJILLA 2D opcional: con `chipGrid` el wrapper pasa a inline-grid
+      // (columnas fijas) y cada chip se coloca con `placementClasses(chipPlacements[key])`;
+      // sin él, flex-wrap de siempre (retro-compat).
+      const grid = slot.chipGrid;
       return (
-        <span className={cn('inline-flex flex-wrap gap-1 align-middle', textClasses, elBg && 'bg-transparent', className)}>
+        <span
+          className={cn(
+            grid ? chipGridWrapperClass(grid) : 'inline-flex flex-wrap gap-1 align-middle',
+            textClasses, elBg && 'bg-transparent', className)}
+          style={grid ? chipGridTemplateStyle(grid) : undefined}
+        >
           {entries.map((e, i) => {
             const s = styleFor(e.key);
+            const place = grid ? placementClasses(slot.chipPlacements?.[e.key ?? '']) : undefined;
             return (
-              <span key={i} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]', s.bg || 'bg-muted', s.text || 'text-muted-foreground', s.box)}>{s.val(e.value)}</span>
+              <span key={i} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]', s.bg || 'bg-muted', s.text || 'text-muted-foreground', s.box, place)}>{s.val(e.value)}</span>
             );
           })}
         </span>

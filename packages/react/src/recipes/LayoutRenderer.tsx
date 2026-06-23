@@ -27,6 +27,7 @@ import {
   ScalarText, ComposableSlot, ThumbBox, BadgePill, slotDebugAttrs, appearancePaddingClass,
   appearanceTextClasses, appearanceAlignClass, appearanceTruncateClass, appearanceEffectClasses, slotImageTransform,
   mergeFieldAppearance, applyAppearanceTruncate,
+  placementClasses, chipGridWrapperClass, chipGridTemplateStyle,
   type FieldDefLike,
 } from '../recipe-utils';
 import {
@@ -58,25 +59,6 @@ const JUSTIFY_CONTENT_CLASSES: Record<LayoutJustify, string> = {
 const JUSTIFY_ITEMS_CLASSES: Partial<Record<LayoutJustify, string>> = {
   start: 'justify-items-start', center: 'justify-items-center', end: 'justify-items-end',
 };
-// Estáticas para que Tailwind las recoja. (El template de columnas/filas va
-// inline — soporta track sizing arbitrario.)
-const COL_SPAN_CLASSES: Record<number, string> = {
-  1: 'col-span-1', 2: 'col-span-2', 3: 'col-span-3',
-  4: 'col-span-4', 5: 'col-span-5', 6: 'col-span-6',
-};
-const COL_START_CLASSES: Record<number, string> = {
-  1: 'col-start-1', 2: 'col-start-2', 3: 'col-start-3',
-  4: 'col-start-4', 5: 'col-start-5', 6: 'col-start-6', 7: 'col-start-7',
-};
-const ROW_SPAN_CLASSES: Record<number, string> = {
-  1: 'row-span-1', 2: 'row-span-2', 3: 'row-span-3',
-  4: 'row-span-4', 5: 'row-span-5', 6: 'row-span-6',
-};
-const ROW_START_CLASSES: Record<number, string> = {
-  1: 'row-start-1', 2: 'row-start-2', 3: 'row-start-3',
-  4: 'row-start-4', 5: 'row-start-5', 6: 'row-start-6', 7: 'row-start-7',
-};
-
 /** Clases del contenedor según su `kind` + props. */
 function containerClasses(node: LayoutContainerNode): string {
   const gap = GAP_CLASSES[node.gap ?? 'sm'];
@@ -104,16 +86,8 @@ function containerClasses(node: LayoutContainerNode): string {
   );
 }
 
-/** Clases de colocación de un hijo dentro de un grid padre (celda + span). */
-function placementClasses(place: GridPlacement | undefined): string | undefined {
-  if (!place) return undefined;
-  return cn(
-    place.colStart && COL_START_CLASSES[place.colStart],
-    place.colSpan && COL_SPAN_CLASSES[place.colSpan],
-    place.rowStart && ROW_START_CLASSES[place.rowStart],
-    place.rowSpan && ROW_SPAN_CLASSES[place.rowSpan],
-  );
-}
+// `placementClasses` (celda + span) ahora vive en `recipe-utils` (compartida con los
+// CHIPS de un slot con `chipGrid`); se importa arriba.
 
 // Auto-alineación del elemento dentro de su celda (KRO-133 F3).
 const JUSTIFY_SELF_CLASSES: Record<LayoutAlign, string> = {
@@ -653,13 +627,19 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
       if (!sid) return null;
       const resolved = resolveSlot(ctx.composition, sid, ctx.fieldDefs, ctx.item);
       if (!resolved) return null;
+      // KRO-198 — REJILLA 2D opcional de chips: con `chipGrid` el wrapper pasa de
+      // flex-wrap a CSS grid (columnas fijas) y cada chip se coloca con su
+      // `chipPlacements[key]` (mismo GridPlacement que los bloques del contenedor).
+      // Sin `chipGrid` → flex-wrap de siempre + "Alinear" mapeado a justify-content.
+      const grid = resolved.chipGrid;
       return (
-        // KRO-198 — el wrapper es FLEX → "Alinear" (text-align) no mueve los chips;
-        // se mapea a justify-content (start/center/end) para que el align del slot
-        // alinee la fila de chips izquierda/centro/derecha.
-        <div className={cn('flex flex-wrap items-center gap-1',
-          resolved.appearance?.align === 'center' && 'justify-center',
-          resolved.appearance?.align === 'right' && 'justify-end')}>
+        <div
+          className={cn(grid
+            ? chipGridWrapperClass(grid)
+            : cn('flex flex-wrap items-center gap-1',
+                resolved.appearance?.align === 'center' && 'justify-center',
+                resolved.appearance?.align === 'right' && 'justify-end'))}
+          style={grid ? chipGridTemplateStyle(grid) : undefined}>
           {resolved.fields.map((f, i) => {
             const text = formatScalar(f.value, f.def);
             if (text === '') return null;
@@ -669,6 +649,7 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
             // receta shipeada, así que su Apariencia base SÍ debe afectar a los chips).
             const ap   = mergeFieldAppearance(resolved.appearance, resolved.fieldAppearances, f.key);
             const shown = applyAppearanceTruncate(text, ap);
+            const place = grid ? placementClasses(resolved.chipPlacements?.[f.key]) : undefined;
             const box  = cn(
               appearanceTextClasses(ap ? { ...ap, bgColor: undefined, textColor: undefined } : undefined),
               appearancePaddingClass(ap), appearanceEffectClasses(ap), appearanceTruncateClass(ap),
@@ -679,7 +660,7 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
             // "Fila de chips" es pastilla (su identidad).
             if (ap?.display === 'text') {
               return (
-                <span key={i} className={cn('text-[0.8em]', paletteClass(ap?.textColor, 'text'), box)}>{shown}</span>
+                <span key={i} className={cn('text-[0.8em]', paletteClass(ap?.textColor, 'text'), box, place)}>{shown}</span>
               );
             }
             return (
@@ -687,7 +668,7 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
                 'inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]',
                 paletteClass(ap?.bgColor, 'bg') || 'bg-muted',
                 paletteClass(ap?.textColor, 'text') || 'text-muted-foreground',
-                box,
+                box, place,
               )}>{shown}</span>
             );
           })}

@@ -160,3 +160,53 @@ describe('conditional else (otherwise) — resolveSlot aplica el fallback con su
     expect(r?.fieldAppearances?.elemento?.bgColor).toBeUndefined();
   });
 });
+
+// ── Rejilla de chips (chipGrid + chipPlacements): coloca cada chip en su celda 2D,
+// reusando las clases col/row del motor de bloques. Sin chipGrid = flex-wrap (compat). ──
+describe('chip grid — chips_row + ComposableSlot colocan cada chip en su celda', () => {
+  const cg = { columns: 2 };
+  // "Amet" arriba ocupando 2 columnas; los otros dos abajo (fila 2).
+  const placements = {
+    a: { colStart: 1, colSpan: 2, rowStart: 1 },
+    b: { colStart: 1, rowStart: 2 },
+    c: { colStart: 2, rowStart: 2 },
+  };
+  const gFieldDefs = [
+    { key: 'a', label: 'A', type: 'text' },
+    { key: 'b', label: 'B', type: 'text' },
+    { key: 'c', label: 'C', type: 'text' },
+  ] as any;
+  const gItem = { a: 'Amet', b: 'Elit', c: 'Star' };
+
+  it('chips_row con chipGrid → wrapper inline-grid (repeat 2) + placement por chip', () => {
+    const node = { type: 'component', component: 'chips_row', slots: { chips: 's' } } as any;
+    const composition = { slots: { s: { fields: ['a', 'b', 'c'], chipGrid: cg, chipPlacements: placements } } } as any;
+    const html = renderToStaticMarkup(<ComponentContent node={node} composition={composition} item={gItem} fieldDefs={gFieldDefs} />);
+    expect(html, 'falta inline-grid').toContain('inline-grid');
+    expect(html, 'falta grid-template-columns repeat(2)').toContain('repeat(2');
+    expect(html, 'falta el span de Amet (col-span-2)').toContain('col-span-2');
+    expect(html, 'faltan los chips de la fila 2 (row-start-2)').toContain('row-start-2');
+  });
+  it('chips_row SIN chipGrid → flex-wrap (retro-compat, sin placement)', () => {
+    const node = { type: 'component', component: 'chips_row', slots: { chips: 's' } } as any;
+    const composition = { slots: { s: { fields: ['a', 'b', 'c'] } } } as any;
+    const html = renderToStaticMarkup(<ComponentContent node={node} composition={composition} item={gItem} fieldDefs={gFieldDefs} />);
+    expect(html).toContain('flex-wrap');
+    expect(html).not.toContain('col-span-2');
+  });
+  it('ComposableSlot display=chips con chipGrid → coloca cada chip igual', () => {
+    const resolved = {
+      fields: [
+        { key: 'a', def: gFieldDefs[0], value: 'Amet' },
+        { key: 'b', def: gFieldDefs[1], value: 'Elit' },
+        { key: 'c', def: gFieldDefs[2], value: 'Star' },
+      ],
+      orientation: 'horizontal', separator: ' · ', composableDisplay: 'chips',
+      chipGrid: cg, chipPlacements: placements,
+    } as any;
+    const html = renderToStaticMarkup(<ComposableSlot slot={resolved} />);
+    expect(html).toContain('inline-grid');
+    expect(html).toContain('col-span-2');
+    expect(html).toContain('row-start-2');
+  });
+});

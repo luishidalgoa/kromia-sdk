@@ -40,6 +40,10 @@ export {
   appearanceEffectClasses,
   appearanceObjectFitClass,
   applyAppearanceTruncate,
+  // KRO-198 — colocación 2D (rejilla de chips, compartida con el motor de bloques)
+  placementClasses,
+  chipGridWrapperClass,
+  chipGridTemplateStyle,
   isEmpty,
   buildAccentBorderStyle,
   extractAccentColor,

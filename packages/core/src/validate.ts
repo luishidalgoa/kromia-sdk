@@ -404,6 +404,37 @@ function validateSlot(
     }
   }
 
+  // KRO-198 — rejilla 2D de chips (meta de composición, como composableDisplay).
+  if (slot.chipGrid !== undefined && slot.chipGrid !== null) {
+    const g = slot.chipGrid;
+    const gp = `${basePath}.chipGrid`;
+    if (typeof g !== 'object' || Array.isArray(g)) {
+      issues.push({ path: gp, level: 'error', message: 'chipGrid no es un objeto' });
+    } else if (!Number.isInteger(g.columns) || g.columns < 1 || g.columns > 6) {
+      issues.push({ path: `${gp}.columns`, level: 'error', message: 'chipGrid.columns debe ser un entero entre 1 y 6' });
+    }
+  }
+  // KRO-198 — placements por chip (key del field → GridPlacement). Cada celda 1-based.
+  if (slot.chipPlacements !== undefined && slot.chipPlacements !== null) {
+    const cp = slot.chipPlacements;
+    const cpPath = `${basePath}.chipPlacements`;
+    if (typeof cp !== 'object' || Array.isArray(cp)) {
+      issues.push({ path: cpPath, level: 'error', message: 'chipPlacements no es un objeto' });
+    } else {
+      for (const [key, place] of Object.entries(cp)) {
+        if (!slot.fields.includes(key)) {
+          issues.push({ path: `${cpPath}.${key}`, level: 'warn', message: `chipPlacements referencia "${key}", que no es un field del slot` });
+        }
+        for (const prop of ['colStart', 'colSpan', 'rowStart', 'rowSpan'] as const) {
+          const v = (place as Record<string, unknown>)?.[prop];
+          if (v !== undefined && (!Number.isInteger(v) || (v as number) < 1)) {
+            issues.push({ path: `${cpPath}.${key}.${prop}`, level: 'error', message: `${prop} debe ser un entero ≥ 1 (1-based)` });
+          }
+        }
+      }
+    }
+  }
+
   // KRO-80 — nestedComposition con depth max=2.
   if (slot.nestedComposition !== undefined && slot.nestedComposition !== null) {
     validateNested(slot.nestedComposition, `${basePath}.nestedComposition`, issues);

@@ -139,6 +139,22 @@ export interface SlotComposition {
    * contrato KRP, no bumpea PROTOCOL_VERSION. Flutter lo espeja en `core_dart`.
    */
   fieldAppearances?: Record<string, SlotAppearance>;
+  /**
+   * KRO-198 — REJILLA 2D opcional para los chips/fields de un slot COMPOSABLE
+   * (la "Fila de chips" / chips_row y el Subtítulo composable). Espejo del sistema
+   * de rejilla del CONTENEDOR pero a nivel de FIELD: `columns` = nº de columnas
+   * (como `LayoutContainerNode.columns`), `gap` = espacio entre celdas. Ausente = los
+   * chips fluyen en `flex-wrap` (comportamiento histórico, retro-compat). Cada chip
+   * se coloca con `chipPlacements[fieldKey]`. Data de composición → NO contrato KRP.
+   */
+  chipGrid?: { columns: number; gap?: LayoutGap };
+  /**
+   * KRO-198 — posición de cada chip dentro de `chipGrid`. key = field key; valor =
+   * `GridPlacement` (MISMO tipo que los bloques del contenedor → reusa el render y la
+   * paridad Flutter; el editor solo expone col/fila/ancho/alto). Sin entrada = auto-flow
+   * a la siguiente celda libre. Solo surte efecto si `chipGrid` existe. Data → no contrato.
+   */
+  chipPlacements?: Record<string, GridPlacement>;
 }
 
 /** KRO-198 — un caso del estilo condicional. */
