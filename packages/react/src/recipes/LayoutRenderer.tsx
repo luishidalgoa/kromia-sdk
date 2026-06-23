@@ -439,11 +439,17 @@ export function SlotContent({ slot, composition, item, fieldDefs, cardFormat, re
     <div
       className={cn(
         'min-w-0',
-        !resolved.appearance?.truncate && !longText && 'truncate',
+        // KRO-198 — "Sin salto de línea" (appearance.noWrap) AUTORITATIVO a nivel de
+        // bloque: reutiliza la clase Tailwind `truncate` (= white-space:nowrap +
+        // overflow:hidden + ellipsis), una sola línea pase lo que pase con el recorte,
+        // y se SALTA el line-clamp (que permite N líneas → entraría en conflicto).
+        resolved.appearance?.noWrap
+          ? 'truncate'
+          : (!resolved.appearance?.truncate && !longText && 'truncate'),
         longText && first?.def?.behavior !== 'markdown' && 'whitespace-pre-wrap',
         appearancePaddingClass(resolved.appearance),
         appearanceTextClasses(resolved.appearance),
-        appearanceTruncateClass(resolved.appearance),
+        !resolved.appearance?.noWrap && appearanceTruncateClass(resolved.appearance),
       )}
       style={fieldColor}
       {...slotDebugAttrs(slot, resolved)}
