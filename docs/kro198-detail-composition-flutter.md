@@ -587,6 +587,39 @@ para no dejar huecos del color de fondo de la app. Equivale al criterio de `scre
 
 ---
 
+## 20. Cambios 2026-06-23 — `ContainerSurface.textColor`: color de texto GLOBAL del contenedor (cascada)
+
+Commit SDK: `c0becc2` (en `main`). Meta render-only (NO contrato KRP — no está en
+`ALL_SURFACE_PROPS`, como `screenBgColor`/`cornerRadii`). **Requiere paridad core_dart.**
+
+### 20.1 — `ContainerSurface.textColor?: string` + cascada
+Nuevo campo (id de paleta). `surfaceClasses` lo aplica como **color de texto base** del
+contenedor (`paletteClass(s.textColor,'text')` en el div del contenedor) → por **herencia
+CSS** lo adoptan TODOS los slots descendientes SIN color propio; un slot que fija su
+`appearance.textColor` lo sobreescribe en su elemento. Da un "color de texto global" sin
+recolorear slot a slot.
+
+### 20.2 — `applyThemePreset` lo setea GLOBAL (antes era por-slot)
+`applyThemePreset` ya **no** pone `theme.textColor` en cada slot; lo pone UNA vez en
+`layout.surface.textColor`. Los slots lo heredan por cascada; los badges conservan su
+`accent` (que sí va por-slot). Resultado visual idéntico, pero ahora es un punto editable
+y overridable. (La FUENTE `theme.font` sigue por-slot.)
+
+**En Flutter (`core_dart` + render):**
+1. Añade `textColor` a `ContainerSurface` de `core_dart`.
+2. El render del contenedor debe aplicar `surface.textColor` como color de texto por
+   DEFECTO del subárbol (DefaultTextStyle/Theme heredado), de modo que un slot sin color
+   propio lo herede y uno con `appearance.textColor` lo sobreescriba.
+3. `applyThemePreset` (si la app edita): setear `surface.textColor = theme.textColor`
+   (global), NO por-slot. Tests de themes (TS) actualizados al nuevo modelo.
+
+### 20.3 — Editor + detalle (Studio, ya hecho)
+Studio expone "Color de texto" en Decoración → Fondo del raíz (`set({textColor})`,
+commit `85a81e9`), y la cabecera del detalle (CardFocusOverlay) usa `surface.textColor`
+(con fallback legacy a un slot). El CTA "Ocultar detalles" se adapta a ese color.
+
+---
+
 **Referencias de lectura obligada (TS canónico):**
 - `packages/react/src/recipes/RecipeRenderer.tsx` (props `hiddenSlots`, `filteredComposition`, reenvío a hero + LayoutRenderer).
 - `packages/react/src/recipes/LayoutRenderer.tsx` (caso `hero_header`, `computeHiddenHeroRoles`).

@@ -143,6 +143,13 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   **Paridad core_dart**: ramificar en `display=='badge'` también en stats. (19.2, Studio
   `99a6e76`, nota app) el PANEL del detalle se tiñe con el acabado (`paletteHex(surface.bgColor)`)
   para no dejar huecos blancos → la app Flutter debería pintar igual su panel de detalle. Ver §19.
+  **(14) NUEVO 2026-06-23 §20 (commit `c0becc2`)** — `ContainerSurface.textColor`: color de
+  texto GLOBAL del contenedor (id de paleta, meta render-only). `surfaceClasses` lo aplica
+  como color base → CASCADA por herencia a los slots sin color propio (los que fijan el suyo
+  ganan). `applyThemePreset` lo setea GLOBAL en `surface.textColor` (antes por-slot; badges
+  conservan accent). **Paridad core_dart**: añade el campo + aplica el color como DefaultTextStyle
+  heredado del subárbol + applyThemePreset global. Studio: control "Color de texto" en Decoración
+  + cabecera del detalle usa `surface.textColor`. Ver §20.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
