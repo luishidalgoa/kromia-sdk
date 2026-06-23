@@ -38,16 +38,17 @@ export function matchConditionalCase(c: ConditionalStyleCase, raw: unknown): boo
 /**
  * Apariencia EFECTIVA tras aplicar el estilo condicional: el primer caso que
  * matchea el valor de `cond.fieldKey` en `item` MERGE-a su appearance sobre la
- * base. Sin condicional / sin match / sin item → devuelve la base intacta.
+ * base; si ninguno matchea pero hay cláusula `otherwise` (else), esa manda. Sin
+ * condicional / sin match / sin else → devuelve la base intacta.
  */
 export function resolveConditionalAppearance(
   cond: ConditionalStyle | undefined,
   base: SlotAppearance | undefined,
   item: Record<string, unknown> | undefined,
 ): SlotAppearance | undefined {
-  const matched = matchedConditionalCase(cond, item);
-  if (!matched) return base;
-  return { ...(base ?? {}), ...(matched.appearance ?? {}) };
+  const eff = resolveConditionalStyling(cond, item);
+  if (!eff) return base;
+  return { ...(base ?? {}), ...(eff.appearance ?? {}) };
 }
 
 /**
@@ -55,7 +56,8 @@ export function resolveConditionalAppearance(
  * leer su `target` y aplicar la apariencia a los chip(s) correctos del slot componible
  * (ganando sobre su apariencia por-chip) en vez de a la base de toda la fila. Sin
  * condicional / sin match / sin item → undefined. Mismo orden de evaluación (1º que
- * matchea gana) que `resolveConditionalAppearance`.
+ * matchea gana) que `resolveConditionalAppearance`. NO contempla el `otherwise` (else):
+ * es puro "primer caso que coincide" → para el fallback usa `resolveConditionalStyling`.
  */
 export function matchedConditionalCase(
   cond: ConditionalStyle | undefined,
@@ -64,4 +66,22 @@ export function matchedConditionalCase(
   if (!cond?.fieldKey || !cond.cases?.length || !item) return undefined;
   const raw = item[cond.fieldKey];
   return cond.cases.find(c => matchConditionalCase(c, raw));
+}
+
+/**
+ * KRO-198 — caso EFECTIVO del estilo condicional, CON la cláusula else: el primer
+ * `case` que coincide o, si ninguno, la cláusula `otherwise` (else); undefined si no
+ * hay ni match ni else. El caller lee `.appearance` + `.target` IGUAL para casos y
+ * para el else → el "aplica a"/scoping por-chip funciona idéntico en ambos. Este es
+ * el helper que debe usar el render (resolveSlot) para que el else surta efecto.
+ */
+export function resolveConditionalStyling(
+  cond: ConditionalStyle | undefined,
+  item: Record<string, unknown> | undefined,
+): ConditionalStyleCase | undefined {
+  // El else aplica SOLO cuando el condicional está configurado (fieldKey + cases) y
+  // se EVALUÓ contra datos (hay item) pero ningún caso coincidió. Sin configurar /
+  // sin item → undefined (no filtra el else sin datos que evaluar).
+  if (!cond?.fieldKey || !cond.cases?.length || !item) return undefined;
+  return matchedConditionalCase(cond, item) ?? cond.otherwise;
 }

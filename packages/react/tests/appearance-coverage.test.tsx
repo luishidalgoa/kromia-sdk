@@ -14,7 +14,7 @@ import { describe, it, expect } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { paletteClass } from '@kromia/core';
 import {
-  ComponentContent, ComposableSlot,
+  ComponentContent, ComposableSlot, resolveSlot,
   appearancePaddingClass, appearanceEffectClasses, appearanceTextClasses,
   appearanceObjectFitClass,
 } from '../src/index';
@@ -121,4 +121,42 @@ describe('appearance coverage — los componentes de galería honran la aparienc
       for (const eff of IMG_EFFECTS) expect(html, `${component}: falta el efecto "${eff}"`).toContain(eff);
     });
   }
+});
+
+// ── Cláusula ELSE (otherwise) del "Estilo por valor" v2: el render (resolveSlot)
+// debe aplicar el fallback cuando NINGÚN caso coincide, con su scoping por target. ──
+describe('conditional else (otherwise) — resolveSlot aplica el fallback con su target', () => {
+  const condFieldDefs = [
+    { key: 'elemento', label: 'Elemento', type: 'text' },
+    { key: 'rareza', label: 'Rareza', type: 'text' },
+  ] as any;
+  const cond = {
+    fieldKey: 'elemento',
+    cases: [{ value: 'fuego', appearance: { bgColor: 'rose' }, target: ['elemento'] }],
+    otherwise: { appearance: { bgColor: 'zinc' }, target: ['elemento'] },
+  };
+  const composition = { slots: { s: { fields: ['elemento', 'rareza'], conditionalStyle: cond } } } as any;
+
+  it('caso coincide → el chip vigilado coge la apariencia del CASO (no el else)', () => {
+    const r = resolveSlot(composition, 's', condFieldDefs, { elemento: 'fuego', rareza: 'rara' });
+    expect(r?.fieldAppearances?.elemento?.bgColor).toBe('rose');
+  });
+  it('ningún caso coincide → el ELSE aplica al chip vigilado, sin tocar el vecino', () => {
+    const r = resolveSlot(composition, 's', condFieldDefs, { elemento: 'agua', rareza: 'rara' });
+    expect(r?.fieldAppearances?.elemento?.bgColor).toBe('zinc');
+    expect(r?.fieldAppearances?.rareza?.bgColor).toBeUndefined();
+  });
+  it('else SIN target → se mergea sobre la apariencia base de toda la fila', () => {
+    const cond2 = { fieldKey: 'elemento', cases: [{ value: 'fuego', appearance: { bgColor: 'rose' } }], otherwise: { appearance: { bgColor: 'zinc' } } };
+    const comp2 = { slots: { s: { fields: ['elemento', 'rareza'], conditionalStyle: cond2 } } } as any;
+    const r = resolveSlot(comp2, 's', condFieldDefs, { elemento: 'agua', rareza: 'rara' });
+    expect(r?.appearance?.bgColor).toBe('zinc');
+  });
+  it('sin else + ningún caso → cae a la base (retro-compat, sin fallback)', () => {
+    const cond3 = { fieldKey: 'elemento', cases: [{ value: 'fuego', appearance: { bgColor: 'rose' }, target: ['elemento'] }] };
+    const comp3 = { slots: { s: { fields: ['elemento', 'rareza'], appearance: { bgColor: 'sky' }, conditionalStyle: cond3 } } } as any;
+    const r = resolveSlot(comp3, 's', condFieldDefs, { elemento: 'agua', rareza: 'rara' });
+    expect(r?.appearance?.bgColor).toBe('sky');
+    expect(r?.fieldAppearances?.elemento?.bgColor).toBeUndefined();
+  });
 });

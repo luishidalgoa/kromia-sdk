@@ -22,7 +22,7 @@ import { isMockupImage,
   extractAccentSettings    as sdkExtractAccentSettings,
   composeSlotValues,
   paletteClass,
-  matchedConditionalCase,
+  resolveConditionalStyling,
   parseInlineMarkdown,
   parseInlineHtml,
   type MarkdownToken,
@@ -111,7 +111,10 @@ export function resolveSlot(
   //    GANANDO sobre la apariencia por-chip (el "caso que coincide manda"); la base queda.
   //  - caso SIN `target` (o slot single-scalar) → se mergea sobre la BASE de toda la fila
   //    (retro-compat; ScalarText solo lee la base, no fieldAppearances).
-  const condCase = matchedConditionalCase(sc.conditionalStyle, item);
+  // KRO-198 — `resolveConditionalStyling` (no `matchedConditionalCase`) → contempla el
+  // `otherwise` (else): si ningún caso coincide pero hay cláusula else, manda su
+  // apariencia/target con el MISMO scoping por-chip que un caso.
+  const condCase = resolveConditionalStyling(sc.conditionalStyle, item);
   const condAp   = condCase?.appearance;
   const targets  = (condCase?.target ?? []).filter(Boolean);
   const appearance = (condAp && targets.length === 0)

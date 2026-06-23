@@ -164,6 +164,13 @@ export interface ConditionalStyle {
   fieldKey: string;
   /** Casos evaluados EN ORDEN; el PRIMERO que matchea gana (como un switch). */
   cases: ConditionalStyleCase[];
+  /** KRO-198 — cláusula ELSE opcional: la apariencia (+ su propio `target`/"aplica a")
+   *  que se aplica cuando NINGÚN `case` coincide. Ausente = cae a la apariencia base
+   *  del slot (retro-compat). Reusa `ConditionalStyleCase` para compartir el scoping
+   *  por-chip; `op`/`value` se ignoran aquí (es el caso "sin condición"). Se llama
+   *  `otherwise` y no `else` a propósito: `else` es palabra reservada en Dart (Flutter
+   *  espeja el tipo). Data de álbum → no entra al contrato KRP. */
+  otherwise?: ConditionalStyleCase;
 }
 
 /**

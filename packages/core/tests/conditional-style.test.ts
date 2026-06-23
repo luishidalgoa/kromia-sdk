@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { matchConditionalCase, resolveConditionalAppearance } from '../src/conditional-style';
+import { matchConditionalCase, resolveConditionalAppearance, resolveConditionalStyling } from '../src/conditional-style';
 import type { ConditionalStyle } from '../src/types';
 
 describe('matchConditionalCase', () => {
@@ -57,5 +57,42 @@ describe('resolveConditionalAppearance', () => {
   });
   it('cases vacío → base', () => {
     expect(resolveConditionalAppearance({ fieldKey: 'x', cases: [] }, { size: 'sm' }, { x: 'y' })).toEqual({ size: 'sm' });
+  });
+
+  // KRO-198 — cláusula ELSE (otherwise): fallback cuando NINGÚN caso coincide.
+  const condElse: ConditionalStyle = {
+    ...cond,
+    otherwise: { appearance: { textColor: 'zinc-400' } },
+  };
+  it('sin match + hay else → aplica el else sobre la base', () => {
+    const out = resolveConditionalAppearance(condElse, { weight: 'bold' }, { rareza: 'común' });
+    expect(out).toEqual({ weight: 'bold', textColor: 'zinc-400' });
+  });
+  it('hay match → el else se IGNORA (gana el caso)', () => {
+    const out = resolveConditionalAppearance(condElse, { weight: 'bold' }, { rareza: 'legendaria' });
+    expect(out).toEqual({ weight: 'bold', textColor: 'amber-400', display: 'badge' });
+  });
+});
+
+describe('resolveConditionalStyling (caso efectivo, con else)', () => {
+  const cond: ConditionalStyle = {
+    fieldKey: 'rareza',
+    cases: [{ value: 'legendaria', appearance: { textColor: 'amber-400' }, target: ['rareza'] }],
+    otherwise: { appearance: { textColor: 'zinc-400' }, target: ['rareza'] },
+  };
+
+  it('caso coincide → devuelve ese caso (con su target)', () => {
+    expect(resolveConditionalStyling(cond, { rareza: 'legendaria' })).toEqual(cond.cases[0]);
+  });
+  it('ningún caso coincide + hay else → devuelve el else', () => {
+    expect(resolveConditionalStyling(cond, { rareza: 'común' })).toEqual(cond.otherwise);
+  });
+  it('ningún caso coincide + sin else → undefined', () => {
+    const noElse: ConditionalStyle = { fieldKey: 'rareza', cases: cond.cases };
+    expect(resolveConditionalStyling(noElse, { rareza: 'común' })).toBeUndefined();
+  });
+  it('sin condicional / sin item → undefined (no toca el else)', () => {
+    expect(resolveConditionalStyling(undefined, { rareza: 'común' })).toBeUndefined();
+    expect(resolveConditionalStyling(cond, undefined)).toBeUndefined();
   });
 });
