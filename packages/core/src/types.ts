@@ -225,6 +225,15 @@ export interface SlotAppearance {
    *  Coexiste con `truncate` (líneas): el slice por chars actúa primero,
    *  y line-clamp envuelve si aún sobrepasa N líneas. Min 1, max 500. */
   truncateChars?: number;
+  /** KRO-198 — Render-only meta (NO entra al contrato KRP; no bumpea
+   *  PROTOCOL_VERSION). Fuerza que un slot componible "En línea"/horizontal
+   *  NO parta a la siguiente línea: aplica `white-space: nowrap` al wrapper
+   *  de la fila (los valores + separadores fluyen en una sola línea; si
+   *  rebasan el ancho, desbordan en vez de envolver). Opt-in (default = se
+   *  permite envolver, para no alterar recetas con `line-clamp-N`). NO usa
+   *  `inline-flex` a propósito: eso crearía un formatting context que rompería
+   *  la elipsis del `<p class="truncate">` padre de las recetas. */
+  noWrap?: boolean;
 
   // ── Solo image-* ──────────────────────────────────────────────────
   /** Punto focal de la imagen: qué porción se queda visible dentro del

@@ -690,6 +690,12 @@ export function ComposableSlot({
 
   // KRO-69: appearance text classes (align/weight/size) viajan en el wrapper.
   const textClasses = appearanceTextClasses(slot.appearance);
+  // KRO-198 — no-wrap opt-in (meta render-only `appearance.noWrap`): fuerza
+  // `white-space: nowrap` en el wrapper de la fila componible para que los valores +
+  // separadores no salten de línea. white-space NO crea formatting context (≠
+  // inline-flex), así que la elipsis del `<p class="truncate">` padre de las recetas
+  // se mantiene. Default vacío = se permite envolver (recetas con line-clamp-N intactas).
+  const nowrapClass = slot.appearance?.noWrap ? 'whitespace-nowrap' : '';
 
   // KRO-198 — fields array con behavior tags/url_list/email_list: render por
   // ELEMENTO (chips / enlaces navegables), no el JSON crudo que daría
@@ -834,7 +840,7 @@ export function ComposableSlot({
     }
     // display === 'inline' — todos los valores en una línea unidos por separador.
     return (
-      <span className={cn(textClasses, className)}>
+      <span className={cn(nowrapClass, textClasses, className)}>
         {entries.map((e, i) => {
           const s = styleFor(e.key);
           return (
@@ -876,7 +882,7 @@ export function ComposableSlot({
     // KRO-198 — array GENÉRICO (array<string>/<number>/year_list…): une los
     // elementos con el separador, NO el JSON crudo que daría formatScalar.
     return (
-      <span className={cn(textClasses, className)}>
+      <span className={cn(nowrapClass, textClasses, className)}>
         {arr0.map((t, i) => (
           <span key={i} className={cn(s.text, s.bg, s.box) || undefined}>
             {i > 0 && <span className="text-muted-foreground/60">{` ${separator} `}</span>}
@@ -914,7 +920,7 @@ export function ComposableSlot({
   // del padre corte el contenido (el texto se expande infinitamente hacia
   // la derecha sin que se vea la elipsis del padre).
   return (
-    <span className={cn(textClasses, className)}>
+    <span className={cn(nowrapClass, textClasses, className)}>
       {/* KRO-198 — apariencia EFECTIVA por entrada (color/fondo/tipografía/recorte/
           caja + corte por chars) también en 'auto' multi-campo. */}
       {entries.map((e, i) => {
