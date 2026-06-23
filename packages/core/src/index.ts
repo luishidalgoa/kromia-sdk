@@ -64,6 +64,8 @@ export type {
   SurfaceBorder,
   SurfaceColor,
 } from './types';
+// KRO-198 — altura mínima de bloque (valor, no tipo).
+export { LAYOUT_MIN_HEIGHTS } from './types';
 
 // ── Field types ────────────────────────────────────────────────────────
 export {

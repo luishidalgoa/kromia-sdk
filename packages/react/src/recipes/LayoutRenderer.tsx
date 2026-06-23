@@ -122,11 +122,17 @@ const JUSTIFY_SELF_CLASSES: Record<LayoutAlign, string> = {
 const ALIGN_SELF_CLASSES: Record<LayoutAlign, string> = {
   start: 'self-start', center: 'self-center', end: 'self-end', stretch: 'self-stretch',
 };
+// KRO-198 — altura MÍNIMA del bloque (preset cerrado). Literales para que el scanner
+// de Tailwind las recoja. Crecientes; sin valor = auto (se ajusta al contenido).
+const MIN_HEIGHT_CLASSES: Record<NonNullable<GridPlacement['minHeight']>, string> = {
+  sm: 'min-h-16', md: 'min-h-24', lg: 'min-h-40', xl: 'min-h-56',
+};
 function selfAlignClasses(place: GridPlacement | undefined): string | undefined {
   if (!place) return undefined;
   return cn(
     place.justifySelf && JUSTIFY_SELF_CLASSES[place.justifySelf],
     place.alignSelf && ALIGN_SELF_CLASSES[place.alignSelf],
+    place.minHeight && MIN_HEIGHT_CLASSES[place.minHeight],
   );
 }
 
