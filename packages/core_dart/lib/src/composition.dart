@@ -11,6 +11,7 @@
 /// diferencia de los registries, que son catálogos estáticos).
 library;
 
+import 'conditional_style.dart' show ConditionalStyle;
 import 'layout_node.dart';
 
 /// Override de apariencia per-instance — espejo 1:1 de `SlotAppearance` (types.ts).
@@ -201,12 +202,23 @@ class SlotComposition {
   /// Override visual per-instance.
   final SlotAppearance? appearance;
 
+  /// KRO-198 — "Estilo por valor": apariencia condicionada al valor de un campo
+  /// (color por rareza, etc.). El render la resuelve con `resolveConditionalStyling`
+  /// (contempla casos + cláusula else) sobre la base. Data de álbum → no contrato.
+  final ConditionalStyle? conditionalStyle;
+
+  /// KRO-198 — apariencia POR-FIELD dentro de un slot COMPOSABLE (key = field key
+  /// → su override). El estilo condicional con `target` GANA sobre estos por-chip.
+  final Map<String, SlotAppearance>? fieldAppearances;
+
   const SlotComposition({
     required this.fields,
     this.orientation,
     this.separator,
     this.nestedComposition,
     this.appearance,
+    this.conditionalStyle,
+    this.fieldAppearances,
   });
 
   /// Orientación efectiva (aplica el default del SDK).
@@ -227,6 +239,13 @@ class SlotComposition {
         appearance: json['appearance'] == null
             ? null
             : SlotAppearance.fromJson(json['appearance'] as Map<String, dynamic>),
+        conditionalStyle: json['conditionalStyle'] is Map
+            ? ConditionalStyle.fromJson((json['conditionalStyle'] as Map).cast<String, dynamic>())
+            : null,
+        fieldAppearances: (json['fieldAppearances'] is Map)
+            ? (json['fieldAppearances'] as Map).map((k, v) => MapEntry(
+                k.toString(), SlotAppearance.fromJson((v as Map).cast<String, dynamic>())))
+            : null,
       );
 }
 

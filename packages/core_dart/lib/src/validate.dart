@@ -205,6 +205,19 @@ void _validateSlot(
   // Appearance.
   _validateAppearance(slot.appearance, '$basePath.appearance', issues);
 
+  // KRO-198 — apariencia de cada caso del estilo condicional + de la cláusula
+  // `otherwise` (else): se valida igual que la base (mismo aviso de contraste).
+  // `otherwise` es opcional y leniente. Espejo de validate.ts.
+  final cond = slot.conditionalStyle;
+  if (cond != null) {
+    for (var i = 0; i < cond.cases.length; i++) {
+      _validateAppearance(cond.cases[i].appearance, '$basePath.conditionalStyle.cases[$i].appearance', issues);
+    }
+    if (cond.otherwise != null) {
+      _validateAppearance(cond.otherwise!.appearance, '$basePath.conditionalStyle.otherwise.appearance', issues);
+    }
+  }
+
   // Orientation: solo 'horizontal' o 'vertical'.
   final o = slot.orientation;
   if (o != null && o != 'horizontal' && o != 'vertical') {

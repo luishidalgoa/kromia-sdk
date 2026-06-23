@@ -45,15 +45,68 @@ Widget _chip(String text) => Container(
       child: Text(text, style: const TextStyle(color: Color(0xFFFFFFFF), fontSize: 10, fontWeight: FontWeight.w700)),
     );
 
-/// Pill / badge (rareza/tipo). Color por defecto NEUTRO (`bg-muted` + texto
-/// foreground/80), espejo de `BadgePill` de @kromia/react (antes era peach/naranja
-/// = drift visual). Honra appearance (color/size/peso) en el texto.
-Widget badgePill(String text, SlotAppearance? ap) => Container(
-      padding: const EdgeInsets.symmetric(horizontal: KromiaTokens.space4, vertical: KromiaTokens.space2),
-      decoration: BoxDecoration(color: KromiaTokens.bgSurface2, borderRadius: BorderRadius.circular(KromiaTokens.radiusPill)),
-      child: Text(text, maxLines: 1, overflow: TextOverflow.ellipsis,
-          style: applyAppearanceText(KromiaTokens.pill.copyWith(color: KromiaTokens.text.withValues(alpha: 0.8)), ap)),
+/// Pill / badge (rareza/tipo). KRO-198 — honra apariencia COMPLETA: fondo
+/// (`bgColor`, def `bg-muted`), color/peso/tamaño/font del texto, recorte
+/// (`truncate` line-clamp) y el toggle `display`: 'text' = texto plano (sin
+/// pastilla), default/'badge' = pastilla. Espejo del span de badge_row/chips_row
+/// (@kromia/react). Base 12px/500 (text-xs/font-medium). Opacity/shadow los aplica
+/// el CALLER (wrap de slotContent / _badgeRow), no aquí (evita doble aplicación).
+Widget badgePill(String text, SlotAppearance? ap) {
+  final isText = ap?.display == 'text';
+  // Pastilla = font-medium (w500, hardcode del span TS); texto plano = w400 (el
+  // span 'text' del TS no lleva font-medium). La apariencia pisa el peso si lo fija.
+  final base = TextStyle(
+      fontSize: 12,
+      fontWeight: isText ? FontWeight.w400 : FontWeight.w500,
+      color: KromiaTokens.text.withValues(alpha: 0.8));
+  final child = Text(text,
+      maxLines: appearanceMaxLines(ap, def: 1),
+      overflow: TextOverflow.ellipsis,
+      style: applyAppearanceText(base, ap));
+  if (isText) return child; // texto plano, sin caja
+  return Container(
+    // px-2 py-0.5 (8/2) del span TS; el relleno de apariencia lo añade el caller.
+    padding: const EdgeInsets.symmetric(horizontal: KromiaTokens.space4, vertical: 2),
+    decoration: BoxDecoration(
+        color: appearanceBgColor(ap) ?? KromiaTokens.bgSurface2,
+        borderRadius: BorderRadius.circular(KromiaTokens.radiusPill)),
+    child: child,
+  );
+}
+
+/// Celda de galería: aplica shape/aspect/objectFit/imageFocus/opacity/shadow del
+/// slot image-array sobre los defaults de la variante. Espejo de la celda de
+/// `ImageGallery` (apBox + apFit + imageFocusStyle). [w]/[h] = tamaño de la caja
+/// (carrusel fijo / grid calculado); [defaultRadius]/[defaultAspect] = los de la
+/// variante (el override de ap gana). EFECTOS solo si hay override → sin
+/// appearance el render es byte-idéntico al anterior.
+Widget galleryCell(RenderCtx ctx, String url, SlotAppearance? ap,
+    {required double w, double? h, required double defaultRadius, double? defaultAspect}) {
+  final isCircle = appearanceIsCircle(ap);
+  final radius = appearanceCornerRadius(ap) ?? defaultRadius; // shape override pisa el default
+  final aspect = appearanceAspect(ap) ?? defaultAspect;
+  final boxH = h ?? (aspect != null ? w / aspect : w);
+  final align = appearanceImageAlignment(ap); // object-position(imageFocus)
+  Widget img = ctx.imageBuilder(url, fit: appearanceBoxFit(ap), alignment: align, width: w, height: boxH);
+  final zoom = appearanceImageScale(ap); // scale(z) solo cover & z>1; el clip recorta el excedente
+  if (zoom > 1.0 && ap?.objectFit != 'contain') {
+    img = Transform.scale(scale: zoom, alignment: align, child: img);
+  }
+  final box = SizedBox(width: w, height: boxH, child: img);
+  Widget boxed = isCircle
+      ? ClipOval(child: box)
+      : ClipRRect(borderRadius: BorderRadius.circular(radius), child: box);
+  final sh = appearanceSlotShadow(ap);
+  if (sh.isNotEmpty) {
+    boxed = DecoratedBox(
+      decoration: BoxDecoration(borderRadius: isCircle ? null : BorderRadius.circular(radius), boxShadow: sh),
+      child: boxed,
     );
+  }
+  final op = appearanceOpacity(ap);
+  if (op < 1.0) boxed = Opacity(opacity: op, child: boxed);
+  return boxed;
+}
 
 /// Etiqueta MAYÚSCULAS encima de una galería (KRO-133 fidelidad): las recetas
 /// pintan el `def.label` del campo mapeado ("IMÁGENES"/"BESTIAS"/"GALERÍA…").
@@ -180,12 +233,16 @@ Widget _tappableImage(RenderCtx ctx, List<String> urls, int i, Widget child) =>
 
 /// Carrusel horizontal de imágenes (carousel_peek/centered). [label] = etiqueta
 /// del campo mapeado (paridad `ImageGallery label=`).
-Widget imageRow(RenderCtx ctx, List<String> urls, {String? label}) {
+Widget imageRow(RenderCtx ctx, List<String> urls, {String? label, SlotAppearance? appearance, bool centered = false}) {
   if (urls.isEmpty) return const SizedBox.shrink();
+  // Alto de la tira = el aspect override (sobre 160 de ancho) o 120 por defecto
+  // (4:3), para que la fila acote bien las celdas con aspect distinto.
+  final aspect = appearanceAspect(appearance);
+  final h = aspect != null ? 160 / aspect : 120.0;
   return _withLabel(
     label,
     SizedBox(
-      height: 120,
+      height: h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: urls.length,
@@ -194,10 +251,8 @@ Widget imageRow(RenderCtx ctx, List<String> urls, {String? label}) {
           ctx,
           urls,
           i,
-          ClipRRect(
-            borderRadius: BorderRadius.circular(KromiaTokens.radiusMd),
-            child: ctx.imageBuilder(urls[i], fit: BoxFit.cover, width: 160, height: 120),
-          ),
+          galleryCell(ctx, urls[i], appearance,
+              w: 160, h: h, defaultRadius: KromiaTokens.radiusMd, defaultAspect: 4 / 3),
         ),
       ),
     ),
@@ -206,7 +261,7 @@ Widget imageRow(RenderCtx ctx, List<String> urls, {String? label}) {
 
 /// Mosaico de imágenes 3 columnas (gallery_grid). [label] = etiqueta del campo
 /// mapeado (paridad `ImageGallery label=` → "IMÁGENES").
-Widget imageGrid(RenderCtx ctx, List<String> urls, {String? label}) {
+Widget imageGrid(RenderCtx ctx, List<String> urls, {String? label, SlotAppearance? appearance}) {
   if (urls.isEmpty) return const SizedBox.shrink();
   // Mosaico 3 col. Celdas de tamaño CALCULADO del ancho disponible (LayoutBuilder
   // + Wrap), NO `GridView.count(shrinkWrap)`: ese grid, anidado en un scroll, medía
@@ -230,10 +285,7 @@ Widget imageGrid(RenderCtx ctx, List<String> urls, {String? label}) {
               ctx,
               urls,
               i,
-              ClipRRect(
-                borderRadius: BorderRadius.circular(KromiaTokens.radiusLg),
-                child: ctx.imageBuilder(urls[i], fit: BoxFit.cover, width: cell, height: cell),
-              ),
+              galleryCell(ctx, urls[i], appearance, w: cell, defaultRadius: KromiaTokens.radiusLg),
             ),
         ],
       );

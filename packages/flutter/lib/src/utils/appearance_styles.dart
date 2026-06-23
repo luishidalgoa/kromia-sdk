@@ -158,3 +158,27 @@ Alignment appearanceImageAlignment(SlotAppearance? a) {
 }
 
 double appearanceImageScale(SlotAppearance? a) => (a?.imageFocus?.zoom ?? 1).clamp(1, 3).toDouble();
+
+/// KRO-198 — apariencia EFECTIVA de un field de un slot composable: el override
+/// por-field ([fieldAppearances]`[key]`) GANA sobre la [base] del slot. Espejo de
+/// `mergeFieldAppearance` (`{...appearance, ...fieldAppearances[key]}`). Sin entrada
+/// por-field → la base intacta. El estilo condicional con `target` ya viene
+/// inyectado en `fieldAppearances` por `resolveSlot`.
+SlotAppearance? mergeFieldAppearance(
+  SlotAppearance? base,
+  Map<String, SlotAppearance>? fieldAppearances,
+  String? key,
+) {
+  if (key == null || fieldAppearances == null) return base;
+  final fa = fieldAppearances[key];
+  return fa != null ? fa.mergedOver(base) : base; // fa (this) gana sobre base
+}
+
+/// KRO-198 — recorta [text] a `truncateChars` + '…'. Espejo de `applyAppearanceTruncate`
+/// (slice por caracteres; distinto del line-clamp de `truncate`). Sin truncateChars
+/// (o texto más corto) → el texto intacto.
+String applyAppearanceTruncate(String text, SlotAppearance? a) {
+  final n = a?.truncateChars;
+  if (n == null || n <= 0 || text.length <= n) return text;
+  return '${text.substring(0, n).trimRight()}…';
+}

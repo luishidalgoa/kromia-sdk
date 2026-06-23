@@ -7,25 +7,64 @@ import 'tokens.dart';
 import 'ui/prefabs.dart';
 import 'utils/appearance_styles.dart';
 
-/// Slot resuelto: fields (def+value), apariencia, orientación, separador.
+/// Slot resuelto: fields (key+def+value), apariencia, apariencia por-field,
+/// orientación, separador.
 class ResolvedSlot {
-  final List<({FieldDefLike? def, Object? value})> fields;
+  final List<({String key, FieldDefLike? def, Object? value})> fields;
   final SlotAppearance? appearance;
+
+  /// KRO-198 — apariencia POR-FIELD (key → SlotAppearance) para slots composable.
+  /// La consume el render de chips/badges; el estilo condicional con `target` ya
+  /// viene mergeado aquí (gana sobre el override por-chip).
+  final Map<String, SlotAppearance>? fieldAppearances;
   final String orientation;
   final String separator;
-  const ResolvedSlot({required this.fields, this.appearance, required this.orientation, required this.separator});
+  const ResolvedSlot({
+    required this.fields,
+    this.appearance,
+    this.fieldAppearances,
+    required this.orientation,
+    required this.separator,
+  });
 }
 
 /// resolveSlot — espejo de `resolveSlot` de recipe-utils. null si el slot está
-/// deshabilitado o no existe / sin fields.
+/// deshabilitado o no existe / sin fields. Aplica el "Estilo por valor" (KRO-198):
+/// `resolveConditionalStyling` (contempla la cláusula else) decide el caso/else
+/// efectivo; SIN `target` su apariencia se mergea sobre la BASE de la fila (gana),
+/// CON `target` se mergea sobre `fieldAppearances[k]` de ESOS chips (gana), sin
+/// tocar la base. Sin condicional → camino base byte-idéntico al anterior.
 ResolvedSlot? resolveSlot(RenderCtx ctx, String slotId) {
   final comp = ctx.slots[slotId];
   if (comp == null || comp.fields.isEmpty) return null;
   final disabled = ctx.composition.slotOverrides?.disabled ?? const <String>[];
   if (disabled.contains(slotId)) return null;
+
+  final condCase = resolveConditionalStyling(comp.conditionalStyle, ctx.item);
+  final condAp = condCase?.appearance;
+  final targets = (condCase?.target ?? const <String>[]).where((t) => t.isNotEmpty).toList();
+
+  // SIN target (o sin condAp) → condAp mergea sobre la base de la fila (gana); si
+  // no hay condAp o el caso tiene target, la base queda intacta. Espejo de
+  // `(condAp && !targets.length) ? {...sc.appearance, ...condAp} : sc.appearance`.
+  final appearance = (condAp != null && targets.isEmpty) ? condAp.mergedOver(comp.appearance) : comp.appearance;
+
+  // CON target → condAp mergea sobre fieldAppearances[k] de ESOS chips (gana); la
+  // base no se toca. Clonamos el mapa para NO mutar el modelo parseado (compartido
+  // entre items de la sección).
+  var fieldAppearances = comp.fieldAppearances;
+  if (condAp != null && targets.isNotEmpty) {
+    final next = <String, SlotAppearance>{...?fieldAppearances};
+    for (final k in targets) {
+      next[k] = condAp.mergedOver(next[k]); // condAp gana sobre el override por-chip
+    }
+    fieldAppearances = next;
+  }
+
   return ResolvedSlot(
-    fields: [for (final k in comp.fields) (def: ctx.defFor(k), value: ctx.item[k])],
-    appearance: comp.appearance,
+    fields: [for (final k in comp.fields) (key: k, def: ctx.defFor(k), value: ctx.item[k])],
+    appearance: appearance,
+    fieldAppearances: fieldAppearances,
     orientation: comp.effectiveOrientation,
     separator: comp.effectiveSeparator,
   );

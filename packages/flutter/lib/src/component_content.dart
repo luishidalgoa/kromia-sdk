@@ -5,6 +5,7 @@ import 'render_ctx.dart';
 import 'slot_content.dart';
 import 'tokens.dart';
 import 'ui/prefabs.dart';
+import 'utils/appearance_styles.dart';
 import 'utils/surface.dart';
 
 /// Render de un componente prefabricado (KRO-133 Capa 2). Espejo de
@@ -54,9 +55,20 @@ Widget? componentContent(RenderCtx ctx, LayoutComponentNode node) {
       }
     case 'carousel_peek':
     case 'carousel_centered':
-      inner = isHidden('images') ? null : imageRow(ctx, rawList('images'), label: roleLabel('images'));
+      {
+        final iid = sidOf('images');
+        final imgsAp = iid == null ? null : resolveSlot(ctx, iid)?.appearance;
+        inner = isHidden('images')
+            ? null
+            : imageRow(ctx, rawList('images'),
+                label: roleLabel('images'), appearance: imgsAp, centered: node.component == 'carousel_centered');
+      }
     case 'gallery_grid':
-      inner = isHidden('images') ? null : imageGrid(ctx, rawList('images'), label: roleLabel('images'));
+      {
+        final iid = sidOf('images');
+        final imgsAp = iid == null ? null : resolveSlot(ctx, iid)?.appearance;
+        inner = isHidden('images') ? null : imageGrid(ctx, rawList('images'), label: roleLabel('images'), appearance: imgsAp);
+      }
     case 'cards_carousel':
       inner = isHidden('cards') ? null : cardsCarousel(rawList('cards'));
     case 'divider':
@@ -163,25 +175,77 @@ Widget _statsRow(RenderCtx ctx, String? sid) {
 }
 
 Widget _badgeRow(RenderCtx ctx, String? sid) {
-  final comp = sid == null ? null : ctx.slots[sid];
-  if (comp == null) return const SizedBox.shrink();
+  if (sid == null) return const SizedBox.shrink();
+  // KRO-198 — vía resolveSlot: honra el estilo condicional por valor (con target →
+  // fieldAppearances) + la apariencia por-chip; antes usaba comp.appearance global.
+  final r = resolveSlot(ctx, sid);
+  if (r == null) return const SizedBox.shrink();
   final pills = <Widget>[];
-  for (final k in comp.fields) {
-    final txt = formatScalar(ctx.item[k], ctx.defFor(k));
+  for (final f in r.fields) {
+    final txt = formatScalar(f.value, f.def);
     if (txt.isEmpty) continue;
-    pills.add(badgePill(txt, comp.appearance));
+    final ap = mergeFieldAppearance(r.appearance, r.fieldAppearances, f.key); // override/condicional por-chip gana
+    Widget pill = badgePill(applyAppearanceTruncate(txt, ap), ap);
+    // Relleno de apariencia del box (appearancePaddingClass del TS), SUMADO al
+    // px-2 py-0.5 propio del pill. Sin override (pad==0) no añade nada.
+    final pad = appearancePaddingY(ap);
+    if (pad > 0) pill = Padding(padding: EdgeInsets.symmetric(vertical: pad), child: pill);
+    // Efecto (opacity + shadow) por badge — espejo de appearanceEffectClasses del box.
+    final shadow = appearanceSlotShadow(ap);
+    if (shadow.isNotEmpty) pill = DecoratedBox(decoration: BoxDecoration(boxShadow: shadow), child: pill);
+    final op = appearanceOpacity(ap);
+    if (op < 1.0) pill = Opacity(opacity: op, child: pill);
+    pills.add(pill);
   }
   if (pills.isEmpty) return const SizedBox.shrink();
-  return Wrap(spacing: KromiaTokens.space2, runSpacing: KromiaTokens.space2, children: pills);
+  // align del slot → justify-content del row (TS): left=start, center, right=end.
+  final align = switch (r.appearance?.align) {
+    'center' => WrapAlignment.center,
+    'right' => WrapAlignment.end,
+    _ => WrapAlignment.start,
+  };
+  return Wrap(alignment: align, spacing: KromiaTokens.space2, runSpacing: KromiaTokens.space2, children: pills);
 }
 
 Widget _sectionTitle(RenderCtx ctx, String? sid) {
-  final comp = sid == null ? null : ctx.slots[sid];
-  final first = (comp != null && comp.fields.isNotEmpty) ? comp.fields.first : null;
-  final formatted = first != null ? formatScalar(ctx.item[first], ctx.defFor(first)) : '';
-  final shown = formatted.isNotEmpty ? formatted : (ctx.defFor(first)?.label ?? '');
+  if (sid == null) return const SizedBox.shrink();
+  // KRO-198 — vía resolveSlot (gating + condicional). uppercase/tracking/size/color
+  // son DEFAULTS PISABLES por la apariencia, no hardcodes (antes: overline 9px fijo).
+  final r = resolveSlot(ctx, sid);
+  final first = (r != null && r.fields.isNotEmpty) ? r.fields.first : null;
+  final formatted = first != null ? formatScalar(first.value, first.def) : '';
+  final shown = formatted.isNotEmpty ? formatted : (first?.def?.label ?? '');
   if (shown.isEmpty) return const SizedBox.shrink();
-  return Text(shown.toUpperCase(), style: KromiaTokens.overline);
+  final ap = first == null ? r?.appearance : mergeFieldAppearance(r?.appearance, r?.fieldAppearances, first.key);
+  // DEFAULT = identidad del título de sección: text-xs(12) + semibold + muted +
+  // tracking-wider (≈0.05em). applyAppearanceText pisa lo que la apariencia fije.
+  final base = const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, height: 1.4, letterSpacing: 0.6)
+      .copyWith(color: KromiaTokens.muted);
+  final style = applyAppearanceText(base, ap);
+  // MAYÚSCULAS = identidad FIJA del título de sección (en TS la clase `uppercase`
+  // está hardcodeada y appearanceTextClasses solo puede AÑADIRla, nunca quitarla)
+  // → textTransform:'none' NO la anula. Paridad con LayoutRenderer.tsx.
+  final text = shown.toUpperCase();
+  Widget w = Text(text,
+      // Sin truncate override → SIN clamp (el `<p>` del TS envuelve a varias líneas).
+      maxLines: appearanceMaxLines(ap, def: null),
+      overflow: TextOverflow.ellipsis,
+      textAlign: appearanceTextAlign(ap),
+      style: style);
+  final bg = appearanceBgColor(ap); // 'rounded px-1' + fondo
+  if (bg != null) {
+    w = Container(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(4)),
+        child: w);
+  }
+  final pad = appearancePaddingY(ap);
+  if (pad > 0) w = Padding(padding: EdgeInsets.symmetric(vertical: pad), child: w);
+  final shadow = appearanceSlotShadow(ap);
+  if (shadow.isNotEmpty) w = DecoratedBox(decoration: BoxDecoration(boxShadow: shadow), child: w);
+  final op = appearanceOpacity(ap);
+  if (op < 1.0) w = Opacity(opacity: op, child: w);
+  return w;
 }
 
 Widget _heroHeader(RenderCtx ctx, LayoutComponentNode node) {

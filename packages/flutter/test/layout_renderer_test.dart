@@ -116,6 +116,17 @@ void main() {
       await pump(t, const LayoutContainerNode(children: [LayoutComponentNode(component: 'section_title', slots: {'text': 'tipo'})]));
       expect(find.text('DELANTERO'), findsOneWidget);
     });
+    // KRO-198 — el uppercase de section_title es identidad FIJA (hardcode en TS),
+    // NO pisable: textTransform:'none' NO lo anula (paridad LayoutRenderer.tsx).
+    testWidgets('section_title: textTransform:none NO anula el uppercase', (t) async {
+      await pump(
+        t,
+        const LayoutContainerNode(children: [LayoutComponentNode(component: 'section_title', slots: {'text': 'tipo'})]),
+        slots: {'tipo': const SlotComposition(fields: ['tipo'], appearance: SlotAppearance(textTransform: 'none'))},
+      );
+      expect(find.text('DELANTERO'), findsOneWidget);
+      expect(find.text('Delantero'), findsNothing);
+    });
     testWidgets('stats_row → valor + etiqueta', (t) async {
       await pump(t, const LayoutContainerNode(children: [LayoutComponentNode(component: 'stats_row', slots: {'stats': 'stats'})]));
       expect(find.text('643'), findsOneWidget);
