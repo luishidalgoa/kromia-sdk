@@ -467,6 +467,7 @@ export {
 export {
   PALETTE,
   PALETTE_THEME_IDS,
+  PALETTE_NEUTRALS,
   PALETTE_HUES,
   PALETTE_SHADES,
   paletteClass,

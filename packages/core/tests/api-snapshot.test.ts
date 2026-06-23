@@ -229,6 +229,7 @@ const EXPECTED_EXPORTS = [
   // KRO-133 F3 — paleta de color
   'PALETTE',
   'PALETTE_THEME_IDS',
+  'PALETTE_NEUTRALS',
   'PALETTE_HUES',
   'PALETTE_SHADES',
   'paletteClass',
