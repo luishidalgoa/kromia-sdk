@@ -48,10 +48,12 @@ describe('THEME_PRESETS', () => {
 });
 
 describe('applyThemePreset', () => {
-  it('recolorea todos los slots con el textColor del acabado', () => {
+  it('aplica el textColor del acabado GLOBAL en surface (cascada, no por-slot)', () => {
     const out = applyThemePreset(makeComposition(), 'oro');
-    expect(out.slots.title.appearance?.textColor).toBe('amber-200');
-    expect(out.slots.subtitle.appearance?.textColor).toBe('amber-200');
+    expect((out.layout as any)?.surface?.textColor).toBe('amber-200');
+    // Los slots NO reciben textColor propio: lo heredan del contenedor (cascada CSS).
+    expect(out.slots.title.appearance?.textColor).toBeUndefined();
+    expect(out.slots.subtitle.appearance?.textColor).toBeUndefined();
   });
 
   it('preserva la ESTRUCTURA (campos, peso, tamaño)', () => {
@@ -103,15 +105,17 @@ describe('applyThemePreset', () => {
     // imagen → bgColor = papel, sin textColor del acabado
     expect(out.slots.thumb.appearance?.bgColor).toBe('slate-800');
     expect(out.slots.thumb.appearance?.textColor).toBeUndefined();
-    // texto → sigue recibiendo el textColor
-    expect(out.slots.title.appearance?.textColor).toBe('amber-200');
+    // texto → el color va GLOBAL en surface (no por-slot); el slot lo hereda
+    expect(out.slots.title.appearance?.textColor).toBeUndefined();
+    expect((out.layout as any)?.surface?.textColor).toBe('amber-200');
   });
 
-  it('sin fieldDefs: comportamiento previo (imagen no se distingue → textColor)', () => {
+  it('sin fieldDefs: el textColor del acabado va a surface (global), no por-slot', () => {
     const c = makeComposition();
     (c.slots as any).thumb = { fields: ['art'] };
     const out = applyThemePreset(c, 'oro');
-    expect(out.slots.thumb.appearance?.textColor).toBe('amber-200');
+    expect(out.slots.thumb.appearance?.textColor).toBeUndefined();
+    expect((out.layout as any)?.surface?.textColor).toBe('amber-200');
   });
 
   it('getThemePreset', () => {

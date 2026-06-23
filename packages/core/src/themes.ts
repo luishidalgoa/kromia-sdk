@@ -104,8 +104,10 @@ export function applyThemePreset(composition: ViewComposition, themeId: string, 
       // fondo es coherente). No tocamos color de texto en un slot de imagen.
       if (theme.paperBg) ap.bgColor = theme.paperBg;
     } else {
-      if (theme.textColor) ap.textColor = theme.textColor;
-      if (theme.font)      ap.font = theme.font;
+      // KRO-198 — el COLOR de texto del acabado va GLOBAL en `surface.textColor`
+      // (abajo), NO por-slot → cascada limpia + un solo punto que el usuario puede
+      // re-tocar. La FUENTE sí se aplica por-slot (no cascada-able de forma fiable).
+      if (theme.font) ap.font = theme.font;
       // Un slot mostrado como badge (rareza/tipo) recibe el acento coordinado.
       if (ap.display === 'badge' && theme.accent) {
         ap.bgColor   = theme.accent.bgColor;
@@ -116,7 +118,7 @@ export function applyThemePreset(composition: ViewComposition, themeId: string, 
   }
 
   let layout = composition.layout;
-  if (layout && (theme.paperBg || theme.surface)) {
+  if (layout && (theme.paperBg || theme.surface || theme.textColor)) {
     layout = {
       ...layout,
       surface: {
@@ -126,6 +128,9 @@ export function applyThemePreset(composition: ViewComposition, themeId: string, 
         // resaltan. Así un acabado sigue tiñendo la pantalla; editar el fondo de la
         // card a mano (solo bgColor) ya no la mueve.
         ...(theme.paperBg ? { bgColor: theme.paperBg, screenBgColor: theme.paperBg } : {}),
+        // KRO-198 — color de texto GLOBAL del acabado → cascada a los slots sin color
+        // propio (surfaceClasses) + cabecera del detalle. Antes era por-slot.
+        ...(theme.textColor ? { textColor: theme.textColor } : {}),
         ...(theme.surface ?? {}),
       },
     };

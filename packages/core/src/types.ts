@@ -542,6 +542,13 @@ export interface ContainerSurface {
    *  `cornerRadii`/`paddingSides`). Si se toca el fondo de la CARD, este campo NO
    *  cambia → editar la card no mueve la pantalla. El acabado setea ambos. */
   screenBgColor?: string;
+  /** KRO-198 — color de texto BASE del contenedor (id de paleta). Cascada a TODOS
+   *  los slots descendientes SIN color propio (herencia CSS): un slot que fija su
+   *  textColor en `appearance` lo sobreescribe; el resto hereda éste. Da un "color
+   *  de texto global" sin recolorear slot a slot, y alimenta la cabecera del detalle.
+   *  El acabado lo setea (antes era por-slot). Render-only meta (NO contrato KRP,
+   *  igual que `screenBgColor`/`cornerRadii`). */
+  textColor?: string;
   /** Borde atómico (grosor/lado/color/estilo). */
   border?: SurfaceBorder;
   /** Redondeo de esquinas (uniforme, o el tamaño aplicado a `radiusCorners`). */

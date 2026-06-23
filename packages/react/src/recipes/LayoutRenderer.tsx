@@ -255,6 +255,9 @@ function surfaceClasses(s: ContainerSurface | undefined): string | undefined {
   const bg = s.bgColor ? paletteClass(s.bgColor, 'bg') : (s.background && SURFACE_BG_CLASSES[s.background]);
   return cn(
     bg,
+    // KRO-198 — color de texto BASE del contenedor → CASCADA por herencia CSS a los
+    // slots sin color propio (un slot con su textColor lo sobreescribe en su elemento).
+    s.textColor && paletteClass(s.textColor, 'text'),
     borderClasses(s.border),
     radiusClasses(s),
     s.shadow && SURFACE_SHADOW_CLASSES[s.shadow],
