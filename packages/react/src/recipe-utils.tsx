@@ -326,6 +326,14 @@ export function appearancePaddingClass(a: SlotAppearance | undefined): string {
   return a?.paddingY ? PADDING_Y_CLASSES[a.paddingY] : '';
 }
 
+/** KRO-198 — clase de text-align del slot, para aplicar al ELEMENTO BLOQUE padre.
+ *  appearanceTextClasses ya incluye el align, pero un `badge` es `inline-flex`:
+ *  text-align en la propia pastilla NO la mueve; en su `<div>` block SÍ alinea la
+ *  pastilla inline. '' si no hay align. */
+export function appearanceAlignClass(a: SlotAppearance | undefined): string {
+  return a?.align ? ALIGN_CLASSES[a.align] : '';
+}
+
 /** Devuelve la clase de truncado de líneas, o '' si no hay override.
  *
  *  - '1'    → `line-clamp-1`   (una sola línea con ellipsis)
@@ -692,31 +700,27 @@ export function ComposableSlot({
     ? (f0!.value as unknown[]).map(v => (v == null ? '' : String(v))).filter(v => v.trim() !== '')
     : null;
 
+  // KRO-198 — apariencia POR-FIELD: entradas con KEY (caso B = multi-field) o sin
+  // ella (caso A = un field array). HOISTEADO fuera del `if` para que el branch
+  // 'auto' multi-campo de abajo TAMBIÉN coloree por-chip (antes el color por-field
+  // solo lo aplicaban los displays explícitos). caso A sin key → hereda la base.
+  const fa = slot.fieldAppearances;
+  const entries: Array<{ key?: string; label?: string; value: string }> = (arr0 && arr0.length > 0)
+    ? arr0.map(v => ({ value: v }))
+    : slot.fields
+        .map(f => ({ key: f.key, label: f.def?.label ?? f.key, value: formatScalar(f.value, f.def) }))
+        .filter(e => e.value !== '');
+  // Color EFECTIVO por entrada: la base del slot merge-ada con fieldAppearances[key]
+  // (paletteClass devuelve '' para tokens `field:`/sin color → cae al default).
+  const colorFor = (key?: string) => fieldColorClasses(slot.appearance, fa, key);
+
   // KRO-198 — variante de render EXPLÍCITA (chips / en línea / lista / tabla).
   // Cuando el publisher la fija, manda sobre el render por behavior. 'auto'
   // (default, y cualquier composición histórica sin el campo) cae al
   // comportamiento de abajo → backward-compatible, sin drift visual.
   const display = slot.composableDisplay;
   if (display !== 'auto') {
-    // Entradas {label, value}: caso A = un field array → cada elemento (sin
-    // etiqueta); caso B = multi-field/escalar → cada field formateado con su
-    // etiqueta. formatScalar evita el JSON crudo que daría un array entero.
-    const fa = slot.fieldAppearances;
-    // Entradas con KEY (caso B = multi-field) → habilita apariencia por-field;
-    // caso A (array de un field) sin key → hereda la base del slot.
-    const entries: Array<{ key?: string; label?: string; value: string }> = (arr0 && arr0.length > 0)
-      ? arr0.map(v => ({ value: v }))
-      : slot.fields
-          .map(f => ({ key: f.key, label: f.def?.label ?? f.key, value: formatScalar(f.value, f.def) }))
-          .filter(e => e.value !== '');
     if (entries.length === 0) return null;
-
-    // KRO-198 — color TEMABLE por ENTRADA: la base del slot (`slot.appearance`)
-    // merge-ada con la apariencia del field concreto (`fieldAppearances[key]`),
-    // así cada pastilla/estadística puede llevar su propio color de texto/fondo.
-    // Sin entrada por-field → base. paletteClass devuelve '' para tokens `field:`
-    // → cae al default muted, sin romper. Los tonos van en los elementos.
-    const colorFor = (key?: string) => fieldColorClasses(slot.appearance, fa, key);
     // Base para decisiones a nivel WRAPPER (cancelar su bg en chips).
     const elBg = paletteClass(slot.appearance?.bgColor, 'bg');
 
@@ -882,7 +886,8 @@ export function ComposableSlot({
     // árbol es legalmente phrasing content.
     return (
       <span className={cn('inline-flex flex-col items-start gap-0.5 align-top', textClasses, className)}>
-        {items.map((t, i) => <span key={i}>{t}</span>)}
+        {/* KRO-198 — `entries` (con key) + colorFor → color por-chip también en 'auto'. */}
+        {entries.map((e, i) => { const c = colorFor(e.key); return <span key={i} className={cn(c.text, c.bg) || undefined}>{e.value}</span>; })}
       </span>
     );
   }
@@ -893,12 +898,17 @@ export function ComposableSlot({
   // la derecha sin que se vea la elipsis del padre).
   return (
     <span className={cn(textClasses, className)}>
-      {items.map((t, i) => (
-        <span key={i}>
-          {i > 0 && <span className="text-muted-foreground/60">{` ${separator} `}</span>}
-          {t}
-        </span>
-      ))}
+      {/* KRO-198 — `entries` (con key) + colorFor → color/fondo por-chip también
+          en 'auto' multi-campo (antes `items` perdía la key → solo color base). */}
+      {entries.map((e, i) => {
+        const c = colorFor(e.key);
+        return (
+          <span key={i} className={cn(c.text, c.bg) || undefined}>
+            {i > 0 && <span className="text-muted-foreground/60">{` ${separator} `}</span>}
+            {e.value}
+          </span>
+        );
+      })}
     </span>
   );
 }

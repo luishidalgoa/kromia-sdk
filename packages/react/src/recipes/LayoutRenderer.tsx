@@ -25,7 +25,7 @@ import { cn } from '../lib/cn';
 import {
   resolveSlot, isSlotDisabled, buildAccentBorderStyle, extractAccentSettings, formatScalar,
   ScalarText, ComposableSlot, ThumbBox, BadgePill, slotDebugAttrs, appearancePaddingClass,
-  appearanceTextClasses, appearanceTruncateClass, appearanceEffectClasses, slotImageTransform,
+  appearanceTextClasses, appearanceAlignClass, appearanceTruncateClass, appearanceEffectClasses, slotImageTransform,
   type FieldDefLike,
 } from '../recipe-utils';
 import {
@@ -417,11 +417,15 @@ export function SlotContent({ slot, composition, item, fieldDefs, cardFormat, re
   // display:'badge' → pill/chip (rareza/tipo "Fuego"/"Agua"). Honra el tamaño
   // (appearance.size) vía appearanceTextClasses dentro del pill.
   if (resolved.appearance?.display === 'badge') {
+    // KRO-198 — el ALIGN va en el <div> BLOQUE exterior, no en la pastilla: un
+    // badge es inline-flex y text-align no lo mueve; en el block padre SÍ alinea
+    // la pastilla inline (izq/centro/der). El resto (color/peso/size/efectos)
+    // sigue en la BadgePill, con la appearance SIN align (evita un text-* inerte).
     return (
-      <div className={appearancePaddingClass(resolved.appearance)} {...slotDebugAttrs(slot, resolved)}>
+      <div className={cn(appearancePaddingClass(resolved.appearance), appearanceAlignClass(resolved.appearance))} {...slotDebugAttrs(slot, resolved)}>
         {/* KRO-147 F3 — el badge honra opacity/shadow del slot además de
             color/size/peso (appearanceTextClasses). */}
-        <BadgePill className={cn(appearanceTextClasses(resolved.appearance), appearanceEffectClasses(resolved.appearance))} style={fieldColor}>{content}</BadgePill>
+        <BadgePill className={cn(appearanceTextClasses(resolved.appearance ? { ...resolved.appearance, align: undefined } : undefined), appearanceEffectClasses(resolved.appearance))} style={fieldColor}>{content}</BadgePill>
       </div>
     );
   }
