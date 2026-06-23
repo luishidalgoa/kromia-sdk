@@ -138,6 +138,11 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   core_dart** (mismo bug probable allí; el gate de §16 NO aplica, no pasa por ComposableSlot). (18.2) `CardRefResolver` admite `layers?:{url}[]`: una
   carta SOLO con capas 3D (sin arte plano, p.ej. Ignis) → la mini-carta APILA las capas en vez
   del placeholder. **Paridad core_dart**: resolver devuelve capas + mini-carta las apila. Ver §18.
+  **(13) NUEVO 2026-06-23 §19** — (19.1, commit `922137e`) una estadística con
+  `appearance.display==='badge'` pinta el VALOR como pastilla (StatsRow + rama 'stats').
+  **Paridad core_dart**: ramificar en `display=='badge'` también en stats. (19.2, Studio
+  `99a6e76`, nota app) el PANEL del detalle se tiñe con el acabado (`paletteHex(surface.bgColor)`)
+  para no dejar huecos blancos → la app Flutter debería pintar igual su panel de detalle. Ver §19.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated

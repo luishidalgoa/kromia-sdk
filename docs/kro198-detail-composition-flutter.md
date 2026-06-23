@@ -563,6 +563,30 @@ el hero/HoloCard al componer capas, pero en miniatura y estática (sin tilt).
 
 ---
 
+## 19. Cambios 2026-06-23 — `display:'badge'` en stats + el detalle rellena el panel con el acabado
+
+### 19.1 — StatsRow honra `appearance.display === 'badge'` (commit `922137e`, paridad core_dart)
+Refinamiento de §18.1: una estadística con `appearance.display === 'badge'` (Color →
+"Mostrar como: Badge", por field o base) ahora pinta el VALOR como **pastilla**
+(`rounded-full` + fondo + color/tipografía) en vez de cifra grande. En `StatsRow` y en
+la rama 'stats' de `ComposableSlot`. **En Flutter:** el render de stats debe ramificar en
+`display=='badge'` igual que ya hace el slot normal (LayoutRenderer §badge). (Nota: la
+opción "Mayús" es NO-OP en valores numéricos — no hay nada que mayusculizar; la etiqueta
+ya va en mayúsculas. No es bug.)
+
+### 19.2 — El PANEL del detalle de carta se tiñe con el acabado (Studio-only; nota app Flutter)
+Commit Studio: `99a6e76`. El panel `DetailsSheet` (CardFocusOverlay) era `bg-card` (blanco)
+con la composición teñida dentro → dejaba huecos blancos arriba/abajo. Ahora, si la
+composición de detalle lleva un acabado (su `surface.bgColor` es un tono de paleta), el
+PANEL ENTERO toma ese color (`paletteHex(surface.bgColor)`) y la cabecera usa el `textColor`
+coordinado del acabado (cualquiera de sus slots; pasa AA). **No es SDK** (chrome de la UI).
+**En la app Flutter:** el panel/Scaffold que aloja el detalle de la carta debería pintarse
+con el mismo `paletteHex(surface.bgColor)` del acabado (y texto de cabecera con su `textColor`)
+para no dejar huecos del color de fondo de la app. Equivale al criterio de `screenBgHex`
+(§12/§15) pero SIN oscurecer: aquí el panel iguala el papel para fundirse con la composición.
+
+---
+
 **Referencias de lectura obligada (TS canónico):**
 - `packages/react/src/recipes/RecipeRenderer.tsx` (props `hiddenSlots`, `filteredComposition`, reenvío a hero + LayoutRenderer).
 - `packages/react/src/recipes/LayoutRenderer.tsx` (caso `hero_header`, `computeHiddenHeroRoles`).
