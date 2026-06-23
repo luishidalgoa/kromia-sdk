@@ -532,16 +532,22 @@ fuego). `LayoutRenderer` solo le pasaba `resolved.fields`. Por eso ni la aparien
 base del slot ni la por-field (§16) surtían efecto, y el acabado/tema "ganaba".
 - `LayoutRenderer` (case `stats_row`) ahora pasa `appearance={resolved.appearance}` +
   `fieldAppearances={resolved.fieldAppearances}` a `StatsRow`.
-- `StatsRow` aplica `appearanceTextClasses(appearance)` al wrapper + COLOR por-field
-  (base ← `fieldAppearances[key]`) en cada valor/etiqueta, vía el MISMO helper
-  `fieldColorClasses(appearance, fieldAppearances, key)` que usa la rama 'stats' de
-  `ComposableSlot` (refactorizada para reusarlo → anti-drift). `StatsRowField` gana `key?`.
+- `StatsRow` aplica la apariencia base en el wrapper + la apariencia EFECTIVA por
+  estadística (base ← `fieldAppearances[key]`, vía `mergeFieldAppearance`) en cada
+  VALOR: **no solo color** sino TODO — tipografía (`appearanceTextClasses`), FONDO
+  (`bgColor`→pill), RECORTE (`appearanceTruncateClass` + default truncate), CAJA
+  (`appearancePaddingClass`) y efecto (`appearanceEffectClasses`). La ETIQUETA solo
+  sigue el color (mantiene su identidad de caption). Mismos helpers que la rama 'stats'
+  de `ComposableSlot` (anti-drift). `StatsRowField` gana `key?`. (Commit del refinamiento
+  completo: `e44e303`; el inicial `505d3b4` solo aplicaba color.)
 
 **En Flutter:** el render del componente stats_row (equivalente a `StatsRow`) debe
-recibir y aplicar `appearance` + `fieldAppearances`: color base en el wrapper + por
-estadística `base.merge(fieldAppearances?[key])`. Hoy en `core_dart` ese componente
-probablemente también tiene los colores fijos → mismo bug; replica el fix. (El gate
-`display!=='auto'` de §16 NO aplica aquí: el componente nunca pasa por ComposableSlot.)
+recibir y aplicar `appearance` + `fieldAppearances` por estadística con
+`base.merge(fieldAppearances?[key])`, y aplicar la apariencia COMPLETA (tipografía,
+color, fondo, recorte/maxLines, relleno) en el valor — no solo el color. Hoy en
+`core_dart` ese componente probablemente tiene el estilo fijo → mismo bug; replica el
+fix. (El gate `display!=='auto'` de §16 NO aplica aquí: el componente nunca pasa por
+ComposableSlot.)
 
 ### 18.2 — Mini-cartas (card-ref) de cartas SOLO con capas 3D
 Una carta referenciada sin arte plano (p.ej. "Ignis", solo composición de capas 3D
