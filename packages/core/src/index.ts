@@ -95,6 +95,9 @@ export {
   type BehaviorDefinition,
 } from './registries/behaviors';
 
+// KRO-198 — etiqueta normalizada de un field (behavior→displayName, fallback type).
+export { labelForField } from './field-label';
+
 // ── Recipes ────────────────────────────────────────────────────────────
 export {
   RECIPE_REGISTRY,

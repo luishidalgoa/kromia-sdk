@@ -33,6 +33,7 @@ const EXPECTED_EXPORTS = [
   'getBehavior',
   'getBehaviorsByType',
   'suggestBehavior',
+  'labelForField',
   // Recipes
   'RECIPE_REGISTRY',
   'getRecipeManifest',
