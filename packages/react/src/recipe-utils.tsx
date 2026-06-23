@@ -793,12 +793,19 @@ export function ComposableSlot({
             // VALOR aplica todo; la ETIQUETA solo el color (mantiene su identidad).
             const ap = mergeFieldAppearance(slot.appearance, fa, e.key);
             const bg = paletteClass(ap?.bgColor, 'bg');
+            const isBadge = ap?.display === 'badge';
             return (
               <span key={i} className="inline-flex flex-col items-center text-center min-w-0">
-                <span className={cn('text-lg font-bold tabular-nums max-w-full text-foreground',
-                  !ap?.truncate && 'truncate', appearanceTruncateClass(ap),
-                  bg && 'rounded px-1', appearancePaddingClass(ap), appearanceEffectClasses(ap), bg,
-                  appearanceTextClasses(ap ? { ...ap, bgColor: undefined } : undefined))}>{e.value}</span>
+                {isBadge ? (
+                  <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-bold tabular-nums max-w-full',
+                    bg || 'bg-muted', appearancePaddingClass(ap), appearanceEffectClasses(ap),
+                    appearanceTextClasses(ap ? { ...ap, bgColor: undefined } : undefined) || 'text-foreground')}>{e.value}</span>
+                ) : (
+                  <span className={cn('text-lg font-bold tabular-nums max-w-full text-foreground',
+                    !ap?.truncate && 'truncate', appearanceTruncateClass(ap),
+                    bg && 'rounded px-1', appearancePaddingClass(ap), appearanceEffectClasses(ap), bg,
+                    appearanceTextClasses(ap ? { ...ap, bgColor: undefined } : undefined))}>{e.value}</span>
+                )}
                 {e.label && <span className={cn('text-[10px] uppercase tracking-wider truncate max-w-full text-muted-foreground',
                   ap?.textColor && paletteClass(ap.textColor, 'text'))}>{e.label}</span>}
               </span>

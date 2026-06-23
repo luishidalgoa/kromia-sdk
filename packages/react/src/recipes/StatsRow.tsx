@@ -44,14 +44,25 @@ export function StatsRow({ fields, appearance, fieldAppearances }: {
       {present.map((f, idx) => {
         const ap = mergeFieldAppearance(appearance, fieldAppearances, f.key);
         const bg = paletteClass(ap?.bgColor, 'bg');
+        // KRO-198 — `display:'badge'` → el VALOR se pinta como pastilla (rareza/tipo),
+        // no como cifra grande. Honra color/tipografía/relleno/efecto igual.
+        const isBadge = ap?.display === 'badge';
         return (
           <div key={idx} className="text-center min-w-0">
-            <p className={cn('text-lg font-bold tabular-nums max-w-full text-foreground',
-              !ap?.truncate && 'truncate', appearanceTruncateClass(ap),
-              bg && 'rounded px-1', appearancePaddingClass(ap), appearanceEffectClasses(ap), bg,
-              appearanceTextClasses(ap ? { ...ap, bgColor: undefined } : undefined))}>
-              {formatScalar(f.value, f.def)}
-            </p>
+            {isBadge ? (
+              <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-bold tabular-nums max-w-full',
+                bg || 'bg-muted', appearancePaddingClass(ap), appearanceEffectClasses(ap),
+                appearanceTextClasses(ap ? { ...ap, bgColor: undefined } : undefined) || 'text-foreground')}>
+                {formatScalar(f.value, f.def)}
+              </span>
+            ) : (
+              <p className={cn('text-lg font-bold tabular-nums max-w-full text-foreground',
+                !ap?.truncate && 'truncate', appearanceTruncateClass(ap),
+                bg && 'rounded px-1', appearancePaddingClass(ap), appearanceEffectClasses(ap), bg,
+                appearanceTextClasses(ap ? { ...ap, bgColor: undefined } : undefined))}>
+                {formatScalar(f.value, f.def)}
+              </p>
+            )}
             {f.def?.label && (
               <p className={cn('text-[10px] uppercase tracking-wider truncate max-w-full text-muted-foreground',
                 ap?.textColor && paletteClass(ap.textColor, 'text'))}>
