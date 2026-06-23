@@ -634,6 +634,35 @@ picker si la app edita colores.
 
 ---
 
+## 22. Cambios 2026-06-23 — color por-chip en composable 'auto' + align del badge
+
+Commit SDK: `93d1f4a`. Dos fixes de render. **Requieren paridad core_dart.**
+
+### 22.1 — `fieldAppearances` (color por-chip) también en `composableDisplay='auto'`
+Bug: un slot composable multi-campo con disposición 'auto' (el default) renderizaba
+los valores desde `composeSlotValues().items` (`string[]` SIN key) → el color por-field
+(§16) no se podía aplicar (solo el color base). Ahora `ComposableSlot` construye
+`entries` (con `key`) + `colorFor` UNA vez (hoisted) y los branches 'auto'
+vertical/horizontal colorean cada valor por-chip (texto+fondo), igual que los
+displays explícitos. `entries.value[] === items[]` (mismo formatScalar/orden/filtro;
+los casos array y truncate se resuelven antes) → sin regresión del subtítulo unido.
+
+**En Flutter:** el render del composable en modo 'auto' (multi-campo) debe conservar
+la `key` de cada campo y aplicar `base ← fieldAppearances[key]` por valor, no aplanar
+a una lista de strings sin key.
+
+### 22.2 — El `align` de un `display:'badge'` va en el contenedor, no en la pastilla
+Bug: el align (text-align) se aplicaba a la `BadgePill` (que es `inline-flex`), donde
+no la mueve → un badge no se podía centrar. Nuevo helper `appearanceAlignClass` aplicado
+al `<div>` BLOQUE exterior (LayoutRenderer rama badge) → `text-center/left/right` ahí SÍ
+alinea la pastilla inline; la pill conserva color/peso/size/efectos (con la appearance
+sin `align`). Cubre badge single y composable.
+
+**En Flutter:** alinea el badge desde su CONTENEDOR (Align/Row mainAxisAlignment según
+`appearance.align`), no con un text-align sobre la propia pastilla.
+
+---
+
 **Referencias de lectura obligada (TS canónico):**
 - `packages/react/src/recipes/RecipeRenderer.tsx` (props `hiddenSlots`, `filteredComposition`, reenvío a hero + LayoutRenderer).
 - `packages/react/src/recipes/LayoutRenderer.tsx` (caso `hero_header`, `computeHiddenHeroRoles`).

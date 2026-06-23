@@ -154,6 +154,13 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   `PALETTE_NEUTRALS=['white','black']` (grupo 'neutro', fijos) + sus hex en `PALETTE_HEX`.
   `paletteClass` los resuelve por fallback (`text-white`…). NO toca el contrato. **Paridad
   core_dart**: mapear ids 'white'/'black' a Color blanco/negro + mostrarlos en el picker. Ver §21.
+  **(16) NUEVO 2026-06-23 §22 (commit `93d1f4a`)** — dos fixes de render. (22.1) el color
+  POR-CHIP (`fieldAppearances`) ahora aplica también en `composableDisplay='auto'` multi-campo
+  (antes el branch 'auto' usaba `items` sin key → solo color base). **Paridad core_dart**:
+  conservar la key por campo en 'auto' + merge `base ← fieldAppearances[key]` por valor.
+  (22.2) el `align` de un `display:'badge'` va en el CONTENEDOR (helper `appearanceAlignClass`
+  en el `<div>` block), no en la pastilla inline-flex. **Paridad core_dart**: alinear el badge
+  desde su contenedor (Align/Row), no con text-align sobre la pastilla. Ver §22.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
