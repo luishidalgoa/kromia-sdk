@@ -396,6 +396,11 @@ function validateSlot(
           validateAppearance(c.appearance, `${cp}.appearance`, issues);
         });
       }
+      // KRO-198 — la cláusula ELSE (otherwise) valida su appearance igual que un caso
+      // (mismo aviso de contraste). `op`/`value` se ignoran en el else, no se validan.
+      if (cs.otherwise && typeof cs.otherwise === 'object' && !Array.isArray(cs.otherwise)) {
+        validateAppearance(cs.otherwise.appearance, `${csPath}.otherwise.appearance`, issues);
+      }
     }
   }
 
