@@ -150,6 +150,10 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   conservan accent). **Paridad core_dart**: añade el campo + aplica el color como DefaultTextStyle
   heredado del subárbol + applyThemePreset global. Studio: control "Color de texto" en Decoración
   + cabecera del detalle usa `surface.textColor`. Ver §20.
+  **(15) NUEVO 2026-06-23 §21 (commits `da3ffd1`/`ad542eb`)** — blanco y negro en la paleta:
+  `PALETTE_NEUTRALS=['white','black']` (grupo 'neutro', fijos) + sus hex en `PALETTE_HEX`.
+  `paletteClass` los resuelve por fallback (`text-white`…). NO toca el contrato. **Paridad
+  core_dart**: mapear ids 'white'/'black' a Color blanco/negro + mostrarlos en el picker. Ver §21.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated

@@ -620,6 +620,20 @@ commit `85a81e9`), y la cabecera del detalle (CardFocusOverlay) usa `surface.tex
 
 ---
 
+## 21. Cambios 2026-06-23 — blanco y negro en la paleta
+
+Commits SDK: `da3ffd1` + `ad542eb`. `PALETTE_NEUTRALS = ['white','black']` (grupo
+`'neutro'`, fijos — no adaptan a claro/oscuro), añadidos a `PALETTE` y a `PALETTE_HEX`
+(`#ffffff`/`#000000`). `paletteClass` los resuelve por el fallback `${role}-${id}` →
+`text-white`/`bg-white`/`text-black`/`bg-black` (Studio los fuerza en el bundle vía
+`@source inline`). NO toca el contrato (la paleta no se enumera en el KRP).
+
+**En Flutter:** mapea los ids `'white'`/`'black'` a `Color(0xFFFFFFFF)`/`Color(0xFF000000)`
+en el equivalente de `PALETTE_HEX`/`paletteClass` de `core_dart`, y muéstralos en el
+picker si la app edita colores.
+
+---
+
 **Referencias de lectura obligada (TS canónico):**
 - `packages/react/src/recipes/RecipeRenderer.tsx` (props `hiddenSlots`, `filteredComposition`, reenvío a hero + LayoutRenderer).
 - `packages/react/src/recipes/LayoutRenderer.tsx` (caso `hero_header`, `computeHiddenHeroRoles`).
