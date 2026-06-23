@@ -564,7 +564,9 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
       if (!sid) return null;
       const resolved = resolveSlot(ctx.composition, sid, ctx.fieldDefs, ctx.item);
       if (!resolved) return null;
-      return <StatsRow fields={resolved.fields} />;
+      // KRO-198 — propaga la apariencia (base + por-field) al componente; antes se
+      // perdían y StatsRow pintaba color fijo (el acabado/tema "ganaba").
+      return <StatsRow fields={resolved.fields} appearance={resolved.appearance} fieldAppearances={resolved.fieldAppearances} />;
     }
     // KRO-155 — fila de BADGES: un pill por CADA field del slot (rareza · tipo ·
     // estado), en vez de un único pill envolviendo todo. Salta los vacíos con la

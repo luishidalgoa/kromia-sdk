@@ -34,7 +34,15 @@ import type { FieldDefLike } from '../recipe-utils';
  * la FOTO real de la carta referenciada en vez del placeholder degradado.
  * Devuelve null/undefined si la ref no resuelve (→ placeholder).
  */
-export type CardRefResolver = (ref: string | number) => { imageUrl?: string; title?: string } | null | undefined;
+export type CardRefResolver = (ref: string | number) => {
+  imageUrl?: string;
+  title?: string;
+  /** KRO-198 — capas 3D (KRO-130) de la carta referenciada cuando NO tiene arte
+   *  plano (p.ej. cartas hechas solo de composición de capas). La mini-carta las
+   *  APILA (back→front) como fallback de `imageUrl` → muestra el arte en reposo
+   *  en vez del placeholder. Orden = el del array (back primero = abajo). */
+  layers?: { url: string }[];
+} | null | undefined;
 
 export interface RefGalleryProps {
   /** Valor del field de refs: un ref único o un array (lista). */
@@ -130,15 +138,25 @@ export function MiniCardRefs({
   const cardFace = (ref: string | number) => {
     const resolved = resolveRef?.(ref);
     const imgUrl = resolved?.imageUrl;
+    // KRO-198 — fallback a las capas 3D apiladas cuando la carta no tiene arte
+    // plano (Ignis y cía.): se componen back→front (object-cover) = el arte en
+    // reposo. Si hay imagen plana, esa manda.
+    const layers = !imgUrl && resolved?.layers && resolved.layers.length > 0 ? resolved.layers : null;
+    const hasFace = !!imgUrl || !!layers;
     return {
       img: imgUrl
         // eslint-disable-next-line @next/next/no-img-element
         ? <img src={imgUrl} alt={resolved?.title ?? ''} className="absolute inset-0 w-full h-full object-cover" />
-        : null,
-      numStyle: imgUrl
+        : layers
+          ? <>{layers.map((l, i) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img key={i} src={l.url} alt="" className="absolute inset-0 w-full h-full object-cover" />
+            ))}</>
+          : null,
+      numStyle: hasFace
         ? { color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.6)' }
         : { color: tintFg },
-      bg: imgUrl ? undefined : `linear-gradient(135deg, ${gradStart} 0%, ${gradEnd} 100%)`,
+      bg: hasFace ? undefined : `linear-gradient(135deg, ${gradStart} 0%, ${gradEnd} 100%)`,
     };
   };
 

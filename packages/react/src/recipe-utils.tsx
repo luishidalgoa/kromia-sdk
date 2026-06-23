@@ -273,6 +273,23 @@ export function appearanceTextClasses(a: SlotAppearance | undefined): string {
   );
 }
 
+/**
+ * KRO-198 — clases de color (bg/text) EFECTIVAS de un field dentro de un slot
+ * composable: la base del slot (`appearance`) MERGE-ada con la apariencia del
+ * field (`fieldAppearances[key]`). Sin entrada por-field → base. Compartido por
+ * `ComposableSlot` y el componente `StatsRow` para que el color por chip/
+ * estadística sea idéntico en ambos renderers (anti-drift). Devuelve '' cuando
+ * no hay color (el caller cae a su default).
+ */
+export function fieldColorClasses(
+  appearance:       SlotAppearance | undefined,
+  fieldAppearances: Record<string, SlotAppearance> | undefined,
+  key:              string | undefined,
+): { bg: string; text: string } {
+  const ap = (key && fieldAppearances?.[key]) ? { ...appearance, ...fieldAppearances[key] } : appearance;
+  return { bg: paletteClass(ap?.bgColor, 'bg'), text: paletteClass(ap?.textColor, 'text') };
+}
+
 /** KRO-147 F3 — clases de EFECTO del slot (opacity + shadow), aplicables al
  *  wrapper de cualquier slot (imagen, badge, texto). '' si no hay overrides. */
 export function appearanceEffectClasses(a: SlotAppearance | undefined): string {
@@ -690,10 +707,7 @@ export function ComposableSlot({
     // así cada pastilla/estadística puede llevar su propio color de texto/fondo.
     // Sin entrada por-field → base. paletteClass devuelve '' para tokens `field:`
     // → cae al default muted, sin romper. Los tonos van en los elementos.
-    const colorFor = (key?: string) => {
-      const ap = (key && fa?.[key]) ? { ...slot.appearance, ...fa[key] } : slot.appearance;
-      return { bg: paletteClass(ap?.bgColor, 'bg'), text: paletteClass(ap?.textColor, 'text') };
-    };
+    const colorFor = (key?: string) => fieldColorClasses(slot.appearance, fa, key);
     // Base para decisiones a nivel WRAPPER (cancelar su bg en chips).
     const elBg = paletteClass(slot.appearance?.bgColor, 'bg');
 
