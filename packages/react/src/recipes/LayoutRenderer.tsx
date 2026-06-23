@@ -565,12 +565,19 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
       return isHidden('refs') ? null : renderRefs('refs', 'grid');
     // KRO-133 — carruseles de imágenes (mismo render que Hero/Momento/Editorial,
     // vía el componente compartido `ImageGallery`, con la etiqueta del campo).
+    // KRO-198 — propaga la Apariencia del slot de imágenes (forma/aspect/objectFit/
+    // efectos/encuadre); antes los componentes de galería la IGNORABAN (la clase de
+    // bug de la red appearance-coverage: el editor la deja poner, el render no la usa).
     case 'carousel_peek':
-      return isHidden('images') ? null : <ImageGallery urls={imageUrls('images')} variant="peek" label={roleLabel('images')} />;
     case 'carousel_centered':
-      return isHidden('images') ? null : <ImageGallery urls={imageUrls('images')} variant="centered" label={roleLabel('images')} />;
-    case 'gallery_grid':
-      return isHidden('images') ? null : <ImageGallery urls={imageUrls('images')} variant="grid" label={roleLabel('images')} />;
+    case 'gallery_grid': {
+      if (isHidden('images')) return null;
+      const sid = node.slots?.images;
+      const ap  = sid ? resolveSlot(ctx.composition, sid, ctx.fieldDefs, ctx.item)?.appearance : undefined;
+      const variant = node.component === 'gallery_grid' ? 'grid'
+        : node.component === 'carousel_centered' ? 'centered' : 'peek';
+      return <ImageGallery urls={imageUrls('images')} variant={variant} label={roleLabel('images')} appearance={ap} />;
+    }
     // KRO-133 — carrusel de cartas: las mini-cartas de la galería en fila swipe.
     case 'cards_carousel':
       return isHidden('cards') ? null : renderRefs('cards', 'carousel');
@@ -590,8 +597,12 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
     }
     // KRO-155 — fila de BADGES: un pill por CADA field del slot (rareza · tipo ·
     // estado), en vez de un único pill envolviendo todo. Salta los vacíos con la
-    // MISMA noción de vacío que el resto (formatScalar→'' cubre whitespace) y honra
-    // la appearance del slot en cada pill, como la rama badge canónica.
+    // MISMA noción de vacío que el resto (formatScalar→'' cubre whitespace).
+    // KRO-198 — MISMO patrón completo que `chips_row` (per-field + caja + align→
+    // justify + toggle Texto↔Badge), pero con IDENTIDAD BADGE (más prominente:
+    // `font-medium text-foreground/80`) en vez del chip tenue. Antes solo aplicaba
+    // `appearanceTextClasses` → se comía relleno/efecto/fondo/color/por-field (la
+    // clase de bug que cazó la red de regresión appearance-coverage).
     case 'badge_row': {
       if (isHidden('badges')) return null;
       const sid = node.slots?.badges;
@@ -599,14 +610,35 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
       const resolved = resolveSlot(ctx.composition, sid, ctx.fieldDefs, ctx.item);
       if (!resolved) return null;
       return (
-        <div className="flex flex-wrap gap-1">
-          {resolved.fields.map((f, i) =>
-            formatScalar(f.value, f.def) === '' ? null : (
-              <BadgePill key={i} className={appearanceTextClasses(resolved.appearance)}>
-                <ScalarText value={f.value} def={f.def} appearance={resolved.appearance} />
-              </BadgePill>
-            ),
-          )}
+        // El wrapper es FLEX → "Alinear" (text-align) no mueve los pills; se mapea a
+        // justify-content para alinear la fila izquierda/centro/derecha.
+        <div className={cn('flex flex-wrap items-center gap-1',
+          resolved.appearance?.align === 'center' && 'justify-center',
+          resolved.appearance?.align === 'right' && 'justify-end')}>
+          {resolved.fields.map((f, i) => {
+            const text = formatScalar(f.value, f.def);
+            if (text === '') return null;
+            // Apariencia EFECTIVA por badge = base del slot + override per-field
+            // (color/fondo/tipografía/RELLENO/OPACIDAD/SOMBRA/recorte), como chips_row.
+            const ap    = mergeFieldAppearance(resolved.appearance, resolved.fieldAppearances, f.key);
+            const shown = applyAppearanceTruncate(text, ap);
+            const box   = cn(
+              appearanceTextClasses(ap ? { ...ap, bgColor: undefined, textColor: undefined } : undefined),
+              appearancePaddingClass(ap), appearanceEffectClasses(ap), appearanceTruncateClass(ap),
+            );
+            // "Mostrar como": 'text' → TEXTO PLANO (sin pill); default/'badge' → BADGE.
+            if (ap?.display === 'text') {
+              return <span key={i} className={cn('text-xs', paletteClass(ap?.textColor, 'text') || 'text-foreground/80', box)}>{shown}</span>;
+            }
+            return (
+              <span key={i} className={cn(
+                'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
+                paletteClass(ap?.bgColor, 'bg') || 'bg-muted',
+                paletteClass(ap?.textColor, 'text') || 'text-foreground/80',
+                box,
+              )}>{shown}</span>
+            );
+          })}
         </div>
       );
     }
@@ -668,10 +700,27 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
     case 'section_title': {
       if (isHidden('text')) return null;
       const sid = node.slots?.text;
-      const first = sid ? resolveSlot(ctx.composition, sid, ctx.fieldDefs, ctx.item)?.fields?.[0] : undefined;
+      const resolved = sid ? resolveSlot(ctx.composition, sid, ctx.fieldDefs, ctx.item) : undefined;
+      const first = resolved?.fields?.[0];
       const formatted = first ? formatScalar(first.value, first.def) : '';
       const text = formatted !== '' ? formatted : (roleLabel('text') ?? '');
-      return text ? <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{text}</p> : null;
+      if (!text) return null;
+      // KRO-198 — honra la Apariencia del slot. `uppercase tracking-wider` es la
+      // IDENTIDAD del título de sección; color/tamaño/peso son DEFAULTS pisables por
+      // la apariencia (twMerge: la clase del helper, más tardía, gana). Antes se
+      // descartaba `resolved.appearance` entero → color/relleno/efecto sin efecto.
+      const ap    = mergeFieldAppearance(resolved?.appearance, resolved?.fieldAppearances, first?.key);
+      const shown = applyAppearanceTruncate(text, ap);
+      const bg    = paletteClass(ap?.bgColor, 'bg');
+      return (
+        <p className={cn(
+          'text-xs uppercase tracking-wider font-semibold',
+          paletteClass(ap?.textColor, 'text') || 'text-muted-foreground',
+          appearanceTextClasses(ap ? { ...ap, bgColor: undefined, textColor: undefined } : undefined),
+          bg && cn('rounded px-1', bg),
+          appearancePaddingClass(ap), appearanceEffectClasses(ap), appearanceTruncateClass(ap),
+        )}>{shown}</p>
+      );
     }
     case 'hero_header': {
       // Cabecera hero FIEL: remapea rol→slotId a los nombres de slot del hero

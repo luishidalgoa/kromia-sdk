@@ -20,9 +20,12 @@
  */
 import { useRef, useState, type CSSProperties } from 'react';
 import { ZoomIn } from 'lucide-react';
-import { isMockupImage } from '@kromia/core';
+import { isMockupImage, type SlotAppearance } from '@kromia/core';
 import { cn } from '../lib/cn';
-import { MockupImageSkeleton } from '../recipe-utils';
+import {
+  MockupImageSkeleton, appearanceShapeClass, appearanceAspectClass,
+  appearanceObjectFitClass, appearanceEffectClasses, imageFocusStyle,
+} from '../recipe-utils';
 import { useImageZoom } from './ImageZoomContext';
 
 export type ImageGalleryVariant = 'peek' | 'centered' | 'grid';
@@ -31,8 +34,13 @@ export interface ImageGalleryProps {
   /** URLs de las imágenes (se filtran las vacías/no-string). */
   urls:      Array<string | null | undefined>;
   variant?:  ImageGalleryVariant;
-  /** Estilo opcional por <img> (p.ej. object-position de un focus de apariencia). */
+  /** Estilo opcional por <img> (p.ej. object-position de un focus de apariencia).
+   *  Si no se pasa pero hay `appearance.imageFocus`, se deriva de ahí. */
   imgStyle?: CSSProperties;
+  /** KRO-198 — Apariencia del slot de imágenes (image-array): forma/aspect/objectFit/
+   *  efectos (opacidad·sombra) + encuadre. Antes los componentes de bloque
+   *  (carousel/gallery) la IGNORABAN por completo. '' por prop = sin override. */
+  appearance?: SlotAppearance;
   /** Etiqueta opcional encima (KRO-133 — fidelidad: las recetas pintan el label
    *  del campo, p.ej. "GALERÍA"). Mismo markup que Editorial/Hero. */
   label?:    string;
@@ -43,19 +51,21 @@ export interface ImageGalleryProps {
  *  + hint al hover) cuando hay host de zoom y la imagen es REAL; si no, `<div>`
  *  estático. La caja recorta (overflow-hidden) → el overlay de hover queda dentro. */
 function GalleryCell({
-  url, boxClass, style, imgStyle, onZoom,
+  url, boxClass, style, imgStyle, imgClass, onZoom,
 }: {
   url:       string;
   boxClass:  string;
   style?:    CSSProperties;
   imgStyle?: CSSProperties;
+  /** KRO-198 — clase de object-fit del slot (override de object-cover). */
+  imgClass?: string;
   onZoom?:   () => void;
 }) {
   const mockup = isMockupImage(url);
   const media = mockup
     ? <MockupImageSkeleton />
     // eslint-disable-next-line @next/next/no-img-element
-    : <img src={url} alt="" style={imgStyle} className="w-full h-full object-cover" />;
+    : <img src={url} alt="" style={imgStyle} className={cn('w-full h-full', imgClass || 'object-cover')} />;
 
   // Tappable cuando hay host de zoom (incluye los mockups: en el preview del
   // wizard las imágenes son sintéticas y aún así el publisher debe poder
@@ -73,7 +83,14 @@ function GalleryCell({
   return <div className={boxClass} style={style}>{media}</div>;
 }
 
-export function ImageGallery({ urls, variant = 'peek', imgStyle, label, className }: ImageGalleryProps) {
+export function ImageGallery({ urls, variant = 'peek', imgStyle, appearance, label, className }: ImageGalleryProps) {
+  // KRO-198 — apariencia del slot de imágenes aplicada a CADA celda. shape/aspect
+  // solo pisan los defaults de la galería cuando hay override (helper → '' si no);
+  // objectFit y efectos (opacidad/sombra) siempre que el publisher los fije.
+  // imageFocus (encuadre) → object-position vía imgStyle, derivado si no llega uno.
+  const apBox  = cn(appearanceShapeClass(appearance), appearanceAspectClass(appearance), appearanceEffectClasses(appearance));
+  const apFit  = appearanceObjectFitClass(appearance);
+  const apImgS = imgStyle ?? imageFocusStyle(appearance);
   // KRO-155 — dots de posición en los carruseles (peek/centered): el índice
   // activo se deriva del scroll (stride medio = scrollWidth / nº slides), así un
   // carrusel con una slide visible deja de parecer estático. Los hooks van ANTES
@@ -109,8 +126,9 @@ export function ImageGallery({ urls, variant = 'peek', imgStyle, label, classNam
           <GalleryCell
             key={i}
             url={url}
-            boxClass="aspect-square rounded-lg bg-muted overflow-hidden"
-            imgStyle={imgStyle}
+            boxClass={cn('aspect-square rounded-lg bg-muted overflow-hidden', apBox)}
+            imgStyle={apImgS}
+            imgClass={apFit}
             onZoom={openZoom ? () => openZoom(clean, i) : undefined}
           />
         ))}
@@ -139,11 +157,12 @@ export function ImageGallery({ urls, variant = 'peek', imgStyle, label, classNam
             <GalleryCell
               key={i}
               url={url}
-              boxClass={variant === 'centered'
+              boxClass={cn(variant === 'centered'
                 ? 'snap-center shrink-0 w-64 aspect-[4/3] rounded-lg bg-muted overflow-hidden'
-                : 'snap-start shrink-0 aspect-[4/3] rounded-lg bg-muted overflow-hidden'}
+                : 'snap-start shrink-0 aspect-[4/3] rounded-lg bg-muted overflow-hidden', apBox)}
               style={variant === 'peek' ? { width: '70%' } : undefined}
-              imgStyle={imgStyle}
+              imgStyle={apImgS}
+              imgClass={apFit}
               onZoom={openZoom ? () => openZoom(clean, i) : undefined}
             />
           ))}
