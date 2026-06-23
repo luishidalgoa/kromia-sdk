@@ -26,14 +26,17 @@ import type { SlotAcceptKind } from '../types';
  * KRO-133 — categoría de un componente. Agrupa la palette del editor en un
  * acordeón ORGANIZADO y da orden estable. Catálogo cerrado (paridad Flutter).
  */
-export type ComponentCategory = 'basic' | 'header' | 'media' | 'cards';
+// KRO-198 — categorías SEMÁNTICAS (antes 'basic' era un cajón de sastre). El
+// `id` entra al contrato KRP (serializado) → cambiarlo requiere paridad Flutter.
+export type ComponentCategory = 'attributes' | 'cards' | 'media' | 'header' | 'decorative';
 
 /** Catálogo de categorías: etiqueta legible + orden de aparición en la palette. */
 export const COMPONENT_CATEGORIES: { id: ComponentCategory; label: string; order: number }[] = [
-  { id: 'basic',  label: 'Básicos',               order: 0 },
-  { id: 'header', label: 'Cabeceras',             order: 1 },
-  { id: 'media',  label: 'Imágenes y carruseles', order: 2 },
-  { id: 'cards',  label: 'Cartas y referencias',  order: 3 },
+  { id: 'attributes', label: 'Atributos y etiquetas', order: 0 },
+  { id: 'cards',      label: 'Cartas y referencias',  order: 1 },
+  { id: 'media',      label: 'Galerías de imágenes',  order: 2 },
+  { id: 'header',     label: 'Cabeceras',             order: 3 },
+  { id: 'decorative', label: 'Decorativos',           order: 4 },
 ];
 
 /** Un "hueco" del componente, mapeable a un slot de la composición. */
@@ -68,8 +71,8 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
   card: {
     id:          'card',
     displayName: 'Carta',
-    description: 'Tarjeta compuesta: imagen + título + pie y badge opcionales. La unidad visual de un cromo, como un bloque reutilizable.',
-    category:    'basic',
+    description: 'Tarjeta compuesta: imagen + título + pie y badge opcionales. La unidad visual de un álbum, como un bloque reutilizable.',
+    category:    'cards',
     roles: [
       { id: 'media',   label: 'Imagen',  accepts: ['image', 'image-array'] },
       { id: 'title',   label: 'Título',  accepts: ['text-short'] },
@@ -84,8 +87,8 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
   badge_row: {
     id:          'badge_row',
     displayName: 'Fila de badges',
-    description: 'Pinta cada campo del slot como un BADGE separado (p.ej. "Fuego · Rara · Holo" como pills sueltas), en vez de un único pill que envuelve todo. Para varios atributos cortos en línea.',
-    category:    'basic',
+    description: 'Pinta cada campo del slot como un BADGE separado (varios atributos cortos en línea, como pills sueltas), en vez de un único pill que envuelve todo.',
+    category:    'attributes',
     roles: [
       { id: 'badges', label: 'Badges', accepts: ['badge', 'text-short'] },
     ],
@@ -98,8 +101,8 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
   chips_row: {
     id:          'chips_row',
     displayName: 'Fila de chips',
-    description: 'Pinta cada campo del slot como una pastilla SUTIL (chip, estilo etiqueta tenue) — p.ej. "Fuego · Rara · Holo" como chips en línea. La disposición "chips" del subtítulo, como bloque reutilizable. Más discreto que "Fila de badges".',
-    category:    'basic',
+    description: 'Pinta cada campo del slot como una pastilla SUTIL (chip, estilo etiqueta tenue): varios atributos cortos como chips en línea. La disposición "chips" como bloque reutilizable. Más discreto que "Fila de badges".',
+    category:    'attributes',
     roles: [
       { id: 'chips', label: 'Chips', accepts: ['text-short', 'number', 'badge'] },
     ],
@@ -112,8 +115,8 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
   section_title: {
     id:          'section_title',
     displayName: 'Título de sección',
-    description: 'Etiqueta de sección en MAYÚSCULAS colocable sobre cualquier bloque. Muestra el valor del campo o, si no hay, su etiqueta — como los rótulos "GALERÍA"/"ESTADÍSTICAS" que hoy solo existen dentro de las galerías.',
-    category:    'basic',
+    description: 'Etiqueta de sección en MAYÚSCULAS colocable sobre cualquier bloque. Muestra el valor del campo o, si no hay, su etiqueta — como un rótulo "GALERÍA"/"ESTADÍSTICAS".',
+    category:    'header',
     roles: [
       { id: 'text', label: 'Texto', accepts: ['text-short'], optional: true },
     ],
@@ -126,8 +129,8 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
   // pieza "prefab" que el preset de bloques del hero usa para no salir plano.
   hero_header: {
     id:          'hero_header',
-    displayName: 'Cabecera hero',
-    description: 'Banner + avatar circular superpuesto + título + subtítulo centrados — la cabecera de la receta "Hero protagónico" como bloque fiel (con placeholder de banner degradado e inicial del título). Se coloca como unidad.',
+    displayName: 'Cabecera con avatar',
+    description: 'Banner + avatar circular superpuesto + título + subtítulo centrados, colocados como una unidad. Trae placeholder de banner degradado e inicial del título cuando faltan datos.',
     category:    'header',
     roles: [
       { id: 'banner',   label: 'Banner',    accepts: ['image', 'image-array'],        optional: true },
@@ -158,7 +161,7 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
   carousel_peek: {
     id:          'carousel_peek',
     displayName: 'Carrusel grande',
-    description: 'Carrusel horizontal de imágenes grandes con swipe: cada imagen ocupa ~70% del ancho y asoma la siguiente (estilo "Hero protagónico"). Para galerías destacadas.',
+    description: 'Carrusel horizontal de imágenes grandes con swipe: cada imagen ocupa ~70% del ancho y asoma (peek) la siguiente. Para galerías destacadas.',
     category:    'media',
     roles: [
       { id: 'images', label: 'Imágenes', accepts: ['image-array', 'image'] },
@@ -169,7 +172,7 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
   carousel_centered: {
     id:          'carousel_centered',
     displayName: 'Carrusel centrado',
-    description: 'Carrusel horizontal de tarjetas de imagen centradas con swipe (estilo "Momento"). Pensado para slideshow en móvil.',
+    description: 'Carrusel horizontal de tarjetas de imagen centradas con swipe (snap central). Pensado para slideshow en móvil.',
     category:    'media',
     roles: [
       { id: 'images', label: 'Imágenes', accepts: ['image-array', 'image'] },
@@ -180,7 +183,7 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
   gallery_grid: {
     id:          'gallery_grid',
     displayName: 'Galería en mosaico',
-    description: 'Mosaico de imágenes en rejilla de 3 columnas (estilo "Editorial"). Muestra varias imágenes a la vez sin swipe.',
+    description: 'Mosaico de imágenes en rejilla de 3 columnas. Muestra varias imágenes a la vez, sin swipe.',
     category:    'media',
     roles: [
       { id: 'images', label: 'Imágenes', accepts: ['image-array', 'image'] },
@@ -206,8 +209,8 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
   divider: {
     id:          'divider',
     displayName: 'Separador',
-    description: 'Línea fina corta y centrada para separar bloques (el "hr" de las recetas de detalle). Decorativo, sin contenido.',
-    category:    'basic',
+    description: 'Línea fina corta y centrada para separar bloques (un "hr" fino). Decorativo, sin contenido.',
+    category:    'decorative',
     roles: [],
   },
 
@@ -218,8 +221,8 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
   stats_row: {
     id:          'stats_row',
     displayName: 'Fila de estadísticas',
-    description: 'Fila de estadísticas: cada campo del slot se muestra como valor grande + su etiqueta debajo (números tabulares). El bloque "stats" de las recetas de detalle, como componente fiel.',
-    category:    'basic',
+    description: 'Fila de estadísticas: cada campo del slot se muestra como valor grande + su etiqueta debajo (números tabulares). Para varios datos numéricos en línea.',
+    category:    'attributes',
     roles: [
       { id: 'stats', label: 'Estadísticas', accepts: ['number', 'text-short'] },
     ],

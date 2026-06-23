@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
-  "protocolVersion": "3.4.0",
-  "generatedAt": "2026-06-23T17:10:22.236Z",
+  "protocolVersion": "4.0.0",
+  "generatedAt": "2026-06-23T17:56:30.184Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -1260,8 +1260,8 @@
     {
       "id": "card",
       "displayName": "Carta",
-      "description": "Tarjeta compuesta: imagen + título + pie y badge opcionales. La unidad visual de un cromo, como un bloque reutilizable.",
-      "category": "basic",
+      "description": "Tarjeta compuesta: imagen + título + pie y badge opcionales. La unidad visual de un álbum, como un bloque reutilizable.",
+      "category": "cards",
       "roles": [
         {
           "id": "media",
@@ -1302,8 +1302,8 @@
     {
       "id": "badge_row",
       "displayName": "Fila de badges",
-      "description": "Pinta cada campo del slot como un BADGE separado (p.ej. \"Fuego · Rara · Holo\" como pills sueltas), en vez de un único pill que envuelve todo. Para varios atributos cortos en línea.",
-      "category": "basic",
+      "description": "Pinta cada campo del slot como un BADGE separado (varios atributos cortos en línea, como pills sueltas), en vez de un único pill que envuelve todo.",
+      "category": "attributes",
       "roles": [
         {
           "id": "badges",
@@ -1319,8 +1319,8 @@
     {
       "id": "chips_row",
       "displayName": "Fila de chips",
-      "description": "Pinta cada campo del slot como una pastilla SUTIL (chip, estilo etiqueta tenue) — p.ej. \"Fuego · Rara · Holo\" como chips en línea. La disposición \"chips\" del subtítulo, como bloque reutilizable. Más discreto que \"Fila de badges\".",
-      "category": "basic",
+      "description": "Pinta cada campo del slot como una pastilla SUTIL (chip, estilo etiqueta tenue): varios atributos cortos como chips en línea. La disposición \"chips\" como bloque reutilizable. Más discreto que \"Fila de badges\".",
+      "category": "attributes",
       "roles": [
         {
           "id": "chips",
@@ -1337,8 +1337,8 @@
     {
       "id": "section_title",
       "displayName": "Título de sección",
-      "description": "Etiqueta de sección en MAYÚSCULAS colocable sobre cualquier bloque. Muestra el valor del campo o, si no hay, su etiqueta — como los rótulos \"GALERÍA\"/\"ESTADÍSTICAS\" que hoy solo existen dentro de las galerías.",
-      "category": "basic",
+      "description": "Etiqueta de sección en MAYÚSCULAS colocable sobre cualquier bloque. Muestra el valor del campo o, si no hay, su etiqueta — como un rótulo \"GALERÍA\"/\"ESTADÍSTICAS\".",
+      "category": "header",
       "roles": [
         {
           "id": "text",
@@ -1352,8 +1352,8 @@
     },
     {
       "id": "hero_header",
-      "displayName": "Cabecera hero",
-      "description": "Banner + avatar circular superpuesto + título + subtítulo centrados — la cabecera de la receta \"Hero protagónico\" como bloque fiel (con placeholder de banner degradado e inicial del título). Se coloca como unidad.",
+      "displayName": "Cabecera con avatar",
+      "description": "Banner + avatar circular superpuesto + título + subtítulo centrados, colocados como una unidad. Trae placeholder de banner degradado e inicial del título cuando faltan datos.",
       "category": "header",
       "roles": [
         {
@@ -1412,7 +1412,7 @@
     {
       "id": "carousel_peek",
       "displayName": "Carrusel grande",
-      "description": "Carrusel horizontal de imágenes grandes con swipe: cada imagen ocupa ~70% del ancho y asoma la siguiente (estilo \"Hero protagónico\"). Para galerías destacadas.",
+      "description": "Carrusel horizontal de imágenes grandes con swipe: cada imagen ocupa ~70% del ancho y asoma (peek) la siguiente. Para galerías destacadas.",
       "category": "media",
       "roles": [
         {
@@ -1429,7 +1429,7 @@
     {
       "id": "carousel_centered",
       "displayName": "Carrusel centrado",
-      "description": "Carrusel horizontal de tarjetas de imagen centradas con swipe (estilo \"Momento\"). Pensado para slideshow en móvil.",
+      "description": "Carrusel horizontal de tarjetas de imagen centradas con swipe (snap central). Pensado para slideshow en móvil.",
       "category": "media",
       "roles": [
         {
@@ -1446,7 +1446,7 @@
     {
       "id": "gallery_grid",
       "displayName": "Galería en mosaico",
-      "description": "Mosaico de imágenes en rejilla de 3 columnas (estilo \"Editorial\"). Muestra varias imágenes a la vez sin swipe.",
+      "description": "Mosaico de imágenes en rejilla de 3 columnas. Muestra varias imágenes a la vez, sin swipe.",
       "category": "media",
       "roles": [
         {
@@ -1479,15 +1479,15 @@
     {
       "id": "divider",
       "displayName": "Separador",
-      "description": "Línea fina corta y centrada para separar bloques (el \"hr\" de las recetas de detalle). Decorativo, sin contenido.",
-      "category": "basic",
+      "description": "Línea fina corta y centrada para separar bloques (un \"hr\" fino). Decorativo, sin contenido.",
+      "category": "decorative",
       "roles": []
     },
     {
       "id": "stats_row",
       "displayName": "Fila de estadísticas",
-      "description": "Fila de estadísticas: cada campo del slot se muestra como valor grande + su etiqueta debajo (números tabulares). El bloque \"stats\" de las recetas de detalle, como componente fiel.",
-      "category": "basic",
+      "description": "Fila de estadísticas: cada campo del slot se muestra como valor grande + su etiqueta debajo (números tabulares). Para varios datos numéricos en línea.",
+      "category": "attributes",
       "roles": [
         {
           "id": "stats",

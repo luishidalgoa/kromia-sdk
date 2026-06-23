@@ -47,8 +47,8 @@ describe('COMPONENT_REGISTRY', () => {
 
   it('componentsByCategory agrupa en orden y sin categorías vacías', () => {
     const groups = componentsByCategory();
-    // orden estable por COMPONENT_CATEGORIES.order
-    expect(groups.map(g => g.category)).toEqual(['basic', 'header', 'media', 'cards']);
+    // orden estable por COMPONENT_CATEGORIES.order (KRO-198 — 5 categorías semánticas)
+    expect(groups.map(g => g.category)).toEqual(['attributes', 'cards', 'media', 'header', 'decorative']);
     // cada grupo tiene componentes y todos pertenecen a su categoría
     for (const g of groups) {
       expect(g.components.length).toBeGreaterThan(0);
@@ -57,6 +57,9 @@ describe('COMPONENT_REGISTRY', () => {
     // los 3 de imágenes caen en 'media'
     const media = groups.find(g => g.category === 'media');
     expect(media?.components.map(c => c.id).sort()).toEqual(['carousel_centered', 'carousel_peek', 'gallery_grid']);
+    // KRO-198 — las filas de atributos (badge/chips/stats) caen en 'attributes'
+    const attrs = groups.find(g => g.category === 'attributes');
+    expect(attrs?.components.map(c => c.id).sort()).toEqual(['badge_row', 'chips_row', 'stats_row']);
   });
 });
 
