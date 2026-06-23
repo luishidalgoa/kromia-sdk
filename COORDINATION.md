@@ -161,6 +161,11 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   (22.2) el `align` de un `display:'badge'` va en el CONTENEDOR (helper `appearanceAlignClass`
   en el `<div>` block), no en la pastilla inline-flex. **Paridad core_dart**: alinear el badge
   desde su contenedor (Align/Row), no con text-align sobre la pastilla. Ver §22.
+  **(17) NUEVO 2026-06-23 §23 (commit `65297e2`)** — (23.1) helper SDK `labelForField`
+  (behavior→displayName, fallback type) para nombrar slots genéricos. Solo paridad core_dart
+  si la app EDITA (el render no lo usa). (23.2) el EDITOR de bloques permite insertar CUALQUIER
+  campo del schema como slot genérico ("Campos del álbum") → **Studio-only, SIN trabajo Flutter**
+  (el render ya pinta cualquier slot `fields:[key]`; es maquinaria del editor). Ver §23.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated

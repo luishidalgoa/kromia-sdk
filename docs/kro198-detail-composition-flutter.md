@@ -663,6 +663,27 @@ sin `align`). Cubre badge single y composable.
 
 ---
 
+## 23. Cambios 2026-06-23 — insertar cualquier campo como slot genérico + `labelForField`
+
+Commit SDK: `65297e2`. Studio: `490d54c`. **Casi todo Studio-only (editor); el render NO cambia.**
+
+### 23.1 — `labelForField` (SDK, meta/UI)
+Nuevo helper `labelForField({type,behavior}) = getBehavior(behavior)?.displayName ??
+getFieldType(type)?.displayName ?? type`. Nombra un slot GENÉRICO por el behavior
+normalizado del campo (tags→"Etiquetas", iso_date→"Fecha", color_hex→"Color"…). No
+duplica catálogo; no toca el contrato. **Paridad core_dart**: solo si la app EDITA
+composiciones (nombrar slots-campo); el render no lo usa.
+
+### 23.2 — "Campos del álbum" en el editor (Studio-only)
+El editor de bloques (LayoutEditor) ahora ofrece, además de los roles de la receta, un
+grupo "Campos del álbum" con CADA campo del schema no colocado, insertable como slot
+genérico (`fields:[key]`, sembrado al insertar). Esto rompe el techo de los ~5 roles del
+manifest: cualquier campo se puede colocar. **NO afecta a Flutter**: el motor de render
+(LayoutRenderer) ya pinta cualquier slot `fields:[key]`; esto es maquinaria del EDITOR
+(que vive solo en Studio). El detalle ya tenía un slot por campo (no cambia).
+
+---
+
 **Referencias de lectura obligada (TS canónico):**
 - `packages/react/src/recipes/RecipeRenderer.tsx` (props `hiddenSlots`, `filteredComposition`, reenvío a hero + LayoutRenderer).
 - `packages/react/src/recipes/LayoutRenderer.tsx` (caso `hero_header`, `computeHiddenHeroRoles`).
