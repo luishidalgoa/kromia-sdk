@@ -131,6 +131,13 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   **§17 (Studio-only, SIN trabajo Flutter)** — el detalle de carta deja de FORZAR ocultos:
   ya no mete `'title'` en `hiddenSlots`, las plantillas no colocan título/imagen por defecto,
   y se borró `detail-slots.ts` en Studio. Flutter renderiza el layout tal cual. Ver §17.
+  **(12) NUEVO 2026-06-23 §18 (commit `505d3b4`)** — dos fixes de render. (18.1) el COMPONENTE
+  `stats_row` → `StatsRow` ignoraba TODA apariencia (colores a fuego); ahora `LayoutRenderer`
+  le pasa `appearance`+`fieldAppearances` y StatsRow aplica base + color por estadística (helper
+  `fieldColorClasses`). **Requiere paridad core_dart** (mismo bug probable allí; el gate de §16
+  NO aplica, no pasa por ComposableSlot). (18.2) `CardRefResolver` admite `layers?:{url}[]`: una
+  carta SOLO con capas 3D (sin arte plano, p.ej. Ignis) → la mini-carta APILA las capas en vez
+  del placeholder. **Paridad core_dart**: resolver devuelve capas + mini-carta las apila. Ver §18.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
@@ -146,6 +153,8 @@ OFF por defecto) + §14 (acento en bloques: la raya en la capa del fondo del roo
 el acabado no la tape, y el slot de color se vuelve la raya en vez de celda) + §15 (fondo de
 PANTALLA desacoplado del de la card vía `ContainerSurface.screenBgColor`) + §16 (apariencia
 POR-FIELD `fieldAppearances` en slots composable: color por chip/estadística — REQUIERE paridad
-core_dart) + §17 (el detalle deja de forzar 'title' oculto, Studio-only sin trabajo Flutter).
-Todo META (NO bump).
-Handoff Flutter en la cola (§10–§15 del doc). Mantener cola al día.
+core_dart) + §17 (el detalle deja de forzar 'title' oculto, Studio-only sin trabajo Flutter)
++ §18 (StatsRow honra appearance+fieldAppearances —el componente stats_row ignoraba TODA
+apariencia—; y mini-cartas apilan capas 3D para cartas sin arte plano como Ignis. REQUIERE
+paridad core_dart). Todo META (NO bump).
+Handoff Flutter en la cola (§10–§18 del doc). Mantener cola al día.

@@ -521,6 +521,42 @@ renderiza el layout tal cual → sin cambios de código**. Awareness:
 
 ---
 
+## 18. Cambios 2026-06-23 — StatsRow honra apariencia + mini-cartas sin arte plano
+
+Commit SDK: `505d3b4` (en `main`). Dos arreglos de RENDER (meta, NO bumpea). **Ambos requieren paridad en `core_dart`/`kromia_flutter` (Drift Sync).**
+
+### 18.1 — El componente `stats_row` ahora honra `appearance` + `fieldAppearances`
+Bug: la fila de estadísticas la pinta el COMPONENTE prefab `stats_row` → `StatsRow`,
+que **ignoraba toda apariencia** (colores `text-foreground`/`text-muted-foreground` a
+fuego). `LayoutRenderer` solo le pasaba `resolved.fields`. Por eso ni la apariencia
+base del slot ni la por-field (§16) surtían efecto, y el acabado/tema "ganaba".
+- `LayoutRenderer` (case `stats_row`) ahora pasa `appearance={resolved.appearance}` +
+  `fieldAppearances={resolved.fieldAppearances}` a `StatsRow`.
+- `StatsRow` aplica `appearanceTextClasses(appearance)` al wrapper + COLOR por-field
+  (base ← `fieldAppearances[key]`) en cada valor/etiqueta, vía el MISMO helper
+  `fieldColorClasses(appearance, fieldAppearances, key)` que usa la rama 'stats' de
+  `ComposableSlot` (refactorizada para reusarlo → anti-drift). `StatsRowField` gana `key?`.
+
+**En Flutter:** el render del componente stats_row (equivalente a `StatsRow`) debe
+recibir y aplicar `appearance` + `fieldAppearances`: color base en el wrapper + por
+estadística `base.merge(fieldAppearances?[key])`. Hoy en `core_dart` ese componente
+probablemente también tiene los colores fijos → mismo bug; replica el fix. (El gate
+`display!=='auto'` de §16 NO aplica aquí: el componente nunca pasa por ComposableSlot.)
+
+### 18.2 — Mini-cartas (card-ref) de cartas SOLO con capas 3D
+Una carta referenciada sin arte plano (p.ej. "Ignis", solo composición de capas 3D
+KRO-130) salía como placeholder con número en la mini-carta. `CardRefResolver` ahora
+admite `layers?: { url: string }[]`; cuando no hay `imageUrl`, `MiniCardRefs` (RefGallery)
+APILA esas capas (`absolute inset object-cover`, back→front = el arte en reposo). Studio
+rellena `layers` desde `getCardDepthLayers(row)` cuando el row no tiene campo imagen con valor.
+
+**En Flutter:** el resolver de refs (equivalente a `makeCardRefResolver`) debe, si la
+carta no tiene imagen plana, devolver las capas (`getCardDepthLayers`), y la mini-carta
+apilarlas (Stack de Images back→front) como fallback del `imageUrl` — mismo criterio que
+el hero/HoloCard al componer capas, pero en miniatura y estática (sin tilt).
+
+---
+
 **Referencias de lectura obligada (TS canónico):**
 - `packages/react/src/recipes/RecipeRenderer.tsx` (props `hiddenSlots`, `filteredComposition`, reenvío a hero + LayoutRenderer).
 - `packages/react/src/recipes/LayoutRenderer.tsx` (caso `hero_header`, `computeHiddenHeroRoles`).
