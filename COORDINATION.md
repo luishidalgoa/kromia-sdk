@@ -166,6 +166,13 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   si la app EDITA (el render no lo usa). (23.2) el EDITOR de bloques permite insertar CUALQUIER
   campo del schema como slot genérico ("Campos del álbum") → **Studio-only, SIN trabajo Flutter**
   (el render ya pinta cualquier slot `fields:[key]`; es maquinaria del editor). Ver §23.
+  **(18) NUEVO 2026-06-23 §24 (commit `8c4e40e`)** — (24.1) `fieldAppearances` por-chip
+  ahora aplica COMPLETA (tipografía+fondo+RECORTE/truncateChars+caja) en TODAS las ramas de
+  ComposableSlot (antes solo color, y solo stats completo); las entries de array llevan key
+  del field. **Paridad core_dart**: aplicar la apariencia efectiva + corte por chars POR
+  ENTRADA. (24.2) `validateSlot` exime al slot-CAMPO (`fields:[slotId]`) del chequeo de rol
+  homónimo → no bloquea el guardado por colisión clave-campo↔id-rol. **Paridad core_dart** si
+  valida. (24.3) editor "Campos del álbum" agrupado por tipo = Studio-only. Ver §24.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated

@@ -684,6 +684,39 @@ manifest: cualquier campo se puede colocar. **NO afecta a Flutter**: el motor de
 
 ---
 
+## 24. Cambios 2026-06-23 — apariencia por-chip COMPLETA en todas las ramas + slot-campo exento de validación
+
+Commit SDK: `8c4e40e`. **Requiere paridad core_dart.**
+
+### 24.1 — `fieldAppearances` por-chip COMPLETA (no solo color) en `ComposableSlot`
+Antes solo el branch `stats` aplicaba la apariencia efectiva completa por entrada; el
+resto (chips/list/table/inline/auto/tags/url_list/array) solo el color. Ahora un único
+molde por entrada (`styleFor(key)`) aplica en TODAS las ramas: tipografía + color (base
+del slot ← `fieldAppearances[key]`), fondo, y RECORTE (`appearanceTruncateClass` +
+`truncateChars` cortando el string) + relleno + efecto DEL OVERRIDE del field (no de la
+base, para no regresar recetas shipeadas). Causa raíz adicional: las entries de un ARRAY
+se creaban SIN key → `fieldAppearances` nunca casaba; ahora llevan `key=f0.key` (el
+truncado/color por-chip aplica a cada tag).
+
+**En Flutter:** el render del composable debe aplicar, POR ENTRADA, la apariencia efectiva
+(`base.merge(fieldAppearances?[key])`) COMPLETA — no solo color: tipografía, fondo, recorte
+(maxLines / corte por `truncateChars`), relleno, efecto. Y conservar la `key` del field en
+cada elemento de un array. (El corte por chars = `applyAppearanceTruncate`: `text.length<=n`
+? text : `text.slice(0,n).trimEnd()+'…'`.)
+
+### 24.2 — `validateSlot` exime al slot-CAMPO del chequeo de rol
+Un slot-CAMPO (id = la clave de SU PROPIO field, `fields:[slotId]`) ya NO se valida contra
+el rol homónimo del manifest (su `accepts` real lo da `classifyField` del field). Sin esto,
+un campo cuya clave coincide con un id de rol con tipo incompatible (p.ej. un campo `title`
+numérico) bloqueaba el guardado. **En Flutter:** si `core_dart` valida, replica el mismo
+eximido (`fields.length===1 && fields[0]===slotId` → saltar el chequeo de accepts del rol).
+
+### 24.3 — Editor "Campos del álbum" agrupado por tipo (Studio-only)
+La paleta agrupa los campos por su KIND/tipo y nombra el slot por el NOMBRE del campo
+(el tipo va como grupo/hint). Sin trabajo Flutter (maquinaria del editor).
+
+---
+
 **Referencias de lectura obligada (TS canónico):**
 - `packages/react/src/recipes/RecipeRenderer.tsx` (props `hiddenSlots`, `filteredComposition`, reenvío a hero + LayoutRenderer).
 - `packages/react/src/recipes/LayoutRenderer.tsx` (caso `hero_header`, `computeHiddenHeroRoles`).
