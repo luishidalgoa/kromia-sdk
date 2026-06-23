@@ -622,7 +622,12 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
       const resolved = resolveSlot(ctx.composition, sid, ctx.fieldDefs, ctx.item);
       if (!resolved) return null;
       return (
-        <div className="flex flex-wrap items-center gap-1">
+        // KRO-198 — el wrapper es FLEX → "Alinear" (text-align) no mueve los chips;
+        // se mapea a justify-content (start/center/end) para que el align del slot
+        // alinee la fila de chips izquierda/centro/derecha.
+        <div className={cn('flex flex-wrap items-center gap-1',
+          resolved.appearance?.align === 'center' && 'justify-center',
+          resolved.appearance?.align === 'right' && 'justify-end')}>
           {resolved.fields.map((f, i) => {
             const text = formatScalar(f.value, f.def);
             if (text === '') return null;
