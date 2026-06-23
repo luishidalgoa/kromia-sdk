@@ -22,7 +22,7 @@ import { isMockupImage,
   extractAccentSettings    as sdkExtractAccentSettings,
   composeSlotValues,
   paletteClass,
-  resolveConditionalAppearance,
+  matchedConditionalCase,
   parseInlineMarkdown,
   parseInlineHtml,
   type MarkdownToken,
@@ -106,19 +106,31 @@ export function resolveSlot(
   const hasAnyValue = fields.some(f => !isEmpty(f.value));
   if (!hasAnyValue) return undefined;
 
+  // KRO-198 v2 — estilo condicional por valor con TARGET por chip (punto único):
+  //  - caso CON `target` (chips) → su apariencia se mergea en fieldAppearances[targetKeys]
+  //    GANANDO sobre la apariencia por-chip (el "caso que coincide manda"); la base queda.
+  //  - caso SIN `target` (o slot single-scalar) → se mergea sobre la BASE de toda la fila
+  //    (retro-compat; ScalarText solo lee la base, no fieldAppearances).
+  const condCase = matchedConditionalCase(sc.conditionalStyle, item);
+  const condAp   = condCase?.appearance;
+  const targets  = (condCase?.target ?? []).filter(Boolean);
+  const appearance = (condAp && targets.length === 0)
+    ? { ...(sc.appearance ?? {}), ...condAp }
+    : sc.appearance;
+  let fieldAppearances = sc.fieldAppearances;
+  if (condAp && targets.length > 0) {
+    fieldAppearances = { ...(fieldAppearances ?? {}) };
+    for (const k of targets) fieldAppearances[k] = { ...(fieldAppearances[k] ?? {}), ...condAp };
+  }
+
   return {
     fields,
     orientation:       sc.orientation ?? 'horizontal',
     separator:         sc.separator   ?? ' · ',
     composableDisplay: sc.composableDisplay ?? 'auto',
-    // KRO-198 — estilo condicional por valor: resuelto AQUÍ (punto único) para
-    // que TODOS los renders (SlotContent, ComposableSlot, recetas) hereden la
-    // apariencia efectiva sin volver a tocar el dato. Sin condicional → base.
-    appearance:        resolveConditionalAppearance(sc.conditionalStyle, sc.appearance, item),
-    // KRO-198 — apariencia por-field (la consume ComposableSlot para colorear
-    // cada chip/estadística por separado). Viaja tal cual; el merge sobre la base
-    // se hace en el render por entrada.
-    fieldAppearances:  sc.fieldAppearances,
+    appearance,
+    // apariencia por-field (la consume ComposableSlot/chips_row para colorear cada chip).
+    fieldAppearances,
   };
 }
 

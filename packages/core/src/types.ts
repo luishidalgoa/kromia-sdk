@@ -150,6 +150,12 @@ export interface ConditionalStyleCase {
   value?: string;
   /** Apariencia a aplicar (merge sobre la base del slot) si el caso matchea. */
   appearance?: SlotAppearance;
+  /** KRO-198 — A QUÉ chip(s) del slot componible aplica la apariencia de este caso
+   *  (lista de field-keys). Ausente/vacío = TODA la fila (la apariencia base del slot,
+   *  retro-compat). Con valores = solo esos chips, y GANANDO sobre su apariencia
+   *  por-chip (el "caso que coincide manda"). El editor lo siembra con el campo
+   *  vigilado por defecto, y permite cambiarlo/ampliarlo. Data de álbum → no contrato. */
+  target?: string[];
 }
 
 /** KRO-198 — mapeo declarativo valor-del-dato → apariencia. */

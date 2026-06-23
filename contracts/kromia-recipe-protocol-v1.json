@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
   "protocolVersion": "4.0.0",
-  "generatedAt": "2026-06-23T19:23:23.118Z",
+  "generatedAt": "2026-06-23T20:01:40.734Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."

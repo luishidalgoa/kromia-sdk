@@ -45,9 +45,23 @@ export function resolveConditionalAppearance(
   base: SlotAppearance | undefined,
   item: Record<string, unknown> | undefined,
 ): SlotAppearance | undefined {
-  if (!cond?.fieldKey || !cond.cases?.length || !item) return base;
-  const raw = item[cond.fieldKey];
-  const matched = cond.cases.find(c => matchConditionalCase(c, raw));
+  const matched = matchedConditionalCase(cond, item);
   if (!matched) return base;
   return { ...(base ?? {}), ...(matched.appearance ?? {}) };
+}
+
+/**
+ * KRO-198 — devuelve el CASO que matchea (no solo el merge), para que el caller pueda
+ * leer su `target` y aplicar la apariencia a los chip(s) correctos del slot componible
+ * (ganando sobre su apariencia por-chip) en vez de a la base de toda la fila. Sin
+ * condicional / sin match / sin item → undefined. Mismo orden de evaluación (1º que
+ * matchea gana) que `resolveConditionalAppearance`.
+ */
+export function matchedConditionalCase(
+  cond: ConditionalStyle | undefined,
+  item: Record<string, unknown> | undefined,
+): ConditionalStyleCase | undefined {
+  if (!cond?.fieldKey || !cond.cases?.length || !item) return undefined;
+  const raw = item[cond.fieldKey];
+  return cond.cases.find(c => matchConditionalCase(c, raw));
 }

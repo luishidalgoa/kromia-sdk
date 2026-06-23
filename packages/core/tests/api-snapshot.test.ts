@@ -254,6 +254,7 @@ const EXPECTED_EXPORTS = [
   // KRO-198 — estilo condicional por valor
   'matchConditionalCase',
   'resolveConditionalAppearance',
+  'matchedConditionalCase',
   // KRO-133 F5 — recetas → presets de layout
   'recipeToComposition',
   // KRO-133 — ratchet de conformidad del motor de layout
