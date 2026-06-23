@@ -13,12 +13,12 @@ import type { LayoutContainerNode } from '../src/types';
 describe('COMPONENT_REGISTRY', () => {
   it('expone los componentes base + los carruseles + stats + divider (KRO-133/155)', () => {
     expect(Object.keys(COMPONENT_REGISTRY).sort()).toEqual([
-      'badge_row', 'card', 'cards_carousel', 'carousel_centered', 'carousel_peek', 'divider',
+      'badge_row', 'card', 'cards_carousel', 'carousel_centered', 'carousel_peek', 'chips_row', 'divider',
       'gallery_grid', 'hero_header', 'ref_gallery', 'section_title', 'stats_row',
     ]);
-    expect(allComponents()).toHaveLength(11);
+    expect(allComponents()).toHaveLength(12);
     expect(COMPONENT_IDS).toEqual([
-      'card', 'badge_row', 'section_title', 'hero_header', 'ref_gallery',
+      'card', 'badge_row', 'chips_row', 'section_title', 'hero_header', 'ref_gallery',
       'carousel_peek', 'carousel_centered', 'gallery_grid', 'cards_carousel', 'divider', 'stats_row',
     ]);
   });

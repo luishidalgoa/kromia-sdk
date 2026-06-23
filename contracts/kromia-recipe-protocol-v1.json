@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
-  "protocolVersion": "3.3.0",
-  "generatedAt": "2026-06-19T17:07:22.485Z",
+  "protocolVersion": "3.4.0",
+  "generatedAt": "2026-06-23T17:10:22.236Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -1311,6 +1311,24 @@
           "accepts": [
             "badge",
             "text-short"
+          ],
+          "optional": false
+        }
+      ]
+    },
+    {
+      "id": "chips_row",
+      "displayName": "Fila de chips",
+      "description": "Pinta cada campo del slot como una pastilla SUTIL (chip, estilo etiqueta tenue) — p.ej. \"Fuego · Rara · Holo\" como chips en línea. La disposición \"chips\" del subtítulo, como bloque reutilizable. Más discreto que \"Fila de badges\".",
+      "category": "basic",
+      "roles": [
+        {
+          "id": "chips",
+          "label": "Chips",
+          "accepts": [
+            "text-short",
+            "number",
+            "badge"
           ],
           "optional": false
         }

@@ -91,6 +91,20 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
     ],
   },
 
+  // KRO-198 — fila de CHIPS: cada field del slot como una pastilla SUTIL (chip,
+  // estilo etiqueta tenue gris), p.ej. "Fuego · Rara · Holo" como chips en línea.
+  // Es la disposición "chips" del subtítulo abstraída como bloque reutilizable —
+  // más discreta que `badge_row` (que usa el estilo BADGE, más prominente).
+  chips_row: {
+    id:          'chips_row',
+    displayName: 'Fila de chips',
+    description: 'Pinta cada campo del slot como una pastilla SUTIL (chip, estilo etiqueta tenue) — p.ej. "Fuego · Rara · Holo" como chips en línea. La disposición "chips" del subtítulo, como bloque reutilizable. Más discreto que "Fila de badges".',
+    category:    'basic',
+    roles: [
+      { id: 'chips', label: 'Chips', accepts: ['text-short', 'number', 'badge'] },
+    ],
+  },
+
   // KRO-155 — título de SECCIÓN: rótulo en MAYÚSCULAS colocable (el "separador
   // con texto"). Hoy esos rótulos ("GALERÍA"/"BESTIAS") solo existen
   // auto-derivados DENTRO de las galerías; este los hace ponibles en cualquier

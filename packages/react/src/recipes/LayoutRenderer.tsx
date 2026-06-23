@@ -26,6 +26,7 @@ import {
   resolveSlot, isSlotDisabled, buildAccentBorderStyle, extractAccentSettings, formatScalar,
   ScalarText, ComposableSlot, ThumbBox, BadgePill, slotDebugAttrs, appearancePaddingClass,
   appearanceTextClasses, appearanceAlignClass, appearanceTruncateClass, appearanceEffectClasses, slotImageTransform,
+  mergeFieldAppearance,
   type FieldDefLike,
 } from '../recipe-utils';
 import {
@@ -600,6 +601,33 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
               </BadgePill>
             ),
           )}
+        </div>
+      );
+    }
+    // KRO-198 — fila de CHIPS: cada field del slot como una pastilla SUTIL (chip,
+    // estilo etiqueta tenue), p.ej. "Fuego · Rara · Holo". Mismo patrón que
+    // `badge_row` pero con el estilo chip (rounded-full + bg-muted) en vez de BADGE.
+    // Honra la apariencia POR-FIELD (color/recorte por chip) vía mergeFieldAppearance,
+    // como ComposableSlot — así el chip de un campo puede tener su propio color.
+    case 'chips_row': {
+      if (isHidden('chips')) return null;
+      const sid = node.slots?.chips;
+      if (!sid) return null;
+      const resolved = resolveSlot(ctx.composition, sid, ctx.fieldDefs, ctx.item);
+      if (!resolved) return null;
+      return (
+        <div className="flex flex-wrap gap-1">
+          {resolved.fields.map((f, i) => {
+            if (formatScalar(f.value, f.def) === '') return null;
+            const ap = mergeFieldAppearance(resolved.appearance, resolved.fieldAppearances, f.key);
+            return (
+              <span key={i} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]',
+                paletteClass(ap?.bgColor, 'bg') || 'bg-muted',
+                paletteClass(ap?.textColor, 'text') || 'text-muted-foreground')}>
+                <ScalarText value={f.value} def={f.def} appearance={ap ? { ...ap, bgColor: undefined } : undefined} />
+              </span>
+            );
+          })}
         </div>
       );
     }
