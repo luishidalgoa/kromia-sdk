@@ -7,15 +7,21 @@
  * fiel el bloque "stats" de las recetas de detalle (Hero/Ficha/Perfil), que es
  * lógica multi-campo NO expresable con un slot pelado.
  *
- * KRO-198 — honra la APARIENCIA del slot: `appearanceTextClasses(appearance)` en
- * el wrapper + COLOR por-field (base ← `fieldAppearances[key]`) en cada valor/
- * etiqueta, vía el MISMO helper `fieldColorClasses` que usa la rama 'stats' de
- * `ComposableSlot` → al descomponer el componente el look es idéntico, y el color
- * que el publisher fija (base o por chip) gana sobre el del acabado/tema.
+ * KRO-198 — honra la APARIENCIA del slot COMPLETA: la base (`appearance`) en el
+ * wrapper + la apariencia EFECTIVA por estadística (base ← `fieldAppearances[key]`)
+ * en cada valor: tipografía, COLOR de texto, FONDO, RECORTE (truncado) y CAJA
+ * (relleno/efecto), vía los mismos helpers que `ComposableSlot` (mergeFieldAppearance
+ * + appearance*Class). La ETIQUETA solo sigue el color (mantiene su identidad de
+ * caption). Así el estilo que el publisher fija (base o por chip) gana sobre el del
+ * acabado/tema, y al descomponer el componente el look es idéntico.
  */
-import { type SlotAppearance } from '@kromia/core';
+import { paletteClass, type SlotAppearance } from '@kromia/core';
 import { cn } from '../lib/cn';
-import { formatScalar, appearanceTextClasses, fieldColorClasses, type FieldDefLike } from '../recipe-utils';
+import {
+  formatScalar, mergeFieldAppearance, appearanceTextClasses,
+  appearancePaddingClass, appearanceTruncateClass, appearanceEffectClasses,
+  type FieldDefLike,
+} from '../recipe-utils';
 
 export interface StatsRowField {
   /** KRO-198 — key del field (para casar su entrada en `fieldAppearances`). */
@@ -26,25 +32,29 @@ export interface StatsRowField {
 
 export function StatsRow({ fields, appearance, fieldAppearances }: {
   fields:            StatsRowField[];
-  /** KRO-198 — apariencia base del slot (color de texto, mayúsculas, etc.). */
+  /** KRO-198 — apariencia base del slot (tipografía, color, mayúsculas, etc.). */
   appearance?:       SlotAppearance;
-  /** KRO-198 — apariencia POR-FIELD: cada estadística puede llevar su propio color. */
+  /** KRO-198 — apariencia POR-FIELD: cada estadística puede llevar la suya. */
   fieldAppearances?: Record<string, SlotAppearance>;
 }) {
   const present = fields.filter(f => f && f.value != null && f.value !== '');
   if (present.length === 0) return null;
-  const textClasses = appearanceTextClasses(appearance);
   return (
-    <div className={cn('grid grid-flow-col auto-cols-fr gap-2 border-y border-border py-3', textClasses)}>
+    <div className={cn('grid grid-flow-col auto-cols-fr gap-2 border-y border-border py-3', appearanceTextClasses(appearance))}>
       {present.map((f, idx) => {
-        const c = fieldColorClasses(appearance, fieldAppearances, f.key);
+        const ap = mergeFieldAppearance(appearance, fieldAppearances, f.key);
+        const bg = paletteClass(ap?.bgColor, 'bg');
         return (
           <div key={idx} className="text-center min-w-0">
-            <p className={cn('text-lg font-bold tabular-nums truncate', c.text || 'text-foreground')}>
+            <p className={cn('text-lg font-bold tabular-nums max-w-full text-foreground',
+              !ap?.truncate && 'truncate', appearanceTruncateClass(ap),
+              bg && 'rounded px-1', appearancePaddingClass(ap), appearanceEffectClasses(ap), bg,
+              appearanceTextClasses(ap ? { ...ap, bgColor: undefined } : undefined))}>
               {formatScalar(f.value, f.def)}
             </p>
             {f.def?.label && (
-              <p className={cn('text-[10px] uppercase tracking-wider truncate', c.text || 'text-muted-foreground')}>
+              <p className={cn('text-[10px] uppercase tracking-wider truncate max-w-full text-muted-foreground',
+                ap?.textColor && paletteClass(ap.textColor, 'text'))}>
                 {f.def.label}
               </p>
             )}

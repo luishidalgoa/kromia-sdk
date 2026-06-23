@@ -274,19 +274,28 @@ export function appearanceTextClasses(a: SlotAppearance | undefined): string {
 }
 
 /**
- * KRO-198 — clases de color (bg/text) EFECTIVAS de un field dentro de un slot
- * composable: la base del slot (`appearance`) MERGE-ada con la apariencia del
- * field (`fieldAppearances[key]`). Sin entrada por-field → base. Compartido por
- * `ComposableSlot` y el componente `StatsRow` para que el color por chip/
- * estadística sea idéntico en ambos renderers (anti-drift). Devuelve '' cuando
- * no hay color (el caller cae a su default).
+ * KRO-198 — apariencia EFECTIVA de un field dentro de un slot composable: la base
+ * del slot (`appearance`) MERGE-ada con la apariencia del field concreto
+ * (`fieldAppearances[key]`). Sin entrada por-field (o sin key) → la base tal cual.
+ * Punto único del merge → ComposableSlot y el componente StatsRow aplican la MISMA
+ * apariencia por chip/estadística (color, tipografía, recorte, caja…), sin drift.
  */
+export function mergeFieldAppearance(
+  appearance:       SlotAppearance | undefined,
+  fieldAppearances: Record<string, SlotAppearance> | undefined,
+  key:              string | undefined,
+): SlotAppearance | undefined {
+  return (key && fieldAppearances?.[key]) ? { ...appearance, ...fieldAppearances[key] } : appearance;
+}
+
+/** KRO-198 — clases de SOLO color (bg/text) de la apariencia efectiva de un field.
+ *  Atajo sobre `mergeFieldAppearance` para los callers que solo necesitan el tono. */
 export function fieldColorClasses(
   appearance:       SlotAppearance | undefined,
   fieldAppearances: Record<string, SlotAppearance> | undefined,
   key:              string | undefined,
 ): { bg: string; text: string } {
-  const ap = (key && fieldAppearances?.[key]) ? { ...appearance, ...fieldAppearances[key] } : appearance;
+  const ap = mergeFieldAppearance(appearance, fieldAppearances, key);
   return { bg: paletteClass(ap?.bgColor, 'bg'), text: paletteClass(ap?.textColor, 'text') };
 }
 
@@ -779,11 +788,19 @@ export function ComposableSlot({
       return (
         <span className={cn('inline-grid w-full grid-flow-col auto-cols-fr gap-2 border-y border-border py-3 align-top', textClasses, className)}>
           {entries.map((e, i) => {
-            const c = colorFor(e.key);
+            // KRO-198 — apariencia COMPLETA por estadística (color, fondo,
+            // tipografía, recorte, caja), igual que el componente StatsRow. El
+            // VALOR aplica todo; la ETIQUETA solo el color (mantiene su identidad).
+            const ap = mergeFieldAppearance(slot.appearance, fa, e.key);
+            const bg = paletteClass(ap?.bgColor, 'bg');
             return (
               <span key={i} className="inline-flex flex-col items-center text-center min-w-0">
-                <span className={cn('text-lg font-bold tabular-nums truncate max-w-full', c.text || 'text-foreground')}>{e.value}</span>
-                {e.label && <span className={cn('text-[10px] uppercase tracking-wider truncate max-w-full', c.text || 'text-muted-foreground')}>{e.label}</span>}
+                <span className={cn('text-lg font-bold tabular-nums max-w-full text-foreground',
+                  !ap?.truncate && 'truncate', appearanceTruncateClass(ap),
+                  bg && 'rounded px-1', appearancePaddingClass(ap), appearanceEffectClasses(ap), bg,
+                  appearanceTextClasses(ap ? { ...ap, bgColor: undefined } : undefined))}>{e.value}</span>
+                {e.label && <span className={cn('text-[10px] uppercase tracking-wider truncate max-w-full text-muted-foreground',
+                  ap?.textColor && paletteClass(ap.textColor, 'text'))}>{e.label}</span>}
               </span>
             );
           })}
