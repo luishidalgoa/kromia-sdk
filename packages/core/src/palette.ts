@@ -9,7 +9,7 @@
  * de 10 tonos × 5 intensidades.
  */
 
-export type PaletteGroup = 'tema' | 'color';
+export type PaletteGroup = 'tema' | 'color' | 'neutro';
 export type PaletteRole  = 'bg' | 'text' | 'border';
 
 export interface PaletteSwatch {
@@ -26,9 +26,14 @@ export const PALETTE_HUES = ['slate', 'red', 'orange', 'amber', 'emerald', 'teal
 /** Intensidades de cada tono (clara → oscura). */
 export const PALETTE_SHADES = [200, 400, 500, 600, 800] as const;
 
-/** Catálogo completo (tema + rejilla). El editor itera esto; Flutter lo espeja. */
+/** KRO-198 — neutros FIJOS (no adaptan a claro/oscuro como los tokens de tema):
+ *  blanco y negro puros. Útiles p.ej. como color de texto sobre un acabado. */
+export const PALETTE_NEUTRALS = ['white', 'black'] as const;
+
+/** Catálogo completo (tema + neutros + rejilla). El editor itera esto; Flutter lo espeja. */
 export const PALETTE: ReadonlyArray<PaletteSwatch> = [
   ...PALETTE_THEME_IDS.map(id => ({ id, group: 'tema' as const })),
+  ...PALETTE_NEUTRALS.map(id => ({ id, group: 'neutro' as const })),
   ...PALETTE_HUES.flatMap(h => PALETTE_SHADES.map(s => ({ id: `${h}-${s}`, group: 'color' as const }))),
 ];
 
@@ -89,6 +94,7 @@ export function resolveFieldColor(id: string | undefined | null, item: Record<st
  * un falso aviso. Flutter espeja este mapa (mismos ids → mismos Color).
  */
 export const PALETTE_HEX: Readonly<Record<string, string>> = {
+  'white':       '#ffffff', 'black':       '#000000',
   'slate-200':   '#e2e8f0', 'slate-400':   '#94a3b8', 'slate-500':   '#64748b', 'slate-600':   '#475569', 'slate-800':   '#1e293b',
   'red-200':     '#fecaca', 'red-400':     '#f87171', 'red-500':     '#ef4444', 'red-600':     '#dc2626', 'red-800':     '#991b1b',
   'orange-200':  '#fed7aa', 'orange-400':  '#fb923c', 'orange-500':  '#f97316', 'orange-600':  '#ea580c', 'orange-800':  '#9a3412',
