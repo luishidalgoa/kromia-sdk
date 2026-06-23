@@ -630,10 +630,13 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
               appearanceTextClasses(ap ? { ...ap, bgColor: undefined, textColor: undefined } : undefined),
               appearancePaddingClass(ap), appearanceEffectClasses(ap), appearanceTruncateClass(ap),
             );
-            // display:'badge' → pastilla BADGE (más marcada); si no → chip sutil.
-            if (ap?.display === 'badge') {
+            // KRO-198 — "Mostrar como" (display): 'text' → TEXTO PLANO (sin pastilla);
+            // default (sin override) y 'badge' → CHIP/pastilla. Así el toggle Texto↔Badge
+            // convierte visiblemente de pastilla a texto plano. El default del componente
+            // "Fila de chips" es pastilla (su identidad).
+            if (ap?.display === 'text') {
               return (
-                <BadgePill key={i} className={cn(box, paletteClass(ap?.bgColor, 'bg'), paletteClass(ap?.textColor, 'text'))}>{shown}</BadgePill>
+                <span key={i} className={cn('text-[0.8em]', paletteClass(ap?.textColor, 'text'), box)}>{shown}</span>
               );
             }
             return (
