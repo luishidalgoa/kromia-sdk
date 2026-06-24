@@ -717,6 +717,113 @@ La paleta agrupa los campos por su KIND/tipo y nombra el slot por el NOMBRE del 
 
 ---
 
+## 25. Cambios 2026-06-24 — ESTILO de la franja de acento (`accentStyle`)
+
+Commits SDK: `e71f704` (bar/rounded/glow/gradient) + `ae06635` (ambient). **Requiere paridad
+core_dart + flutter.** DATA / render-only (validación literal inline en `validate.ts:641-651`,
+**NO** catálogo del contrato → NO bumpea `PROTOCOL_VERSION`; paridad por tipo, como `chipWidth`).
+Tracking: issue Drift Sync (acento).
+
+### 25.1 — el dato
+NUEVO `accentStyle?: 'bar' | 'rounded' | 'glow' | 'gradient' | 'ambient'` en `ViewComposition`
+(y la interfaz de detalle) y en `AccentSettings` (`types.ts:432, 467-478`). `default = 'bar'`.
+`extractAccentSettings` lo copia tal cual al resultado: `style: composition?.accentStyle`
+(`extract-accent.ts:87`) — NO altera `color` ni `position`. (El color sigue saliendo del primer
+field `behavior:color_hex` válido, normalizado a `#RRGGBB[AA]`.)
+
+### 25.2 — la matemática del render (`buildAccentBorderStyle`, `recipe-utils.tsx:531-570`)
+Sea `w` = ancho (**DETALLE `w=4`** `LayoutRenderer.tsx:931`; lista/compact `w=3`), `c` = `accent.color`.
+Si `accent` undefined o `position==='none'` → sin acento. Vector inset hacia DENTRO:
+`ox = position==='left'? w : position==='right'? -w : 0`; `oy = position==='top'? w : position==='bottom'? -w : 0`.
+`switch (style ?? 'bar')`:
+
+| style | fórmula (CSS) | equivalente Flutter |
+|---|---|---|
+| `bar` / `rounded` / default | `box-shadow: inset {ox}px {oy}px 0 0 {c}` (banda sólida) | banda de ancho `w` en el borde de la posición (`Border` por lado, o `Container` en `Stack`). |
+| `glow` | `inset {ox}px {oy}px 0 0 {c}, inset {ox}px {oy}px {w*4}px 0 {c}` (banda + halo blur=`w*4`, spread 0) | banda sólida + segunda capa con `BoxShadow(blurRadius: w*4, spreadRadius: 0, color: c)` clipada hacia dentro. |
+| `gradient` | `inset {ox*2}px {oy*2}px {w*4}px {-round(w/2)}px {c}` (offset DOBLE, blur `w*4`, spread NEGATIVO) | `LinearGradient` de `c` (en el borde) → `transparent`, difuminado. |
+| `ambient` | **NO** box-shadow → `background-image: linear-gradient({dir}, {base}40, transparent 55%)`. `base = c.slice(0,7)` (#RRGGBB, descarta alpha). `dir = bottom?'to top' : left?'to right' : right?'to left' : 'to bottom'`. `{base}40` = alpha `0x40`. | `BoxDecoration(gradient: LinearGradient(begin/end según dir, colors:[c.withAlpha(0x40), Colors.transparent], stops:[0, 0.55]))`. Mapear `dir`→`begin/end` (p.ej. `to top` = begin bottomCenter / end topCenter). |
+
+### 25.3 — RECTO vs CURVO lo decide el HOST, no el box-shadow (`LayoutRenderer.tsx:919-921`)
+El `inset` "se curva" con el `border-radius` del propio elemento. En pantalla de DETALLE el
+surface raíz pierde radius/border/background (fidelidad full-screen); `curvedAccent =
+(style==='rounded' && position!=='none')` conserva el radius SOLO si `rounded`; bar/glow/gradient/
+ambient → `radius=undefined` (recto). El estilo se aplica como `extraStyle` al div del **contenedor
+raíz** (`:975`), no a un wrapper externo.
+
+**En Flutter:** extiende `AccentSettings` con `style` (+ `colorFieldKey`); en `layout_renderer.dart`
+(`_AccentFrame` + el surface raíz, espejo de `surface.dart`): `ClipRRect`/radius SOLO cuando
+`style=='rounded' && position!='none'`; bar=banda, glow=banda+`BoxShadow(blur w*4)`, gradient/ambient
+= `LinearGradient`. **Riesgo de drift**: si dibujas la banda en un Container que SIEMPRE conserva su
+radius, `bar` saldrá redondeado (fue el drift original de Studio, `87c7924`). Y `ambient` es gradient,
+NO borde — trátalo en rama aparte o saldrá una raya en vez de un lavado difuso.
+
+## 26. Cambios 2026-06-24 — disposición de chips: rejilla 2D (`chipGrid`) + ancho (`chipWidth`) + display por-chip
+
+Commits SDK: `19e92fc` (chipGrid/chipPlacements) · `d5571cd` (chipWidth) · `f58b5c7` (align→ancho/pos)
+· `cc1c9d0` (display text/badge por-chip) · `3927742` (composableDisplay explícito manda en slot de 1
+campo). **Requiere paridad core_dart + flutter.** DATA / render-only (meta de composición; NO bumpea).
+**Prerequisito**: §16/§18/§22/§24 (`fieldAppearances` por-field) — esta sección añade lo NUEVO encima.
+Tracking: issue Drift Sync (chips). DOS rutas de render deben dar idéntico resultado: `chips_row`
+componente (`LayoutRenderer.tsx:629-691`, ruta APP, fila entera = 1 slot multi-campo) y la rama `chips`
+de `ComposableSlot` (`recipe-utils.tsx:884-932`, ruta EDITOR, slots de 1 campo).
+
+### 26.1 — `chipGrid` 2D + `chipPlacements[fieldKey]`
+NUEVOS en `SlotComposition`: `chipGrid?: { columns: number; gap?: LayoutGap }` (`types.ts:150`) y
+`chipPlacements?: Record<string, GridPlacement>` (key = field key) (`types.ts:157`). **Presente
+`chipGrid`** → los chips pasan de flex-wrap a CSS Grid; **ausente** → flex-wrap histórico (retro-compat,
+NO romper álbumes viejos). `chipPlacements` REUSA el MISMO `GridPlacement` que los bloques del
+contenedor (`colStart/colSpan/rowStart/rowSpan`, 1-based, span default 1, omitir start = auto-flow).
+- Wrapper: `inline-grid w-full` + gap por preset (none→0, xs→4, sm→8(default), md→12, lg→20 px). `inline-grid`
+  (no `grid`) = phrasing-safe dentro de `<p>` (Subtítulo); `w-full` reparte las columnas `1fr`.
+- Columnas: `grid-template-columns: repeat(max(1,columns), minmax(0,1fr))` (INLINE; columns es dinámico).
+- Colocación por chip: `col-start/col-span/row-start/row-span` 1-based; sin start = auto-flow.
+- Validación (`validate.ts:414-443`): columns entero 1–6; key no-field → warn; spans/starts entero ≥1.
+
+**En Flutter:** añade `chipGrid` + `chipPlacements` a `SlotComposition` reusando tu `GridPlacement` de
+bloques; render con el mismo motor 2D que los nodos (`computeGrid`/`flutter_layout_grid`): N columnas
+iguales `1.fr`, gap por preset, colocación 1-based con auto-flow al omitir start. `chipGrid` ausente →
+wrap, no grid.
+
+### 26.2 — `chipWidth: 'fill' | 'content'` (separa ANCHO de `align`)
+NUEVO `chipWidth?: 'fill' | 'content'` en `SlotAppearance` (`types.ts:333`, default `'fill'`). SOLO
+surte efecto con `chipGrid` (en flex-wrap se ignora). Dos ejes INDEPENDIENTES:
+- `'fill'` (default): el chip **estira** y llena la celda (grid-item, justify-self stretch implícito).
+  `align` mueve el TEXTO dentro de la pastilla (inline-flex) vía `chipJustifyContent` (`recipe-utils.tsx:204-211`):
+  left→`justify-start`, center→`justify-center`, right→`justify-end`.
+- `'content'`: el chip es **content-fit**; `align` POSICIONA el chip en la celda vía `chipJustifySelf`
+  (`recipe-utils.tsx:189-200`): left→`justify-self-start`, center→`justify-self-center`, right→`justify-self-end`.
+
+Aplicación idéntica en ambas rutas (`LayoutRenderer.tsx:661-666` / `recipe-utils.tsx:911-917`):
+`isContent = ap?.chipWidth==='content'`; `self = (grid && isContent) ? chipJustifySelf(align) : undefined`;
+`justify = (grid && !isContent) ? chipJustifyContent(align) : undefined`. `self` se aplica a pastilla Y
+texto plano; `justify` solo a la pastilla.
+
+**En Flutter** (`appearance_styles.dart`): con `chipGrid`, `content` → la celda usa `Align(alignment)`
+(justify-self) según `align`; `fill` → el chip llena la celda y `align` → `mainAxisAlignment` del Row
+interno de la pastilla (justify-content).
+
+### 26.3 — display `text`/`badge` por-chip + `composableDisplay` explícito + builder único
+- **display por-chip** (`cc1c9d0`): la apariencia efectiva por chip = `mergeFieldAppearance(base,
+  fieldAppearances, fieldKey)` (shallow, override por-clave). `display==='text'` → TEXTO PLANO sin
+  pastilla; default/`'badge'` → pastilla (`inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]`
+  + bg `paletteClass(bgColor)||'bg-muted'` + text `paletteClass(textColor)||'text-muted-foreground'`).
+  ANTES la rama `chips` pintaba SIEMPRE pastilla → drift ("lo muestra como badge y no es badge").
+- **composableDisplay explícito** (`3927742`): en `SlotContent` (`LayoutRenderer.tsx:393-398`)
+  `isComposable = fields.length>1 || orientation==='vertical' || Array.isArray(first.value) ||
+  (composableDisplay != null && composableDisplay !== 'auto')`. El último OR es el fix: un slot de UN
+  campo escalar con `composableDisplay` explícito → ComposableSlot (pill con su estilo por valor), NO
+  ScalarText (texto plano, sin pill/fieldAppearances/condicional).
+
+**En Flutter (GAP MAYOR):** hoy `_badgeRow` (`component_content.dart:165-176`) usa la apariencia base
+para TODOS los chips e ignora display/align por-chip. Refactor a un **builder de chip ÚNICO
+parametrizado por la apariencia efectiva por-field**, invocado igual cuántos campos haya (1 ó N):
+`display=='text'` → `Text` plano; sino pastilla con bg/text efectivos. **Riesgo INVERSO**: en Dart hay
+UNA sola ruta — si implementas solo el caso multi-campo, perderás el caso 1-campo+`composableDisplay`
+explícito (fix `3927742`).
+
+---
+
 **Referencias de lectura obligada (TS canónico):**
 - `packages/react/src/recipes/RecipeRenderer.tsx` (props `hiddenSlots`, `filteredComposition`, reenvío a hero + LayoutRenderer).
 - `packages/react/src/recipes/LayoutRenderer.tsx` (caso `hero_header`, `computeHiddenHeroRoles`).

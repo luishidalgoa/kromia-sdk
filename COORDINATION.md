@@ -173,6 +173,19 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   ENTRADA. (24.2) `validateSlot` exime al slot-CAMPO (`fields:[slotId]`) del chequeo de rol
   homónimo → no bloquea el guardado por colisión clave-campo↔id-rol. **Paridad core_dart** si
   valida. (24.3) editor "Campos del álbum" agrupado por tipo = Studio-only. Ver §24.
+  **(19) NUEVO 2026-06-24 §25 (commits `e71f704`+`ae06635`)** — ESTILO de la franja de acento
+  `accentStyle: 'bar'|'rounded'|'glow'|'gradient'|'ambient'` (DATA, NO bumpea). `buildAccentBorderStyle`
+  varía el box-shadow inset por estilo (bar=banda, glow=+halo blur w*4, gradient=difuminado, ambient=
+  `linear-gradient` con alpha 0x40 — NO box-shadow). RECTO vs CURVO lo decide el HOST: `curvedAccent`
+  conserva el radius SOLO si `style==='rounded'`. **Paridad core_dart+flutter**: AUSENTE hoy
+  (`_AccentFrame` ignora el estilo). Tracking: issue Drift Sync (acento). Ver §25.
+  **(20) NUEVO 2026-06-24 §26 (commits `19e92fc`/`d5571cd`/`f58b5c7`/`cc1c9d0`/`3927742`)** — disposición
+  de chips: `chipGrid{columns,gap}`+`chipPlacements[fieldKey]` (rejilla 2D que REUSA `GridPlacement` de
+  bloques; ausente=flex-wrap retro-compat) · `chipWidth 'fill'|'content'` (fill=estira+align→justify-content,
+  content=content-fit+align→justify-self) · display `text`/`badge` por-chip + `composableDisplay` explícito
+  manda en slot de 1 campo. **Paridad core_dart+flutter (GAP MAYOR)**: AUSENTE (`_badgeRow` usa apariencia
+  base para todos, ignora display/align por-chip) → builder de chip ÚNICO por apariencia efectiva. Prereq
+  §16/§18/§22/§24. Tracking: issue Drift Sync (chips). Ver §26.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
@@ -193,3 +206,9 @@ core_dart) + §17 (el detalle deja de forzar 'title' oculto, Studio-only sin tra
 apariencia—; y mini-cartas apilan capas 3D para cartas sin arte plano como Ignis. REQUIERE
 paridad core_dart). Todo META (NO bump).
 Handoff Flutter en la cola (§10–§18 del doc). Mantener cola al día.
+
+2026-06-24 — sesión Studio (KRO-198 cont.). Render-only nuevo a espejar: §25 acento
+`accentStyle` (5 estilos, DATA) + §26 disposición de chips (`chipGrid`/`chipPlacements`/
+`chipWidth`/display-por-chip, DATA) + font ampliado a 11 familias (CONTRATO, KRO-218).
+Issues Drift Sync: KRO-218 (font) + 2 nuevos (acento §25, chips §26). NINGUNO bumpea
+PROTOCOL_VERSION salvo font (aditivo, sigue 4.0.0). SDK en `b0840ef`.
