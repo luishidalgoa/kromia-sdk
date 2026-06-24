@@ -343,7 +343,11 @@ export function appearanceTextClasses(a: SlotAppearance | undefined): string {
     // KRO-133 — MAYÚSCULAS estilo etiqueta/meta (Editorial, Momento).
     a.textTransform === 'uppercase' && 'uppercase tracking-wider',
     // KRO-133 — familia tipográfica (serif para títulos editoriales).
+    // KRO-198 — `sans` DEBE mapear a `font-sans` explícito (la tipografía de la app,
+    // Inter): si no, elegir "Sans" no quitaba el `font-serif` HEREDADO del padre → la
+    // opción no tenía efecto. Además, Inter sí tiene peso 600 → Semi≠Bold (el serif no).
     a.font === 'serif' && 'font-serif',
+    a.font === 'sans' && 'font-sans',
     a.size   && TEXT_SIZE_CLASSES[a.size],
     // KRO-147 F3 — tipografía rica. `tracking` va DESPUÉS del tracking-wider
     // implícito de uppercase para que, si el publisher lo fija, gane (cn/merge).
