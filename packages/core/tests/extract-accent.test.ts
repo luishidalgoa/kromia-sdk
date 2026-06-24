@@ -176,3 +176,28 @@ describe('extractAccentSettings — resolución de posición', () => {
     expect(r?.position).toBe('bottom');
   });
 });
+
+describe('extractAccentSettings — estilo de la franja (KRO-198)', () => {
+  it('sin accentStyle → style undefined (default bar lo decide el render)', () => {
+    const r = extractAccentSettings(
+      { slots: {} },
+      { color: '#ff0000' },
+      [colorField],
+      'top',
+    );
+    expect(r?.style).toBeUndefined();
+  });
+
+  it.each(['bar', 'rounded', 'glow', 'gradient'] as const)(
+    'composition.accentStyle="%s" → viaja en el resultado',
+    (style) => {
+      const r = extractAccentSettings(
+        { slots: {}, accentStyle: style },
+        { color: '#ff0000' },
+        [colorField],
+        'top',
+      );
+      expect(r?.style).toBe(style);
+    },
+  );
+});

@@ -518,16 +518,26 @@ export function buildAccentBorderStyle(
 ): CSSProperties | undefined {
   if (!accent || accent.position === 'none') return undefined;
 
-  // KRO-198 — raya de acento como box-shadow inset (strip dentro del wrapper, sin
-  // añadir dimensión). El inset se CURVA con el radius del wrapper, así que las 4
-  // esquinas mantienen su redondeo (uniforme). Antes se forzaba borderRadius=0 en
-  // el lado del acento ("ticket con cinta") → top recto, bottom redondo, lo cual
-  // se veía como esquinas inconsistentes. Ahora todas siguen el radius.
-  switch (accent.position) {
-    case 'top':    return { boxShadow: `inset 0  ${width}px 0 0 ${accent.color}` };
-    case 'bottom': return { boxShadow: `inset 0 -${width}px 0 0 ${accent.color}` };
-    case 'left':   return { boxShadow: `inset  ${width}px 0 0 0 ${accent.color}` };
-    case 'right':  return { boxShadow: `inset -${width}px 0 0 0 ${accent.color}` };
+  // KRO-198 — raya de acento como box-shadow inset (sin añadir dimensión). El inset se
+  // CURVA con el radius del elemento; el ESTILO (bar/rounded/glow/gradient) gobierna el
+  // shadow, y el recto-vs-curvo lo decide el HOST conservando o no el radius del elemento.
+  const w = width;
+  const c = accent.color;
+  // Vector de offset del inset (hacia DENTRO desde el borde de la posición).
+  const ox = accent.position === 'left' ? w : accent.position === 'right' ? -w : 0;
+  const oy = accent.position === 'top'  ? w : accent.position === 'bottom' ? -w : 0;
+  switch (accent.style ?? 'bar') {
+    case 'glow':
+      // Barra sólida + halo suave hacia dentro desde el mismo borde (resplandor).
+      return { boxShadow: `inset ${ox}px ${oy}px 0 0 ${c}, inset ${ox}px ${oy}px ${w * 4}px 0 ${c}` };
+    case 'gradient':
+      // Degradado: se funde con la card (sin borde marcado). Offset adentro + blur.
+      return { boxShadow: `inset ${ox * 2}px ${oy * 2}px ${w * 4}px ${-Math.round(w / 2)}px ${c}` };
+    case 'bar':
+    case 'rounded':
+    default:
+      // Barra sólida. `bar` = recta (el host quita el radius); `rounded` = curva (lo conserva).
+      return { boxShadow: `inset ${ox}px ${oy}px 0 0 ${c}` };
   }
 }
 

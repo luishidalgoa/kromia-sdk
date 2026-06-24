@@ -28,6 +28,7 @@ import type { SlotComposition, AccentSettings, FieldDefLike } from './types';
 interface AccentSourceComposition {
   slots: Record<string, SlotComposition>;
   accentPosition?: 'top' | 'right' | 'bottom' | 'left' | 'none' | 'auto';
+  accentStyle?: 'bar' | 'rounded' | 'glow' | 'gradient';
 }
 
 /**
@@ -82,5 +83,6 @@ export function extractAccentSettings(
   const position = resolved === 'auto' ? recipeDefault : resolved;
   // KRO-198 — `colorFieldKey` viaja en el resultado: el host suprime como celda el
   // slot que mapea ese campo cuando el acento está activo (no duplica swatch + raya).
-  return { color, position, colorFieldKey };
+  // `style` (bar/rounded/glow/gradient) gobierna el box-shadow + el redondeo.
+  return { color, position, colorFieldKey, style: composition?.accentStyle };
 }

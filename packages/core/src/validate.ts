@@ -635,6 +635,17 @@ export function validateComposition(
       message: `accentPosition "${composition.accentPosition}" no es válido`,
     });
   }
+  // KRO-198 — accentStyle (data, no catálogo del contrato): bar | rounded | glow | gradient.
+  if (
+    composition.accentStyle !== undefined &&
+    !['bar', 'rounded', 'glow', 'gradient'].includes(composition.accentStyle)
+  ) {
+    issues.push({
+      path:    'accentStyle',
+      level:   'error',
+      message: `accentStyle "${composition.accentStyle}" no es válido (bar | rounded | glow | gradient)`,
+    });
+  }
 
   // ── 5. expand (mini-receta inline) ────────────────────────────────
   if (composition.expand) {

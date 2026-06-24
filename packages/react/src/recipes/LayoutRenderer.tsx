@@ -913,8 +913,12 @@ export function LayoutRenderer({
   // guardados. `bgColor` custom (paleta, p.ej. acabado) y los contenedores INTERNOS
   // se respetan — y la raya de acento vive ahora en el inline del raíz (sobre su
   // propio bgColor), así que ya no la tapa nada.
+  // KRO-198 — el ESTILO de acento `rounded` quiere que el inset se CURVE → conserva el
+  // radius del surface raíz; `bar`/`glow`/`gradient` (y sin acento) van rectos (radius
+  // stripped, fidelidad full-screen KRO-133). border/background se neutralizan siempre.
+  const curvedAccent = accent?.style === 'rounded' && accent.position !== 'none';
   const root: LayoutContainerNode = isDetail && rawRoot.surface
-    ? { ...rawRoot, surface: { ...rawRoot.surface, radius: undefined, border: undefined, background: undefined } }
+    ? { ...rawRoot, surface: { ...rawRoot.surface, radius: curvedAccent ? rawRoot.surface.radius : undefined, border: undefined, background: undefined } }
     : rawRoot;
   // KRO-133 fidelidad — el padding default SOLO si el layout raíz no declara su
   // propio `surface`: los presets de detalle traen TARJETA con padding propio

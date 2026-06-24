@@ -423,6 +423,9 @@ export interface TargetComposition {
   layout?: LayoutContainerNode;
   slotOverrides?: SlotOverrides;
   accentPosition?: 'top' | 'right' | 'bottom' | 'left' | 'none' | 'auto';
+  /** KRO-198 — estilo de la franja de acento (bar/rounded/glow/gradient). Ver
+   *  `ViewComposition.accentStyle`. Data, no catálogo del contrato. */
+  accentStyle?: 'bar' | 'rounded' | 'glow' | 'gradient';
 }
 
 /**
@@ -458,6 +461,15 @@ export interface ViewComposition {
    * valor se usa como tinte del strip lateral/superior/etc.
    */
   accentPosition?: 'top' | 'right' | 'bottom' | 'left' | 'none' | 'auto';
+  /**
+   * KRO-198 — ESTILO de la franja de acento (independiente de la posición):
+   *  `bar` (default) = barra sólida RECTA (esquinas a escuadra);
+   *  `rounded` = barra sólida que sigue las esquinas redondeadas de la card;
+   *  `glow` = barra con resplandor suave hacia dentro;
+   *  `gradient` = degradado que se funde con la card (sin borde marcado).
+   * Data (no catálogo del contrato) → paridad Flutter por tipo, como `chipWidth`.
+   */
+  accentStyle?: 'bar' | 'rounded' | 'glow' | 'gradient';
 
   /**
    * KRO-198 — estilo de la LISTA de items de la sección (render-only meta, NO
@@ -940,4 +952,7 @@ export interface AccentSettings {
    *  para suprimir como celda el slot que mapea ese campo cuando el acento está
    *  activo (su color ya ES la raya, no se duplica como swatch). */
   colorFieldKey?: string;
+  /** KRO-198 — estilo de la franja (bar/rounded/glow/gradient); gobierna el box-shadow
+   *  y si el host conserva o no el radius (recto vs curvo). Default 'bar'. */
+  style?: 'bar' | 'rounded' | 'glow' | 'gradient';
 }
