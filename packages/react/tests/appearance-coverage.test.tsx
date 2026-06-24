@@ -100,6 +100,35 @@ describe('appearance coverage — ComposableSlot honra la apariencia por-field e
   }
 });
 
+// ── "Mostrar como" (display) por-chip: la rama `chips` de ComposableSlot debe
+// respetar display:'text' (plano, sin pastilla) IGUAL que el componente chips_row.
+// El editor parte la fila en chips de 1 campo que pasan por aquí → si la rama
+// ignorara el display, mostraría badge donde el publisher puso texto (drift app↔editor). ──
+describe('chips — display por-field: text = plano (sin pastilla), badge/default = pastilla', () => {
+  const base = {
+    fields: [
+      { key: 'a', def: fieldDefs[0], value: 'Aaa' },
+      { key: 'b', def: fieldDefs[1], value: 'Bbb' },
+    ],
+    orientation: 'horizontal', separator: ' · ', composableDisplay: 'chips',
+  } as any;
+
+  it('TODOS display:text → ninguna pastilla (sin rounded-full)', () => {
+    const html = renderToStaticMarkup(<ComposableSlot slot={{ ...base, fieldAppearances: { a: { display: 'text' }, b: { display: 'text' } } }} />);
+    expect(html).not.toContain('rounded-full');
+  });
+
+  it('display:badge o default → pastilla (rounded-full)', () => {
+    const html = renderToStaticMarkup(<ComposableSlot slot={{ ...base, fieldAppearances: { a: { display: 'badge' }, b: {} } }} />);
+    expect(html).toContain('rounded-full');
+  });
+
+  it('mezcla text+badge → SOLO el badge es pastilla', () => {
+    const html = renderToStaticMarkup(<ComposableSlot slot={{ ...base, fieldAppearances: { a: { display: 'text' }, b: { display: 'badge' } } }} />);
+    expect((html.match(/rounded-full/g) || []).length, 'solo 1 pastilla (el chip badge)').toBe(1);
+  });
+});
+
 // ── Galerías de imágenes (carousel/grid): el slot image-array expone objectFit/
 // efectos/forma/aspect → cada variante debe honrarlos. Antes el componente de
 // galería IGNORABA la apariencia por completo (solo pasaba urls/variant/label). ──
