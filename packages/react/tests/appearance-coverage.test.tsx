@@ -14,7 +14,7 @@ import { describe, it, expect } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { paletteClass } from '@kromia/core';
 import {
-  ComponentContent, ComposableSlot, resolveSlot,
+  ComponentContent, ComposableSlot, SlotContent, resolveSlot,
   appearancePaddingClass, appearanceEffectClasses, appearanceTextClasses,
   appearanceObjectFitClass,
 } from '../src/index';
@@ -158,6 +158,34 @@ describe('conditional else (otherwise) — resolveSlot aplica el fallback con su
     const r = resolveSlot(comp3, 's', condFieldDefs, { elemento: 'agua', rareza: 'rara' });
     expect(r?.appearance?.bgColor).toBe('sky');
     expect(r?.fieldAppearances?.elemento?.bgColor).toBeUndefined();
+  });
+});
+
+// ── SlotContent: un `composableDisplay` EXPLÍCITO manda aunque el slot tenga UN solo
+// campo escalar. El editor parte la fila de chips en slots de 1 campo (display 'chips')
+// para arrastrar cada chip; si SlotContent cayera a ScalarText, el chip se vería como
+// texto plano SIN su estilo por valor (drift editor↔app). Esta es esa red. ──
+describe('SlotContent — display explícito en slot de 1 campo → ComposableSlot (pill), no ScalarText', () => {
+  const fd = [{ key: 'elemento', label: 'Elemento', type: 'text' }] as any;
+  const cond = { fieldKey: 'elemento', cases: [{ value: 'Fuego', appearance: { bgColor: 'rose' }, target: ['elemento'] }] };
+
+  it('display=chips + 1 campo → pill (rounded-full), NO texto plano', () => {
+    const comp = { slots: { s: { fields: ['elemento'], composableDisplay: 'chips' } } } as any;
+    const html = renderToStaticMarkup(<SlotContent slot="s" composition={comp} item={{ elemento: 'Fuego' }} fieldDefs={fd} />);
+    expect(html, 'el chip de 1 campo con display=chips debe ser pill, no ScalarText').toContain('rounded-full');
+  });
+
+  it('display=chips + 1 campo + estilo por valor → el chip coge la apariencia del caso', () => {
+    const comp = { slots: { s: { fields: ['elemento'], composableDisplay: 'chips', conditionalStyle: cond } } } as any;
+    const html = renderToStaticMarkup(<SlotContent slot="s" composition={comp} item={{ elemento: 'Fuego' }} fieldDefs={fd} />);
+    // El caso "Fuego" → bgColor 'rose' aplicado al chip vía fieldAppearances (resolveSlot).
+    expect(html).toContain(paletteClass('rose', 'bg'));
+  });
+
+  it('display=auto + 1 campo escalar → sigue siendo ScalarText (retro-compat, sin pill)', () => {
+    const comp = { slots: { s: { fields: ['elemento'], composableDisplay: 'auto' } } } as any;
+    const html = renderToStaticMarkup(<SlotContent slot="s" composition={comp} item={{ elemento: 'Fuego' }} fieldDefs={fd} />);
+    expect(html).not.toContain('rounded-full');
   });
 });
 
