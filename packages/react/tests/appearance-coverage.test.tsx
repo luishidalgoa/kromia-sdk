@@ -272,4 +272,14 @@ describe('chip grid — chips_row + ComposableSlot colocan cada chip en su celda
     expect(html).toContain('data-chip-grid');
     expect(html).toContain('data-chip-key="a"');
   });
+  it('chip con align → justify-self (content-fit + posición); sin align → estira (llena celda)', () => {
+    const node = { type: 'component', component: 'chips_row', slots: { chips: 's' } } as any;
+    const comp = { slots: { s: { fields: ['a', 'b', 'c'], chipGrid: cg, chipPlacements: placements, fieldAppearances: { a: { align: 'center' } } } } } as any;
+    const html = renderToStaticMarkup(<ComponentContent node={node} composition={comp} item={gItem} fieldDefs={gFieldDefs} />);
+    expect(html, 'chip con align=center → justify-self-center (content-fit)').toContain('justify-self-center');
+    // Sin align → ningún justify-self (el chip estira para llenar su celda, como la app).
+    const comp2 = { slots: { s: { fields: ['a', 'b', 'c'], chipGrid: cg, chipPlacements: placements } } } as any;
+    const html2 = renderToStaticMarkup(<ComponentContent node={node} composition={comp2} item={gItem} fieldDefs={gFieldDefs} />);
+    expect(html2, 'sin align el chip estira (sin justify-self)').not.toContain('justify-self');
+  });
 });

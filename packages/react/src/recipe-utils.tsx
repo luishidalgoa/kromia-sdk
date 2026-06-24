@@ -186,6 +186,21 @@ const CHIP_GRID_GAP_CLASSES: Record<LayoutGap, string> = {
   none: 'gap-0', xs: 'gap-1', sm: 'gap-2', md: 'gap-3', lg: 'gap-5',
 };
 
+/** KRO-198 — `justify-self` del CHIP dentro de su celda de la rejilla. Controla el
+ *  ANCHO + posición: por defecto (sin align) el chip es grid-item con justify-self
+ *  stretch → LLENA la celda (como la app). Con `align`, pasa a content-fit (se ajusta
+ *  al contenido) y se posiciona izq/centro/der. Literales para el scanner de Tailwind. */
+const CHIP_JUSTIFY_SELF: Record<NonNullable<SlotAppearance['align']>, string> = {
+  left:   'justify-self-start',
+  center: 'justify-self-center',
+  right:  'justify-self-end',
+};
+/** Clase justify-self del chip según su align (solo tiene efecto en rejilla). '' si
+ *  no hay align → el chip estira (llena la celda). */
+export function chipJustifySelf(align: SlotAppearance['align'] | undefined): string | undefined {
+  return align ? CHIP_JUSTIFY_SELF[align] : undefined;
+}
+
 /** Clases de colocación de un elemento dentro de un grid padre (celda + span).
  *  Compartida por el contenedor (hijos) y por los CHIPS de un slot con `chipGrid`. */
 export function placementClasses(place: GridPlacement | undefined): string | undefined {
@@ -805,6 +820,8 @@ export function ComposableSlot({
       // KRO-198 — "Mostrar como" por-chip (text/badge), para que la rama chips lo
       // respete IGUAL que el componente chips_row (display:'text' = sin pastilla).
       display: ap?.display,
+      // KRO-198 — align del chip → justify-self en la rejilla (content-fit + posición).
+      align: ap?.align,
     };
   };
 
@@ -839,17 +856,21 @@ export function ComposableSlot({
           {entries.map((e, i) => {
             const s = styleFor(e.key);
             const place = grid ? placementClasses(slot.chipPlacements?.[e.key ?? '']) : undefined;
+            // KRO-198 — align del chip → justify-self en la rejilla: con align el chip se
+            // AJUSTA AL CONTENIDO y se posiciona; sin align estira (llena la celda). Solo
+            // aplica en rejilla (en flex-wrap los chips ya son content-width).
+            const self = grid ? chipJustifySelf(s.align) : undefined;
             // KRO-198 — respeta "Mostrar como" por-chip, IGUAL que el componente chips_row:
             // display:'text' → TEXTO PLANO (sin pastilla); default/'badge' → pastilla. (Antes
             // esta rama SIEMPRE pintaba pastilla → el chip de 1 campo del editor mostraba
             // badge aunque el publisher lo hubiera puesto como texto → drift con la app.)
             if (s.display === 'text') {
               return (
-                <span key={i} data-chip-key={grid ? (e.key ?? undefined) : undefined} className={cn('text-[0.8em]', s.text, s.box, place)}>{s.val(e.value)}</span>
+                <span key={i} data-chip-key={grid ? (e.key ?? undefined) : undefined} className={cn('text-[0.8em]', s.text, s.box, place, self)}>{s.val(e.value)}</span>
               );
             }
             return (
-              <span key={i} data-chip-key={grid ? (e.key ?? undefined) : undefined} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]', s.bg || 'bg-muted', s.text || 'text-muted-foreground', s.box, place)}>{s.val(e.value)}</span>
+              <span key={i} data-chip-key={grid ? (e.key ?? undefined) : undefined} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]', s.bg || 'bg-muted', s.text || 'text-muted-foreground', s.box, place, self)}>{s.val(e.value)}</span>
             );
           })}
         </span>

@@ -27,7 +27,7 @@ import {
   ScalarText, ComposableSlot, ThumbBox, BadgePill, slotDebugAttrs, appearancePaddingClass,
   appearanceTextClasses, appearanceAlignClass, appearanceTruncateClass, appearanceEffectClasses, slotImageTransform,
   mergeFieldAppearance, applyAppearanceTruncate,
-  placementClasses, chipGridWrapperClass, chipGridTemplateStyle,
+  placementClasses, chipGridWrapperClass, chipGridTemplateStyle, chipJustifySelf,
   type FieldDefLike,
 } from '../recipe-utils';
 import {
@@ -658,6 +658,9 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
             const ap   = mergeFieldAppearance(resolved.appearance, resolved.fieldAppearances, f.key);
             const shown = applyAppearanceTruncate(text, ap);
             const place = grid ? placementClasses(resolved.chipPlacements?.[f.key]) : undefined;
+            // KRO-198 — align del chip → justify-self en la rejilla (content-fit + posición);
+            // sin align estira (llena la celda). Solo en rejilla.
+            const self = grid ? chipJustifySelf(ap?.align) : undefined;
             const box  = cn(
               appearanceTextClasses(ap ? { ...ap, bgColor: undefined, textColor: undefined } : undefined),
               appearancePaddingClass(ap), appearanceEffectClasses(ap), appearanceTruncateClass(ap),
@@ -668,7 +671,7 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
             // "Fila de chips" es pastilla (su identidad).
             if (ap?.display === 'text') {
               return (
-                <span key={i} data-chip-key={grid ? f.key : undefined} className={cn('text-[0.8em]', paletteClass(ap?.textColor, 'text'), box, place)}>{shown}</span>
+                <span key={i} data-chip-key={grid ? f.key : undefined} className={cn('text-[0.8em]', paletteClass(ap?.textColor, 'text'), box, place, self)}>{shown}</span>
               );
             }
             return (
@@ -676,7 +679,7 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
                 'inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]',
                 paletteClass(ap?.bgColor, 'bg') || 'bg-muted',
                 paletteClass(ap?.textColor, 'text') || 'text-muted-foreground',
-                box, place,
+                box, place, self,
               )}>{shown}</span>
             );
           })}
