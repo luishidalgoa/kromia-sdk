@@ -220,10 +220,14 @@ export interface SlotAppearance {
    *  tracking ancho (estilo "etiqueta"/meta de las recetas Editorial/Momento).
    *  'none' (default) = sin cambio. */
   textTransform?: 'none' | 'uppercase';
-  /** KRO-133 — familia tipográfica. 'serif' = con serifas (títulos editoriales);
-   *  'sans' (default) = la fuente base. Lo fijan los presets para fidelidad
-   *  (p.ej. el título de la receta Editorial). */
-  font?: 'sans' | 'serif';
+  /** KRO-133 / KRO-198(5) — familia tipográfica del texto. `sans` (default) = la
+   *  fuente base de la app; `serif` = serifa clásica. KRO-198 añade un set curado
+   *  de Google Fonts (sans: inter/manrope/nunito/montserrat; serif/slab:
+   *  lora/playfair/robotoslab; condensada: oswald; mono: jetbrains). Catálogo del
+   *  CONTRATO (OPTIONS_APPEARANCE_FONT) → paridad Flutter por `google_fonts`. Ids
+   *  Dart-safe (ninguna palabra reservada). */
+  font?: 'sans' | 'serif' | 'inter' | 'manrope' | 'nunito' | 'montserrat'
+       | 'lora' | 'playfair' | 'robotoslab' | 'oswald' | 'jetbrains';
   /** KRO-147 F3 — cursiva. true = `italic`. Default (undefined/false) = recto. */
   italic?: boolean;
   /** KRO-147 F3 — subrayado. true = `underline` (con offset). */

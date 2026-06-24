@@ -268,6 +268,25 @@ const WEIGHT_CLASSES: Record<NonNullable<SlotAppearance['weight']>, string> = {
   bold:     'font-bold',
 };
 
+// KRO-198(5) — familia tipográfica → clase Tailwind. Valores LITERALES (no
+// `font-${id}`) para que Tailwind los escanee del @source; además el host
+// safeliste `font-{…}` (globals.css) por robustez. Cada `font-<id>` resuelve via
+// el token `--font-<id>` que cablea la variable de next/font. `sans` DEBE emitir
+// `font-sans` explícito (si no, no quita el serif heredado — fix KRO-198 6220f66).
+const FONT_CLASSES: Record<NonNullable<SlotAppearance['font']>, string> = {
+  sans:       'font-sans',
+  serif:      'font-serif',
+  inter:      'font-inter',
+  manrope:    'font-manrope',
+  nunito:     'font-nunito',
+  montserrat: 'font-montserrat',
+  lora:       'font-lora',
+  playfair:   'font-playfair',
+  robotoslab: 'font-robotoslab',
+  oswald:     'font-oswald',
+  jetbrains:  'font-jetbrains',
+};
+
 const TEXT_SIZE_CLASSES: Record<NonNullable<SlotAppearance['size']>, string> = {
   sm: 'text-xs',
   md: 'text-sm',
@@ -351,12 +370,9 @@ export function appearanceTextClasses(a: SlotAppearance | undefined): string {
     a.weight && WEIGHT_CLASSES[a.weight],
     // KRO-133 — MAYÚSCULAS estilo etiqueta/meta (Editorial, Momento).
     a.textTransform === 'uppercase' && 'uppercase tracking-wider',
-    // KRO-133 — familia tipográfica (serif para títulos editoriales).
-    // KRO-198 — `sans` DEBE mapear a `font-sans` explícito (la tipografía de la app,
-    // Inter): si no, elegir "Sans" no quitaba el `font-serif` HEREDADO del padre → la
-    // opción no tenía efecto. Además, Inter sí tiene peso 600 → Semi≠Bold (el serif no).
-    a.font === 'serif' && 'font-serif',
-    a.font === 'sans' && 'font-sans',
+    // KRO-133/198 — familia tipográfica (set curado, ver FONT_CLASSES). Siempre clase
+    // explícita por fuente (incl. la base) para no heredar la del padre.
+    a.font && FONT_CLASSES[a.font],
     a.size   && TEXT_SIZE_CLASSES[a.size],
     // KRO-147 F3 — tipografía rica. `tracking` va DESPUÉS del tracking-wider
     // implícito de uppercase para que, si el publisher lo fija, gane (cn/merge).

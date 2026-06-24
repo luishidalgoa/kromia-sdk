@@ -135,8 +135,18 @@ export const OPTIONS_APPEARANCE_TEXTSHADOW: ReadonlyArray<CatalogOption> = [
 /** Familia tipográfica del texto (KRO-162). `serif` = editorial/literario
  *  (la que usa la receta Editorial); `sans` = la UI por defecto. */
 export const OPTIONS_APPEARANCE_FONT: ReadonlyArray<CatalogOption> = [
-  { id: 'sans',  label: 'Sans',  tooltip: 'Sans (la tipografía de la app)' },
-  { id: 'serif', label: 'Serif', tooltip: 'Serif (editorial, con remates)' },
+  { id: 'sans',       label: 'Sans',         tooltip: 'Sans (la tipografía de la app, Plus Jakarta)' },
+  { id: 'serif',      label: 'Serif',        tooltip: 'Serif clásica (editorial, con remates)' },
+  // KRO-198(5) — set curado de Google Fonts (paridad Flutter por `google_fonts`).
+  { id: 'inter',      label: 'Inter',        tooltip: 'Sans neutra y muy legible (UI/datos)' },
+  { id: 'manrope',    label: 'Manrope',      tooltip: 'Sans geométrica moderna' },
+  { id: 'nunito',     label: 'Nunito',       tooltip: 'Sans redondeada y cálida (amable)' },
+  { id: 'montserrat', label: 'Montserrat',   tooltip: 'Sans con carácter (títulos y cuerpo)' },
+  { id: 'lora',       label: 'Lora',         tooltip: 'Serif elegante y muy legible (lore/texto)' },
+  { id: 'playfair',   label: 'Playfair',     tooltip: 'Serif de alto contraste (display de lujo, títulos)' },
+  { id: 'robotoslab', label: 'Roboto Slab',  tooltip: 'Serif de bloque (slab) — sólida y robusta' },
+  { id: 'oswald',     label: 'Oswald',       tooltip: 'Condensada de impacto (rareza, etiquetas)' },
+  { id: 'jetbrains',  label: 'JetBrains Mono', tooltip: 'Monoespaciada (códigos, stats alineadas)' },
 ];
 
 /** KRO-147 F3 — interlineado (line-height) del texto. */

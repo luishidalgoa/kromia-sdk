@@ -30,6 +30,7 @@ import {
   OPTIONS_APPEARANCE_SIZE,
   OPTIONS_APPEARANCE_TRUNCATE,
   OPTIONS_APPEARANCE_PADDING_Y,
+  OPTIONS_APPEARANCE_FONT,
   OPTIONS_APPEARANCE_ACCENT_POSITION,
   OPTIONS_APPEARANCE_REF_COLUMNS,
   OPTIONS_APPEARANCE_REF_TAP,
@@ -91,7 +92,9 @@ const PADDING_IDS  = new Set(OPTIONS_APPEARANCE_PADDING_Y.map(o => o.id));
 const ACCENT_IDS   = new Set(OPTIONS_APPEARANCE_ACCENT_POSITION.map(o => o.id));
 const REF_COLS_IDS = new Set(OPTIONS_APPEARANCE_REF_COLUMNS.map(o => o.id));
 const REF_TAP_IDS  = new Set(OPTIONS_APPEARANCE_REF_TAP.map(o => o.id));
-const FONT_IDS      = new Set(['sans', 'serif']);
+// KRO-198(5) — derivado del catálogo (antes hardcodeado ['sans','serif'] → divergía
+// silenciosamente al ampliar el enum). Ahora una sola fuente de verdad.
+const FONT_IDS      = new Set(OPTIONS_APPEARANCE_FONT.map(o => o.id));
 // KRO-147 F3
 const LINE_HEIGHT_IDS = new Set(OPTIONS_APPEARANCE_LINE_HEIGHT.map(o => o.id));
 const TRACKING_IDS    = new Set(OPTIONS_APPEARANCE_TRACKING.map(o => o.id));

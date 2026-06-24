@@ -29,8 +29,9 @@ export interface ThemePreset {
   surface?:    Partial<ContainerSurface>;
   /** Color de texto base aplicado a TODOS los slots (las imágenes lo ignoran). */
   textColor?:  string;
-  /** Familia tipográfica base. */
-  font?:       'sans' | 'serif';
+  /** Familia tipográfica base. Ver `SlotAppearance.font` (KRO-198(5) amplía el set). */
+  font?:       'sans' | 'serif' | 'inter' | 'manrope' | 'nunito' | 'montserrat'
+             | 'lora' | 'playfair' | 'robotoslab' | 'oswald' | 'jetbrains';
   /** Acento de los slots mostrados como `badge` (pastilla de rareza/tipo). */
   accent?:     { bgColor: string; textColor: string };
 }
