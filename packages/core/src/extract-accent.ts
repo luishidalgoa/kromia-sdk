@@ -28,7 +28,7 @@ import type { SlotComposition, AccentSettings, FieldDefLike } from './types';
 interface AccentSourceComposition {
   slots: Record<string, SlotComposition>;
   accentPosition?: 'top' | 'right' | 'bottom' | 'left' | 'none' | 'auto';
-  accentStyle?: 'bar' | 'rounded' | 'glow' | 'gradient';
+  accentStyle?: 'bar' | 'rounded' | 'glow' | 'gradient' | 'ambient';
 }
 
 /**

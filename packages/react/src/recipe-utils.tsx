@@ -533,6 +533,18 @@ export function buildAccentBorderStyle(
     case 'gradient':
       // Degradado: se funde con la card (sin borde marcado). Offset adentro + blur.
       return { boxShadow: `inset ${ox * 2}px ${oy * 2}px ${w * 4}px ${-Math.round(w / 2)}px ${c}` };
+    case 'ambient': {
+      // Lavado ambiente: el color tiñe la card DESDE el borde de la posición y se
+      // difumina. No es box-shadow (borde), es un backgroundImage → NO hay línea ni
+      // "corte"; se funde sobre el fondo del elemento. `base` descarta alpha (#RRGGBB)
+      // para poder anexar el alpha del lavado de forma segura.
+      const base = c.slice(0, 7);
+      const dir = accent.position === 'bottom' ? 'to top'
+                : accent.position === 'left'   ? 'to right'
+                : accent.position === 'right'  ? 'to left'
+                : 'to bottom';
+      return { backgroundImage: `linear-gradient(${dir}, ${base}40, transparent 55%)` };
+    }
     case 'bar':
     case 'rounded':
     default:

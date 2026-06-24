@@ -638,12 +638,12 @@ export function validateComposition(
   // KRO-198 — accentStyle (data, no catálogo del contrato): bar | rounded | glow | gradient.
   if (
     composition.accentStyle !== undefined &&
-    !['bar', 'rounded', 'glow', 'gradient'].includes(composition.accentStyle)
+    !['bar', 'rounded', 'glow', 'gradient', 'ambient'].includes(composition.accentStyle)
   ) {
     issues.push({
       path:    'accentStyle',
       level:   'error',
-      message: `accentStyle "${composition.accentStyle}" no es válido (bar | rounded | glow | gradient)`,
+      message: `accentStyle "${composition.accentStyle}" no es válido (bar | rounded | glow | gradient | ambient)`,
     });
   }
 

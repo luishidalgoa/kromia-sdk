@@ -188,7 +188,7 @@ describe('extractAccentSettings — estilo de la franja (KRO-198)', () => {
     expect(r?.style).toBeUndefined();
   });
 
-  it.each(['bar', 'rounded', 'glow', 'gradient'] as const)(
+  it.each(['bar', 'rounded', 'glow', 'gradient', 'ambient'] as const)(
     'composition.accentStyle="%s" → viaja en el resultado',
     (style) => {
       const r = extractAccentSettings(
