@@ -27,7 +27,7 @@ import {
   ScalarText, ComposableSlot, ThumbBox, BadgePill, slotDebugAttrs, appearancePaddingClass,
   appearanceTextClasses, appearanceAlignClass, appearanceTruncateClass, appearanceEffectClasses, slotImageTransform,
   mergeFieldAppearance, applyAppearanceTruncate,
-  placementClasses, chipGridWrapperClass, chipGridTemplateStyle, chipJustifySelf,
+  placementClasses, chipGridWrapperClass, chipGridTemplateStyle, chipJustifySelf, chipJustifyContent,
   type FieldDefLike,
 } from '../recipe-utils';
 import {
@@ -658,9 +658,12 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
             const ap   = mergeFieldAppearance(resolved.appearance, resolved.fieldAppearances, f.key);
             const shown = applyAppearanceTruncate(text, ap);
             const place = grid ? placementClasses(resolved.chipPlacements?.[f.key]) : undefined;
-            // KRO-198 — align del chip → justify-self en la rejilla (content-fit + posición);
-            // sin align estira (llena la celda). Solo en rejilla.
-            const self = grid ? chipJustifySelf(ap?.align) : undefined;
+            // KRO-198 — ANCHO (solo rejilla): chipWidth:'content' → content-fit + align lo
+            // posiciona (justify-self); 'fill' (default) → estira + align coloca el TEXTO
+            // (justify-content en pastilla / text-align en texto plano). Ejes independientes.
+            const isContent = ap?.chipWidth === 'content';
+            const self    = grid && isContent  ? chipJustifySelf(ap?.align)    : undefined;
+            const justify = grid && !isContent ? chipJustifyContent(ap?.align) : undefined;
             const box  = cn(
               appearanceTextClasses(ap ? { ...ap, bgColor: undefined, textColor: undefined } : undefined),
               appearancePaddingClass(ap), appearanceEffectClasses(ap), appearanceTruncateClass(ap),
@@ -679,7 +682,7 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
                 'inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]',
                 paletteClass(ap?.bgColor, 'bg') || 'bg-muted',
                 paletteClass(ap?.textColor, 'text') || 'text-muted-foreground',
-                box, place, self,
+                box, place, self, justify,
               )}>{shown}</span>
             );
           })}

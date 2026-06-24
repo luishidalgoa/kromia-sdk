@@ -150,6 +150,10 @@ function validateAppearance(
   if (appearance.display !== undefined && !DISPLAY_IDS.has(appearance.display)) {
     issues.push({ path: `${path}.display`, level: 'error', message: `display "${appearance.display}" no es válido` });
   }
+  // KRO-198 — ancho del chip (data, no catálogo del contrato): fill | content.
+  if (appearance.chipWidth !== undefined && appearance.chipWidth !== 'fill' && appearance.chipWidth !== 'content') {
+    issues.push({ path: `${path}.chipWidth`, level: 'error', message: `chipWidth "${appearance.chipWidth}" no es válido (fill | content)` });
+  }
   // textColor/bgColor son ids de paleta o 'field:<key>' (string libre — el
   // render degrada a default si no resuelve). Solo se valida el TIPO.
   if (appearance.textColor !== undefined && (typeof appearance.textColor !== 'string' || appearance.textColor.length === 0)) {

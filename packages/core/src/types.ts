@@ -319,6 +319,14 @@ export interface SlotAppearance {
    * "Fuego"/"Agua" de las recetas). Solo aplica a slots de texto/número.
    */
   display?:   'text' | 'badge';
+  /**
+   * KRO-198 — ANCHO del chip dentro de su celda de la rejilla (`chipGrid`):
+   * 'fill' (default) = ESTIRA y llena la celda (como la app); 'content' = se AJUSTA
+   * AL CONTENIDO. Independiente de `align`, que coloca el TEXTO dentro del chip
+   * (modo fill) o POSICIONA el chip en la celda (modo content). Data → no contrato
+   * (paridad Flutter por tipo, como `chipGrid`). Solo surte efecto en rejilla.
+   */
+  chipWidth?: 'fill' | 'content';
   /** KRO-133 F3 — color del TEXTO (id de la paleta de `@kromia/core`). */
   textColor?: string;
   /** KRO-133 F3 — color de FONDO del slot (id de paleta) = resaltado / chip. */

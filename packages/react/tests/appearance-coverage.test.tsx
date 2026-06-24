@@ -272,14 +272,16 @@ describe('chip grid — chips_row + ComposableSlot colocan cada chip en su celda
     expect(html).toContain('data-chip-grid');
     expect(html).toContain('data-chip-key="a"');
   });
-  it('chip con align → justify-self (content-fit + posición); sin align → estira (llena celda)', () => {
+  it('ancho del chip: content+align → justify-self (content-fit+posición); fill+align → justify-content (texto)', () => {
     const node = { type: 'component', component: 'chips_row', slots: { chips: 's' } } as any;
-    const comp = { slots: { s: { fields: ['a', 'b', 'c'], chipGrid: cg, chipPlacements: placements, fieldAppearances: { a: { align: 'center' } } } } } as any;
-    const html = renderToStaticMarkup(<ComponentContent node={node} composition={comp} item={gItem} fieldDefs={gFieldDefs} />);
-    expect(html, 'chip con align=center → justify-self-center (content-fit)').toContain('justify-self-center');
-    // Sin align → ningún justify-self (el chip estira para llenar su celda, como la app).
-    const comp2 = { slots: { s: { fields: ['a', 'b', 'c'], chipGrid: cg, chipPlacements: placements } } } as any;
-    const html2 = renderToStaticMarkup(<ComponentContent node={node} composition={comp2} item={gItem} fieldDefs={gFieldDefs} />);
-    expect(html2, 'sin align el chip estira (sin justify-self)').not.toContain('justify-self');
+    // chipWidth:'content' + align center → el chip se ajusta y se POSICIONA (justify-self-center).
+    const compC = { slots: { s: { fields: ['a', 'b', 'c'], chipGrid: cg, chipPlacements: placements, fieldAppearances: { a: { chipWidth: 'content', align: 'center' } } } } } as any;
+    const htmlC = renderToStaticMarkup(<ComponentContent node={node} composition={compC} item={gItem} fieldDefs={gFieldDefs} />);
+    expect(htmlC, 'content+center → justify-self-center').toContain('justify-self-center');
+    // fill (default) + align center → el chip ESTIRA y el TEXTO se centra (justify-content), SIN justify-self.
+    const compF = { slots: { s: { fields: ['a', 'b', 'c'], chipGrid: cg, chipPlacements: placements, fieldAppearances: { a: { align: 'center' } } } } } as any;
+    const htmlF = renderToStaticMarkup(<ComponentContent node={node} composition={compF} item={gItem} fieldDefs={gFieldDefs} />);
+    expect(htmlF, 'fill+center → justify-center (texto en la pastilla)').toContain('justify-center');
+    expect(htmlF, 'fill NO usa justify-self (el chip estira)').not.toContain('justify-self');
   });
 });
