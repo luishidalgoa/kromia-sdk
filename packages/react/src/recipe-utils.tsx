@@ -824,7 +824,10 @@ export function ComposableSlot({
       // sin él, flex-wrap de siempre (retro-compat).
       const grid = slot.chipGrid;
       return (
+        // KRO-198 — `data-chip-grid`/`data-chip-key` marcan la rejilla y cada chip para
+        // el EDITOR (el lienzo de Studio engancha el arrastre). Inertes en la app.
         <span
+          data-chip-grid={grid ? true : undefined}
           className={cn(
             grid ? chipGridWrapperClass(grid) : 'inline-flex flex-wrap gap-1 align-middle',
             textClasses, elBg && 'bg-transparent', className)}
@@ -834,7 +837,7 @@ export function ComposableSlot({
             const s = styleFor(e.key);
             const place = grid ? placementClasses(slot.chipPlacements?.[e.key ?? '']) : undefined;
             return (
-              <span key={i} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]', s.bg || 'bg-muted', s.text || 'text-muted-foreground', s.box, place)}>{s.val(e.value)}</span>
+              <span key={i} data-chip-key={grid ? (e.key ?? undefined) : undefined} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]', s.bg || 'bg-muted', s.text || 'text-muted-foreground', s.box, place)}>{s.val(e.value)}</span>
             );
           })}
         </span>

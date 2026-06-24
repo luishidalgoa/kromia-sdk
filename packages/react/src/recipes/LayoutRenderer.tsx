@@ -633,7 +633,10 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
       // Sin `chipGrid` → flex-wrap de siempre + "Alinear" mapeado a justify-content.
       const grid = resolved.chipGrid;
       return (
+        // KRO-198 — `data-chip-grid` marca la rejilla para el EDITOR (el lienzo de
+        // Studio engancha aquí el arrastre de chips). Inerte en la app.
         <div
+          data-chip-grid={grid ? true : undefined}
           className={cn(grid
             ? chipGridWrapperClass(grid)
             : cn('flex flex-wrap items-center gap-1',
@@ -660,11 +663,11 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
             // "Fila de chips" es pastilla (su identidad).
             if (ap?.display === 'text') {
               return (
-                <span key={i} className={cn('text-[0.8em]', paletteClass(ap?.textColor, 'text'), box, place)}>{shown}</span>
+                <span key={i} data-chip-key={grid ? f.key : undefined} className={cn('text-[0.8em]', paletteClass(ap?.textColor, 'text'), box, place)}>{shown}</span>
               );
             }
             return (
-              <span key={i} className={cn(
+              <span key={i} data-chip-key={grid ? f.key : undefined} className={cn(
                 'inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]',
                 paletteClass(ap?.bgColor, 'bg') || 'bg-muted',
                 paletteClass(ap?.textColor, 'text') || 'text-muted-foreground',
