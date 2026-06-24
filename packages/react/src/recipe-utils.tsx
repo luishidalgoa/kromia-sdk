@@ -991,7 +991,9 @@ export function ComposableSlot({
             const bg = paletteClass(ap?.bgColor, 'bg');
             const isBadge = ap?.display === 'badge';
             return (
-              <span key={i} className="inline-flex flex-col items-center text-center min-w-0">
+              // KRO-198 — `data-stat-key` (paridad con StatsRow): el editor lo lee por
+              // delegación para seleccionar la estadística clicada. DATA, no contrato.
+              <span key={i} data-stat-key={e.key} className="inline-flex flex-col items-center text-center min-w-0">
                 {isBadge ? (
                   <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-bold tabular-nums max-w-full',
                     bg || 'bg-muted', appearancePaddingClass(ap), appearanceEffectClasses(ap),

@@ -48,7 +48,10 @@ export function StatsRow({ fields, appearance, fieldAppearances }: {
         // no como cifra grande. Honra color/tipografía/relleno/efecto igual.
         const isBadge = ap?.display === 'badge';
         return (
-          <div key={idx} className="text-center min-w-0">
+          // KRO-198 — `data-stat-key`: el editor del lienzo lo lee por delegación (closest)
+          // para SELECCIONAR esta estadística al clicarla (como `data-chip-key` en los chips).
+          // DATA (no contrato): solo es un atributo de render. undefined si el field no trae key.
+          <div key={idx} data-stat-key={f.key} className="text-center min-w-0">
             {isBadge ? (
               <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-bold tabular-nums max-w-full',
                 bg || 'bg-muted', appearancePaddingClass(ap), appearanceEffectClasses(ap),
