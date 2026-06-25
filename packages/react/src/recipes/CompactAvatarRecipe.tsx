@@ -19,7 +19,7 @@
 import { cn } from '../lib/cn';
 import {
   AvatarBox, ComposableSlot, ScalarText, StatusDot, resolveSlot, isSlotDisabled,
-  appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass,
+  appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass, appearanceEffectClasses,
   slotDebugAttrs, extractAccentSettings, AccentFrame, slotImageTransform,
   type FieldDefLike,
 } from '../recipe-utils';
@@ -140,6 +140,8 @@ export function CompactAvatarRecipe({
             appearancePaddingClass(meta?.appearance),
             appearanceTextClasses(meta?.appearance),
             appearanceTruncateClass(meta?.appearance),
+            // KRO-217 — el meta ignoraba opacidad/sombra (el editor las deja configurar).
+            appearanceEffectClasses(meta?.appearance),
           )}
           {...slotDebugAttrs('meta', meta)}
         >

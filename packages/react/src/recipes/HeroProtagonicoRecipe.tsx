@@ -32,18 +32,21 @@
  *   └────────────────────────────────────────┘
  */
 
-import { isMockupImage } from '@kromia/core';
 import { cn } from '../lib/cn';
 import {
-  resolveSlot, formatScalar, MarkdownText,
+  resolveSlot, MarkdownText,
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass,
-  applyAppearanceTruncate, imageFocusStyle, slotDebugAttrs, extractAccentSettings, AccentFrame,
-  MockupImageSkeleton,
+  applyAppearanceTruncate, slotDebugAttrs, extractAccentSettings, AccentFrame,
   type FieldDefLike,
 } from '../recipe-utils';
 import { NestedRecipeRenderer } from './NestedRecipeRenderer';
 import { MiniCardRefs, type CardRefResolver } from './RefGallery';
 import { HeroHeader } from './HeroHeader';
+// KRO-217 — stats y galería DELEGAN en los componentes compartidos (apariencia-aware)
+// en vez de duplicar markup: StatsRow honra fieldAppearances/caja/efecto e ImageGallery
+// honra objectFit/efectos/shape + añade zoom y dots. Antes el Hero los ignoraba.
+import { StatsRow } from './StatsRow';
+import { ImageGallery } from './ImageGallery';
 import { DEFAULT_CARD_FORMAT, type CardFormat } from '@kromia/core';
 import type { ViewComposition } from '@kromia/core';
 
@@ -113,25 +116,18 @@ export function HeroProtagonicoRecipe({
       order: slotOrder(stats),
       render: () => (
         <div
-          className={cn(
-            'grid grid-flow-col auto-cols-fr gap-2 border-y border-border py-3',
-            appearancePaddingClass(stats.appearance),
-            appearanceTextClasses(stats.appearance),
-          )}
+          className={appearancePaddingClass(stats.appearance)}
           {...slotDebugAttrs('stats', stats)}
         >
-          {stats.fields.map((f, idx) => (
-            <div key={idx} className="text-center min-w-0">
-              <p className="text-lg font-bold text-foreground tabular-nums truncate">
-                {formatScalar(f.value, f.def)}
-              </p>
-              {f.def?.label && (
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground truncate">
-                  {f.def.label}
-                </p>
-              )}
-            </div>
-          ))}
+          {/* KRO-217 — antes este bloque duplicaba el markup de StatsRow con
+              colores fijos (text-foreground/text-muted-foreground) e ignoraba
+              fieldAppearances + caja/efecto. Ahora delega → mismo look por
+              defecto + el publisher puede teñir cada estadística. */}
+          <StatsRow
+            fields={stats.fields}
+            appearance={stats.appearance}
+            fieldAppearances={stats.fieldAppearances}
+          />
         </div>
       ),
     });
@@ -168,34 +164,18 @@ export function HeroProtagonicoRecipe({
           className={appearancePaddingClass(gallery.appearance)}
           {...slotDebugAttrs('gallery', gallery)}
         >
-          <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">
-            {gallery.fields[0]?.def?.label ?? 'Galería'}
-          </p>
-          {/* Carrusel horizontal con snap — fotos más grandes que el grid 3-col
-              anterior. Cada foto ~70% del ancho del frame, aspect 4:3 (formato
-              foto natural), scroll horizontal con snap-x para una foto a la
-              vez. -mx-5 + px-5 para que el carrusel respire hasta los bordes
-              del PhoneFrame sin perder el padding del contenido del hero. */}
-          <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory pb-2 -mx-5 px-5 scroll-px-5">
-            {galleryUrls
-              .filter((url): url is string => typeof url === 'string' && url.trim() !== '')
-              .map((url, i) => (
-                <div
-                  key={i}
-                  className="aspect-[4/3] rounded-lg bg-muted overflow-hidden shrink-0 snap-start"
-                  style={{ width: '70%' }}
-                >
-                  {isMockupImage(url) ? <MockupImageSkeleton /> :
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={url}
-                    alt=""
-                    style={imageFocusStyle(gallery.appearance)}
-                    className="w-full h-full object-cover"
-                  />}
-                </div>
-              ))}
-          </div>
+          {/* KRO-217 — antes un carrusel manual con object-cover fijo que ignoraba
+              objectFit/efectos/shape del slot y carecía de zoom y dots. ImageGallery
+              'peek' es el MISMO carrusel (snap-x, foto ~70%, aspect 4:3) pero honra la
+              apariencia + añade zoom táctil + indicador de posición. El antiguo bleed
+              -mx-5 a los bordes del frame se va: la galería queda alineada al resto del
+              cuerpo del hero (igual que la ruta de layout custom → menos drift). */}
+          <ImageGallery
+            urls={galleryUrls}
+            variant="peek"
+            appearance={gallery.appearance}
+            label={gallery.fields[0]?.def?.label ?? 'Galería'}
+          />
         </div>
       ),
     });

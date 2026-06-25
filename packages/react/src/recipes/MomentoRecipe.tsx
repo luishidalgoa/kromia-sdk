@@ -24,16 +24,17 @@
  *   └────────────────────────────────────────┘
  */
 
-import { isMockupImage } from '@kromia/core';
 import { cn } from '../lib/cn';
 import {
   ComposableSlot, ScalarText, formatScalar,
   resolveSlot, MarkdownText,
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass,
-  applyAppearanceTruncate, imageFocusStyle, slotDebugAttrs, extractAccentSettings, AccentFrame,
-  MockupImageSkeleton,
+  applyAppearanceTruncate, slotDebugAttrs, extractAccentSettings, AccentFrame,
   type FieldDefLike,
 } from '../recipe-utils';
+// KRO-217 — el slideshow DELEGA en ImageGallery (apariencia-aware) en vez de
+// duplicar el carrusel: honra objectFit/efectos/shape + añade zoom y dots.
+import { ImageGallery } from './ImageGallery';
 import type { ViewComposition } from '@kromia/core';
 
 export interface MomentoRecipeProps {
@@ -137,27 +138,18 @@ export function MomentoRecipe({
       )}
 
       {slideshow && slideshowUrls && Array.isArray(slideshowUrls) && slideshowUrls.length > 0 && (
-        <div className="px-5 pb-5" {...slotDebugAttrs('slideshow', slideshow)}>
-          {/* Slideshow horizontal scroll — pensado para móvil swipe. */}
-          <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory -mx-5 px-5 pb-1">
-            {slideshowUrls
-              .filter((url): url is string => typeof url === 'string' && url.trim() !== '')
-              .map((url, i) => (
-                <div
-                  key={i}
-                  className="snap-center shrink-0 w-64 aspect-[4/3] rounded-lg bg-muted overflow-hidden"
-                >
-                  {isMockupImage(url) ? <MockupImageSkeleton /> :
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={url}
-                    alt=""
-                    style={imageFocusStyle(slideshow.appearance)}
-                    className="w-full h-full object-cover"
-                  />}
-                </div>
-              ))}
-          </div>
+        <div
+          className={cn('px-5 pb-5', appearancePaddingClass(slideshow.appearance))}
+          {...slotDebugAttrs('slideshow', slideshow)}
+        >
+          {/* KRO-217 — slideshow horizontal (móvil swipe). Antes object-cover fijo
+              que ignoraba objectFit/efectos/shape. ImageGallery 'centered' es el
+              mismo carrusel (snap-center, w-64, aspect 4:3) honrando la apariencia. */}
+          <ImageGallery
+            urls={slideshowUrls}
+            variant="centered"
+            appearance={slideshow.appearance}
+          />
         </div>
       )}
     </div>

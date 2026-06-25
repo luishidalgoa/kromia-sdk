@@ -17,6 +17,7 @@ import {
   ComponentContent, ComposableSlot, SlotContent, resolveSlot,
   appearancePaddingClass, appearanceEffectClasses, appearanceTextClasses,
   appearanceObjectFitClass,
+  CompactAvatarRecipe, HeroProtagonicoRecipe, EditorialRecipe, MomentoRecipe,
 } from '../src/index';
 
 // Apariencia con TODA prop "de caja/color" puesta a un valor distintivo.
@@ -283,5 +284,79 @@ describe('chip grid — chips_row + ComposableSlot colocan cada chip en su celda
     const htmlF = renderToStaticMarkup(<ComponentContent node={node} composition={compF} item={gItem} fieldDefs={gFieldDefs} />);
     expect(htmlF, 'fill+center → justify-center (texto en la pastilla)').toContain('justify-center');
     expect(htmlF, 'fill NO usa justify-self (el chip estira)').not.toContain('justify-self');
+  });
+});
+
+// ── KRO-217: las recetas-preset (Hero/Editorial/Momento/CompactAvatar) DELEGAN sus
+// bloques de stats/galería/meta en los componentes COMPARTIDOS (StatsRow/ImageGallery)
+// en vez de duplicar markup con colores/object-fit fijos. Esta red verifica el CABLEADO:
+// que cada receta PASA la apariencia del slot al componente → sus clases salen en el
+// HTML. Si alguien revierte una receta a markup hardcodeado, su clase no sale y cae. ──
+describe('appearance coverage — KRO-217: las recetas-preset delegan y honran la apariencia del slot', () => {
+  const IMG_AP   = { objectFit: 'contain', opacity: '50', shadow: 'md', aspect: 'video' } as const;
+  const imgDefs  = [{ key: 'img', label: 'Galería', type: 'image' }] as any;
+  const imgItem  = { img: ['https://example.com/p.jpg'] };          // array de URLs reales → <img>
+  const allDefs  = [...fieldDefs, ...imgDefs];
+  const allItem  = { ...item, ...imgItem };
+  const FIT         = appearanceObjectFitClass(IMG_AP as any);       // object-contain
+  const IMG_EFFECTS = appearanceEffectClasses(IMG_AP as any).split(' ').filter(Boolean); // opacity-50 + shadow-md
+
+  it('CompactAvatar (A1) — el slot meta honra opacidad/sombra (antes los ignoraba)', () => {
+    const composition = { slots: {
+      avatar: { fields: ['a'] }, title: { fields: ['a'] },
+      meta:   { fields: ['b'], appearance: FULL_AP },
+    } } as any;
+    const html = renderToStaticMarkup(
+      <CompactAvatarRecipe composition={composition} item={item} fieldDefs={fieldDefs} />,
+    );
+    for (const eff of EFFECTS) expect(html, `meta: falta el efecto "${eff}"`).toContain(eff);
+  });
+
+  it('Hero (A4) — el bloque stats delega en StatsRow y honra relleno + color', () => {
+    const composition = { slots: {
+      title: { fields: ['a'] },
+      stats: { fields: ['a', 'b'], appearance: FULL_AP },
+    } } as any;
+    const html = renderToStaticMarkup(
+      <HeroProtagonicoRecipe composition={composition} item={item} fieldDefs={fieldDefs} />,
+    );
+    expect(html, `stats: falta el relleno "${PAD}"`).toContain(PAD);
+    expect(html, `stats: falta el color "${TXT}"`).toContain(TXT);
+  });
+
+  it('Hero (A5) — la galería delega en ImageGallery y honra object-fit + efectos', () => {
+    const composition = { slots: {
+      title:   { fields: ['a'] },
+      gallery: { fields: ['img'], appearance: IMG_AP },
+    } } as any;
+    const html = renderToStaticMarkup(
+      <HeroProtagonicoRecipe composition={composition} item={allItem} fieldDefs={allDefs} />,
+    );
+    expect(html, `gallery: falta el object-fit "${FIT}"`).toContain(FIT);
+    for (const eff of IMG_EFFECTS) expect(html, `gallery: falta el efecto "${eff}"`).toContain(eff);
+  });
+
+  it('Editorial (A2) — la galería grid delega en ImageGallery y honra object-fit + efectos', () => {
+    const composition = { slots: {
+      title:   { fields: ['a'] }, body: { fields: ['a'] },
+      gallery: { fields: ['img'], appearance: IMG_AP },
+    } } as any;
+    const html = renderToStaticMarkup(
+      <EditorialRecipe composition={composition} item={allItem} fieldDefs={allDefs} />,
+    );
+    expect(html, `gallery: falta el object-fit "${FIT}"`).toContain(FIT);
+    for (const eff of IMG_EFFECTS) expect(html, `gallery: falta el efecto "${eff}"`).toContain(eff);
+  });
+
+  it('Momento (A3) — el slideshow centered delega en ImageGallery y honra object-fit + efectos', () => {
+    const composition = { slots: {
+      date: { fields: ['a'] }, title: { fields: ['a'] },
+      slideshow: { fields: ['img'], appearance: IMG_AP },
+    } } as any;
+    const html = renderToStaticMarkup(
+      <MomentoRecipe composition={composition} item={allItem} fieldDefs={allDefs} />,
+    );
+    expect(html, `slideshow: falta el object-fit "${FIT}"`).toContain(FIT);
+    for (const eff of IMG_EFFECTS) expect(html, `slideshow: falta el efecto "${eff}"`).toContain(eff);
   });
 });

@@ -1,5 +1,4 @@
 'use client';
-import { isMockupImage } from '@kromia/core';
 /**
  * Receta DETALLE `editorial` — artículo con cover + título grande + meta + body
  * markdown + galería opcional. Para historias largas: artículos de hermandades,
@@ -26,14 +25,18 @@ import { isMockupImage } from '@kromia/core';
  */
 
 import { cn } from '../lib/cn';
-import { MockupImageSkeleton,
+import {
   BannerBox, ComposableSlot, ScalarText,
   resolveSlot, isSlotDisabled, MarkdownText,
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass,
-  applyAppearanceTruncate, imageFocusStyle, slotDebugAttrs, extractAccentSettings, AccentFrame,
+  applyAppearanceTruncate, slotDebugAttrs, extractAccentSettings, AccentFrame,
   slotImageTransform,
   type FieldDefLike,
 } from '../recipe-utils';
+// KRO-217 — la galería DELEGA en ImageGallery (apariencia-aware) en vez de
+// duplicar el grid manual: honra objectFit/efectos/shape, muestra «+N» si hay
+// más de 6 (antes recortaba en silencio) y añade zoom.
+import { ImageGallery } from './ImageGallery';
 import type { ViewComposition } from '@kromia/core';
 
 export interface EditorialRecipeProps {
@@ -130,26 +133,12 @@ export function EditorialRecipe({
 
         {gallery && galleryUrls && Array.isArray(galleryUrls) && galleryUrls.length > 0 && (
           <div className="pt-3" {...slotDebugAttrs('gallery', gallery)}>
-            <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">
-              {gallery.fields[0]?.def?.label ?? 'Galería'}
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              {galleryUrls
-                .filter((url): url is string => typeof url === 'string' && url.trim() !== '')
-                .slice(0, 6)
-                .map((url, i) => (
-                  <div key={i} className="aspect-square rounded-lg bg-muted overflow-hidden">
-                    {isMockupImage(url) ? <MockupImageSkeleton /> :
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={url}
-                      alt=""
-                      style={imageFocusStyle(gallery.appearance)}
-                      className="w-full h-full object-cover"
-                    />}
-                  </div>
-                ))}
-            </div>
+            <ImageGallery
+              urls={galleryUrls}
+              variant="grid"
+              appearance={gallery.appearance}
+              label={gallery.fields[0]?.def?.label ?? 'Galería'}
+            />
           </div>
         )}
       </div>
