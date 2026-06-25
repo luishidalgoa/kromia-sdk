@@ -19,7 +19,9 @@ const Map<String, Object> appearanceVariants = <String, Object>{
   'align': <String>['left', 'center', 'right'],
   'weight': <String>['regular', 'semibold', 'bold'],
   'textTransform': <String>['none', 'uppercase'],
-  'font': <String>['sans', 'serif'],
+  // KRO-218 — set curado (espejo de OPTIONS_APPEARANCE_FONT): sans/serif + 9
+  // Google Fonts. El render Flutter mapea cada id a su familia (google_fonts).
+  'font': <String>['sans', 'serif', 'inter', 'manrope', 'nunito', 'montserrat', 'lora', 'playfair', 'robotoslab', 'oswald', 'jetbrains'],
   'lineHeight': <String>['tight', 'normal', 'relaxed'],
   'tracking': <String>['tight', 'normal', 'wide'],
   'textShadow': <String>['none', 'sm', 'md'],

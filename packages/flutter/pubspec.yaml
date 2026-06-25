@@ -23,6 +23,10 @@ dependencies:
   # (gridColumnsTemplate/gridRowsTemplate de @kromia/react), incluido rowSpan,
   # que el _grid anterior colapsaba a 1 fila.
   flutter_layout_grid: ^2.0.0
+  # KRO-218 — fuentes del catálogo `font` (inter/manrope/lora/playfair/…). LAZY:
+  # se bajan al usarse + caché (como `preload:false` del web). `sans` NO usa esto
+  # (es el asset bundleado de la app, Plus Jakarta); solo las 9 extras.
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
