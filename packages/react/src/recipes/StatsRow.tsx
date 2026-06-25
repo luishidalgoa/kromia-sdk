@@ -20,6 +20,7 @@ import { cn } from '../lib/cn';
 import {
   formatScalar, mergeFieldAppearance, appearanceTextClasses,
   appearancePaddingClass, appearanceTruncateClass, appearanceEffectClasses,
+  applyAppearanceTruncate,
   type FieldDefLike,
 } from '../recipe-utils';
 
@@ -56,21 +57,21 @@ export function StatsRow({ fields, appearance, fieldAppearances }: {
               <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-bold tabular-nums max-w-full',
                 bg || 'bg-muted', appearancePaddingClass(ap), appearanceEffectClasses(ap),
                 appearanceTextClasses(ap ? { ...ap, bgColor: undefined } : undefined) || 'text-foreground')}>
-                {formatScalar(f.value, f.def)}
+                {applyAppearanceTruncate(formatScalar(f.value, f.def), ap)}
               </span>
             ) : (
               <p className={cn('text-lg font-bold tabular-nums max-w-full text-foreground',
                 !ap?.truncate && 'truncate', appearanceTruncateClass(ap),
                 bg && 'rounded px-1', appearancePaddingClass(ap), appearanceEffectClasses(ap), bg,
                 appearanceTextClasses(ap ? { ...ap, bgColor: undefined } : undefined))}>
-                {formatScalar(f.value, f.def)}
+                {applyAppearanceTruncate(formatScalar(f.value, f.def), ap)}
               </p>
             )}
             {f.def?.label && (
               // KRO-222 — la ETIQUETA ya no se trunca a 1 línea por defecto (causaba
               // "TASA DE…"); ahora envuelve a 2 líneas. El publisher puede forzar otro
               // recorte con su appearance.truncate (1/2/3/none), igual que el valor.
-              <p className={cn('text-[10px] uppercase tracking-wider max-w-full text-muted-foreground',
+              <p className={cn('text-[10px] uppercase tracking-wider max-w-full text-muted-foreground break-words',
                 appearanceTruncateClass(ap) || 'line-clamp-2',
                 ap?.textColor && paletteClass(ap.textColor, 'text'))}>
                 {f.def.label}

@@ -1005,9 +1005,10 @@ export function ComposableSlot({
                     bg && 'rounded px-1', appearancePaddingClass(ap), appearanceEffectClasses(ap), bg,
                     appearanceTextClasses(ap ? { ...ap, bgColor: undefined } : undefined))}>{applyAppearanceTruncate(e.value, ap)}</span>
                 )}
-                {e.label && <span className={cn('text-[10px] uppercase tracking-wider max-w-full text-muted-foreground',
+                {e.label && <span className={cn('text-[10px] uppercase tracking-wider max-w-full text-muted-foreground break-words',
                   // KRO-222 — la etiqueta envuelve a 2 líneas por defecto (no se trunca a 1);
-                  // el publisher la recorta con appearance.truncate, igual que el valor.
+                  // break-words parte las palabras largas (p.ej. "DESCUBIERTO") en vez de
+                  // cortarlas sin ellipsis; el publisher la recorta con appearance.truncate.
                   appearanceTruncateClass(ap) || 'line-clamp-2',
                   ap?.textColor && paletteClass(ap.textColor, 'text'))}>{e.label}</span>}
               </span>

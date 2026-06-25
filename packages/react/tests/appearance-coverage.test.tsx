@@ -425,4 +425,16 @@ describe('appearance coverage — KRO-222: la etiqueta de stats envuelve a 2 lí
     const html = renderToStaticMarkup(<ComposableSlot slot={resolved} />);
     expect(html, 'el gemelo también envuelve la etiqueta a 2 líneas').toContain('line-clamp-2');
   });
+
+  it('stats_row (StatsRow): appearance.truncateChars recorta el VALOR por nº de caracteres', () => {
+    // item.a='Aaa' (3) con truncateChars=2 → 'Aa…'; item.b='42' (2) → sin recorte.
+    const comp = { slots: { s: { fields: ['a', 'b'], appearance: { truncateChars: 2 } } } } as any;
+    const html = renderToStaticMarkup(<ComponentContent node={sNode} composition={comp} item={item} fieldDefs={fieldDefs} />);
+    expect(html, 'StatsRow debe aplicar truncateChars al valor (antes lo ignoraba)').toContain('Aa…');
+  });
+
+  it('stats_row + la etiqueta usa break-words (palabras largas parten, no se cortan sin ellipsis)', () => {
+    const html = renderComponent('stats_row', 'stats', ['a', 'b']);
+    expect(html, 'la etiqueta parte palabras largas').toContain('break-words');
+  });
 });
