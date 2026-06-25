@@ -670,11 +670,11 @@ function ComponentNodeView({ node, ctx }: { node: LayoutComponentNode; ctx: Node
             // "Fila de chips" es pastilla (su identidad).
             if (ap?.display === 'text') {
               return (
-                <span key={i} data-chip-key={grid ? f.key : undefined} className={cn('text-[0.8em]', paletteClass(ap?.textColor, 'text'), box, place, self)}>{shown}</span>
+                <span key={i} data-chip-key={f.key} className={cn('text-[0.8em]', paletteClass(ap?.textColor, 'text'), box, place, self)}>{shown}</span>
               );
             }
             return (
-              <span key={i} data-chip-key={grid ? f.key : undefined} className={cn(
+              <span key={i} data-chip-key={f.key} className={cn(
                 'inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]',
                 paletteClass(ap?.bgColor, 'bg') || 'bg-muted',
                 paletteClass(ap?.textColor, 'text') || 'text-muted-foreground',

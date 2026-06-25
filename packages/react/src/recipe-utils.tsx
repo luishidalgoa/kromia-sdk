@@ -922,11 +922,11 @@ export function ComposableSlot({
             // badge aunque el publisher lo hubiera puesto como texto → drift con la app.)
             if (s.display === 'text') {
               return (
-                <span key={i} data-chip-key={grid ? (e.key ?? undefined) : undefined} className={cn('text-[0.8em]', s.text, s.box, place, self)}>{s.val(e.value)}</span>
+                <span key={i} data-chip-key={e.key ?? undefined} className={cn('text-[0.8em]', s.text, s.box, place, self)}>{s.val(e.value)}</span>
               );
             }
             return (
-              <span key={i} data-chip-key={grid ? (e.key ?? undefined) : undefined} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]', s.bg || 'bg-muted', s.text || 'text-muted-foreground', s.box, place, self, justify)}>{s.val(e.value)}</span>
+              <span key={i} data-chip-key={e.key ?? undefined} className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]', s.bg || 'bg-muted', s.text || 'text-muted-foreground', s.box, place, self, justify)}>{s.val(e.value)}</span>
             );
           })}
         </span>

@@ -248,13 +248,15 @@ describe('chip grid — chips_row + ComposableSlot colocan cada chip en su celda
     expect(html, 'falta data-chip-grid (marca de la rejilla para el editor)').toContain('data-chip-grid');
     expect(html, 'falta data-chip-key por chip').toContain('data-chip-key="a"');
   });
-  it('chips_row SIN chipGrid → flex-wrap (retro-compat, sin placement ni data-chip)', () => {
+  it('chips_row SIN chipGrid → flex-wrap (retro-compat, sin PLACEMENT; data-chip-key sí, para el tap)', () => {
     const node = { type: 'component', component: 'chips_row', slots: { chips: 's' } } as any;
     const composition = { slots: { s: { fields: ['a', 'b', 'c'] } } } as any;
     const html = renderToStaticMarkup(<ComponentContent node={node} composition={composition} item={gItem} fieldDefs={gFieldDefs} />);
     expect(html).toContain('flex-wrap');
     expect(html).not.toContain('col-span-2');
-    expect(html).not.toContain('data-chip-key'); // sin rejilla, no se marcan los chips
+    // KRO-222 — data-chip-key se emite SIEMPRE (no solo en rejilla): la app lo lee para
+    // el tap-para-revelar del campo. Lo que sigue siendo grid-only es el PLACEMENT.
+    expect(html).toContain('data-chip-key="a"');
   });
   it('ComposableSlot display=chips con chipGrid → coloca cada chip igual + data-chip', () => {
     const resolved = {
