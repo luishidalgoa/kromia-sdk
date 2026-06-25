@@ -18,19 +18,24 @@ class AccentSettings {
   /// 'top' | 'right' | 'bottom' | 'left' | 'none'.
   final String position;
 
-  const AccentSettings({required this.color, required this.position});
+  /// KRO-219 — ESTILO de la franja: 'bar'|'rounded'|'glow'|'gradient'|'ambient'.
+  /// default 'bar'. Copiado de `composition.accentStyle` (NO altera color/posición).
+  final String style;
+
+  const AccentSettings({required this.color, required this.position, this.style = 'bar'});
 
   @override
   bool operator ==(Object other) =>
       other is AccentSettings &&
       other.color == color &&
-      other.position == position;
+      other.position == position &&
+      other.style == style;
 
   @override
-  int get hashCode => Object.hash(color, position);
+  int get hashCode => Object.hash(color, position, style);
 
   @override
-  String toString() => 'AccentSettings(color: $color, position: $position)';
+  String toString() => 'AccentSettings(color: $color, position: $position, style: $style)';
 }
 
 /// Mismo patrón que `extract-accent.ts`: `#RRGGBB` o `#RRGGBBAA`, con o sin `#`.
@@ -75,5 +80,6 @@ AccentSettings? extractAccentSettings(
     }
   }
   final position = resolved == 'auto' ? recipeDefault : resolved;
-  return AccentSettings(color: color, position: position);
+  // KRO-219 — el estilo se copia tal cual (default 'bar'); no afecta color/posición.
+  return AccentSettings(color: color, position: position, style: composition?.accentStyle ?? 'bar');
 }

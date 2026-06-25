@@ -315,6 +315,11 @@ class ViewComposition {
   final SlotOverrides? slotOverrides;
   final String? accentPosition;
 
+  /// KRO-219 — ESTILO de la franja de acento: 'bar'|'rounded'|'glow'|'gradient'|
+  /// 'ambient'. default 'bar'. NO altera color/posición. Espejo de
+  /// `ViewComposition.accentStyle` (types.ts). DATA — no bumpea PROTOCOL_VERSION.
+  final String? accentStyle;
+
   /// Versión del KRP con la que se guardó la composición (KRO-63). Vive en el
   /// doc persistido (subschema Mongo del backend), NO en la interfaz
   /// `ViewComposition` de types.ts → gap de paridad TS↔persistido a coordinar.
@@ -336,6 +341,7 @@ class ViewComposition {
     this.targetComposition,
     this.slotOverrides,
     this.accentPosition,
+    this.accentStyle,
     this.protocolVersion,
     this.layout,
   });
@@ -357,6 +363,7 @@ class ViewComposition {
             ? null
             : SlotOverrides.fromJson(json['slotOverrides'] as Map<String, dynamic>),
         accentPosition: json['accentPosition'] as String?,
+        accentStyle: json['accentStyle'] as String?,
         protocolVersion: json['protocolVersion'] as String?,
         layout: json['layout'] is Map
             ? LayoutContainerNode.fromJson((json['layout'] as Map).cast<String, dynamic>())
