@@ -16,7 +16,7 @@ import { paletteClass } from '@kromia/core';
 import {
   ComponentContent, ComposableSlot, SlotContent, resolveSlot,
   appearancePaddingClass, appearanceEffectClasses, appearanceTextClasses,
-  appearanceObjectFitClass,
+  appearanceObjectFitClass, BadgeSlot,
   CompactAvatarRecipe, HeroProtagonicoRecipe, EditorialRecipe, MomentoRecipe,
 } from '../src/index';
 
@@ -358,5 +358,37 @@ describe('appearance coverage — KRO-217: las recetas-preset delegan y honran l
     );
     expect(html, `slideshow: falta el object-fit "${FIT}"`).toContain(FIT);
     for (const eff of IMG_EFFECTS) expect(html, `slideshow: falta el efecto "${eff}"`).toContain(eff);
+  });
+});
+
+// ── KRO-217 Tier B: el render de BADGE (pastilla) se extrajo a un componente
+// COMPARTIDO (BadgeSlot) que usaban DUPLICADO el motor de bloques (SlotContent) y
+// CompactCardRecipe. Esta red fija su contrato: pastilla + color/efectos en la
+// pastilla, ALIGN en el bloque exterior (un badge es inline-flex; text-align no lo
+// mueve dentro), y `wrapperClassName` respetado. ──
+describe('appearance coverage — KRO-217 BadgeSlot: pastilla con color/efectos + align en el bloque', () => {
+  it('SlotContent display=badge → pastilla con color + efectos y align en el bloque (no inerte)', () => {
+    const fd = [{ key: 'r', label: 'Rareza', type: 'text' }] as any;
+    const ap = { ...FULL_AP, display: 'badge', align: 'center' };
+    const comp = { slots: { s: { fields: ['r'], appearance: ap } } } as any;
+    const html = renderToStaticMarkup(<SlotContent slot="s" composition={comp} item={{ r: 'Rara' }} fieldDefs={fd} />);
+    expect(html, 'el badge debe ser pastilla').toContain('rounded-full');
+    expect(html, `badge: falta el color "${TXT}"`).toContain(TXT);
+    for (const eff of EFFECTS) expect(html, `badge: falta el efecto "${eff}"`).toContain(eff);
+    expect(html, 'el align del badge va en el bloque exterior (text-center)').toContain('text-center');
+  });
+
+  it('BadgeSlot directo: respeta wrapperClassName y pone el align en el bloque, el efecto en la pastilla', () => {
+    const html = renderToStaticMarkup(
+      <BadgeSlot
+        appearance={{ display: 'badge', textColor: 'rose', align: 'center', opacity: '50' } as any}
+        item={{}}
+        wrapperClassName="max-w-[35%]"
+      >X</BadgeSlot>,
+    );
+    expect(html, 'pastilla').toContain('rounded-full');
+    expect(html, 'wrapperClassName respetado').toContain('max-w-[35%]');
+    expect(html, 'align → bloque').toContain('text-center');
+    expect(html, 'efecto → pastilla').toContain('opacity-50');
   });
 });

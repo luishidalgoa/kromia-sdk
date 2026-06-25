@@ -27,6 +27,7 @@ export {
   ThumbBox,
   BannerBox,
   BadgePill,
+  BadgeSlot,
   AccentFrame,
   // Helpers (no-JSX)
   resolveSlot,

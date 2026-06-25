@@ -24,8 +24,8 @@ import type { CSSProperties } from 'react';
 import { cn } from '../lib/cn';
 import {
   resolveSlot, isSlotDisabled, buildAccentBorderStyle, extractAccentSettings, formatScalar,
-  ScalarText, ComposableSlot, ThumbBox, BadgePill, slotDebugAttrs, appearancePaddingClass,
-  appearanceTextClasses, appearanceAlignClass, appearanceTruncateClass, appearanceEffectClasses, slotImageTransform,
+  ScalarText, ComposableSlot, ThumbBox, BadgeSlot, slotDebugAttrs, appearancePaddingClass,
+  appearanceTextClasses, appearanceTruncateClass, appearanceEffectClasses, slotImageTransform,
   mergeFieldAppearance, applyAppearanceTruncate,
   placementClasses, chipGridWrapperClass, chipGridTemplateStyle, chipJustifySelf, chipJustifyContent,
   type FieldDefLike,
@@ -400,19 +400,15 @@ export function SlotContent({ slot, composition, item, fieldDefs, cardFormat, re
   // Color dinámico desde un campo color_hex (texto/fondo vinculado a un slot).
   const fieldColor = slotFieldColorStyle(resolved.appearance, item);
 
-  // display:'badge' → pill/chip (rareza/tipo "Fuego"/"Agua"). Honra el tamaño
-  // (appearance.size) vía appearanceTextClasses dentro del pill.
+  // display:'badge' → pill/chip (rareza/tipo "Fuego"/"Agua"). KRO-217 — la lógica
+  // del badge (align en el bloque, color/size/peso/efectos en la pastilla, color
+  // dinámico) vive AHORA en el componente compartido BadgeSlot (antes duplicada
+  // aquí y en CompactCardRecipe). Honra el tamaño/color/efectos del slot.
   if (resolved.appearance?.display === 'badge') {
-    // KRO-198 — el ALIGN va en el <div> BLOQUE exterior, no en la pastilla: un
-    // badge es inline-flex y text-align no lo mueve; en el block padre SÍ alinea
-    // la pastilla inline (izq/centro/der). El resto (color/peso/size/efectos)
-    // sigue en la BadgePill, con la appearance SIN align (evita un text-* inerte).
     return (
-      <div className={cn(appearancePaddingClass(resolved.appearance), appearanceAlignClass(resolved.appearance))} {...slotDebugAttrs(slot, resolved)}>
-        {/* KRO-147 F3 — el badge honra opacity/shadow del slot además de
-            color/size/peso (appearanceTextClasses). */}
-        <BadgePill className={cn(appearanceTextClasses(resolved.appearance ? { ...resolved.appearance, align: undefined } : undefined), appearanceEffectClasses(resolved.appearance))} style={fieldColor}>{content}</BadgePill>
-      </div>
+      <BadgeSlot appearance={resolved.appearance} item={item} debugSlot={slot} debugValue={resolved}>
+        {content}
+      </BadgeSlot>
     );
   }
 

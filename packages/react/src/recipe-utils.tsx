@@ -22,6 +22,7 @@ import { isMockupImage,
   extractAccentSettings    as sdkExtractAccentSettings,
   composeSlotValues,
   paletteClass,
+  resolveFieldColor,
   resolveConditionalStyling,
   parseInlineMarkdown,
   parseInlineHtml,
@@ -1461,5 +1462,58 @@ export function BadgePill({
     >
       {children}
     </span>
+  );
+}
+
+/**
+ * BadgeSlot (KRO-217) — render de un slot/campo escalar COMO BADGE (pastilla)
+ * honrando la apariencia COMPLETA, en UN SOLO sitio. Antes esta lógica estaba
+ * DUPLICADA (SlotContent del motor de bloques + CompactCardRecipe) y podía
+ * desincronizarse; ahora ambos delegan aquí.
+ *
+ * Reglas (la "verdad" del badge, antes solo en SlotContent):
+ *  - El ALIGN va en el `<div>` BLOQUE exterior, NO en la pastilla: un badge es
+ *    inline-flex y `text-align` no lo mueve; en el block padre SÍ posiciona la
+ *    pastilla inline (izq/centro/der).
+ *  - El resto (color/peso/size/efectos) va en la `BadgePill`, con la appearance
+ *    SIN `align` (evita un `text-*` inerte dentro del inline-flex).
+ *  - El color DINÁMICO (campo `color_hex` → textColor/bgColor que apuntan a una
+ *    key del item) se resuelve a `style` inline (KRO-147).
+ *  - `wrapperClassName` deja a cada receta añadir sus clases propias del bloque
+ *    (p.ej. `max-w-[35%]` + truncate de la lista compacta) sin romper el núcleo.
+ */
+export function BadgeSlot({
+  appearance, item, debugSlot, debugValue, wrapperClassName, children,
+}: {
+  appearance?:       SlotAppearance;
+  /** Para el color dinámico (resuelve textColor/bgColor contra el item). */
+  item?:             Record<string, any>;
+  /** slotDebugAttrs(debugSlot, debugValue) en el bloque exterior (opcional). */
+  debugSlot?:        string;
+  debugValue?:       ResolvedSlot;
+  /** Clases extra del bloque exterior (ancho/recorte propios de la receta). */
+  wrapperClassName?: string;
+  children:          ReactNode;
+}) {
+  const color           = item ? resolveFieldColor(appearance?.textColor, item) : undefined;
+  const backgroundColor = item ? resolveFieldColor(appearance?.bgColor,   item) : undefined;
+  const fieldColor: CSSProperties | undefined = (color || backgroundColor)
+    ? { ...(color && { color }), ...(backgroundColor && { backgroundColor }) }
+    : undefined;
+  return (
+    <div
+      className={cn(wrapperClassName, appearancePaddingClass(appearance), appearanceAlignClass(appearance))}
+      {...(debugSlot ? slotDebugAttrs(debugSlot, debugValue) : {})}
+    >
+      <BadgePill
+        className={cn(
+          appearanceTextClasses(appearance ? { ...appearance, align: undefined } : undefined),
+          appearanceEffectClasses(appearance),
+        )}
+        style={fieldColor}
+      >
+        {children}
+      </BadgePill>
+    </div>
   );
 }
