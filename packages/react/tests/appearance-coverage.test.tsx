@@ -392,3 +392,35 @@ describe('appearance coverage — KRO-217 BadgeSlot: pastilla con color/efectos 
     expect(html, 'efecto → pastilla').toContain('opacity-50');
   });
 });
+
+// ── KRO-222 Parte A: la ETIQUETA de una stat ya no se trunca a 1 línea por defecto
+// (causaba "TASA DE…"): envuelve a 2 líneas (line-clamp-2). El publisher la recorta
+// con appearance.truncate, igual que el valor. Cubre StatsRow (stats_row) y su gemelo
+// de recipe-utils (rama display==='stats' del ComposableSlot). ──
+describe('appearance coverage — KRO-222: la etiqueta de stats envuelve a 2 líneas (no trunca a 1)', () => {
+  const sNode = { type: 'component', component: 'stats_row', slots: { stats: 's' } } as any;
+
+  it('stats_row (StatsRow): etiqueta con line-clamp-2 por defecto (sin override)', () => {
+    const html = renderComponent('stats_row', 'stats', ['a', 'b']);
+    expect(html, 'la etiqueta debe envolver a 2 líneas por defecto').toContain('line-clamp-2');
+  });
+
+  it('stats_row: appearance.truncate=1 fuerza la etiqueta a 1 línea (line-clamp-1, sin fallback)', () => {
+    const comp = { slots: { s: { fields: ['a', 'b'], appearance: { truncate: '1' } } } } as any;
+    const html = renderToStaticMarkup(<ComponentContent node={sNode} composition={comp} item={item} fieldDefs={fieldDefs} />);
+    expect(html, 'el override del publisher manda').toContain('line-clamp-1');
+    expect(html, 'sin fallback a 2 líneas cuando hay override').not.toContain('line-clamp-2');
+  });
+
+  it('ComposableSlot display=stats: misma regla en el gemelo de recipe-utils', () => {
+    const resolved = {
+      fields: [
+        { key: 'a', def: fieldDefs[0], value: 'Aaa' },
+        { key: 'b', def: fieldDefs[1], value: '42' },
+      ],
+      orientation: 'horizontal', separator: ' · ', composableDisplay: 'stats',
+    } as any;
+    const html = renderToStaticMarkup(<ComposableSlot slot={resolved} />);
+    expect(html, 'el gemelo también envuelve la etiqueta a 2 líneas').toContain('line-clamp-2');
+  });
+});

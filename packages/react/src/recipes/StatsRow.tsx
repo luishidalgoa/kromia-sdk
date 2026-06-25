@@ -67,7 +67,11 @@ export function StatsRow({ fields, appearance, fieldAppearances }: {
               </p>
             )}
             {f.def?.label && (
-              <p className={cn('text-[10px] uppercase tracking-wider truncate max-w-full text-muted-foreground',
+              // KRO-222 — la ETIQUETA ya no se trunca a 1 línea por defecto (causaba
+              // "TASA DE…"); ahora envuelve a 2 líneas. El publisher puede forzar otro
+              // recorte con su appearance.truncate (1/2/3/none), igual que el valor.
+              <p className={cn('text-[10px] uppercase tracking-wider max-w-full text-muted-foreground',
+                appearanceTruncateClass(ap) || 'line-clamp-2',
                 ap?.textColor && paletteClass(ap.textColor, 'text'))}>
                 {f.def.label}
               </p>
