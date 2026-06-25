@@ -201,12 +201,19 @@ class SlotComposition {
   /// Override visual per-instance.
   final SlotAppearance? appearance;
 
+  /// KRO-221 — apariencia POR-FIELD dentro de un slot COMPOSABLE (key = field key
+  /// del schema → su override). Se MERGE-a sobre `appearance` (la base del slot):
+  /// un field sin entrada hereda la base; con entrada la sobreescribe SOLO para
+  /// ese field (`mergeFieldAppearance`). DATA — no entra al contrato KRP.
+  final Map<String, SlotAppearance>? fieldAppearances;
+
   const SlotComposition({
     required this.fields,
     this.orientation,
     this.separator,
     this.nestedComposition,
     this.appearance,
+    this.fieldAppearances,
   });
 
   /// Orientación efectiva (aplica el default del SDK).
@@ -227,6 +234,10 @@ class SlotComposition {
         appearance: json['appearance'] == null
             ? null
             : SlotAppearance.fromJson(json['appearance'] as Map<String, dynamic>),
+        fieldAppearances: (json['fieldAppearances'] is Map)
+            ? (json['fieldAppearances'] as Map).map((k, v) => MapEntry(
+                k.toString(), SlotAppearance.fromJson((v as Map).cast<String, dynamic>())))
+            : null,
       );
 }
 

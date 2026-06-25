@@ -7,25 +7,38 @@ import 'tokens.dart';
 import 'ui/prefabs.dart';
 import 'utils/appearance_styles.dart';
 
-/// Slot resuelto: fields (def+value), apariencia, orientación, separador.
+/// Slot resuelto: fields (key+def+value), apariencia, apariencia por-field,
+/// orientación, separador.
 class ResolvedSlot {
-  final List<({FieldDefLike? def, Object? value})> fields;
+  final List<({String key, FieldDefLike? def, Object? value})> fields;
   final SlotAppearance? appearance;
+
+  /// KRO-221 — apariencia POR-FIELD (key → override). La consume el render de
+  /// chips/stats vía `mergeFieldAppearance`; un field sin entrada hereda la base.
+  final Map<String, SlotAppearance>? fieldAppearances;
   final String orientation;
   final String separator;
-  const ResolvedSlot({required this.fields, this.appearance, required this.orientation, required this.separator});
+  const ResolvedSlot({
+    required this.fields,
+    this.appearance,
+    this.fieldAppearances,
+    required this.orientation,
+    required this.separator,
+  });
 }
 
 /// resolveSlot — espejo de `resolveSlot` de recipe-utils. null si el slot está
-/// deshabilitado o no existe / sin fields.
+/// deshabilitado o no existe / sin fields. Expone `key` por field + las
+/// `fieldAppearances` (KRO-221) para el render por-entrada de slots composable.
 ResolvedSlot? resolveSlot(RenderCtx ctx, String slotId) {
   final comp = ctx.slots[slotId];
   if (comp == null || comp.fields.isEmpty) return null;
   final disabled = ctx.composition.slotOverrides?.disabled ?? const <String>[];
   if (disabled.contains(slotId)) return null;
   return ResolvedSlot(
-    fields: [for (final k in comp.fields) (def: ctx.defFor(k), value: ctx.item[k])],
+    fields: [for (final k in comp.fields) (key: k, def: ctx.defFor(k), value: ctx.item[k])],
     appearance: comp.appearance,
+    fieldAppearances: comp.fieldAppearances,
     orientation: comp.effectiveOrientation,
     separator: comp.effectiveSeparator,
   );
