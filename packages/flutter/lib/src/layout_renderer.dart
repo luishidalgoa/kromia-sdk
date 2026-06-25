@@ -277,24 +277,84 @@ class _AccentFrame extends StatelessWidget {
     if (a == null || a.position == 'none') return child;
     final color = _parseHex(a.color);
     if (color == null) return child;
-    final side = BorderSide(color: color, width: width);
-    final border = switch (a.position) {
-      'top' => Border(top: side),
-      'bottom' => Border(bottom: side),
-      'left' => Border(left: side),
-      'right' => Border(right: side),
-      _ => null,
-    };
-    if (border == null) return child;
-    return Container(foregroundDecoration: BoxDecoration(border: border), child: child);
+    final pos = a.position;
+    final w = width;
+
+    // KRO-219 — `ambient`: fondo difuso a TODA la caja (NO borde). Lavado de color
+    // desde el borde de `pos` → transparente al 55%. Espejo de la rama background.
+    if (a.style == 'ambient') {
+      final (begin, end) = _accentDir(pos);
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(begin: begin, end: end, colors: [color.withAlpha(0x40), const Color(0x00000000)], stops: const [0.0, 0.55]),
+        ),
+        child: child,
+      );
+    }
+
+    Widget result = child;
+
+    // KRO-219 — `glow`/`gradient`: gradiente INTERIOR (c→transparent sobre w*4 hacia
+    // dentro desde el borde). El halo del web es INSET → NO un BoxShadow exterior.
+    if (a.style == 'glow' || a.style == 'gradient') {
+      result = Stack(children: [result, Positioned.fill(child: IgnorePointer(child: _edgeGradient(pos, w * 4, color)))]);
+    }
+
+    // Banda sólida (`bar`/`rounded`/`glow`) vía foregroundDecoration → se pinta SOBRE
+    // el contenido sin desplazarlo w px (un Border en `decoration` sí lo correría).
+    if (a.style == 'bar' || a.style == 'rounded' || a.style == 'glow') {
+      final side = BorderSide(color: color, width: w);
+      final border = switch (pos) {
+        'top' => Border(top: side),
+        'bottom' => Border(bottom: side),
+        'left' => Border(left: side),
+        'right' => Border(right: side),
+        _ => null,
+      };
+      if (border != null) result = Container(foregroundDecoration: BoxDecoration(border: border), child: result);
+    }
+    return result;
   }
 }
 
+/// Dirección del gradiente del acento: el color vive en el borde de [pos] y se
+/// difumina hacia el opuesto (espejo de `dir` de la rama ambient del web).
+(Alignment, Alignment) _accentDir(String pos) => switch (pos) {
+      'bottom' => (Alignment.bottomCenter, Alignment.topCenter),
+      'left' => (Alignment.centerLeft, Alignment.centerRight),
+      'right' => (Alignment.centerRight, Alignment.centerLeft),
+      _ => (Alignment.topCenter, Alignment.bottomCenter), // top / default
+    };
+
+/// Franja de gradiente c→transparent de grosor [thickness] pegada al borde [pos]
+/// (glow/gradient). Va dentro de un `Positioned.fill`.
+Widget _edgeGradient(String pos, double thickness, Color color) {
+  final (begin, end) = _accentDir(pos);
+  final box = DecoratedBox(
+    decoration: BoxDecoration(gradient: LinearGradient(begin: begin, end: end, colors: [color, const Color(0x00000000)])),
+  );
+  return switch (pos) {
+    'top' => Align(alignment: Alignment.topCenter, child: SizedBox(height: thickness, width: double.infinity, child: box)),
+    'bottom' => Align(alignment: Alignment.bottomCenter, child: SizedBox(height: thickness, width: double.infinity, child: box)),
+    'left' => Align(alignment: Alignment.centerLeft, child: SizedBox(width: thickness, height: double.infinity, child: box)),
+    'right' => Align(alignment: Alignment.centerRight, child: SizedBox(width: thickness, height: double.infinity, child: box)),
+    _ => const SizedBox.shrink(),
+  };
+}
+
+/// `#RGB` / `#RRGGBB` / `#RRGGBBAA` (web) → Color (Flutter 0xAARRGGBB). El alpha
+/// del web va al FINAL; aquí se mueve al frente. null si no es hex válido.
 Color? _parseHex(String? hex) {
   if (hex == null) return null;
   var h = hex.replaceAll('#', '').trim();
   if (h.length == 3) h = h.split('').map((c) => '$c$c').join();
-  if (h.length != 6) return null;
-  final v = int.tryParse(h, radix: 16);
-  return v == null ? null : Color(0xFF000000 | v);
+  if (h.length == 6) {
+    final v = int.tryParse(h, radix: 16);
+    return v == null ? null : Color(0xFF000000 | v);
+  }
+  if (h.length == 8) {
+    final v = int.tryParse(h.substring(6, 8) + h.substring(0, 6), radix: 16); // RRGGBBAA → AARRGGBB
+    return v == null ? null : Color(v);
+  }
+  return null;
 }
