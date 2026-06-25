@@ -45,15 +45,28 @@ Widget _chip(String text) => Container(
       child: Text(text, style: const TextStyle(color: Color(0xFFFFFFFF), fontSize: 10, fontWeight: FontWeight.w700)),
     );
 
-/// Pill / badge (rareza/tipo). Color por defecto NEUTRO (`bg-muted` + texto
-/// foreground/80), espejo de `BadgePill` de @kromia/react (antes era peach/naranja
-/// = drift visual). Honra appearance (color/size/peso) en el texto.
-Widget badgePill(String text, SlotAppearance? ap) => Container(
-      padding: const EdgeInsets.symmetric(horizontal: KromiaTokens.space4, vertical: KromiaTokens.space2),
-      decoration: BoxDecoration(color: KromiaTokens.bgSurface2, borderRadius: BorderRadius.circular(KromiaTokens.radiusPill)),
-      child: Text(text, maxLines: 1, overflow: TextOverflow.ellipsis,
-          style: applyAppearanceText(KromiaTokens.pill.copyWith(color: KromiaTokens.text.withValues(alpha: 0.8)), ap)),
-    );
+/// KRO-220 — builder de chip ÚNICO (espejo del span de chips_row/ComposableSlot).
+/// Honra la apariencia COMPLETA: `display` 'text' → texto plano (sin pastilla);
+/// 'badge'/default → pastilla con fondo `bgColor` (def `bg-muted`) + texto/peso/
+/// tamaño/recorte efectivos. Base 12px; pastilla w500 / texto plano w400.
+Widget badgePill(String text, SlotAppearance? ap) {
+  final isText = ap?.display == 'text';
+  final base = TextStyle(
+      fontSize: 12, fontWeight: isText ? FontWeight.w400 : FontWeight.w500, color: KromiaTokens.text.withValues(alpha: 0.8));
+  final child = Text(text,
+      maxLines: appearanceMaxLines(ap, def: 1),
+      overflow: TextOverflow.ellipsis,
+      textAlign: appearanceTextAlign(ap),
+      style: applyAppearanceText(base, ap));
+  if (isText) return child; // texto plano, sin caja
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: KromiaTokens.space4, vertical: 2), // px-2 py-0.5
+    decoration: BoxDecoration(
+        color: appearanceBgColor(ap) ?? KromiaTokens.bgSurface2,
+        borderRadius: BorderRadius.circular(KromiaTokens.radiusPill)),
+    child: child,
+  );
+}
 
 /// Etiqueta MAYÚSCULAS encima de una galería (KRO-133 fidelidad): las recetas
 /// pintan el `def.label` del campo mapeado ("IMÁGENES"/"BESTIAS"/"GALERÍA…").

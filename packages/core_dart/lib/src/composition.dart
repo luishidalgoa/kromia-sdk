@@ -46,6 +46,11 @@ class SlotAppearance {
   final String? opacity; // '100' | '90' | '75' | '50'
   final String? shadow; // 'none' | 'sm' | 'md' | 'lg'
 
+  /// KRO-220 — ancho del chip en una rejilla `chipGrid`: 'fill' (def, estira y
+  /// `align` mueve el TEXTO) | 'content' (ajusta al contenido y `align` POSICIONA
+  /// el chip). SOLO con chipGrid (en flex-wrap se ignora). Render-meta — no contrato.
+  final String? chipWidth;
+
   const SlotAppearance({
     this.shape,
     this.aspect,
@@ -73,6 +78,7 @@ class SlotAppearance {
     this.bgColor,
     this.opacity,
     this.shadow,
+    this.chipWidth,
   });
 
   factory SlotAppearance.fromJson(Map<String, dynamic> json) => SlotAppearance(
@@ -104,6 +110,7 @@ class SlotAppearance {
         bgColor: json['bgColor'] as String?,
         opacity: json['opacity'] as String?,
         shadow: json['shadow'] as String?,
+        chipWidth: json['chipWidth'] as String?,
       );
 
   /// `this` (usuario) SOBRE [base] (preset): cada campo del usuario gana; los
@@ -137,6 +144,7 @@ class SlotAppearance {
       bgColor: bgColor ?? base.bgColor,
       opacity: opacity ?? base.opacity,
       shadow: shadow ?? base.shadow,
+      chipWidth: chipWidth ?? base.chipWidth,
     );
   }
 
@@ -167,7 +175,8 @@ class SlotAppearance {
       textColor != null ||
       bgColor != null ||
       opacity != null ||
-      shadow != null;
+      shadow != null ||
+      chipWidth != null;
 }
 
 /// Punto focal de imagen (object-cover). Defaults: x=50, y=50, zoom=1.
@@ -182,6 +191,18 @@ class ImageFocus {
         y: (json['y'] as num?)?.toDouble() ?? 50,
         zoom: (json['zoom'] as num?)?.toDouble() ?? 1,
       );
+}
+
+/// KRO-220 — rejilla 2D para los chips de un slot composable. `columns` = nº de
+/// columnas (1fr cada una, clamp ≥1); `gap` = separación (LayoutGap). Presente →
+/// los chips pasan de flex-wrap a grid. Render-meta — no entra al contrato KRP.
+class ChipGrid {
+  final int columns;
+  final String? gap; // LayoutGap: none|xs|sm|md|lg
+  const ChipGrid({required this.columns, this.gap});
+
+  factory ChipGrid.fromJson(Map<String, dynamic> json) =>
+      ChipGrid(columns: (json['columns'] as num?)?.toInt() ?? 1, gap: json['gap'] as String?);
 }
 
 /// Composición de un slot: qué fields van en el hueco + cómo se componen.
@@ -207,6 +228,15 @@ class SlotComposition {
   /// ese field (`mergeFieldAppearance`). DATA — no entra al contrato KRP.
   final Map<String, SlotAppearance>? fieldAppearances;
 
+  /// KRO-220 — rejilla 2D opcional de los chips (columns + gap). Presente → grid;
+  /// ausente → flex-wrap histórico (retro-compat). Render-meta — no contrato.
+  final ChipGrid? chipGrid;
+
+  /// KRO-220 — posición de cada chip en `chipGrid` (key = field key). Reusa el
+  /// MISMO `GridPlacement` que los bloques (colStart/colSpan/rowStart/rowSpan,
+  /// 1-based, span def 1, omitir start = auto-flow).
+  final Map<String, GridPlacement>? chipPlacements;
+
   const SlotComposition({
     required this.fields,
     this.orientation,
@@ -214,6 +244,8 @@ class SlotComposition {
     this.nestedComposition,
     this.appearance,
     this.fieldAppearances,
+    this.chipGrid,
+    this.chipPlacements,
   });
 
   /// Orientación efectiva (aplica el default del SDK).
@@ -237,6 +269,13 @@ class SlotComposition {
         fieldAppearances: (json['fieldAppearances'] is Map)
             ? (json['fieldAppearances'] as Map).map((k, v) => MapEntry(
                 k.toString(), SlotAppearance.fromJson((v as Map).cast<String, dynamic>())))
+            : null,
+        chipGrid: json['chipGrid'] is Map
+            ? ChipGrid.fromJson((json['chipGrid'] as Map).cast<String, dynamic>())
+            : null,
+        chipPlacements: (json['chipPlacements'] is Map)
+            ? (json['chipPlacements'] as Map).map((k, v) => MapEntry(
+                k.toString(), GridPlacement.fromJson((v as Map).cast<String, dynamic>())))
             : null,
       );
 }

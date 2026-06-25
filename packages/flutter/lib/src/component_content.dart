@@ -1,10 +1,13 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_layout_grid/flutter_layout_grid.dart' hide GridPlacement;
 import 'package:kromia_core/kromia_core.dart';
 
+import 'grid_layout.dart';
 import 'render_ctx.dart';
 import 'slot_content.dart';
 import 'tokens.dart';
 import 'ui/prefabs.dart';
+import 'utils/appearance_styles.dart';
 import 'utils/surface.dart';
 
 /// Render de un componente prefabricado (KRO-133 Capa 2). Espejo de
@@ -162,17 +165,84 @@ Widget _statsRow(RenderCtx ctx, String? sid) {
   );
 }
 
+/// KRO-220 — chips de un slot composable. Builder de chip ÚNICO por-field (la
+/// apariencia efectiva = `mergeFieldAppearance(base, fieldAppearances, key)`),
+/// invocado igual con 1 ó N campos. Con `chipGrid` → rejilla 2D (mismo motor que
+/// los bloques: computeGrid + flutter_layout_grid) + `chipWidth` fill/content;
+/// sin él → flex-wrap histórico (retro-compat).
 Widget _badgeRow(RenderCtx ctx, String? sid) {
-  final comp = sid == null ? null : ctx.slots[sid];
-  if (comp == null) return const SizedBox.shrink();
-  final pills = <Widget>[];
-  for (final k in comp.fields) {
-    final txt = formatScalar(ctx.item[k], ctx.defFor(k));
+  if (sid == null) return const SizedBox.shrink();
+  final r = resolveSlot(ctx, sid);
+  if (r == null) return const SizedBox.shrink();
+  final chips = <({String key, Widget chip, SlotAppearance? ap})>[];
+  for (final f in r.fields) {
+    final txt = formatScalar(f.value, f.def);
     if (txt.isEmpty) continue;
-    pills.add(badgePill(txt, comp.appearance));
+    final ap = mergeFieldAppearance(r.appearance, r.fieldAppearances, f.key); // efectiva por-chip
+    Widget chip = badgePill(applyAppearanceTruncate(txt, ap), ap);
+    final shadow = appearanceSlotShadow(ap);
+    if (shadow.isNotEmpty) chip = DecoratedBox(decoration: BoxDecoration(boxShadow: shadow), child: chip);
+    final op = appearanceOpacity(ap);
+    if (op < 1.0) chip = Opacity(opacity: op, child: chip);
+    chips.add((key: f.key, chip: chip, ap: ap));
   }
-  if (pills.isEmpty) return const SizedBox.shrink();
-  return Wrap(spacing: KromiaTokens.space2, runSpacing: KromiaTokens.space2, children: pills);
+  if (chips.isEmpty) return const SizedBox.shrink();
+
+  final comp = ctx.slots[sid];
+  final grid = comp?.chipGrid;
+  if (grid != null) return _chipGrid(grid, comp!.chipPlacements, chips);
+
+  // flex-wrap histórico (chipWidth se ignora aquí; align → justify del row).
+  final align = switch (r.appearance?.align) {
+    'center' => WrapAlignment.center,
+    'right' => WrapAlignment.end,
+    _ => WrapAlignment.start,
+  };
+  return Wrap(alignment: align, spacing: KromiaTokens.space2, runSpacing: KromiaTokens.space2, children: [for (final c in chips) c.chip]);
+}
+
+/// Rejilla 2D de chips (`chipGrid`): N columnas iguales `1fr` + gap; cada chip en
+/// su `chipPlacements[key]` (auto-flow al omitir start) vía computeGrid +
+/// flutter_layout_grid (mismo motor que el contenedor). `chipWidth`: content →
+/// `Align` posiciona el chip; fill (def) → el chip llena la celda.
+Widget _chipGrid(ChipGrid grid, Map<String, GridPlacement>? placements,
+    List<({String key, Widget chip, SlotAppearance? ap})> chips) {
+  final cols = grid.columns < 1 ? 1 : grid.columns;
+  final gap = KromiaTokens.gap(grid.gap);
+  final synth = [for (final c in chips) LayoutSlotNode(slot: c.key, place: placements?[c.key])];
+  final g = computeGrid(LayoutContainerNode(kind: 'grid', columns: cols, gap: grid.gap, children: synth), synth);
+  return LayoutBuilder(builder: (context, c) {
+    final maxW = c.hasBoundedWidth ? c.maxWidth : MediaQuery.of(context).size.width;
+    final cellW = ((maxW - gap * (cols - 1)) / cols).clamp(1.0, double.infinity).toDouble();
+    return LayoutGrid(
+      gridFit: GridFit.passthrough,
+      columnGap: gap,
+      rowGap: gap,
+      columnSizes: List.filled(cols, FixedTrackSize(cellW)),
+      rowSizes: g.rows,
+      children: [
+        for (var i = 0; i < g.cells.length && i < chips.length; i++)
+          _chipCell(chips[i]).withGridPlacement(
+            columnStart: g.cells[i].columnStart,
+            columnSpan: g.cells[i].columnSpan,
+            rowStart: g.cells[i].rowStart,
+            rowSpan: g.cells[i].rowSpan,
+          ),
+      ],
+    );
+  });
+}
+
+/// chipWidth en la celda: 'content' → `Align` (justify-self por `align`); 'fill'
+/// (def) → el chip llena la celda (align ya movió el texto vía su textAlign).
+Widget _chipCell(({String key, Widget chip, SlotAppearance? ap}) c) {
+  if (c.ap?.chipWidth != 'content') return c.chip; // fill (default)
+  final align = switch (c.ap?.align) {
+    'center' => Alignment.center,
+    'right' => Alignment.centerRight,
+    _ => Alignment.centerLeft,
+  };
+  return Align(alignment: align, child: c.chip);
 }
 
 Widget _sectionTitle(RenderCtx ctx, String? sid) {
