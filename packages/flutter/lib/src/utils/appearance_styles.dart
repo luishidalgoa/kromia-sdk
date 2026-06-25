@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:kromia_core/kromia_core.dart';
 
 import '../tokens.dart';
@@ -94,18 +95,44 @@ List<BoxShadow> appearanceSlotShadow(SlotAppearance? a) => KromiaTokens.shadow(a
 TextStyle applyAppearanceText(TextStyle base, SlotAppearance? a) {
   if (a == null) return base;
   final fontSize = appearanceFontSize(a) ?? base.fontSize ?? KromiaTokens.tBody;
-  return base.copyWith(
+  final style = base.copyWith(
     fontWeight: appearanceFontWeight(a) ?? base.fontWeight,
     fontSize: appearanceFontSize(a) ?? base.fontSize,
     color: appearanceTextColor(a) ?? base.color,
-    fontFamily: a.font == 'serif' ? 'serif' : base.fontFamily,
     fontStyle: a.italic == true ? FontStyle.italic : base.fontStyle,
     decoration: a.underline == true ? TextDecoration.underline : base.decoration,
     letterSpacing: _letterSpacing(a, fontSize) ?? base.letterSpacing,
     height: _lineHeight(a) ?? base.height,
     shadows: _textShadow(a) ?? base.shadows,
   );
+  return applyFontFamily(style, a.font, base); // KRO-218 — familia tipográfica
 }
+
+/// Familia del asset bundleado de la app (Plus Jakarta). El motor la FUERZA para
+/// `font:'sans'` (no la hereda) → un `sans` bajo un padre serif vuelve a sans.
+const String kSansFontFamily = 'PlusJakartaSans';
+
+/// KRO-218 — aplica la familia del catálogo `font` sobre [style]. Espejo EXACTO
+/// del web (set curado OPTIONS_APPEARANCE_FONT):
+///  - `sans`  → Plus Jakarta BUNDLED de la app, FORZADO (no hereda; fix 6220f66).
+///  - `serif` → serif del sistema (igual que hoy).
+///  - las 9 extras → `google_fonts` LAZY (descarga+caché al usarse, NO bundleadas,
+///    como `preload:false` del web).
+///  - desconocido / null → hereda `base.fontFamily`.
+TextStyle applyFontFamily(TextStyle style, String? font, TextStyle base) => switch (font) {
+      'sans' => style.copyWith(fontFamily: kSansFontFamily, fontFamilyFallback: const []),
+      'serif' => style.copyWith(fontFamily: 'serif'),
+      'inter' => GoogleFonts.inter(textStyle: style),
+      'manrope' => GoogleFonts.manrope(textStyle: style),
+      'nunito' => GoogleFonts.nunito(textStyle: style),
+      'montserrat' => GoogleFonts.montserrat(textStyle: style),
+      'lora' => GoogleFonts.lora(textStyle: style),
+      'playfair' => GoogleFonts.playfairDisplay(textStyle: style),
+      'robotoslab' => GoogleFonts.robotoSlab(textStyle: style),
+      'oswald' => GoogleFonts.oswald(textStyle: style),
+      'jetbrains' => GoogleFonts.jetBrainsMono(textStyle: style),
+      _ => style.copyWith(fontFamily: base.fontFamily), // null/desconocido → hereda
+    };
 
 /// textTransform: 'uppercase' → MAYÚSCULAS.
 String appearanceTransform(String text, SlotAppearance? a) =>
