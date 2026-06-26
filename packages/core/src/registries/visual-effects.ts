@@ -154,7 +154,13 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
         options: ['hueco', 'borde', 'marco'],
         default: 'hueco',
       },
-      { key: 'border_width', label: 'Grosor del borde', type: 'number', min: 0, max: 16, default: 0 },
+      // Ancho de la banda decorativa + margen desde el borde de la carta — los
+      // dos números que parametrizan `borderSVG(style, bw, m, fill)` (espejo de
+      // los sliders Ancho/Margen del mockup). `border_width` se conserva (0-16)
+      // para no romper el contrato; `border_margin` es aditivo (minor). El editor
+      // siembra un Ancho visible al elegir un diseño (sin tocar el default).
+      { key: 'border_width',  label: 'Ancho del borde',  type: 'number', min: 0, max: 16, default: 0 },
+      { key: 'border_margin', label: 'Margen del borde', type: 'number', min: 0, max: 24, default: 6 },
       {
         key:     'border_color',
         label:   'Color del borde',
