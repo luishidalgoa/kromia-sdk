@@ -8,7 +8,7 @@ import {
   getVisualEffect,
   VISUAL_EFFECT_IDS,
 } from '../src/registries/visual-effects';
-import { isTagStyleValid, validateTagStyles } from '../src/tag-styles';
+import { isTagStyleValid, validateTagStyles, isEffectTemplateValid, validateEffectTemplates } from '../src/tag-styles';
 import type { TagStyle } from '../src/types';
 
 // ─── Registry ────────────────────────────────────────────────────────────────
@@ -99,6 +99,30 @@ describe('isTagStyleValid', () => {
 
   it('config string con valor numérico → false', () => {
     expect(isTagStyleValid({ value: 'Firmada', effect: 'signed', config: { signature_url: 42 } })).toBe(false);
+  });
+});
+
+// ─── EffectTemplate (KRO-202) ──────────────────────────────────────────────────
+
+describe('isEffectTemplateValid', () => {
+  it('plantilla válida (nombre + effect + config) → true', () => {
+    expect(isEffectTemplateValid({ id: 't1', name: 'Foil dorado', effect: 'iridescent_foil', config: { pattern: 'aurora', border_style: 'barroco', border_color: 'gold' } })).toBe(true);
+  });
+  it('nombre vacío → false', () => {
+    expect(isEffectTemplateValid({ id: 't1', name: '  ', effect: 'frozen' })).toBe(false);
+  });
+  it('id vacío → false', () => {
+    expect(isEffectTemplateValid({ id: '', name: 'X', effect: 'frozen' })).toBe(false);
+  });
+  it('effect inexistente → false', () => {
+    expect(isEffectTemplateValid({ id: 't1', name: 'X', effect: 'no_existe' })).toBe(false);
+  });
+  it('config inválida (enum fuera de options) → false', () => {
+    expect(isEffectTemplateValid({ id: 't1', name: 'X', effect: 'iridescent_foil', config: { border_style: 'inventado' } })).toBe(false);
+  });
+  it('validateEffectTemplates: array todo-válido → true; con uno roto → false', () => {
+    expect(validateEffectTemplates([{ id: 'a', name: 'A', effect: 'frozen' }, { id: 'b', name: 'B', effect: 'crown_badge', config: { color: 'gold' } }])).toBe(true);
+    expect(validateEffectTemplates([{ id: 'a', name: '', effect: 'frozen' }])).toBe(false);
   });
 });
 

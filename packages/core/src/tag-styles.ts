@@ -18,7 +18,7 @@
  * Pure: sin side effects, sin I/O. Mismas entradas → mismas issues.
  */
 
-import type { TagStyle } from './types';
+import type { TagStyle, EffectTemplate } from './types';
 import { getVisualEffect } from './registries/visual-effects';
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -154,6 +154,25 @@ export function isTagStyleValid(ts: TagStyle): boolean {
   const issues: TagStyleValidationIssue[] = [];
   collectTagStyleIssues(ts, -1, 'tagStyle', issues);
   return !issues.some(i => i.level === 'error');
+}
+
+/**
+ * KRO-202 — Valida UNA plantilla de efecto: nombre no vacío + effect/config
+ * válidos contra el catálogo. Reusa `isTagStyleValid` tratando el `name` como
+ * `value` (una plantilla = un efecto con su config, sin anclaje).
+ */
+export function isEffectTemplateValid(t: EffectTemplate): boolean {
+  if (!t || typeof t.name !== 'string' || t.name.trim() === '') return false;
+  if (typeof t.id !== 'string' || t.id.trim() === '') return false;
+  return isTagStyleValid({ value: t.name, effect: t.effect, config: t.config, customLayers: t.customLayers });
+}
+
+/**
+ * KRO-202 — Valida el array `albumSchema.effectTemplates`. `true` si todas las
+ * plantillas son válidas (para gatear el guardado en Studio + el backend).
+ */
+export function validateEffectTemplates(templates: EffectTemplate[]): boolean {
+  return Array.isArray(templates) && templates.every(isEffectTemplateValid);
 }
 
 /**

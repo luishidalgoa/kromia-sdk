@@ -39,6 +39,7 @@ export type {
   SlotOverrides,
   CustomSlotDefinition,
   TagStyle,
+  EffectTemplate,
   EffectLayer,
   EffectLayerKind,
   EffectBlendMode,
@@ -154,6 +155,8 @@ export {
 export {
   isTagStyleValid,
   validateTagStyles,
+  isEffectTemplateValid,    // KRO-202 — plantillas de efecto
+  validateEffectTemplates,  // KRO-202
   type TagStyleValidationIssue,
   type TagStyleValidationResult,
 } from './tag-styles';
