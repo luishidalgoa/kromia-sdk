@@ -16,10 +16,10 @@ import type { TagStyle } from '../src/types';
 describe('visual-effects registry', () => {
   const effects = allVisualEffects();
 
-  it('contiene los 6 efectos de la V1', () => {
-    expect(effects).toHaveLength(6);
+  it('contiene los efectos del catálogo (V1 + iridescent_foil de KRO-202)', () => {
+    expect(effects).toHaveLength(7);
     expect(effects.map(e => e.id)).toEqual([
-      'holographic_effect', 'crown_badge', 'vintage_filter',
+      'holographic_effect', 'iridescent_foil', 'crown_badge', 'vintage_filter',
       'glow_border', 'frozen', 'signed',
     ]);
   });

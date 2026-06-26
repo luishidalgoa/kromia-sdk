@@ -95,8 +95,58 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
     ],
     whenToUse:
       'Para cartas especiales/raras donde quieres el efecto "foil" de coleccionable físico. Marca una tag (ej. "Holográfica") con este efecto.',
-    related: ['concept:tag-style', 'effect:glow_border'],
+    related: ['concept:tag-style', 'effect:glow_border', 'effect:iridescent_foil'],
     aliases: ['holograma', 'foil', 'holográfica'],
+  },
+  {
+    // KRO-202 — foil iridiscente PARAMETRIZABLE (a diferencia de `holographic_effect`
+    // que es un preset cerrado low/medium/high). Cada param es un slider/selector que
+    // el editor compartido (TagStylesEditor) pinta solo. TODOS opcionales con `default`
+    // → añadir el efecto + estos params es additive (bump minor), no rompe álbumes viejos
+    // (caen al default) ni a Flutter (ignora lo que no sabe). Defaults calcados del mockup
+    // `Iridescent Card (standalone).html`. Filosofía "presets, no hex libre": el color de
+    // foil es el `pattern` (paleta cerrada) y el borde un enum de colores curados.
+    id:          'iridescent_foil',
+    displayName: 'Iridiscente',
+    description: 'Foil iridiscente ajustable: arcoíris que reluce al inclinar, con tono, brillo, grano y borde configurables en vivo.',
+    layer:       'overlay',
+    config: [
+      {
+        key:     'pattern',
+        label:   'Patrón',
+        type:    'enum',
+        options: ['spectrum', 'oilslick', 'sunset', 'mint', 'aurora'],
+        default: 'spectrum',
+      },
+      { key: 'hue',        label: 'Tono',        type: 'number', min: 0,   max: 360, default: 0 },
+      { key: 'opacity',    label: 'Intensidad',  type: 'number', min: 0,   max: 100, default: 95 },
+      { key: 'glow',       label: 'Resplandor',  type: 'number', min: 0,   max: 100, default: 35 },
+      { key: 'sheen',      label: 'Reflejo',     type: 'number', min: 0,   max: 100, default: 40 },
+      { key: 'shimmer',    label: 'Destello',    type: 'number', min: 0,   max: 100, default: 50 },
+      { key: 'noise',      label: 'Grano',       type: 'number', min: 0,   max: 100, default: 16 },
+      { key: 'brightness', label: 'Luminosidad', type: 'number', min: 50,  max: 150, default: 105 },
+      { key: 'contrast',   label: 'Contraste',   type: 'number', min: 50,  max: 150, default: 100 },
+      { key: 'scale',      label: 'Escala',      type: 'number', min: 100, max: 320, default: 210 },
+      {
+        key:     'blend',
+        label:   'Fusión',
+        type:    'enum',
+        options: ['color-dodge', 'overlay', 'screen', 'soft-light', 'hard-light'],
+        default: 'color-dodge',
+      },
+      { key: 'border_width', label: 'Grosor del borde', type: 'number', min: 0, max: 16, default: 0 },
+      {
+        key:     'border_color',
+        label:   'Color del borde',
+        type:    'enum',
+        options: ['none', 'gold', 'silver', 'aurora', 'spectrum'],
+        default: 'none',
+      },
+    ],
+    whenToUse:
+      'Cuando quieras un foil holográfico AJUSTABLE en vivo en vez de un preset cerrado: elige el patrón de arcoíris (Spectrum/Oilslick/Sunset/Mint/Aurora) y afina tono, resplandor, grano y borde con sliders. Igual que el Holográfico pero parametrizable.',
+    related: ['concept:tag-style', 'effect:holographic_effect', 'effect:glow_border'],
+    aliases: ['iridiscente', 'iridescent', 'tornasol', 'arcoíris', 'foil parametrizable'],
   },
   {
     id:          'crown_badge',
