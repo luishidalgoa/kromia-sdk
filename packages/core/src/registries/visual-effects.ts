@@ -134,6 +134,26 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
         options: ['color-dodge', 'overlay', 'screen', 'soft-light', 'hard-light'],
         default: 'color-dodge',
       },
+      {
+        // KRO-202 — marco ornamental (9 diseños del mockup `borderSVG`). 'none'
+        // = sin borde (interruptor maestro). El render lo dibuja como SVG blanco
+        // sobre transparente y lo tiñe con `border_color` vía máscara CSS.
+        key:     'border_style',
+        label:   'Diseño del borde',
+        type:    'enum',
+        options: ['none', 'classic', 'double', 'sticker', 'emblema', 'tech', 'feston', 'gotico', 'barroco'],
+        default: 'none',
+      },
+      {
+        // Relleno del marco: hueco (solo trazo) · borde (banda decorativa
+        // rellena hasta la ventana) · marco (rellena toda la carta menos la
+        // ventana del arte). Espejo del modo `fill` del mockup.
+        key:     'border_fill',
+        label:   'Relleno del borde',
+        type:    'enum',
+        options: ['hueco', 'borde', 'marco'],
+        default: 'hueco',
+      },
       { key: 'border_width', label: 'Grosor del borde', type: 'number', min: 0, max: 16, default: 0 },
       {
         key:     'border_color',
