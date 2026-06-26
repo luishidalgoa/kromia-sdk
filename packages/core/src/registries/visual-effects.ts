@@ -170,6 +170,10 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
         options: ['none', 'gold', 'silver', 'aurora', 'spectrum', 'forest', 'obsidian', 'plum', 'steel'],
         default: 'none',
       },
+      // KRO-202 — color HEX personalizado del borde. Si está (#RRGGBB), MANDA sobre
+      // `border_color`. Aditivo (string opcional) → no toca el enum. El editor lo
+      // expone como opción "Personalizado" con el color-picker del componente.
+      { key: 'border_color_hex', label: 'Color personalizado del borde', type: 'string' },
     ],
     whenToUse:
       'Cuando quieras un foil holográfico AJUSTABLE en vivo en vez de un preset cerrado: elige el patrón de arcoíris (Spectrum/Oilslick/Sunset/Mint/Aurora) y afina tono, resplandor, grano y borde con sliders. Igual que el Holográfico pero parametrizable.',
