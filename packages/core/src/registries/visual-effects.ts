@@ -115,7 +115,7 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
         key:     'pattern',
         label:   'Patrón',
         type:    'enum',
-        options: ['spectrum', 'oilslick', 'sunset', 'mint', 'aurora'],
+        options: ['spectrum', 'oilslick', 'sunset', 'mint', 'aurora', 'midnight'],
         default: 'spectrum',
       },
       { key: 'hue',        label: 'Tono',        type: 'number', min: 0,   max: 360, default: 0 },
@@ -165,7 +165,9 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
         key:     'border_color',
         label:   'Color del borde',
         type:    'enum',
-        options: ['none', 'gold', 'silver', 'aurora', 'spectrum'],
+        // none=blanco · gold/silver sólidos · aurora=arcoíris fijo · spectrum=sigue
+        // al foil · forest/obsidian/plum/steel = tonos oscuros tipo "fondo carta".
+        options: ['none', 'gold', 'silver', 'aurora', 'spectrum', 'forest', 'obsidian', 'plum', 'steel'],
         default: 'none',
       },
     ],
