@@ -115,7 +115,7 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
         key:     'pattern',
         label:   'Patrón',
         type:    'enum',
-        options: ['spectrum', 'oilslick', 'sunset', 'mint', 'aurora'],
+        options: ['spectrum', 'oilslick', 'sunset', 'mint', 'aurora', 'midnight'],
         default: 'spectrum',
       },
       { key: 'hue',        label: 'Tono',        type: 'number', min: 0,   max: 360, default: 0 },
@@ -134,14 +134,46 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
         options: ['color-dodge', 'overlay', 'screen', 'soft-light', 'hard-light'],
         default: 'color-dodge',
       },
-      { key: 'border_width', label: 'Grosor del borde', type: 'number', min: 0, max: 16, default: 0 },
+      {
+        // KRO-202 — marco ornamental (9 diseños del mockup `borderSVG`). 'none'
+        // = sin borde (interruptor maestro). El render lo dibuja como SVG blanco
+        // sobre transparente y lo tiñe con `border_color` vía máscara CSS.
+        key:     'border_style',
+        label:   'Diseño del borde',
+        type:    'enum',
+        options: ['none', 'classic', 'double', 'sticker', 'emblema', 'tech', 'feston', 'gotico', 'barroco'],
+        default: 'none',
+      },
+      {
+        // Relleno del marco: hueco (solo trazo) · borde (banda decorativa
+        // rellena hasta la ventana) · marco (rellena toda la carta menos la
+        // ventana del arte). Espejo del modo `fill` del mockup.
+        key:     'border_fill',
+        label:   'Relleno del borde',
+        type:    'enum',
+        options: ['hueco', 'borde', 'marco'],
+        default: 'hueco',
+      },
+      // Ancho de la banda decorativa + margen desde el borde de la carta — los
+      // dos números que parametrizan `borderSVG(style, bw, m, fill)` (espejo de
+      // los sliders Ancho/Margen del mockup). `border_width` se conserva (0-16)
+      // para no romper el contrato; `border_margin` es aditivo (minor). El editor
+      // siembra un Ancho visible al elegir un diseño (sin tocar el default).
+      { key: 'border_width',  label: 'Ancho del borde',  type: 'number', min: 0, max: 16, default: 0 },
+      { key: 'border_margin', label: 'Margen del borde', type: 'number', min: 0, max: 24, default: 6 },
       {
         key:     'border_color',
         label:   'Color del borde',
         type:    'enum',
-        options: ['none', 'gold', 'silver', 'aurora', 'spectrum'],
+        // none=blanco · gold/silver sólidos · aurora=arcoíris fijo · spectrum=sigue
+        // al foil · forest/obsidian/plum/steel = tonos oscuros tipo "fondo carta".
+        options: ['none', 'gold', 'silver', 'aurora', 'spectrum', 'forest', 'obsidian', 'plum', 'steel'],
         default: 'none',
       },
+      // KRO-202 — color HEX personalizado del borde. Si está (#RRGGBB), MANDA sobre
+      // `border_color`. Aditivo (string opcional) → no toca el enum. El editor lo
+      // expone como opción "Personalizado" con el color-picker del componente.
+      { key: 'border_color_hex', label: 'Color personalizado del borde', type: 'string' },
     ],
     whenToUse:
       'Cuando quieras un foil holográfico AJUSTABLE en vivo en vez de un preset cerrado: elige el patrón de arcoíris (Spectrum/Oilslick/Sunset/Mint/Aurora) y afina tono, resplandor, grano y borde con sliders. Igual que el Holográfico pero parametrizable.',

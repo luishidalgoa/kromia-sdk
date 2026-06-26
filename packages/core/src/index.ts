@@ -39,6 +39,7 @@ export type {
   SlotOverrides,
   CustomSlotDefinition,
   TagStyle,
+  EffectTemplate,
   EffectLayer,
   EffectLayerKind,
   EffectBlendMode,
@@ -154,6 +155,8 @@ export {
 export {
   isTagStyleValid,
   validateTagStyles,
+  isEffectTemplateValid,    // KRO-202 — plantillas de efecto
+  validateEffectTemplates,  // KRO-202
   type TagStyleValidationIssue,
   type TagStyleValidationResult,
 } from './tag-styles';
@@ -308,9 +311,13 @@ export {
   // Card format
   CARD_ASPECTS,
   CARD_SIZES,
+  CARD_CORNER_RADII,                  // KRO-225
   DEFAULT_CARD_FORMAT,
   OPTIONS_CARD_ASPECT_LABELS,
   OPTIONS_CARD_SIZE_LABELS,
+  OPTIONS_CARD_CORNER_RADIUS_LABELS,  // KRO-225
+  CARD_CORNER_RADIUS_PX,              // KRO-225
+  cardCornerRadiusPx,                 // KRO-225
   aspectToRatio,
   // KRO-78 — grid de mini-cards relacionadas derivado del cardFormat
   MINI_REF_GRID_SIZE_MULTIPLIER,
@@ -383,6 +390,7 @@ export {
   type AppearancePreset,
   type CardAspect,
   type CardSize,
+  type CardCornerRadius,  // KRO-225
   type CardFormat,
 } from './options';
 

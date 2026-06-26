@@ -845,6 +845,26 @@ export interface TagStyle {
 }
 
 /**
+ * KRO-202 — Plantilla de efecto reutilizable a nivel de ÁLBUM. Guarda una
+ * configuración de efecto con nombre (sin anclaje a un valor/carta) para
+ * reaplicarla a otras cartas y ahorrar reconfiguración. Vive en
+ * `albumSchema.effectTemplates` — data de álbum, NO catálogo → no entra al
+ * `.json` del contrato ni bumpea PROTOCOL_VERSION (igual que `tagStyles`).
+ */
+export interface EffectTemplate {
+  /** Id estable de la plantilla (para keys de UI + edición). */
+  id: string;
+  /** Nombre legible que pone el publisher (ej. "Foil legendario dorado"). */
+  name: string;
+  /** Id del efecto del catálogo `visual-effects.ts` (o `'custom_foil'`). */
+  effect: string;
+  /** Config del efecto — mismo espacio de valores que `TagStyle.config`. */
+  config?: Record<string, string | number>;
+  /** Capas de un foil personalizado, si la plantilla es de `custom_foil`. */
+  customLayers?: EffectLayer[];
+}
+
+/**
  * KRO-28 — Fuente de rareza: un field `rating`/`enum`/`ordinal_enum` del
  * cardSchema marcado como "fuente de rareza" + la distribución de probabilidad
  * de aparición por valor o por rango. Vive a nivel `cardSchema.raritySource`.
