@@ -145,15 +145,28 @@ Widget _statsRow(RenderCtx ctx, String? sid) {
     final v = ctx.item[k];
     if (v == null || v.toString().trim().isEmpty) continue;
     final def = ctx.defFor(k);
+    // KRO-221/222 — apariencia efectiva POR-CAMPO (igual que `StatsRow.tsx`, que
+    // calcula `ap = mergeFieldAppearance(...)`): el publisher puede recortar/clampar
+    // cada stat por separado.
+    final ap = mergeFieldAppearance(comp.appearance, comp.fieldAppearances, k);
     cells.add(Expanded(
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         // KRO-198 — paridad con `StatsRow.tsx`: VALOR `text-lg` (18px) bold
         // tabular, ETIQUETA `text-[10px]`. Antes 13/9 → ~28% pequeño vs el diseño.
-        Text(formatScalar(v, def),
-            maxLines: 1, overflow: TextOverflow.ellipsis,
+        // KRO-222 — el VALOR recorta por `truncateChars` (Apariencia→Recorte→
+        // Caracteres) + "…", igual que el resto del motor (antes no se aplicaba aquí);
+        // las líneas las da `appearance.truncate` (1 por defecto, como el `truncate` CSS).
+        Text(applyAppearanceTruncate(formatScalar(v, def), ap),
+            maxLines: appearanceMaxLines(ap), overflow: TextOverflow.ellipsis,
             style: KromiaTokens.body.copyWith(fontSize: 18, fontWeight: FontWeight.w700, fontFeatures: const [FontFeature.tabularFigures()])),
         if (def?.label != null && def!.label!.isNotEmpty)
-          Text(def.label!.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis, style: KromiaTokens.overline.copyWith(fontSize: 10)),
+          // KRO-222 — la ETIQUETA envuelve a 2 líneas (line-clamp-2) y parte palabras
+          // largas: Flutter rompe la palabra si no cabe → "DESCUBIERTO" no se clipa a 1
+          // línea sin ellipsis. El publisher puede forzar otro recorte con su truncate.
+          Text(def.label!.toUpperCase(),
+              maxLines: appearanceMaxLines(ap, def: 2), overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: KromiaTokens.overline.copyWith(fontSize: 10)),
       ]),
     ));
   }
