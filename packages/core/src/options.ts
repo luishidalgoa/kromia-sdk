@@ -395,20 +395,22 @@ export const DEFAULT_CARD_FORMAT: CardFormat = {
   cornerRadius: 'md',
 };
 
-/** KRO-225 — radio de esquina en px para CADA nivel: `css` = border-radius del
- *  contenedor de la carta en el render; `svg` = radio en el espacio 300×420 del
- *  `borderSVG` (≈2× el css, porque el lienzo SVG se escala a una carta ~mitad de
- *  ancho). 'md' (css 10 / svg 20) replica el look fijo previo (backward-compat). */
-export const CARD_CORNER_RADIUS_PX: Record<CardCornerRadius, { css: number; svg: number }> = {
-  none: { css: 0,  svg: 0  },
-  sm:   { css: 4,  svg: 8  },
-  md:   { css: 10, svg: 20 },
-  lg:   { css: 18, svg: 34 },
-  xl:   { css: 28, svg: 52 },
+/** KRO-225 — redondeado por nivel. `css` = valor de `border-radius` del
+ *  contenedor de la carta en el render, en **PORCENTAJE** para que la roundness
+ *  ESCALE con el tamaño (igual de redonda en grid, focus o preview, no px fijos).
+ *  `svg` = radio en el espacio 300×420 del `borderSVG` (≈ css% × 3, porque el
+ *  lienzo SVG es 300 de ancho → se escala a la carta). 'md' replica el look
+ *  previo aprox. (backward-compat). */
+export const CARD_CORNER_RADIUS_PX: Record<CardCornerRadius, { css: string; svg: number }> = {
+  none: { css: '0',   svg: 0  },
+  sm:   { css: '3%',  svg: 9  },
+  md:   { css: '6%',  svg: 18 },
+  lg:   { css: '10%', svg: 30 },
+  xl:   { css: '16%', svg: 48 },
 };
 
-/** Resuelve el radio (px) del formato, con fallback a 'md' si no se declaró. */
-export function cardCornerRadiusPx(fmt: CardFormat | undefined): { css: number; svg: number } {
+/** Resuelve el redondeado del formato, con fallback a 'md' si no se declaró. */
+export function cardCornerRadiusPx(fmt: CardFormat | undefined): { css: string; svg: number } {
   return CARD_CORNER_RADIUS_PX[fmt?.cornerRadius ?? 'md'];
 }
 
