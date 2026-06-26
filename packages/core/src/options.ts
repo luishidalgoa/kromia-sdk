@@ -61,10 +61,17 @@ export type CardAspect = typeof CARD_ASPECTS[number];
 export const CARD_SIZES = ['mini', 'standard', 'large', 'poster'] as const;
 export type CardSize = typeof CARD_SIZES[number];
 
+/** KRO-225 — redondeado de esquinas de la carta (cerrado). El render lo aplica
+ *  al canto de la carta Y al marco del efecto (mismo radio → coherencia). */
+export const CARD_CORNER_RADII = ['none', 'sm', 'md', 'lg', 'xl'] as const;
+export type CardCornerRadius = typeof CARD_CORNER_RADII[number];
+
 /** Formato persistido de la carta del álbum. */
 export interface CardFormat {
   aspect: CardAspect;
   size:   CardSize;
+  /** KRO-225 — redondeado de esquinas. Opcional (aditivo): ausente ⇒ 'md'. */
+  cornerRadius?: CardCornerRadius;
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -385,6 +392,32 @@ export const LAYOUT_SURFACE_LABELS: Readonly<Record<string, Readonly<Record<stri
 export const DEFAULT_CARD_FORMAT: CardFormat = {
   aspect: '2:3',
   size:   'standard',
+  cornerRadius: 'md',
+};
+
+/** KRO-225 — radio de esquina en px para CADA nivel: `css` = border-radius del
+ *  contenedor de la carta en el render; `svg` = radio en el espacio 300×420 del
+ *  `borderSVG` (≈2× el css, porque el lienzo SVG se escala a una carta ~mitad de
+ *  ancho). 'md' (css 10 / svg 20) replica el look fijo previo (backward-compat). */
+export const CARD_CORNER_RADIUS_PX: Record<CardCornerRadius, { css: number; svg: number }> = {
+  none: { css: 0,  svg: 0  },
+  sm:   { css: 4,  svg: 8  },
+  md:   { css: 10, svg: 20 },
+  lg:   { css: 18, svg: 34 },
+  xl:   { css: 28, svg: 52 },
+};
+
+/** Resuelve el radio (px) del formato, con fallback a 'md' si no se declaró. */
+export function cardCornerRadiusPx(fmt: CardFormat | undefined): { css: number; svg: number } {
+  return CARD_CORNER_RADIUS_PX[fmt?.cornerRadius ?? 'md'];
+}
+
+export const OPTIONS_CARD_CORNER_RADIUS_LABELS: Record<CardCornerRadius, string> = {
+  none: 'Recto (sin redondeo)',
+  sm:   'Poco',
+  md:   'Medio · default',
+  lg:   'Bastante',
+  xl:   'Máximo',
 };
 
 export const OPTIONS_CARD_ASPECT_LABELS: Record<CardAspect, string> = {
