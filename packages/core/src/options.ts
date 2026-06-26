@@ -403,10 +403,10 @@ export const DEFAULT_CARD_FORMAT: CardFormat = {
  *  previo aprox. (backward-compat). */
 export const CARD_CORNER_RADIUS_PX: Record<CardCornerRadius, { css: string; svg: number }> = {
   none: { css: '0',   svg: 0  },
-  sm:   { css: '3%',  svg: 9  },
-  md:   { css: '6%',  svg: 18 },
-  lg:   { css: '10%', svg: 30 },
-  xl:   { css: '16%', svg: 48 },
+  sm:   { css: '4%',  svg: 12 },
+  md:   { css: '8%',  svg: 24 },
+  lg:   { css: '16%', svg: 48 },
+  xl:   { css: '28%', svg: 84 },
 };
 
 /** Resuelve el redondeado del formato, con fallback a 'md' si no se declaró. */
