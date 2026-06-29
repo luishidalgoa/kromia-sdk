@@ -212,3 +212,15 @@ Handoff Flutter en la cola (§10–§18 del doc). Mantener cola al día.
 `chipWidth`/display-por-chip, DATA) + font ampliado a 11 familias (CONTRATO, KRO-218).
 Issues Drift Sync: KRO-218 (font) + 2 nuevos (acento §25, chips §26). NINGUNO bumpea
 PROTOCOL_VERSION salvo font (aditivo, sigue 4.0.0). SDK en `b0840ef`.
+
+2026-06-29 — sesión Flutter. Sync TS→Dart contra `origin/main` `d3418dc`. **Estado real
+reconciliado**: KRO-219/220/221 (acento/chips/fieldAppearances) YA mergeados (batch
+`d92a1f3`); api-parity = 38 símbolos, 0 sin espejar; drift-CI rojo SOLO por versión
+(core_dart 3.3.0 vs TS 5.1.0 + protocolVersion); corpus `dart test` 626 verde.
+**KRO-217 (paridad de fixes del motor 6346aea) — HECHO** ([kromia-sdk#13], Jira→En revisión):
+`section_title` honra apariencia (color/tamaño/peso/align/recorte/efecto/padding) + galerías
+de bloque propagan apariencia por celda (`_galleryCell`: objectFit/encuadre/zoom/forma/efectos);
+`badge_row` ya estaba (KRO-220). Render-only, sin bump. Suite 70/70. Pendiente del ticket: los
+recipe-presets siguen en TS (diferidos). **Cola Flutter restante**: KRO-224 (iridescent_foil 5
+capas), KRO-228 (CardBack+resolveCardBack+QR), KRO-215 (tipos cartas físicas DATA), subir versión
+core_dart→5.1.0 (cierra drift-CI), KRO-222 (mergear PR #11), KRO-212 (suscripciones app).
