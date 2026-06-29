@@ -250,6 +250,79 @@ export interface CardBackComposition {
   conditional?: ConditionalCardBack;
 }
 
+/* ── KRO-215 — Cartas físicas: identidad + propiedad (tronco SDK-first) ──────────
+ * Modelo COMPARTIDO del ciclo de vida de la carta física. DATA (no entra al `.json`
+ * del KRP → no bumpea PROTOCOL_VERSION; igual que `CardBackComposition`). El minteo,
+ * la FIRMA (clave privada) y los endpoints scan/transfer viven en el backend; el
+ * escaneo de cámara y los badges en Flutter. Espejo `core_dart` pendiente (Drift Sync).
+ * Spec: docs/physical-cards-foundation-spec.md. */
+
+/** Identidad de UNA instancia física (rama `qr`). Se mintea en fabricación
+ *  (KRO-216) y se siembra sin dueño; KRO-16 la valida en cada escaneo. */
+export interface CardIdentity {
+  /** Token único OPACO = el contenido firmado del QR. */
+  id:        string;
+  albumId:   string;
+  /** Qué carta del álbum es esta instancia. */
+  cardIndex: string | number;
+  /** Nº legible de tirada opcional, p.ej. "0123/5000". */
+  serial?:   string;
+  /** ISO — minteado en fabricación. */
+  mintedAt:  string;
+}
+
+/** Origen de la propiedad de una carta. `qr` = verificada; el resto = declarada. */
+export type OwnershipSource = 'qr' | 'manual' | 'code' | 'photo';
+
+/** Propiedad de una carta (compartida por ambas ramas, qr y self-declared).
+ *  Evolución backward-compatible de `ownedCards = [{index, quantity}]`, que se
+ *  lee como `{ source:'manual', verified:false }` SIN migración. */
+export interface CardOwnership {
+  userId:     string;
+  albumId:    string;
+  cardIndex:  string | number;
+  source:     OwnershipSource;
+  /** `true` SOLO si `source==='qr'` y la identidad valida (DERIVADO en backend,
+   *  nunca auto-declarable). */
+  verified:   boolean;
+  /** self-declared puede ser >1; `qr` = 1 por identidad. */
+  quantity:   number;
+  /** FK a `CardIdentity` (solo `source==='qr'`). */
+  identityId?: string;
+  /** ISO. */
+  acquiredAt: string;
+  /** self-declared: foto del coleccionista (sugerencia). */
+  photoUrl?:  string;
+}
+
+/** Token efímero para transferir una carta verificada entre dueños (rama `qr`,
+ *  KRO-16). A lo genera → B escanea + reclama dentro del TTL → la `CardOwnership`
+ *  se mueve A→B. */
+export interface TransferToken {
+  id:         string;
+  identityId: string;
+  fromUserId: string;
+  createdAt:  string;
+  expiresAt:  string;
+}
+
+/** Payload del QR firmado de carta (permanente, por-instancia, verificación
+ *  pública asimétrica). Distinto del QR de PREVIEW (sandbox-token efímero por-álbum).
+ *  La FIRMA la pone el backend con la clave privada; cualquiera la verifica con la
+ *  pública. El esquema es vinculante cross-platform (Flutter lo verifica offline). */
+export interface CardQrPayload {
+  /** Versión del esquema del payload (para evolución). */
+  v:         number;
+  kind:      'card-identity';
+  /** Identidad opaca de la instancia (= `CardIdentity.id`). */
+  id:        string;
+  albumId:   string;
+  cardIndex: string | number;
+  serial?:   string;
+  /** Firma criptográfica del resto del payload (base64/base64url). */
+  sig:       string;
+}
+
 /**
  * KRO-69 V6 — Subset CSS-like de propiedades de apariencia que un slot
  * puede overridear por instancia. Todas opcionales y se interpretan según

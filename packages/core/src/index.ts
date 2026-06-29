@@ -533,3 +533,7 @@ export type { ConditionalStyle, ConditionalStyleCase } from './types';
 // KRO-227 — reverso de la carta (imagen + colocación del QR + condicional por valor/sección).
 export { resolveCardBack, CARD_BACK_SECTION_KEY } from './card-back';
 export type { QrPlacement, CardBackDesign, ConditionalCardBackCase, ConditionalCardBack, CardBackComposition } from './types';
+
+// KRO-215 — cartas físicas: identidad + propiedad (tronco SDK-first; DATA, no bumpea el KRP).
+export { ownershipBadge, isVerifiedOwnership } from './card-ownership';
+export type { CardIdentity, CardOwnership, OwnershipSource, TransferToken, CardQrPayload } from './types';
