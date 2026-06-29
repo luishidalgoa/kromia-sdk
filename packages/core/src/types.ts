@@ -190,6 +190,67 @@ export interface ConditionalStyle {
 }
 
 /**
+ * KRO-227 — Colocación ABSOLUTA del QR sobre el reverso de la carta. Todo en
+ * PORCENTAJE del reverso (portable: el reverso se renderiza al mismo aspecto en
+ * Studio, app y en imprenta). El QR es CUADRADO (`size` = lado, % del ancho).
+ * Solo surte efecto si el álbum es modo `qr` (`metadata.physicalTracking`).
+ */
+export interface QrPlacement {
+  /** Centro X del QR, 0..100 (% del ancho del reverso). */
+  x: number;
+  /** Centro Y del QR, 0..100 (% del alto del reverso). */
+  y: number;
+  /** Lado del QR (cuadrado), 0..100 (% del ancho del reverso). */
+  size: number;
+}
+
+/**
+ * KRO-227 — Diseño del REVERSO de una carta: una imagen a sangre + (opcional) la
+ * colocación del QR encima. Data de álbum → NO entra al contrato KRP.
+ */
+export interface CardBackDesign {
+  /** URL del arte del reverso (a sangre). Se sirve por el proxy de imágenes. */
+  image?: string;
+  /** Colocación del QR sobre el reverso (solo modo `qr`). Ausente = sin QR. */
+  qr?: QrPlacement;
+}
+
+/** KRO-227 — un caso de la regla condicional del reverso (estilo "Estilo por valor"). */
+export interface ConditionalCardBackCase {
+  /** Operador (reusa los de ConditionalStyleCase). Default 'eq'. */
+  op?: ConditionalStyleCase['op'];
+  /** Valor a comparar. */
+  value?: string;
+  /** El reverso a usar si este caso coincide (merge sobre `base`). */
+  design: CardBackDesign;
+}
+
+/**
+ * KRO-227 — Variación condicional del reverso por valor de un campo (o por SECCIÓN
+ * vía la clave `__section__`). Mismo patrón que `ConditionalStyle`: casos en orden,
+ * el 1º que coincide gana; `otherwise` = else (no `else`, palabra reservada en Dart).
+ */
+export interface ConditionalCardBack {
+  /** Campo del schema cuyo valor decide el reverso, o `__section__` para la sección. */
+  fieldKey: string;
+  cases: ConditionalCardBackCase[];
+  /** ELSE: el reverso si ningún caso coincide. */
+  otherwise?: CardBackDesign;
+}
+
+/**
+ * KRO-227 — Composición del reverso a nivel cardSchema: un reverso `base` por
+ * defecto + una variación `conditional` opcional (estilo "Estilo por valor") que
+ * lo pisa campo a campo cuando coincide.
+ */
+export interface CardBackComposition {
+  /** Reverso por defecto. */
+  base?: CardBackDesign;
+  /** Variación condicional por valor/sección. */
+  conditional?: ConditionalCardBack;
+}
+
+/**
  * KRO-69 V6 — Subset CSS-like de propiedades de apariencia que un slot
  * puede overridear por instancia. Todas opcionales y se interpretan según
  * el `SlotAcceptKind` del slot al que se aplican (el editor filtra qué

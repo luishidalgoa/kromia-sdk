@@ -529,3 +529,7 @@ export type { ThemePreset } from './themes';
 // KRO-198 — estilo condicional por valor (color/estilo por rareza, stock, etc.).
 export { matchConditionalCase, resolveConditionalAppearance, matchedConditionalCase, resolveConditionalStyling } from './conditional-style';
 export type { ConditionalStyle, ConditionalStyleCase } from './types';
+
+// KRO-227 — reverso de la carta (imagen + colocación del QR + condicional por valor/sección).
+export { resolveCardBack, CARD_BACK_SECTION_KEY } from './card-back';
+export type { QrPlacement, CardBackDesign, ConditionalCardBackCase, ConditionalCardBack, CardBackComposition } from './types';
