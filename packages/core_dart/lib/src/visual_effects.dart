@@ -121,6 +121,31 @@ const String _visualEffectsJson = r'''
     ]
   },
   {
+    "id": "iridescent_foil",
+    "displayName": "Iridiscente",
+    "description": "Foil iridiscente ajustable: arcoíris que reluce al inclinar, con tono, brillo, grano y borde configurables en vivo.",
+    "layer": "overlay",
+    "config": [
+      { "key": "pattern", "type": "enum", "options": ["spectrum", "oilslick", "sunset", "mint", "aurora", "midnight"], "default": "spectrum" },
+      { "key": "hue", "type": "number", "default": 0, "min": 0, "max": 360 },
+      { "key": "opacity", "type": "number", "default": 95, "min": 0, "max": 100 },
+      { "key": "glow", "type": "number", "default": 35, "min": 0, "max": 100 },
+      { "key": "sheen", "type": "number", "default": 40, "min": 0, "max": 100 },
+      { "key": "shimmer", "type": "number", "default": 50, "min": 0, "max": 100 },
+      { "key": "noise", "type": "number", "default": 16, "min": 0, "max": 100 },
+      { "key": "brightness", "type": "number", "default": 105, "min": 50, "max": 150 },
+      { "key": "contrast", "type": "number", "default": 100, "min": 50, "max": 150 },
+      { "key": "scale", "type": "number", "default": 210, "min": 100, "max": 320 },
+      { "key": "blend", "type": "enum", "options": ["color-dodge", "overlay", "screen", "soft-light", "hard-light"], "default": "color-dodge" },
+      { "key": "border_style", "type": "enum", "options": ["none", "classic", "double", "sticker", "emblema", "tech", "feston", "gotico", "barroco"], "default": "none" },
+      { "key": "border_fill", "type": "enum", "options": ["hueco", "borde", "marco"], "default": "hueco" },
+      { "key": "border_width", "type": "number", "default": 0, "min": 0, "max": 16 },
+      { "key": "border_margin", "type": "number", "default": 6, "min": 0, "max": 24 },
+      { "key": "border_color", "type": "enum", "options": ["none", "gold", "silver", "aurora", "spectrum", "forest", "obsidian", "plum", "steel"], "default": "none" },
+      { "key": "border_color_hex", "type": "string" }
+    ]
+  },
+  {
     "id": "crown_badge",
     "displayName": "Insignia de corona",
     "description": "Corona / icono distintivo en una esquina de la carta.",

@@ -9,16 +9,35 @@ void main() {
   group('visual-effects registry', () {
     final effects = allVisualEffects();
 
-    test('contiene los 6 efectos de la V1', () {
-      expect(effects.length, 6);
+    test('contiene los efectos del catálogo (orden del contrato)', () {
+      expect(effects.length, 7);
       expect(effects.map((e) => e.id).toList(), [
         'holographic_effect',
+        'iridescent_foil', // KRO-202/224 — 2ª posición, como en el contrato
         'crown_badge',
         'vintage_filter',
         'glow_border',
         'frozen',
         'signed',
       ]);
+    });
+
+    test('iridescent_foil (KRO-224): layer overlay + 17 params + rangos/enums', () {
+      final e = getVisualEffect('iridescent_foil')!;
+      expect(e.layer, 'overlay');
+      expect(e.config.length, 17);
+      final pattern = e.config.firstWhere((p) => p.key == 'pattern');
+      expect(pattern.type, 'enum');
+      expect(pattern.defaultValue, 'spectrum');
+      expect(pattern.options, contains('aurora'));
+      final scale = e.config.firstWhere((p) => p.key == 'scale');
+      expect(scale.type, 'number');
+      expect(scale.min, 100);
+      expect(scale.max, 320);
+      expect(scale.defaultValue, 210);
+      // border_color_hex es string libre (color personalizado), sin options/min/max.
+      final hex = e.config.firstWhere((p) => p.key == 'border_color_hex');
+      expect(hex.type, 'string');
     });
 
     test('IDs únicos', () {
