@@ -39,6 +39,38 @@ Widget imageBox(RenderCtx ctx, String url, SlotAppearance? ap, {int? count}) {
   return img;
 }
 
+/// KRO-217 — celda de galería honrando la apariencia del slot `image-array`
+/// (objectFit/encuadre/zoom/forma/efectos), espejo de `GalleryCell` + `apBox/apFit/
+/// apImgS` de `ImageGallery.tsx`. Antes las galerías pintaban `cover` fijo + radius
+/// por defecto, ignorando la apariencia (la clase de bug de KRO-198/217).
+Widget _galleryCell(RenderCtx ctx, String url, SlotAppearance? ap, double w, double h, double defRadius) {
+  final focus = appearanceImageAlignment(ap);
+  Widget img = ctx.imageBuilder(url, fit: appearanceBoxFit(ap), alignment: focus, width: w, height: h);
+  final zoom = appearanceImageScale(ap);
+  if (zoom > 1.0 && ap?.objectFit != 'contain') {
+    img = Transform.scale(scale: zoom, alignment: focus, child: img);
+  }
+  final circle = appearanceIsCircle(ap);
+  final radius = appearanceCornerRadius(ap) ?? defRadius;
+  Widget box = circle
+      ? ClipOval(child: img)
+      : ClipRRect(borderRadius: BorderRadius.circular(radius), child: img);
+  final shadow = appearanceSlotShadow(ap);
+  if (shadow.isNotEmpty) {
+    box = DecoratedBox(
+      decoration: BoxDecoration(
+        shape: circle ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: circle ? null : BorderRadius.circular(radius),
+        boxShadow: shadow,
+      ),
+      child: box,
+    );
+  }
+  final op = appearanceOpacity(ap);
+  if (op < 1.0) box = Opacity(opacity: op, child: box);
+  return SizedBox(width: w, height: h, child: box);
+}
+
 Widget _chip(String text) => Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(color: const Color(0xCC000000), borderRadius: BorderRadius.circular(KromiaTokens.radiusPill)),
@@ -193,7 +225,7 @@ Widget _tappableImage(RenderCtx ctx, List<String> urls, int i, Widget child) =>
 
 /// Carrusel horizontal de imágenes (carousel_peek/centered). [label] = etiqueta
 /// del campo mapeado (paridad `ImageGallery label=`).
-Widget imageRow(RenderCtx ctx, List<String> urls, {String? label}) {
+Widget imageRow(RenderCtx ctx, List<String> urls, {String? label, SlotAppearance? appearance}) {
   if (urls.isEmpty) return const SizedBox.shrink();
   return _withLabel(
     label,
@@ -207,10 +239,7 @@ Widget imageRow(RenderCtx ctx, List<String> urls, {String? label}) {
           ctx,
           urls,
           i,
-          ClipRRect(
-            borderRadius: BorderRadius.circular(KromiaTokens.radiusMd),
-            child: ctx.imageBuilder(urls[i], fit: BoxFit.cover, width: 160, height: 120),
-          ),
+          _galleryCell(ctx, urls[i], appearance, 160, 120, KromiaTokens.radiusMd),
         ),
       ),
     ),
@@ -219,7 +248,7 @@ Widget imageRow(RenderCtx ctx, List<String> urls, {String? label}) {
 
 /// Mosaico de imágenes 3 columnas (gallery_grid). [label] = etiqueta del campo
 /// mapeado (paridad `ImageGallery label=` → "IMÁGENES").
-Widget imageGrid(RenderCtx ctx, List<String> urls, {String? label}) {
+Widget imageGrid(RenderCtx ctx, List<String> urls, {String? label, SlotAppearance? appearance}) {
   if (urls.isEmpty) return const SizedBox.shrink();
   // Mosaico 3 col. Celdas de tamaño CALCULADO del ancho disponible (LayoutBuilder
   // + Wrap), NO `GridView.count(shrinkWrap)`: ese grid, anidado en un scroll, medía
@@ -243,10 +272,7 @@ Widget imageGrid(RenderCtx ctx, List<String> urls, {String? label}) {
               ctx,
               urls,
               i,
-              ClipRRect(
-                borderRadius: BorderRadius.circular(KromiaTokens.radiusLg),
-                child: ctx.imageBuilder(urls[i], fit: BoxFit.cover, width: cell, height: cell),
-              ),
+              _galleryCell(ctx, urls[i], appearance, cell, cell, KromiaTokens.radiusLg),
             ),
         ],
       );
