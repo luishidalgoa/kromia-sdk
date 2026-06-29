@@ -50,3 +50,5 @@ export 'src/section_icons.dart';
 export 'src/markdown.dart';
 export 'src/layout_conformance.dart';
 export 'src/appearance_contract.dart';
+export 'src/conditional_style.dart';
+export 'src/card_back.dart';
