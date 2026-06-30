@@ -57,9 +57,15 @@ Widget? componentContent(RenderCtx ctx, LayoutComponentNode node) {
       }
     case 'carousel_peek':
     case 'carousel_centered':
-      inner = isHidden('images') ? null : imageRow(ctx, rawList('images'), label: roleLabel('images'));
+      // KRO-217 — propaga la apariencia del slot de imágenes (forma/aspect/objectFit/
+      // efectos/encuadre) a la galería; antes la ignoraba (cover fijo).
+      inner = isHidden('images')
+          ? null
+          : imageRow(ctx, rawList('images'), label: roleLabel('images'), appearance: ctx.slots[sidOf('images')]?.appearance);
     case 'gallery_grid':
-      inner = isHidden('images') ? null : imageGrid(ctx, rawList('images'), label: roleLabel('images'));
+      inner = isHidden('images')
+          ? null
+          : imageGrid(ctx, rawList('images'), label: roleLabel('images'), appearance: ctx.slots[sidOf('images')]?.appearance);
     case 'cards_carousel':
       inner = isHidden('cards') ? null : cardsCarousel(rawList('cards'));
     case 'divider':
@@ -251,7 +257,24 @@ Widget _sectionTitle(RenderCtx ctx, String? sid) {
   final formatted = first != null ? formatScalar(ctx.item[first], ctx.defFor(first)) : '';
   final shown = formatted.isNotEmpty ? formatted : (ctx.defFor(first)?.label ?? '');
   if (shown.isEmpty) return const SizedBox.shrink();
-  return Text(shown.toUpperCase(), style: KromiaTokens.overline);
+  // KRO-217 — honra la apariencia del slot (color/tamaño/peso vía applyAppearanceText
+  // + alineación + recorte + efecto + padding vertical). `uppercase` + el tracking de
+  // `overline` son la IDENTIDAD del título de sección: defaults pisables por la apariencia.
+  final ap = comp?.appearance;
+  Widget t = Text(
+    shown.toUpperCase(),
+    maxLines: appearanceMaxLines(ap, def: 2),
+    overflow: TextOverflow.ellipsis,
+    textAlign: appearanceTextAlign(ap),
+    style: applyAppearanceText(KromiaTokens.overline, ap),
+  );
+  final padY = appearancePaddingY(ap);
+  if (padY > 0) t = Padding(padding: EdgeInsets.symmetric(vertical: padY), child: t);
+  final shadow = appearanceSlotShadow(ap);
+  if (shadow.isNotEmpty) t = DecoratedBox(decoration: BoxDecoration(boxShadow: shadow), child: t);
+  final op = appearanceOpacity(ap);
+  if (op < 1.0) t = Opacity(opacity: op, child: t);
+  return t;
 }
 
 Widget _heroHeader(RenderCtx ctx, LayoutComponentNode node) {
