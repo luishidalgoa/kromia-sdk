@@ -224,3 +224,21 @@ de bloque propagan apariencia por celda (`_galleryCell`: objectFit/encuadre/zoom
 recipe-presets siguen en TS (diferidos). **Cola Flutter restante**: KRO-224 (iridescent_foil 5
 capas), KRO-228 (CardBack+resolveCardBack+QR), KRO-215 (tipos cartas físicas DATA), subir versión
 core_dart→5.1.0 (cierra drift-CI), KRO-222 (mergear PR #11), KRO-212 (suscripciones app).
+
+2026-06-30 — sesión Flutter. **Sync TS→Dart CERRADO + drift-CI VERDE.** Todo mergeado a `main`
+(SDK `489e22f`, mobile `3fa8aa2`): **KRO-222** stats truncateChars/break-words (#11) · **KRO-217**
+apariencia presets (#13) · **KRO-224** catálogo iridescent_foil core_dart (#14) + render 5 capas
+en la app (mobile #7, `IridescentFoil`: foil/sheen/glare/noise/border, BlendMask) · **KRO-228**
+modelo `CardBack`+`resolveCardBack`+`matchConditionalCase` core_dart (#15) + render reverso/flip/QR
+en la app (mobile #8, `CardBackView`/`CardFlip`) · **KRO-215** tipos cartas físicas DATA
+(`CardIdentity`/`CardOwnership`/`TransferToken`/`CardQrPayload`+`ownershipBadge`, #16) · **bump
+core_dart 3.3.0→5.1.0** pubspec+protocolVersion (#17). **drift-CI verde**: version-drift TS 5.1.0
+== Dart 5.1.0, corpus `dart test` 646, api-parity 38 símbolos sincronizados. **Hallazgo**: el
+"Estilo por valor" (`matchConditionalCase`) NO estaba espejado en core_dart → añadido (lo reúsa el
+reverso). **Notas para Studio**: (a) iridescent_foil — aproximaciones en la app pendientes de tu
+verificación visual: noise (Flutter no tiene feTurbulence → speckle), pattern `midnight` (sin stops
+en KRO-224 → provisional; ¿me pasas los stops?), 9 bordes ornamentales SVG → anillo sólido; (b)
+CardBack — `showQr` gateado a false hasta KRO-216, y `__section__` con `section:null` (la condición
+por-campo sí va). **Resto de la cola**: KRO-212 (suscripciones app, UI propia) sigue pendiente —
+NO es paridad de render. Aprobaciones Jira a "En revisión": KRO-217/224/228; KRO-215 (Epic)
+comentado.
