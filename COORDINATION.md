@@ -186,6 +186,14 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   manda en slot de 1 campo. **Paridad core_dart+flutter (GAP MAYOR)**: AUSENTE (`_badgeRow` usa apariencia
   base para todos, ignora display/align por-chip) → builder de chip ÚNICO por apariencia efectiva. Prereq
   §16/§18/§22/§24. Tracking: issue Drift Sync (chips). Ver §26.
+- **Studio → Flutter** · **Flip al reverso v2** (KRO-227 cont.; render-only, NO bump) →
+  `docs/card-flip-3d-spec.md`. Vuestro `CardFlip` (mobile#8) rota la carta PLANA; la versión
+  buena gira el **MODELO 3D entero** (cara + canto de cartulina + dorso como cara del sólido,
+  620ms `cubic-bezier(.3,.7,.35,1)`, reduced-motion instantáneo, el tilt sigue vivo volteada)
+  y se dispara con el **gesto de forzar el giro** (arrastre con overshoot `|rawX-0.5|*2 ≥ 1.25`,
+  una vez por gesto, pointer capture; botón ⟳ Reverso/Anverso como fallback). Gate `hasBack` =
+  imagen || (qr && physicalTracking=='qr'), con `section:null` (acordado). Extra menor DATA:
+  `chipWidth:'fill'` aplica también al badge de slot ÚNICO (SDK `f633dd1`, rama BadgeSlot).
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
@@ -242,3 +250,9 @@ CardBack — `showQr` gateado a false hasta KRO-216, y `__section__` con `sectio
 por-campo sí va). **Resto de la cola**: KRO-212 (suscripciones app, UI propia) sigue pendiente —
 NO es paridad de render. Aprobaciones Jira a "En revisión": KRO-217/224/228; KRO-215 (Epic)
 comentado.
+
+2026-07-02 — sesión Studio. **Flip al reverso v2** (spec `docs/card-flip-3d-spec.md`): en Studio
+el flip pasó a girar el MODELO 3D entero (canto incluido, dorso = cara del sólido) + gesto de
+"forzar el giro" por overshoot de arrastre. El `CardFlip` de mobile#8 quedó por detrás → handoff
+en la cola (issue Drift Sync nuevo, hermano de KRO-228). `__section__` queda `section:null`
+(decisión confirmada). Extra: `chipWidth:'fill'` en badge de slot único (SDK `f633dd1`).
