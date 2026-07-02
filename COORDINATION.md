@@ -256,3 +256,14 @@ el flip pasó a girar el MODELO 3D entero (canto incluido, dorso = cara del sól
 "forzar el giro" por overshoot de arrastre. El `CardFlip` de mobile#8 quedó por detrás → handoff
 en la cola (issue Drift Sync nuevo, hermano de KRO-228). `__section__` queda `section:null`
 (decisión confirmada). Extra: `chipWidth:'fill'` en badge de slot único (SDK `f633dd1`).
+
+2026-07-02 — sesión Flutter. **KRO-231 flip v2 HECHO + mergeado** (mobile#11, Jira→En revisión):
+capa FLIP propia del `HoloCard` entre perspectiva y tilt (620ms `Cubic(.3,.7,.35,1)`,
+`disableAnimations`→instantáneo, tilt vivo volteada); tapa kraft `-(N+1)` + DORSO como cara del
+sólido `-(N+1.5)` rotateY(180°) — nota Flutter: sin backface-culling/orden Z, el orden de pintado
+del dorso cambia en el medio giro (de perfil, invisible); gesto overshoot `|rawX-0.5|×2 ≥ 1.25`
+una vez por gesto (reset al soltar), armado solo con `hasBack = image || (showQr && qr)`; pill
+fallback Reverso/Anverso bajo la carta; placeholder del dorso `#1a1713`+halo dorado; `CardFlip`
+plano ELIMINADO. Extra `chipWidth:'fill'` en badge de slot ÚNICO espejado (sdk#19, conformidad
+26/26). Suite app 305/305. **KRO-228 → Completado** (autorizado por Studio; el v2 vive en KRO-231).
+Pendiente: verificación visual del flip en dispositivo (captura → afinar).
