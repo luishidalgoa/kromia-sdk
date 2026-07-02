@@ -256,6 +256,26 @@ const EXPECTED_EXPORTS = [
   'resolveConditionalAppearance',
   'matchedConditionalCase',
   'resolveConditionalStyling',
+  // KRO-225 — redondeado de esquinas de la carta
+  'CARD_CORNER_RADII',
+  'CARD_CORNER_RADIUS_PX',
+  'OPTIONS_CARD_CORNER_RADIUS_LABELS',
+  'cardCornerRadiusPx',
+  // KRO-227 — reverso de la carta
+  'resolveCardBack',
+  'CARD_BACK_SECTION_KEY',
+  // KRO-215 — cartas físicas (identidad + propiedad)
+  'ownershipBadge',
+  'isVerifiedOwnership',
+  // KRO-202 — plantillas de efecto (validación)
+  'validateEffectTemplates',
+  'isEffectTemplateValid',
+  // KRO-230 — siluetas de carta (forma del recorte del cromo)
+  'CARD_SHAPES',
+  'CARD_SHAPE_IDS',
+  'DEFAULT_CARD_SHAPE',
+  'cardShapeById',
+  'cardShapePath',
   // KRO-133 F5 — recetas → presets de layout
   'recipeToComposition',
   // KRO-133 — ratchet de conformidad del motor de layout
