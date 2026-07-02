@@ -113,7 +113,17 @@ Widget? slotContent(RenderCtx ctx, String slotId) {
   final text = composeText(r);
   if (text.isEmpty) return null;
   final shown = appearanceTransform(text, ap);
-  if (ap?.display == 'badge') return wrap(badgePill(shown, ap));
+  if (ap?.display == 'badge') {
+    // KRO-198 follow-up (TS `f633dd1`, BadgeSlot) — `chipWidth:'fill'` también en
+    // el badge de slot ÚNICO: la pastilla ESTIRA al 100% del contenedor y `align`
+    // coloca el TEXTO dentro (def. centro, como `justify-center`). Ausente/
+    // 'content' = clásico (pastilla ajustada al contenido). Data render-only.
+    if (ap?.chipWidth == 'fill') {
+      final apFill = ap!.mergedOver(const SlotAppearance(align: 'center'));
+      return wrap(SizedBox(width: double.infinity, child: badgePill(shown, apFill)));
+    }
+    return wrap(badgePill(shown, ap));
+  }
 
   final longText = _isLongText(first?.def);
   final maxLines = appearanceMaxLines(ap, def: longText ? null : 1);
