@@ -194,6 +194,14 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   una vez por gesto, pointer capture; botón ⟳ Reverso/Anverso como fallback). Gate `hasBack` =
   imagen || (qr && physicalTracking=='qr'), con `section:null` (acordado). Extra menor DATA:
   `chipWidth:'fill'` aplica también al badge de slot ÚNICO (SDK `f633dd1`, rama BadgeSlot).
+- **Studio → Flutter** · **KRO-230 siluetas de carta** (DATA, NO bump) → espejar
+  `packages/core/src/card-shapes.ts` en `core_dart` (catálogo `CARD_SHAPES`: 6 presets con
+  SVG path normalizado 0..1 + `cardShapeById`/`cardShapePath` + `CardFormat.shape?`) y
+  renderizar en la app: parsear el path (M/L/C/Q/A/Z), escalarlo a la caja de la carta en un
+  `CustomClipper<Path>` y recortar TODAS las vistas de carta (grid, focus con canto 3D, reverso,
+  efectos). `shape` ausente/'standard' ⇒ rect redondeado por cornerRadius (sin cambios); con
+  silueta, cornerRadius se IGNORA (esquinas horneadas en el path). La silueta se estira con el
+  aspect (espacio 0..1 en ambos ejes, intencional). Backend ya persiste el enum.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
