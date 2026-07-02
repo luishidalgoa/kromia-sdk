@@ -1504,6 +1504,11 @@ export function BadgeSlot({
   const fieldColor: CSSProperties | undefined = (color || backgroundColor)
     ? { ...(color && { color }), ...(backgroundColor && { backgroundColor }) }
     : undefined;
+  // KRO-198 follow-up — `chipWidth:'fill'` también en el badge de slot ÚNICO: la
+  // pastilla ESTIRA al 100% de su contenedor y `align` coloca el TEXTO dentro
+  // (justify-content), como los chips en rejilla. Ausente/'content' = clásico
+  // (pastilla ajustada al contenido). Data render-only → paridad Flutter por tipo.
+  const fill = appearance?.chipWidth === 'fill';
   return (
     <div
       className={cn(wrapperClassName, appearancePaddingClass(appearance), appearanceAlignClass(appearance))}
@@ -1513,6 +1518,7 @@ export function BadgeSlot({
         className={cn(
           appearanceTextClasses(appearance ? { ...appearance, align: undefined } : undefined),
           appearanceEffectClasses(appearance),
+          fill && cn('w-full', chipJustifyContent(appearance?.align) ?? 'justify-center'),
         )}
         style={fieldColor}
       >
