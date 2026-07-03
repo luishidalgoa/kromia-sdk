@@ -80,4 +80,18 @@ void main() {
       expect(scaleShapePath('M 0 0 L 1 1 L 0.5 0.5 Z', 0.5), 'M 0.25 0.25 L 0.75 0.75 L 0.5 0.5 Z');
     });
   });
+
+  group('siluetas reales de Studio (regresión)', () {
+    test('FIFA-shield (M/L), arco (Q) y escudo (C+Q) validan', () {
+      const shapes = [
+        'M 0.4967 0.175 L 0.5431 0.2173 L 0.8217 0.2195 L 0.825 0.5286 L 0.825 0.717 L 0.5298 0.7276 L 0.5 0.825 L 0.4702 0.7276 L 0.175 0.717 L 0.1783 0.2195 L 0.4569 0.2173 Z',
+        'M 0 1 L 0 0.28 Q 0 0 0.5 0 Q 1 0 1 0.28 L 1 1 Z',
+        'M 0.5 0 L 0.94 0.06 Q 1 0.07 1 0.13 L 1 0.55 C 1 0.78 0.8 0.92 0.5 1 C 0.2 0.92 0 0.78 0 0.55 L 0 0.13 Q 0 0.07 0.06 0.06 Z',
+      ];
+      for (final p in shapes) {
+        expect(validateShapePath(p), isNull, reason: p.split(' ').first);
+        expect(cardShapePath(shape: 'custom', shapePath: p), p);
+      }
+    });
+  });
 }
