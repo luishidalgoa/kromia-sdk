@@ -95,11 +95,34 @@ Módulo (mm) por tamaño físico y ECC:
   firma del QR, el escaneo pasa a requerir red → es un cambio de arquitectura,
   no un ajuste de tamaño. Documentar la decisión antes de tocar el modelo.
 
-**Fixes de QR baratos e inmediatos** (no dependen de la imprenta):
-`margin: 2 → 4` (quiet zone ISO 18004), pad **cuadrado** en vez de
-`roundRect` (que muerde la quiet zone), y **validación en el editor**: avisar si
-el QR queda a <safe mm del borde o si el módulo estimado < umbral. Exportar el
-QR **vectorial** (SVG) en vez de `width:640` fijo.
+### Payloads candidatos (medido 2026-07-03, ECC M)
+
+| Payload | Versión | módulo @20 mm (32%) | @25 mm (40%) |
+|---------|---------|---------------------|--------------|
+| **Actual** (v+kind+uuid36+albumId24+idx+sig) 221 B | v10 | 0.308 ❌ | 0.385 ⚠️ |
+| sin `albumId` (uuid36) 184 B | v9 | 0.328 ❌ | 0.410 ✅ |
+| sin `albumId` + `id` corto (16 B→~22 ch) 170 B | v8 | 0.351 ⚠️ | 0.439 ✅ |
+| **compacto** no-JSON (`id16`+`idx`+`sig`) 109 B | v5 | **0.444 ✅** | 0.556 ✅ |
+
+**Conclusión medida**: recortar campos del JSON ayuda poco (v10→v8; a 20 mm sigue
+<0.4 mm). El **único** camino a un QR pequeño (20 mm) y seguro es el **formato
+compacto no-JSON**. **PERO** — restricción dura (la firma cubre
+`v\nkind\nid\nalbumId\ncardIndex\nserial`, `cardQrSigningInput`): **todo campo que
+se quite del QR debe salir también del input de firma**, o la **verificación
+offline se rompe** (el verificador necesita esos campos para reconstruir lo
+firmado). Es decir, QR pequeño ⇒ **cambio de contrato del QR + bump de `v` +
+espejo en Flutter (`core_dart`)**, no un simple ajuste. Sacar la firma del QR
+(dejar solo `id`) haría el QR diminuto pero **elimina la verificación offline** —
+es la decisión B2, de producto, no de tamaño.
+
+**Fixes de QR baratos e inmediatos** (no dependen de la imprenta; **hechos**
+2026-07-03 salvo lo indicado): `margin: 2 → 4` ✅ (quiet zone ISO 18004), isla
+blanca **cuadrada** en vez de `roundRect` ✅ (que muerde la quiet zone),
+`width: 640 → 1024` ✅. **Pendiente**: validación en el editor (avisar si el QR
+queda a <safe mm del borde o si el módulo estimado < umbral) — **diferida hasta
+B2** (el umbral seguro depende del formato de payload elegido) y a que la
+impresión física sea una capacidad real. Exportar el QR **vectorial** (SVG) en vez
+de PNG = parte del modo print-ready de servidor.
 
 ---
 
