@@ -32,6 +32,34 @@ export interface TiradaSpec {
   seed?: number;
 }
 
+/** KRO-216 — estado de una tirada en su ciclo de vida.
+ *  `minted` = compuesta + identidades minteadas (existen, sin dueño, sin repartir).
+ *  `distributed` = impresa y repartida → CONGELADA (los QR están en la calle).
+ *  `void` = anulada (prueba/error) → sus identidades se purgan. */
+export type TiradaStatus = 'minted' | 'distributed' | 'void';
+
+/** KRO-216 — una TIRADA PERSISTIDA: un lote de sobres ya minteado. Es la DUEÑA de
+ *  sus identidades físicas (`CardIdentity.tiradaId`). Agrupar + estado hacen el
+ *  minteo production-safe: los previews (composición) NO persisten, lo distribuido
+ *  se congela y lo `void` se purga → "no repetir QR distribuido". DATA (no entra al
+ *  `.json` del KRP; igual que `CardIdentity`). */
+export interface Tirada {
+  id:         string;
+  albumId:    string;
+  /** Edición/serie opcional, p.ej. "Serie 1". */
+  edition?:   string;
+  seed:       number;
+  slots:      TiradaSlot[];
+  packs:      number;
+  /** Total de cartas (identidades) minteadas en esta tirada. */
+  count:      number;
+  status:     TiradaStatus;
+  /** userId del creador. */
+  createdBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 /** Una carta minteada asignada a un hueco de un sobre. */
 export interface TiradaAllocation {
   pack:      number;            // 1-based
