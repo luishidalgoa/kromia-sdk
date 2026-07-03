@@ -142,7 +142,8 @@ export function validateShapePath(path: unknown): string | null {
     if (cmd !== 'M') segs++;
   }
   if (!closed) return 'El path debe cerrarse con Z.';
-  if (segs < 3) return 'La forma necesita al menos 3 segmentos.';
+  // 2 segmentos + el cierre implícito de Z = triángulo (la forma mínima).
+  if (segs < 2) return 'La forma necesita al menos 3 puntos.';
   return null;
 }
 
