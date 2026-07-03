@@ -14,5 +14,11 @@ publish_to: none
 environment:
   sdk: '>=3.0.0 <4.0.0'
 
+# pointycastle: verificación ECDSA P-256 (KRO-16, card_qr.dart). Pura Dart, sin
+# plugins nativos → corre igual en `dart test` y en la app Flutter. Espeja el uso
+# de WebCrypto del TS (mismo P1363).
+dependencies:
+  pointycastle: ^3.9.1
+
 dev_dependencies:
   test: ^1.24.0

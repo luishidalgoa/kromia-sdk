@@ -54,3 +54,4 @@ export 'src/conditional_style.dart';
 export 'src/card_back.dart';
 export 'src/card_ownership.dart';
 export 'src/card_shapes.dart';
+export 'src/card_qr.dart';
