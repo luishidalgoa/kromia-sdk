@@ -74,5 +74,15 @@ void main() {
       expect(j.containsKey('serial'), isFalse, reason: 'serial ausente no se serializa');
       expect(CardQrPayload.fromJson(j).cardIndex, 9);
     });
+
+    test('CardTransferBundle fromJson/toJson + kind por defecto (KRO-16)', () {
+      const b = CardTransferBundle(qr: 'CARDQR', transferToken: 'TOK123');
+      expect(b.kind, cardTransferKind);
+      expect(b.toJson(), {'kind': 'card-transfer', 'qr': 'CARDQR', 'transferToken': 'TOK123'});
+      final parsed = CardTransferBundle.fromJson(b.toJson());
+      expect(parsed.qr, 'CARDQR');
+      expect(parsed.transferToken, 'TOK123');
+      expect(parsed.kind, 'card-transfer');
+    });
   });
 }

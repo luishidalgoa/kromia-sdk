@@ -191,6 +191,38 @@ class CardQrPayload {
       };
 }
 
+/// Discriminador del QR-paquete de transferencia (KRO-16).
+const String cardTransferKind = 'card-transfer';
+
+/// Envoltorio de cable (cross-platform) que el DUEÑO muestra como QR para ceder
+/// una carta física: lleva el `qr` de identidad (exactamente lo que `/cards/scan`
+/// espera en su campo `qr`) + el `transferToken` (= `TransferToken.id`, opaco). El
+/// receptor lo escanea en UN paso → `/cards/scan {qr, transferToken}`. Espejo de
+/// `CardTransferBundle` (types.ts). DATA puro → NO bumpea el KRP.
+class CardTransferBundle {
+  final String kind;
+  final String qr;
+  final String transferToken;
+
+  const CardTransferBundle({
+    this.kind = cardTransferKind,
+    required this.qr,
+    required this.transferToken,
+  });
+
+  factory CardTransferBundle.fromJson(Map<String, dynamic> j) => CardTransferBundle(
+        kind: (j['kind'] as String?) ?? cardTransferKind,
+        qr: (j['qr'] ?? '').toString(),
+        transferToken: (j['transferToken'] ?? '').toString(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'kind': kind,
+        'qr': qr,
+        'transferToken': transferToken,
+      };
+}
+
 /// Verificada vs Declarada — el "nivel de confianza" visible de una carta.
 /// `verified` = `source=='qr'` y la identidad validó; `declared` = el resto
 /// (manual/código/foto, NO es anti-fraude). Espejo de `ownershipBadge`.
