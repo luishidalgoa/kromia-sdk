@@ -195,17 +195,20 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   imagen || (qr && physicalTracking=='qr'), con `section:null` (acordado). Extra menor DATA:
   `chipWidth:'fill'` aplica también al badge de slot ÚNICO (SDK `f633dd1`, rama BadgeSlot).
 - **Studio → Flutter** · **KRO-230 siluetas de carta** (DATA, NO bump) → espejar
-  `packages/core/src/card-shapes.ts` en `core_dart` (catálogo `CARD_SHAPES` 6 presets +
-  `CUSTOM_CARD_SHAPE`/`validateShapePath`/`cardShapePath` + `CardFormat.shape?`/`shapePath?`) y
-  renderizar en la app: parsear el path, escalarlo a la caja de la carta en un
-  `CustomClipper<Path>` y recortar TODAS las vistas de carta (grid, focus con canto 3D, reverso,
-  efectos). **La estrella de la feature es la silueta CUSTOM del creador**: Studio importa un SVG
-  o vectoriza una imagen con alfa y persiste `shape:'custom'` + `shapePath` — la GRAMÁTICA
-  canónica es SOLO `M/L/C/Q/Z` absolutos, coords 0..1, un subpath cerrado (sin arcos A: el parser
-  Dart no necesita motor SVG; `validateShapePath` es el validador puro a espejar; los presets ya
-  están canonicalizados). `shape` ausente/'standard' ⇒ rect redondeado por cornerRadius (sin
-  cambios); con silueta, cornerRadius se IGNORA (esquinas horneadas). La silueta se estira con el
-  aspect (espacio 0..1 en ambos ejes, intencional). Backend ya persiste enum + shapePath.
+  `packages/core/src/card-shapes.ts` en `core_dart` y renderizar en la app con un
+  `CustomClipper<Path>` que recorte TODAS las vistas de carta (grid, focus con canto 3D, reverso,
+  efectos). **NO hay siluetas de ejemplo** (feedback del user): `CARD_SHAPES` = solo `'standard'`
+  (deselección); la forma la aporta el creador → `shape:'custom'` + `shapePath` (Studio importa un
+  SVG o vectoriza una imagen con alfa). GRAMÁTICA canónica del path = SOLO `M/L/C/Q/Z` absolutos,
+  coords 0..1, un subpath cerrado (sin arcos: el parser Dart es un switch de 4 comandos;
+  `validateShapePath` = validador puro a espejar). **Nuevo `CardFormat.shapeScale`** [0.5,1]
+  (ausente ⇒ 1): escala uniforme de la silueta sobre su centro (0.5,0.5) — `scaleShapePath`
+  reproyecta `v' = 0.5 + (v−0.5)·s`; en Flutter, escalar el Path sobre su centro. **Sombra**: con
+  silueta NO uses box-shadow (rectangular, no lo recorta el clip → halo); usa un shadow que siga
+  la forma (en web = capa clip + blur en un ancestro; en Flutter = shadow del propio Path). `shape`
+  ausente/'standard' ⇒ rect redondeado por cornerRadius; con silueta cornerRadius se IGNORA. La
+  silueta se estira con el aspect (0..1 en ambos ejes, intencional). Backend persiste
+  enum{standard,custom} + shapePath + shapeScale.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
