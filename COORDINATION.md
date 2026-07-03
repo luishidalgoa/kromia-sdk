@@ -219,6 +219,18 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   que el receptor aporta al escanear); **colección verificada** `GET /cards/mine` fusionada con
   la declarada (KRO-214) vía `ownershipBadge`. Detalle completo en `docs/physical-cards-foundation-spec.md`
   §10. El export para imprenta (KRO-216) sigue bloqueado; esto es solo el backbone DIGITAL.
+  - **[Flutter] Estado**: **Parte A (espejo `core_dart`) HECHO y mergeado — sdk#24** (`card_qr.dart`:
+    anchor `cardQrSigningInput` + base64url + parse/serialize/validate + `verifyCardQrSignature`
+    ECDSA P-256 con `pointycastle`, 1ª dependency de runtime; test = vector interoperable
+    node/WebCrypto↔pointycastle; corpus 669, drift verde, sin bump).
+  - **Parte B (app) núcleo HECHO y mergeado — mobile#14**: feature `physical_cards/` (modelos
+    puros del scan + `CardScanResult.fromResponse` mapeando el contrato §10, servicio Dio
+    scan/transfer/mine/publicKey/mint, scanner con gate `parseCardQrPayload` + dev paste bar,
+    `mergeOwnershipBadges` verificada⊕declarada vía `ownershipBadge`; ruta `/cards/scan` + tile en
+    Ajustes; **14 tests verdes**, analyze limpio). **FALTA (wiring, no bloqueante)**: badge
+    verificada/declarada en la rejilla del álbum + pantalla de transferencia. **E2E del scan
+    bloqueado** hasta desplegar el backend `5152a8b` (probable en emulador con el paste bar +
+    `POST /cards/mint`) → **pide al user el push del backend**.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
