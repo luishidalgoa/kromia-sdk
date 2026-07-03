@@ -267,6 +267,16 @@ const EXPECTED_EXPORTS = [
   // KRO-215 — cartas físicas (identidad + propiedad)
   'ownershipBadge',
   'isVerifiedOwnership',
+  // KRO-16 — QR firmado de carta física (ECDSA P-256)
+  'CARD_QR_KIND',
+  'CARD_QR_VERSION',
+  'bytesToB64url',
+  'b64urlToBytes',
+  'cardQrSigningInput',
+  'serializeCardQrPayload',
+  'parseCardQrPayload',
+  'validateCardQrPayload',
+  'verifyCardQrSignature',
   // KRO-202 — plantillas de efecto (validación)
   'validateEffectTemplates',
   'isEffectTemplateValid',
