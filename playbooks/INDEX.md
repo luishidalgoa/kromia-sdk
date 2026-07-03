@@ -16,6 +16,7 @@
 | Añadir una **action** nueva | [add-action.md](add-action.md) |
 | Añadir o modificar una **recipe** (incluye slots, slot kinds) | [add-recipe.md](add-recipe.md) |
 | Subir `protocolVersion` del KRP o de cualquier contract | [bump-protocol.md](bump-protocol.md) |
+| Versionar una app (Studio/backend/Flutter) o actualizar su **CHANGELOG** | [versioning.md](versioning.md) |
 | Empezar una feature/bug/mejora nueva (planificación, Jira, branch) | [start-feature.md](start-feature.md) |
 | Cerrar una tarea (cierre Jira, memoria, commits, follow-ups) | [ship-task.md](ship-task.md) |
 | Añadir o modificar un **playbook** | [add-playbook.md](add-playbook.md) |

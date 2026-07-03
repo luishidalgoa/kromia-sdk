@@ -14,6 +14,14 @@ limpiamente.
 - [ ] Si introduce cambios al KRP: regenerar contract + verificar diff
   (ver [bump-protocol.md](bump-protocol.md)).
 
+### Changelog (regla primordial — ver [versioning.md](versioning.md))
+
+- [ ] Si el cambio es **user-facing**, añade 1 entrada (por cambio, NO por commit)
+  bajo `## [Unreleased]` del `CHANGELOG.md` del repo, en su categoría
+  (Added/Changed/Fixed/…), con las refs `(KRO-NN)`. Trivial (typo/formato/refactor
+  interno) → NO va al changelog.
+- [ ] Toca varios repos → entrada en el `CHANGELOG.md` de cada app afectada.
+
 ### Commits
 
 - [ ] Mensajes seguir el estilo del repo (conventional commits con scope):
