@@ -13,11 +13,34 @@ const List<String> cardSizes = ['mini', 'standard', 'large', 'poster'];
 class CardFormat {
   final String aspect; // CardAspect
   final String size; // CardSize
-  const CardFormat({required this.aspect, required this.size});
+
+  /// KRO-230/232 — SILUETA del recorte: id del catálogo `cardShapes` o `'custom'`.
+  /// Ausente ⇒ 'standard' (rect redondeado). Con silueta ≠ standard, cornerRadius
+  /// se ignora (esquinas horneadas en el path). Ver `card_shapes.dart`.
+  final String? shape;
+
+  /// KRO-230 fase 3 — path de la silueta CUSTOM (solo con `shape:'custom'`):
+  /// gramática M/L/C/Q/Z, coords 0..1, subpath cerrado (ver `validateShapePath`).
+  final String? shapePath;
+
+  /// KRO-230 — TAMAÑO de la silueta: escala uniforme [0.5, 1] sobre el centro
+  /// (1 = llena la carta; <1 deja margen). Ausente ⇒ 1 (`clampShapeScale`).
+  final double? shapeScale;
+
+  const CardFormat({
+    required this.aspect,
+    required this.size,
+    this.shape,
+    this.shapePath,
+    this.shapeScale,
+  });
 
   factory CardFormat.fromJson(Map<String, dynamic> json) => CardFormat(
         aspect: (json['aspect'] as String?) ?? '2:3',
         size: (json['size'] as String?) ?? 'standard',
+        shape: json['shape'] as String?,
+        shapePath: json['shapePath'] as String?,
+        shapeScale: (json['shapeScale'] as num?)?.toDouble(),
       );
 }
 
