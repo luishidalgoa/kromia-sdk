@@ -554,3 +554,7 @@ export {
   validateCardQrPayload, verifyCardQrSignature,
 } from './card-qr';
 export type { CardQrSignable } from './card-qr';
+
+// KRO-216 (composición) — componer una tirada por sobres respetando la rareza.
+export { composeTirada } from './card-tirada';
+export type { TiradaSlot, TiradaSpec, TiradaAllocation, TiradaResult, TiradaCard } from './card-tirada';

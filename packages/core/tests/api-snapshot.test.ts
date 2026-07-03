@@ -277,6 +277,8 @@ const EXPECTED_EXPORTS = [
   'parseCardQrPayload',
   'validateCardQrPayload',
   'verifyCardQrSignature',
+  // KRO-216 — composición de tirada por rareza
+  'composeTirada',
   // KRO-202 — plantillas de efecto (validación)
   'validateEffectTemplates',
   'isEffectTemplateValid',
