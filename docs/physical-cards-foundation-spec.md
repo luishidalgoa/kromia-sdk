@@ -8,9 +8,13 @@
 > **Estado de implementación (KRO-215, sesión 2026-06-29)**: el TRONCO de tipos
 > (`CardIdentity`/`CardOwnership`/`TransferToken`/`CardQrPayload` + `ownershipBadge`)
 > SÍ se aterrizó en `@kromia/core` como contrato SDK-first (DATA, no bumpea el KRP).
-> El minteo/firma/`scan`/`transfer` siguen BLOQUEADOS por KRO-216 (research imprenta)
-> y el publisher piloto. Espejo `core_dart` pendiente (Drift Sync, no urgente: nada
-> lo consume aún).
+>
+> **⚡ ACTUALIZACIÓN 2026-07-03 — el BACKBONE DIGITAL de KRO-16 ESTÁ CONSTRUIDO**
+> (decisión del user: ir por delante del gate del piloto). Lo digital NO depende
+> del research de imprenta (§8) — solo el export listo-para-imprenta (KRO-216)
+> sigue bloqueado. Ver **§10** para lo implementado (firma ECDSA + endpoints
+> scan/transfer + tests). Espejo `core_dart` de `card-qr.ts` + scanner Flutter =
+> handoff abierto.
 
 ## 0. Alcance
 
@@ -155,6 +159,48 @@ Estas son **incógnitas externas** (imprenta industrial) que hay que cerrar ante
 2. **Esta spec** (fundación) — review + validar el modelo + el contrato QR. **(Tipos aterrizados en `@kromia/core` el 2026-06-29.)**
 3. Cuando haya **publisher piloto** (desbloquea KRO-16) **Y** se cierre el **research de imprenta** (KRO-216): implementar `CardIdentity` + minteo/firma + `scan`/`transfer`.
 4. **KRO-17** (trades): Fase 1 digital arrancable antes; Fase 2 física/GPS bloqueada por compliance.
+
+## 10. Backbone digital de KRO-16 — CONSTRUIDO (2026-07-03)
+
+Lo digital (firma/verificación + scan/transfer + propiedad) es **independiente**
+del research de imprenta (§8). Implementado y testeado; el export para VDP
+(KRO-216) sigue bloqueado.
+
+### 10.1 `@kromia/core` · `card-qr.ts` (contrato, SDK-first · commit `2b1036e`)
+- **Cripto: ECDSA P-256 + SHA-256**, firma **IEEE P1363** (raw r‖s, 64 bytes)
+  base64url; clave pública como **JWK**. Elegido por portabilidad TS↔Dart total.
+- `cardQrSigningInput(payload)` = los BYTES EXACTOS firmados (unión por `\n`,
+  orden fijo `v,kind,id,albumId,cardIndex,serial`). **Es el ancla cross-platform.**
+- `serializeCardQrPayload`/`parseCardQrPayload` (contenido del QR), `validateCardQrPayload`,
+  `verifyCardQrSignature(payload, publicJwk)` (WebCrypto, PÚBLICA, offline).
+- +9 tests (firma↔verif, manipulación, clave ajena).
+
+### 10.2 Backend · módulo `Cards` (`5152a8b`)
+- `cardQrKeys.service`: clave ECDSA (env `CARD_QR_PRIVATE_KEY_JWK` → fichero
+  `.card-qr-key.json` gitignored → generar). Firma con Node crypto (P1363).
+- Modelo `CardIdentity` (propiedad 1-por-identidad + historial). `TransferToken`
+  = JWT (reusa la maquinaria del sandbox, TTL 15min, server-validado).
+- Endpoints (todos en el api-map): `GET /cards/public-key` (público) ·
+  `POST /cards/mint` (`card:mint` = admin/publisher, minteo de PRUEBA) ·
+  `POST /cards/scan` (reclamar / ya-tuya / **anti-fraude 403** / transferir) ·
+  `POST /cards/transfer` (dueño → token) · `GET /cards/mine`.
+- +6 tests de integración del flujo completo.
+
+### 10.3 Handoff Flutter (abierto)
+1. **Espejar `card-qr.ts` en `core_dart`**: `cardQrSigningInput` (misma cadena),
+   `parse/serialize`, `verifyCardQrSignature` (ECDSA P-256 con la JWK de
+   `GET /cards/public-key`, para verificar offline antes de llamar al server).
+2. **Scanner de cámara** → `POST /cards/scan {qr}` → mostrar resultado
+   (`claimed`/`already-yours`/`transferred`/`owned-by-other`).
+3. **Transferir**: dueño → `POST /cards/transfer {identityId}` → muestra el QR/
+   token; el receptor lo aporta al escanear.
+4. **Colección verificada**: `GET /cards/mine` → fusionar con la declarada
+   (KRO-214) usando `ownershipBadge` (Verificada/Declarada).
+
+### 10.4 Pendiente (fuera del backbone)
+- **KRO-216** (export listo-para-imprenta): bloqueado por research de imprenta (§8).
+- **Studio**: herramienta de "lanzar tirada" = parte de KRO-216 (el escaneo NO vive en Studio).
+- Reflejar la carta reclamada en "Mi colección" declarada = decisión de presentación (Flutter).
 
 ---
 

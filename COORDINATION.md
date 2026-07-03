@@ -209,6 +209,16 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   ausente/'standard' ⇒ rect redondeado por cornerRadius; con silueta cornerRadius se IGNORA. La
   silueta se estira con el aspect (0..1 en ambos ejes, intencional). Backend persiste
   enum{standard,custom} + shapePath + shapeScale.
+- **Studio → Flutter** · **KRO-16 backbone QR construido** (SDK `2b1036e` + backend `5152a8b`;
+  el user decidió ir por delante del gate del piloto). Espejar `packages/core/src/card-qr.ts`
+  en `core_dart` (**ECDSA P-256 + SHA-256**, sig IEEE-P1363 base64url, pubkey JWK;
+  `cardQrSigningInput` = bytes canónicos `v\nkind\nid\nalbumId\ncardIndex\nserial`; `parse/
+  serialize`, `verifyCardQrSignature` con la JWK de `GET /cards/public-key`) + app: **scanner
+  de cámara** → `POST /cards/scan {qr}` (respuestas `claimed`/`already-yours`/`transferred`/
+  403 `owned-by-other`); **transferir** (dueño → `POST /cards/transfer {identityId}` → token
+  que el receptor aporta al escanear); **colección verificada** `GET /cards/mine` fusionada con
+  la declarada (KRO-214) vía `ownershipBadge`. Detalle completo en `docs/physical-cards-foundation-spec.md`
+  §10. El export para imprenta (KRO-216) sigue bloqueado; esto es solo el backbone DIGITAL.
 - **abierto** · reconciliar conteo de iconos en `core_dart` (81) vs canónico SDK (79).
 
 ## Last updated
