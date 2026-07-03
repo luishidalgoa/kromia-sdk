@@ -323,6 +323,22 @@ export interface CardQrPayload {
   sig:       string;
 }
 
+/** KRO-16 — Envoltorio QR-encodable para transferir una carta en UN escaneo.
+ *  El dueño A genera el `TransferToken` (`POST /cards/transfer`) y muestra este
+ *  bundle como QR; el receptor B lo escanea, extrae ambos campos y llama
+ *  `POST /cards/scan {qr, transferToken}` — no tiene que copiar/pegar nada.
+ *  Convención de cliente cross-platform: NO cambia el contrato de `/scan` (B
+ *  desenvuelve en cliente). El `kind` la distingue del QR de identidad
+ *  (`CardQrPayload.kind === 'card-identity'`). */
+export interface CardTransferBundle {
+  kind:          'card-transfer';
+  /** Contenido textual del QR de identidad de la carta — exactamente lo que
+   *  `/cards/scan` espera en su campo `qr` (el `CardQrPayload` serializado). */
+  qr:            string;
+  /** Token efímero de transferencia (= `TransferToken.id`, opaco). */
+  transferToken: string;
+}
+
 /**
  * KRO-69 V6 — Subset CSS-like de propiedades de apariencia que un slot
  * puede overridear por instancia. Todas opcionales y se interpretan según

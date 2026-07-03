@@ -544,7 +544,7 @@ export type { CardShapeDefinition, CardShapeId } from './card-shapes';
 
 // KRO-215 — cartas físicas: identidad + propiedad (tronco SDK-first; DATA, no bumpea el KRP).
 export { ownershipBadge, isVerifiedOwnership } from './card-ownership';
-export type { CardIdentity, CardOwnership, OwnershipSource, TransferToken, CardQrPayload } from './types';
+export type { CardIdentity, CardOwnership, OwnershipSource, TransferToken, CardQrPayload, CardTransferBundle } from './types';
 
 // KRO-16 — QR firmado de carta física: contrato + verificación pública (ECDSA P-256).
 export {
