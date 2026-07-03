@@ -72,10 +72,16 @@ export interface CardFormat {
   size:   CardSize;
   /** KRO-225 — redondeado de esquinas. Opcional (aditivo): ausente ⇒ 'md'. */
   cornerRadius?: CardCornerRadius;
-  /** KRO-230 — SILUETA del recorte (id del catálogo `CARD_SHAPES`). Opcional
-   *  (aditivo): ausente ⇒ 'standard' (rect redondeado por cornerRadius). Con
-   *  silueta ≠ standard, cornerRadius se ignora (esquinas horneadas en el path). */
+  /** KRO-230 — SILUETA del recorte: id del catálogo `CARD_SHAPES`, o `'custom'`
+   *  (la del creador). Opcional (aditivo): ausente ⇒ 'standard' (rect redondeado
+   *  por cornerRadius). Con silueta ≠ standard, cornerRadius se ignora (esquinas
+   *  horneadas en el path). */
   shape?: string;
+  /** KRO-230 fase 3 — path de la silueta CUSTOM (solo con `shape: 'custom'`):
+   *  gramática M/L/C/Q/Z absoluta, coords 0..1, un subpath cerrado — ver
+   *  `validateShapePath`. Importado de un SVG del creador o vectorizado de una
+   *  imagen con transparencia. */
+  shapePath?: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────

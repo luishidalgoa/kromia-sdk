@@ -535,7 +535,10 @@ export { resolveCardBack, CARD_BACK_SECTION_KEY } from './card-back';
 export type { QrPlacement, CardBackDesign, ConditionalCardBackCase, ConditionalCardBack, CardBackComposition } from './types';
 
 // KRO-230 — siluetas de carta (forma del recorte; DATA del cardFormat, no bumpea el KRP).
-export { CARD_SHAPES, CARD_SHAPE_IDS, DEFAULT_CARD_SHAPE, cardShapeById, cardShapePath } from './card-shapes';
+export {
+  CARD_SHAPES, CARD_SHAPE_IDS, DEFAULT_CARD_SHAPE, CUSTOM_CARD_SHAPE, MAX_SHAPE_PATH_LENGTH,
+  cardShapeById, cardShapePath, validateShapePath,
+} from './card-shapes';
 export type { CardShapeDefinition, CardShapeId } from './card-shapes';
 
 // KRO-215 — cartas físicas: identidad + propiedad (tronco SDK-first; DATA, no bumpea el KRP).

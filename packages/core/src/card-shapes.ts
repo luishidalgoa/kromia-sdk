@@ -68,7 +68,9 @@ export const CARD_SHAPES: ReadonlyArray<CardShapeDefinition> = [
   {
     id: 'ticket', label: 'Ticket',
     tooltip: 'Muescas semicirculares a media altura — entrada/cupón',
-    path: 'M 0.06 0 L 0.94 0 Q 1 0 1 0.04 L 1 0.455 A 0.055 0.04 0 0 0 1 0.545 L 1 0.96 Q 1 1 0.94 1 L 0.06 1 Q 0 1 0 0.96 L 0 0.545 A 0.055 0.04 0 0 0 0 0.455 L 0 0.04 Q 0 0 0.06 0 Z',
+    // Muescas como cúbicas (semicírculo ≈ C con controles a 4/3·r) — la gramática
+    // canónica del protocolo es M/L/C/Q/Z, sin arcos elípticos (A).
+    path: 'M 0.06 0 L 0.94 0 Q 1 0 1 0.04 L 1 0.455 C 0.927 0.455 0.927 0.545 1 0.545 L 1 0.96 Q 1 1 0.94 1 L 0.06 1 Q 0 1 0 0.96 L 0 0.545 C 0.073 0.545 0.073 0.455 0 0.455 L 0 0.04 Q 0 0 0.06 0 Z',
   },
   {
     id: 'shield', label: 'Escudo',
@@ -95,9 +97,63 @@ export function cardShapeById(id: string | undefined): CardShapeDefinition {
 }
 
 /**
- * Path normalizado de la silueta del formato, o `null` si la carta es el
- * rectángulo redondeado estándar (⇒ usa `cardCornerRadiusPx`).
+ * KRO-230 fase 3 — silueta PERSONALIZADA del creador.
+ *
+ * `shape: 'custom'` + `shapePath` = un path importado (SVG del diseñador, o
+ * contorno vectorizado de una imagen con transparencia) ya normalizado al
+ * protocolo. La GRAMÁTICA canónica es deliberadamente pequeña para que todo
+ * consumidor (web, Flutter, troquel) la parsee sin un motor SVG completo:
+ *
+ *   path := M x y (L x y | C x1 y1 x2 y2 x y | Q x1 y1 x y)+ Z
+ *
+ * — comandos ABSOLUTOS en mayúscula, coordenadas en [0,1], un solo subpath
+ * (sin holes), cerrado con Z. El importador de Studio convierte cualquier
+ * SVG razonable (h/v/s/t/a, relativos, shapes básicos) a esta forma.
  */
-export function cardShapePath(fmt: { shape?: string } | undefined): string | null {
+export const CUSTOM_CARD_SHAPE = 'custom';
+
+/** Longitud máxima defensiva del path custom persistido. */
+export const MAX_SHAPE_PATH_LENGTH = 6000;
+
+const ARITY: Record<string, number> = { M: 2, L: 2, Q: 4, C: 6 };
+
+/**
+ * Valida un `shapePath` custom contra la gramática del protocolo.
+ * Devuelve `null` si es válido, o el motivo (es-ES) si no.
+ */
+export function validateShapePath(path: unknown): string | null {
+  if (typeof path !== 'string' || !path.trim()) return 'El path está vacío.';
+  if (path.length > MAX_SHAPE_PATH_LENGTH) return 'El path es demasiado largo (simplifica la forma).';
+  if (/[^MLCQZ0-9.\-\s]/.test(path)) return 'Solo se admiten comandos M/L/C/Q/Z absolutos y números.';
+  const tokens = path.trim().split(/\s+/);
+  let i = 0, segs = 0, ms = 0, closed = false;
+  while (i < tokens.length) {
+    const cmd = tokens[i++];
+    if (cmd === 'Z') { closed = true; if (i !== tokens.length) return 'Z debe ser el último comando (un solo subpath, sin holes).'; break; }
+    const n = ARITY[cmd];
+    if (n === undefined) return `Comando no admitido: "${cmd}".`;
+    if (cmd === 'M' && ++ms > 1) return 'Solo se admite un subpath (una única M, sin holes).';
+    if (cmd !== 'M' && ms === 0) return 'El path debe empezar por M.';
+    for (let k = 0; k < n; k++) {
+      const v = Number(tokens[i++]);
+      if (!Number.isFinite(v)) return 'Coordenada no numérica.';
+      if (v < -0.002 || v > 1.002) return 'Las coordenadas deben estar normalizadas en 0..1.';
+    }
+    if (cmd !== 'M') segs++;
+  }
+  if (!closed) return 'El path debe cerrarse con Z.';
+  if (segs < 3) return 'La forma necesita al menos 3 segmentos.';
+  return null;
+}
+
+/**
+ * Path normalizado de la silueta del formato, o `null` si la carta es el
+ * rectángulo redondeado estándar (⇒ usa `cardCornerRadiusPx`). Una silueta
+ * custom inválida cae a estándar (defensivo, nunca rompe el render).
+ */
+export function cardShapePath(fmt: { shape?: string; shapePath?: string } | undefined): string | null {
+  if (fmt?.shape === CUSTOM_CARD_SHAPE) {
+    return fmt.shapePath && validateShapePath(fmt.shapePath) === null ? fmt.shapePath : null;
+  }
   return cardShapeById(fmt?.shape).path;
 }
