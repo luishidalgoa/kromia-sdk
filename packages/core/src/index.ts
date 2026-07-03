@@ -546,6 +546,13 @@ export type { CardShapeDefinition, CardShapeId } from './card-shapes';
 export { ownershipBadge, isVerifiedOwnership } from './card-ownership';
 export type { CardIdentity, CardOwnership, OwnershipSource, TransferToken, CardQrPayload, CardTransferBundle } from './types';
 
+// KRO-233 — proveedores de impresión curados (recomendar + adaptar el export). DATA.
+export { matchProviderToTirada } from './print-provider';
+export type {
+  PrintProviderProfile, PrintProviderStatus, PrintProviderCapabilities,
+  PrintProviderFileSpec, PrintDeliverable, TiradaPrintNeeds, ProviderMatch,
+} from './print-provider';
+
 // KRO-16 — QR firmado de carta física: contrato + verificación pública (ECDSA P-256).
 export {
   CARD_QR_KIND, CARD_QR_VERSION,
