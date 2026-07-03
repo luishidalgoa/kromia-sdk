@@ -49,38 +49,18 @@ export interface CardShapeDefinition extends CatalogOption {
   path: string | null;
 }
 
+/**
+ * El catálogo es DELIBERADAMENTE mínimo: la silueta NO viene con "formas de
+ * ejemplo" — el creador aporta la SUYA (importar SVG o vectorizar una imagen,
+ * ver abajo). `'standard'` es la única entrada del catálogo: la carta clásica
+ * (rectángulo redondeado por `cornerRadius`), que además sirve para
+ * DESELECCIONAR una silueta importada.
+ */
 export const CARD_SHAPES: ReadonlyArray<CardShapeDefinition> = [
   {
     id: 'standard', label: 'Estándar',
     tooltip: 'Rectángulo redondeado clásico (el redondeo lo controla "Redondeado")',
     path: null,
-  },
-  {
-    id: 'chamfer', label: 'Esquinas cortadas',
-    tooltip: 'Chaflán recto en las 4 esquinas — estilo cromo deportivo retro',
-    path: 'M 0.1 0 L 0.9 0 L 1 0.07 L 1 0.93 L 0.9 1 L 0.1 1 L 0 0.93 L 0 0.07 Z',
-  },
-  {
-    id: 'arch', label: 'Arco superior',
-    tooltip: 'Cabecera en arco — silueta clásica de cromo de fútbol',
-    path: 'M 0 1 L 0 0.2 C 0 0.055 0.22 0 0.5 0 C 0.78 0 1 0.055 1 0.2 L 1 1 Z',
-  },
-  {
-    id: 'ticket', label: 'Ticket',
-    tooltip: 'Muescas semicirculares a media altura — entrada/cupón',
-    // Muescas como cúbicas (semicírculo ≈ C con controles a 4/3·r) — la gramática
-    // canónica del protocolo es M/L/C/Q/Z, sin arcos elípticos (A).
-    path: 'M 0.06 0 L 0.94 0 Q 1 0 1 0.04 L 1 0.455 C 0.927 0.455 0.927 0.545 1 0.545 L 1 0.96 Q 1 1 0.94 1 L 0.06 1 Q 0 1 0 0.96 L 0 0.545 C 0.073 0.545 0.073 0.455 0 0.455 L 0 0.04 Q 0 0 0.06 0 Z',
-  },
-  {
-    id: 'shield', label: 'Escudo',
-    tooltip: 'Escudo heráldico — insignias, clubs, blasones',
-    path: 'M 0.5 0 L 0.94 0.06 Q 1 0.07 1 0.13 L 1 0.55 C 1 0.78 0.8 0.92 0.5 1 C 0.2 0.92 0 0.78 0 0.55 L 0 0.13 Q 0 0.07 0.06 0.06 Z',
-  },
-  {
-    id: 'hex', label: 'Hexágono',
-    tooltip: 'Hexágono vertical — gemas, fichas, sci-fi',
-    path: 'M 0.5 0 L 1 0.13 L 1 0.87 L 0.5 1 L 0 0.87 L 0 0.13 Z',
   },
 ];
 
@@ -157,4 +137,35 @@ export function cardShapePath(fmt: { shape?: string; shapePath?: string } | unde
     return fmt.shapePath && validateShapePath(fmt.shapePath) === null ? fmt.shapePath : null;
   }
   return cardShapeById(fmt?.shape).path;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// KRO-230 — TAMAÑO de la silueta (escala uniforme dentro de la caja de carta)
+// ─────────────────────────────────────────────────────────────────────────
+
+/** Escala por defecto: la silueta llena la caja de la carta. */
+export const DEFAULT_SHAPE_SCALE = 1;
+/** Escala mínima: la silueta a la mitad, centrada (deja margen alrededor). */
+export const MIN_SHAPE_SCALE = 0.5;
+
+/** Normaliza `shapeScale` al rango [MIN_SHAPE_SCALE, 1]; ausente/no-num ⇒ 1. */
+export function clampShapeScale(scale: number | undefined): number {
+  if (typeof scale !== 'number' || !Number.isFinite(scale)) return DEFAULT_SHAPE_SCALE;
+  return Math.min(DEFAULT_SHAPE_SCALE, Math.max(MIN_SHAPE_SCALE, scale));
+}
+
+/**
+ * Escala un path del protocolo alrededor de su CENTRO (0.5, 0.5) por `scale`,
+ * manteniéndolo en el espacio 0..1 (para `scale ≤ 1` ⇒ deja margen; a `1`
+ * devuelve el path intacto). Como la gramática es solo M/L/C/Q/Z, TODO número
+ * es una coordenada → basta reproyectar cada uno: `v' = 0.5 + (v − 0.5)·s`.
+ * El mismo cálculo lo replica Flutter (escalar el Path sobre su centro).
+ */
+export function scaleShapePath(path: string, scale: number): string {
+  const s = clampShapeScale(scale);
+  if (s === DEFAULT_SHAPE_SCALE) return path;
+  return path.replace(/-?\d*\.?\d+/g, (n) => {
+    const v = 0.5 + (Number(n) - 0.5) * s;
+    return String(Math.round(v * 10000) / 10000);
+  });
 }

@@ -537,7 +537,8 @@ export type { QrPlacement, CardBackDesign, ConditionalCardBackCase, ConditionalC
 // KRO-230 — siluetas de carta (forma del recorte; DATA del cardFormat, no bumpea el KRP).
 export {
   CARD_SHAPES, CARD_SHAPE_IDS, DEFAULT_CARD_SHAPE, CUSTOM_CARD_SHAPE, MAX_SHAPE_PATH_LENGTH,
-  cardShapeById, cardShapePath, validateShapePath,
+  DEFAULT_SHAPE_SCALE, MIN_SHAPE_SCALE,
+  cardShapeById, cardShapePath, validateShapePath, clampShapeScale, scaleShapePath,
 } from './card-shapes';
 export type { CardShapeDefinition, CardShapeId } from './card-shapes';
 

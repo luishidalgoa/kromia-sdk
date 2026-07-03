@@ -82,6 +82,10 @@ export interface CardFormat {
    *  `validateShapePath`. Importado de un SVG del creador o vectorizado de una
    *  imagen con transparencia. */
   shapePath?: string;
+  /** KRO-230 — TAMAÑO de la silueta: escala uniforme [0.5, 1] sobre el centro
+   *  de la caja (1 = llena la carta; <1 deja margen). Ausente ⇒ 1. Render-only
+   *  (ver `scaleShapePath`/`clampShapeScale`). */
+  shapeScale?: number;
 }
 
 // ─────────────────────────────────────────────────────────────────────────

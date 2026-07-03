@@ -276,9 +276,13 @@ const EXPECTED_EXPORTS = [
   'DEFAULT_CARD_SHAPE',
   'CUSTOM_CARD_SHAPE',
   'MAX_SHAPE_PATH_LENGTH',
+  'DEFAULT_SHAPE_SCALE',
+  'MIN_SHAPE_SCALE',
   'cardShapeById',
   'cardShapePath',
   'validateShapePath',
+  'clampShapeScale',
+  'scaleShapePath',
   // KRO-133 F5 — recetas → presets de layout
   'recipeToComposition',
   // KRO-133 — ratchet de conformidad del motor de layout
