@@ -71,7 +71,9 @@ Categorías: **Added** (features) · **Changed** (mejoras/cambios de comportamie
 - [ ] Bump de la versión en `package.json` (Studio/backend) o `pubspec.yaml`
   (Flutter) a `X.Y.Z`.
 - [ ] Tag `vX.Y.Z` en ese repo **solo con permiso del user** (aplica la regla
-  "no push/tag sin permiso explícito").
+  "no push/tag sin permiso explícito"). Apunta el tag al **commit del corte** (el
+  del bump/CHANGELOG), NO a HEAD si ya hay trabajo posterior en `[Unreleased]`.
+- [ ] **GitHub Release** desde el tag (`gh release create vX.Y.Z --title … --notes-file <sección del CHANGELOG>`) — es un acto de PUBLICACIÓN → **con OK del user**. Notas = la sección `[X.Y.Z]` del CHANGELOG.
 - [ ] No cortar versión por cada commit; hazlo en un batch/milestone coherente
   o cuando el user lo pida.
 
