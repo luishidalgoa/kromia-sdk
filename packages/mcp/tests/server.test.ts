@@ -22,7 +22,7 @@ describe('kromia MCP server (F1)', () => {
     expect(names).toEqual(expect.arrayContaining([
       'list_recipes', 'list_components', 'list_field_types', 'list_slot_kinds',
       'list_templates', 'describe', 'validate_composition',
-      'auto_compose', 'apply_template', 'get_template',
+      'auto_compose', 'apply_template', 'get_template', 'apply_composition',
     ]));
   });
 
@@ -94,5 +94,39 @@ describe('kromia MCP server (F1)', () => {
         return;
       }
     }
+  });
+
+  it('apply_composition: dry-run por defecto (no escribe)', async () => {
+    const client = await connect();
+    const comp = textOf(await client.callTool({
+      name: 'auto_compose', arguments: { kind: 'list', fields: [{ key: 'name', type: 'text', behavior: 'title' }] },
+    })).composition;
+    const out = textOf(await client.callTool({
+      name: 'apply_composition', arguments: { schemaId: 'x', sectionKey: 's', composition: comp },
+    }));
+    expect(out.applied).toBe(false);
+    expect(out.dryRun).toBe(true);
+  });
+
+  it('apply_composition: composición inválida no aplica (aunque confirm:true)', async () => {
+    const client = await connect();
+    const out = textOf(await client.callTool({
+      name: 'apply_composition', arguments: { schemaId: 'x', sectionKey: 's', composition: { recipe: '__nope__' }, confirm: true },
+    }));
+    expect(out.applied).toBe(false);
+    expect(out.validation.valid).toBe(false);
+  });
+
+  it('apply_composition: confirm:true sin token → isError (no intenta escribir)', async () => {
+    delete process.env.KROMIA_API_URL;
+    delete process.env.KROMIA_TOKEN;
+    const client = await connect();
+    const comp = textOf(await client.callTool({
+      name: 'auto_compose', arguments: { kind: 'list', fields: [{ key: 'name', type: 'text', behavior: 'title' }] },
+    })).composition;
+    const r: any = await client.callTool({
+      name: 'apply_composition', arguments: { schemaId: 'x', sectionKey: 's', composition: comp, confirm: true },
+    });
+    expect(r.isError).toBe(true);
   });
 });

@@ -19,8 +19,14 @@ en Desktop/Code) diseñe álbumes: explora el catálogo, propone una composició
   - `auto_compose` — fields → ViewComposition sensata (heurística del SDK) + validación.
   - `apply_template` — aplica una plantilla de layout a una composición (elegir+ajustar > diseñar desde cero) + validación.
   - `get_template` — inspecciona el árbol de layout que produce una plantilla.
-- **F3** — aplicar al álbum real (auth + API del backend).
+- **F3 ✅** — aplicar al álbum real:
+  - `apply_composition` — aplica una ViewComposition a la sección de un schema. **DRY-RUN por defecto** (valida + muestra qué cambiaría, no escribe); escribe solo con `confirm:true`. Requiere env `KROMIA_API_URL` + `KROMIA_TOKEN` (Bearer). Backend versiona (revertible).
 - **F4** — transporte remoto (HTTP/SSE) para agentes/terceros.
+
+Para escribir (F3), añade al config del cliente MCP:
+```json
+"env": { "KROMIA_API_URL": "http://localhost:3000/api", "KROMIA_TOKEN": "<tu JWT>" }
+```
 
 Flujo del agente: `auto_compose` (o `apply_template`) → `validate_composition` → corrige por `path` → repite hasta `valid:true`.
 

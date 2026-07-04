@@ -170,5 +170,51 @@ export function createKromiaMcpServer(): McpServer {
     return json({ layout: tpl.build(has), appearance: tpl.appearance });
   });
 
+  // ── Aplicar al álbum real (F3) ─────────────────────────────────────────
+  server.registerTool('apply_composition', {
+    title: 'Aplicar una composición a un schema real',
+    description:
+      'Aplica una ViewComposition a la SECCIÓN de un schema de Kromia. SEGURO: (1) valida localmente antes de nada; (2) DRY-RUN por defecto — muestra qué se aplicaría SIN escribir; solo escribe con `confirm:true`. Escribir requiere env `KROMIA_API_URL` + `KROMIA_TOKEN` (Bearer del usuario). El backend versiona el schema (revertible).',
+    inputSchema: {
+      schemaId:    z.string().describe('id del card-schema destino'),
+      sectionKey:  z.string().describe('clave de la sección dentro del schema'),
+      composition: z.object({ recipe: z.string() }).passthrough(),
+      confirm:     z.boolean().optional().describe('true = ESCRIBE en el backend; ausente/false = dry-run'),
+    },
+  }, async ({ schemaId, sectionKey, composition, confirm }) => {
+    const validation = validateComposition(composition as unknown as ViewComposition);
+    if (!validation.valid) {
+      return json({ applied: false, reason: 'Composición inválida — corrígela antes de aplicar.', validation });
+    }
+    if (!confirm) {
+      return json({
+        applied: false, dryRun: true,
+        wouldApply: { schemaId, sectionKey },
+        validation,
+        note: 'Dry-run: nada escrito. Repite con confirm:true para aplicar de verdad.',
+      });
+    }
+    const base = process.env.KROMIA_API_URL;
+    const token = process.env.KROMIA_TOKEN;
+    if (!base || !token) {
+      return { content: [{ type: 'text' as const, text: 'Para ESCRIBIR faltan las env `KROMIA_API_URL` y/o `KROMIA_TOKEN` en el proceso del MCP.' }], isError: true };
+    }
+    try {
+      const url = `${base.replace(/\/$/, '')}/card-schemas/${encodeURIComponent(schemaId)}/sections/${encodeURIComponent(sectionKey)}/composition`;
+      const res = await fetch(url, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ composition }),
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        return { content: [{ type: 'text' as const, text: `El backend rechazó (${res.status}): ${JSON.stringify(payload)}` }], isError: true };
+      }
+      return json({ applied: true, result: payload });
+    } catch (e) {
+      return { content: [{ type: 'text' as const, text: `Error de red al aplicar: ${(e as Error).message}` }], isError: true };
+    }
+  });
+
   return server;
 }
