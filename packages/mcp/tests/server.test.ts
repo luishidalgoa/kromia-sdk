@@ -15,13 +15,14 @@ async function connect(): Promise<Client> {
 const textOf = (r: any) => JSON.parse(r.content[0].text);
 
 describe('kromia MCP server (F1)', () => {
-  it('expone las tools de catálogo + validación', async () => {
+  it('expone las tools de catálogo + validación + construcción', async () => {
     const client = await connect();
     const { tools } = await client.listTools();
     const names = tools.map(t => t.name).sort();
     expect(names).toEqual(expect.arrayContaining([
       'list_recipes', 'list_components', 'list_field_types', 'list_slot_kinds',
       'list_templates', 'describe', 'validate_composition',
+      'auto_compose', 'apply_template', 'get_template',
     ]));
   });
 
@@ -47,5 +48,51 @@ describe('kromia MCP server (F1)', () => {
     }));
     expect(res.valid).toBe(false);
     expect(res.issues.some((i: any) => i.path === 'recipe')).toBe(true);
+  });
+
+  it('auto_compose (list) genera una composición con recipe + slots + validación', async () => {
+    const client = await connect();
+    const out = textOf(await client.callTool({
+      name: 'auto_compose',
+      arguments: { kind: 'list', fields: [
+        { key: 'name', type: 'text', behavior: 'title' },
+        { key: 'photo', type: 'image', behavior: 'avatar' },
+      ] },
+    }));
+    expect(out.composition).toHaveProperty('recipe');
+    expect(out.composition).toHaveProperty('slots');
+    expect(out.validation).toHaveProperty('valid');
+  });
+
+  it('auto_compose (detail) también compone', async () => {
+    const client = await connect();
+    const out = textOf(await client.callTool({
+      name: 'auto_compose',
+      arguments: { kind: 'detail', fields: [{ key: 'title', type: 'text', behavior: 'title' }] },
+    }));
+    expect(out.composition).toHaveProperty('recipe');
+  });
+
+  it('apply_template con plantilla inexistente marca isError', async () => {
+    const client = await connect();
+    const r: any = await client.callTool({
+      name: 'apply_template', arguments: { composition: { recipe: 'compact_card' }, templateId: '__nope__' },
+    });
+    expect(r.isError).toBe(true);
+  });
+
+  it('get_template devuelve un layout para una plantilla real (si alguna receta tiene)', async () => {
+    const client = await connect();
+    const recipes = textOf(await client.callTool({ name: 'list_recipes', arguments: {} }));
+    for (const r of recipes) {
+      const tpls = textOf(await client.callTool({ name: 'list_templates', arguments: { recipeId: r.id } }));
+      if (tpls.length) {
+        const out = textOf(await client.callTool({
+          name: 'get_template', arguments: { recipeId: r.id, templateId: tpls[0].id },
+        }));
+        expect(out).toHaveProperty('layout');
+        return;
+      }
+    }
   });
 });

@@ -13,10 +13,11 @@ import {
   allComponents, getComponentDef,
   allFieldTypes, getFieldType,
   SLOT_ACCEPT_KIND_META,
-  layoutTemplatesFor,
+  layoutTemplatesFor, applyLayoutTemplate,
+  buildAutoListComposition, buildAutoDetailComposition,
   validateComposition,
 } from '@kromia/core';
-import type { RecipeId, ViewComposition } from '@kromia/core';
+import type { RecipeId, ViewComposition, FieldDefLike } from '@kromia/core';
 
 /** Envuelve datos como resultado textual JSON de una tool. */
 const json = (data: unknown) => ({
@@ -101,6 +102,73 @@ export function createKromiaMcpServer(): McpServer {
       (fieldDefs ? { fieldDefs } : {}) as Parameters<typeof validateComposition>[1],
     ),
   ));
+
+  // ── Construcción (F2) ──────────────────────────────────────────────────
+  const fieldShape = z.object({
+    key:      z.string(),
+    type:     z.string(),
+    label:    z.string().optional(),
+    behavior: z.string().optional(),
+    options:  z.array(z.string()).optional(),
+  }).passthrough();
+
+  /** Devuelve la composición + su validación (el agente itera contra esto). */
+  const withValidation = (composition: ViewComposition) =>
+    json({ composition, validation: validateComposition(composition) });
+
+  server.registerTool('auto_compose', {
+    title: 'Autogenerar una composición',
+    description:
+      'Genera una ViewComposition SENSATA a partir de los campos de la sección (heurística del SDK: mapea imagen/título/subtítulo/badge/stats a los slots correctos). `kind`: list o detail. Devuelve {composition, validation}. Es el mejor punto de partida — luego ajústala con apply_template o a mano y re-valida.',
+    inputSchema: {
+      kind:     z.enum(['list', 'detail']),
+      fields:   z.array(fieldShape).describe('Campos de la sección [{key,type,behavior?,label?,options?}]'),
+      recipeId: z.string().optional().describe('Solo detail: receta destino (p.ej. "editorial"). Default hero_protagonico.'),
+    },
+  }, async ({ kind, fields, recipeId }) => withValidation(
+    kind === 'list'
+      ? buildAutoListComposition(fields as FieldDefLike[])
+      : buildAutoDetailComposition(fields as FieldDefLike[], recipeId as RecipeId | undefined),
+  ));
+
+  server.registerTool('apply_template', {
+    title: 'Aplicar una plantilla de layout',
+    description:
+      'Aplica una plantilla de layout (de las que devuelve list_templates para esa receta) a una composición existente, y valida. Enfoque ROBUSTO: elegir + ajustar una plantilla en vez de diseñar el árbol desde cero. Devuelve {composition, validation}.',
+    inputSchema: {
+      composition: z.object({ recipe: z.string() }).passthrough(),
+      templateId:  z.string(),
+    },
+  }, async ({ composition, templateId }) => {
+    const comp = composition as unknown as ViewComposition;
+    const templates = layoutTemplatesFor(comp.recipe);
+    const tpl = templates.find(t => t.id === templateId);
+    if (!tpl) {
+      return {
+        content: [{ type: 'text' as const, text: `No existe la plantilla "${templateId}" para la receta "${comp.recipe}". Disponibles: ${templates.map(t => t.id).join(', ') || '(ninguna)'}.` }],
+        isError: true,
+      };
+    }
+    return withValidation(applyLayoutTemplate(comp, tpl));
+  });
+
+  server.registerTool('get_template', {
+    title: 'Ver el layout de una plantilla',
+    description:
+      'Devuelve el árbol de layout que produce una plantilla para una receta, para INSPECCIONARLO antes de aplicarla. `slots` = ids de slots presentes (si se omite, se asumen todos).',
+    inputSchema: {
+      recipeId:   z.string(),
+      templateId: z.string(),
+      slots:      z.array(z.string()).optional().describe('ids de slots presentes; omitir = todos'),
+    },
+  }, async ({ recipeId, templateId, slots }) => {
+    const tpl = layoutTemplatesFor(recipeId as RecipeId).find(t => t.id === templateId);
+    if (!tpl) {
+      return { content: [{ type: 'text' as const, text: `No existe la plantilla "${templateId}" para "${recipeId}".` }], isError: true };
+    }
+    const has = (id: string) => (slots ? slots.includes(id) : true);
+    return json({ layout: tpl.build(has), appearance: tpl.appearance });
+  });
 
   return server;
 }

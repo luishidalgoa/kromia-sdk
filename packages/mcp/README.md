@@ -11,13 +11,18 @@ en Desktop/Code) diseñe álbumes: explora el catálogo, propone una composició
 > agente capaz; Kromia solo aporta tools deterministas + el validador.
 
 ## Fases
-- **F1 (esta)** — lectura + validación. **Pura**: solo `@kromia/core`, sin backend ni auth.
+- **F1 ✅** — lectura + validación. **Pura**: solo `@kromia/core`, sin backend ni auth.
   - `list_recipes` · `list_components` · `list_field_types` · `list_slot_kinds`
   - `list_templates` (por receta) · `describe` (definición completa de un elemento)
   - `validate_composition` (el bucle corrector)
-- **F2** — construcción: `create_composition` / `mutate_layout` / `pick_and_adjust_template` / `preview`.
+- **F2 ✅** — construcción (también pura):
+  - `auto_compose` — fields → ViewComposition sensata (heurística del SDK) + validación.
+  - `apply_template` — aplica una plantilla de layout a una composición (elegir+ajustar > diseñar desde cero) + validación.
+  - `get_template` — inspecciona el árbol de layout que produce una plantilla.
 - **F3** — aplicar al álbum real (auth + API del backend).
 - **F4** — transporte remoto (HTTP/SSE) para agentes/terceros.
+
+Flujo del agente: `auto_compose` (o `apply_template`) → `validate_composition` → corrige por `path` → repite hasta `valid:true`.
 
 ## Uso (local, stdio)
 ```bash
