@@ -1,0 +1,25 @@
+{
+  "name": "@kromia/mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Servidor MCP de Kromia (KRO-156): expone el modelo del SDK (recetas, componentes, field-types, slot-kinds, plantillas, enciclopedia) + validación como tools deterministas para que un agente externo (Claude) diseñe álbumes. Envuelve @kromia/core; leer/validar/construir no tocan el backend.",
+  "main": "./src/index.ts",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest run",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@kromia/core": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
