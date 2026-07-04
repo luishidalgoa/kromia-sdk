@@ -6,13 +6,22 @@ PRIMORDIAL del proyecto: el versionado NO se improvisa.
 
 ## Los DOS ejes de versión (no confundir)
 
-1. **Contrato KRP** (`protocolVersion` del `.json` en `kromia-sdk/contracts/`):
-   versión de la MÁQUINA. La **auto-bumpea** `generate.ts` cuando cambia el
-   modelo. Ver [bump-protocol.md](bump-protocol.md). NO se toca a mano ni se
-   mezcla con la versión de app.
-2. **Versión de APP** (Studio, backend, Flutter): versión para el HUMANO/usuario.
-   **SemVer + `CHANGELOG.md` curado**. Es de lo que trata este playbook. Cada app
-   se versiona independiente (Studio puede ir 0.5.0 mientras el backend va 0.3.0).
+1. **Contrato KRP** (`protocolVersion` del `.json`): versión de la MÁQUINA. La
+   **auto-bumpea** `generate.ts` cuando cambia el modelo (contrato). Coincide con
+   `@kromia/core.version` → es también la versión del **SDK**. Ver
+   [bump-protocol.md](bump-protocol.md). NO se toca a mano ni se mezcla con la
+   versión de las apps.
+2. **Versión de APP** (Studio, backend, Flutter): versión para el HUMANO.
+   **SemVer + `CHANGELOG.md` curado**. Cada app se versiona independiente (Studio
+   puede ir 0.10.0 mientras el backend va 0.8.0).
+
+**El SDK TAMBIÉN lleva `CHANGELOG.md`** (raíz de `kromia-sdk`), pero keyeado por su
+`protocolVersion` (eje 1), no por una SemVer de app. OJO: los cambios **DATA /
+aditivos** (tipos nuevos, helpers, un paquete nuevo como `@kromia/mcp`) **NO
+bumpean el protocolVersion** → se acumulan en `[Unreleased]` hasta el próximo bump
+de contrato (o hasta que se decida cortar un release del SDK). Los commits de
+`core_dart`/`flutter` (espejo Dart) son paridad de otro chat → no se listan uno a
+uno (nota "paridad Dart al día" basta).
 
 ## SemVer (pre-1.0 → `0.MINOR.PATCH`)
 
@@ -23,8 +32,10 @@ PRIMORDIAL del proyecto: el versionado NO se improvisa.
 
 ## CHANGELOG.md — formato *Keep a Changelog*
 
-Cada app tiene su `CHANGELOG.md` en la raíz del repo. En **español**, orientado a
-usuario (un publisher/creador debe entenderlo), NO un dump del git log.
+Cada repo (Studio, backend, Flutter **y el SDK**) tiene su `CHANGELOG.md` en la
+raíz. En **español**, NO un dump del git log. Las apps: orientado a usuario
+(publisher/creador). El SDK: orientado a consumer del paquete (qué tipos/helpers/
+recetas/renderers/tools cambiaron).
 
 ```markdown
 ## [Unreleased]
