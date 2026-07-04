@@ -553,6 +553,10 @@ export type {
   PrintProviderFileSpec, PrintDeliverable, TiradaPrintNeeds, ProviderMatch,
 } from './print-provider';
 
+// KRO-129 — favoritos del coleccionista (registro transversal + escaparate). DATA.
+export { favoriteKey } from './favorite';
+export type { Favorite, FavoriteCardRef } from './favorite';
+
 // KRO-16 — QR firmado de carta física: contrato + verificación pública (ECDSA P-256).
 export {
   CARD_QR_KIND, CARD_QR_VERSION,
