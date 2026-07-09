@@ -548,6 +548,14 @@ export type { CardShapeDefinition, CardShapeId } from './card-shapes';
 export { borderSVG } from './border-svg';
 export type { BorderStyle, BorderFill } from './border-svg';
 
+// KRO-30 / KRO-224 — resolución PURA de efectos por tags + receta DATA del foil iridiscente
+// (los 6 patterns como datos estructurados: cada host construye su gradiente nativo).
+// Render-only cross-platform (Flutter espeja en core_dart); NO va al KRP (no bumpea).
+export { resolveCardEffects, cardTagValues } from './effect-resolve';
+export type { ResolvedEffect } from './effect-resolve';
+export { FOIL_PATTERNS, FOIL_PATTERN_IDS, foilPatternCss, holographicOpacity } from './foil-recipe';
+export type { FoilPattern, FoilStop } from './foil-recipe';
+
 // KRO-215 — cartas físicas: identidad + propiedad (tronco SDK-first; DATA, no bumpea el KRP).
 export { ownershipBadge, isVerifiedOwnership } from './card-ownership';
 export type { CardIdentity, CardOwnership, OwnershipSource, TransferToken, CardQrPayload, CardTransferBundle } from './types';

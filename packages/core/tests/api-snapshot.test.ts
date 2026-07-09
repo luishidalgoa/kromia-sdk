@@ -311,6 +311,13 @@ const EXPECTED_EXPORTS = [
   'favoriteKey',
   // KRO-216/233 — matcher de proveedor de impresión para una tirada (faltaba en el snapshot)
   'matchProviderToTirada',
+  // KRO-30 / KRO-224 — resolución de efectos por tags (pura) + receta DATA del foil
+  'resolveCardEffects',
+  'cardTagValues',
+  'FOIL_PATTERNS',
+  'FOIL_PATTERN_IDS',
+  'foilPatternCss',
+  'holographicOpacity',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
