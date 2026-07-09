@@ -57,3 +57,4 @@ export 'src/card_shapes.dart';
 export 'src/card_qr.dart';
 export 'src/favorite.dart';
 export 'src/border_svg.dart';
+export 'src/foil_recipe.dart';
