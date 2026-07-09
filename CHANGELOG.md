@@ -22,6 +22,7 @@ _Tras congelar el KRP en 5.1.0 (2026-06-26): tipos DATA / helpers / paquete nuev
 que **no bumpean** el `protocolVersion` (2026-06-29 → 2026-07-04)._
 
 ### Added
+- **`borderSVG`** movido a `@kromia/core` (antes vivía en Studio): generador SVG paramétrico de los 9 marcos ornamentales de carta (`border_style`/`border_fill`/ancho/margen/radio), blanco-sobre-transparente para usar como máscara/relleno teñido. Render-only, TS puro, fuente única cross-platform (Flutter lo espeja en `core_dart`) (KRO-224).
 - Nuevo paquete **`@kromia/mcp`**: servidor MCP de Kromia — catálogo + validación del contrato (F1), tools de construcción `auto_compose`/`apply_template`/`get_template` (F2), `apply_composition` con dry-run por defecto (F3) y transporte remoto Streamable HTTP (F4) (KRO-156).
 - Tronco de **cartas físicas**: `CardIdentity`/`CardOwnership`/`TransferToken`/`CardQrPayload` + helper `ownershipBadge` (KRO-215).
 - **QR firmado** de carta física: contrato del payload + verificación pública offline ECDSA P-256 (KRO-16).

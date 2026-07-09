@@ -542,6 +542,12 @@ export {
 } from './card-shapes';
 export type { CardShapeDefinition, CardShapeId } from './card-shapes';
 
+// KRO-202 / KRO-224 — marcos ornamentales de carta (SVG paramétrico blanco-sobre-transparente
+// para usar como máscara/relleno teñido). Render-only, TS puro, fuente única cross-platform;
+// NO va al KRP (no bumpea). `borderMaskUrl` (envoltorio CSS `url(data:)`) se queda en el host.
+export { borderSVG } from './border-svg';
+export type { BorderStyle, BorderFill } from './border-svg';
+
 // KRO-215 — cartas físicas: identidad + propiedad (tronco SDK-first; DATA, no bumpea el KRP).
 export { ownershipBadge, isVerifiedOwnership } from './card-ownership';
 export type { CardIdentity, CardOwnership, OwnershipSource, TransferToken, CardQrPayload, CardTransferBundle } from './types';

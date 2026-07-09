@@ -305,6 +305,12 @@ const EXPECTED_EXPORTS = [
   'conformanceSurfaceProps',
   'conformanceTrackProps',
   'CONFORMANCE_CATALOG',
+  // KRO-202 / KRO-224 — marco ornamental de carta (SVG paramétrico, render-only)
+  'borderSVG',
+  // KRO-129 — clave de favorito (faltaba en el snapshot desde su merge)
+  'favoriteKey',
+  // KRO-216/233 — matcher de proveedor de impresión para una tirada (faltaba en el snapshot)
+  'matchProviderToTirada',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
