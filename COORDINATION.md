@@ -9,7 +9,7 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 | Chat | Repos / propiedad |
 |---|---|
 | **Studio** (sesión *"Kromia studio"*) | `@kromia/core` (TS **canónico**) · `@kromia/react` · `kromia-studio` · `Kromia_NodeJS` (backend) |
-| **Flutter** (sesión *"Kromia flutter"*, `local_18daf528-575f-4eb5-b26a-ad1f212fabcf`) | `core_dart` (espejo Dart de `@kromia/core`) · `kromia_flutter` · la app |
+| **Flutter** (sesión *"Kromia flutter"*, `local_a987e3aa-6bba-47b2-b9b6-e34cb9b1c7ae`, cwd `Downloads/kromia-mobile`) | `core_dart` (espejo Dart de `@kromia/core`) · `kromia_flutter` · la app |
 
 > **Nadie edita los ficheros del otro.** Si crees que el otro lado debe cambiar,
 > **pídelo** por el canal (abajo) — no lo toques. Si aparece WIP sin commitear del
@@ -33,7 +33,7 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 1. **Directo — `send_message`** (`mcp__ccd_session_mgmt__send_message`): llega al
    otro chat como turno *"From {título}"* con enlace de vuelta; **pide confirmación
    al user**. Para pasar trabajo, pedir un cambio de contrato o avisar de un hallazgo.
-   - Studio → Flutter: `session_id = local_18daf528-575f-4eb5-b26a-ad1f212fabcf`.
+   - Studio → Flutter: `session_id = local_a987e3aa-6bba-47b2-b9b6-e34cb9b1c7ae` (cwd `Downloads/kromia-mobile`; el id viejo `local_18daf528-…` MURIÓ, carpeta borrada — reconfirmar con `list_sessions` si falla).
    - Flutter → Studio: `list_sessions` → busca la sesión de Studio.
 2. **Durable — spec en `kromia-sdk/docs/<tema>.md`**: para cualquier cosa no trivial,
    el mensaje **apunta** a la spec (no metas el detalle largo en el mensaje). Ej:
@@ -305,5 +305,36 @@ plano ELIMINADO. Extra `chipWidth:'fill'` en badge de slot ÚNICO espejado (sdk#
 26/26). Suite app 305/305. **KRO-228 → Completado** (autorizado por Studio; el v2 vive en KRO-231).
 Pendiente: verificación visual del flip en dispositivo (captura → afinar).
 2026-07-03 — sesión Flutter. **KRO-232 siluetas de carta HECHO + mergeado** (core_dart sdk#21 + app mobile#12, Jira→En revisión). Espejo 1:1 de `card-shapes.ts` (`ba91e02`): `CardFormat.shape/shapePath/shapeScale` + catálogo MÍNIMO (solo `standard`, SIN presets ni arcos — la descripción vieja del ticket con 6 presets/`A` está obsoleta) + `validateShapePath` (validador puro) + `cardShapePath`/`clampShapeScale`/`scaleShapePath`. Render app (`card_shape.dart`): parser M/L/C/Q/Z (0..1→tamaño+escala sobre el centro 0.5) + `CardShapeClipper`/`CardShapeClip` + `CardShapeShadow` (drawShadow siguiendo el path, no BoxShadow). Recorta el modelo 3D del focus ENTERO (cara+canto+dorso, el flip conserva la silueta) + la rejilla; `cornerRadius` se ignora con silueta; estándar = rect redondeado (sin regresión). +19 tests, corpus 659 / suite app 311. DATA, sin bump. Importador SVG/vectorizado + PhoneFrame = Studio-only. Polish pendiente: glow "rara" con forma en la rejilla + verificación visual con un shapePath real.
+
+2026-07-09 — sesiones Studio+Flutter (**KRO-224** foil, device-QA A32). ⚠️ En sesión
+ambos chats lo llamamos "KRO-133" por error — el ticket REAL del iridescent_foil es
+**KRO-224** (KRO-133 = otra feature, Completado). **DIVERGENCIA DE
+PARIDAD INTENCIONAL — el foil AVANZADO se renderiza en Studio/React pero NO en Flutter
+(por ahora).** El user reportó que en la app el arte salía LAVADO (degradado iridiscente
+brillante que tapaba la ilustración) en rejilla/foco, tanto con arte plano (Céfiro/034)
+como con capas 3D (Ignis/006). Diagnóstico Flutter (verificado en A32, mobile#46 mergeado):
+la causa NO es el blend ni la opacidad (probó foil 0.05→0.45, idéntico; y Skia == Impeller)
+sino el **compositing de Flutter**: el arte se pinta en una CAPA DE COMPOSITING AISLADA
+(`KromiaImage` con su `AnimatedSwitcher` cross-fade + `DepthLayerStack` con `Transform`),
+así que el `saveLayer` del foil (color-dodge/screen) compone contra el FONDO CLARO de la
+celda, NO contra el arte → satura a blanco. El navegador (mix-blend-mode, sin capas
+aisladas) compone contra el arte real → se ve bien. **Decisión Flutter**: `VisualEffectLayers`
+DESCARTA los 3 foils avanzados (`iridescent_foil`/`holographic_effect`/`custom_foil`) en la app
+→ todas las cartas muestran su arte, idéntico en rejilla/foco/carrusel. Los efectos que NO
+lavan se MANTIENEN (glow_border, crown_badge, frozen, vintage_filter, signed).
+- **⚠️ SUPERSEDE** la línea del 2026-06-30 (KRO-224 "render 5 capas en la app, mobile#7"):
+  ese render de `IridescentFoil` (foil/sheen/glare/noise/border con BlendMask) es el que
+  lavaba → queda DESACTIVADO en mobile#46 (no borrado; el SET de topes 0.45/0.22/0.18/0.12
+  que pasó Studio queda documentado en su código para la reimpl).
+- **Studio/React SIN cambios** — su `VisualEffectLayers` renderiza los 3 foils vía CSS
+  `mix-blend-mode` (color-dodge preserva negro → el arte oscuro sobrevive). Composición
+  canónica (orden + gradientes + blends + valores) entregada a Flutter por `send_message`.
+- **Reimpl pendiente (NO urge, el arte ya se ve)**: Flutter especifica `docs/foil-flutter.md`
+  — reactivar el foil SIN `saveLayer`-contra-fondo, p.ej. un **fragment shader** que reciba
+  el arte como sampler y aplique color-dodge PÍXEL a píxel contra el arte real, o una máscara
+  por luminancia del propio arte. Tracking: **KRO-224** (Drift Sync — reimpl **ShaderMask
+  HECHA** y verificada en iPhone 2026-07-09; cerrando solo la paridad del CONFIG: schema
+  canónico en el comentario del ticket. El `hue` es GRADOS, el `blend` del config solo va
+  a la capa foil, falta `saturate(1.25)` — gotchas típicos del drift de render).
 
 2026-07-04 — sesión Studio. **KRO-129 favoritos/escaparate — slice BACKEND hecho; la UI Flutter es TUYA.** Feature colector-facing (NO Studio, lo dice el ticket). Contrato compartido: SDK tipos `Favorite`/`FavoriteCardRef` + helper `favoriteKey(albumId,cardIndex)` (normaliza `cardIndex` a String) en `@kromia/core` (`e60d953`, DATA, no bump). Backend módulo `Favorites` (`ee3e91d`): `GET /api/favorites?albumId=` → `{favorites:[{id,userId,albumId,cardIndex,order,createdAt}], total}` (curado por `order`); `POST /api/favorites/toggle {albumId,cardIndex}` → `{favorited:bool, favorite?}` (idempotente; índice único `userId+albumId+cardIndex`). Auth por `req.user.userId`, sin permiso especial. **Flutter (app coleccionista)**: (1) acción "anclar a favoritos" desde la carta / modo focus (KRO-128); (2) pantalla "Mi galería / escaparate" (grid de favoritos, reusa grid vivo + focus; usa `favoriteKey` para marcar el estado en la rejilla). NO es paridad de render — es UI+API nueva. Diferido (no bloquea): `reorder`/curaduría (el campo `order` ya está en el modelo, falta endpoint + UX), escaparate público/compartible (KRO-66), estantes múltiples. Contrato completo en el comentario de KRO-129.
