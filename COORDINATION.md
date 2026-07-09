@@ -336,5 +336,14 @@ lavan se MANTIENEN (glow_border, crown_badge, frozen, vintage_filter, signed).
   HECHA** y verificada en iPhone 2026-07-09; cerrando solo la paridad del CONFIG: schema
   canónico en el comentario del ticket. El `hue` es GRADOS, el `blend` del config solo va
   a la capa foil, falta `saturate(1.25)` — gotchas típicos del drift de render).
+- **✅ UPDATE 2026-07-09 (cierre KRO-224)**: Flutter **revirtió el descarte** de
+  `iridescent_foil` + `holographic_effect` (mobile#54): reimplementados vía **ShaderMask**
+  (envuelve el arte → `color-dodge(arte, foil)` real), verificado en iPhone, cero lavado →
+  **KRO-224 Completado**. La divergencia de arriba YA NO aplica a esos 2; **solo `custom_foil`
+  sigue descartado** (hasta el shader-con-textura, KRO-122). El lavado de Ignis/006 NO era la
+  máscara por-capa de Flutter (correcta), sino el tagStyle del **albumSchema** `rareza=Rara →
+  iridescent_foil {pattern:midnight, opacity:62}` sobre-todo (paridad con React) → el user lo
+  ajusta por DATO en el editor de efectos-por-valor de Studio. (Los tagStyles viven en el
+  albumSchema, no el cardSchema.)
 
 2026-07-04 — sesión Studio. **KRO-129 favoritos/escaparate — slice BACKEND hecho; la UI Flutter es TUYA.** Feature colector-facing (NO Studio, lo dice el ticket). Contrato compartido: SDK tipos `Favorite`/`FavoriteCardRef` + helper `favoriteKey(albumId,cardIndex)` (normaliza `cardIndex` a String) en `@kromia/core` (`e60d953`, DATA, no bump). Backend módulo `Favorites` (`ee3e91d`): `GET /api/favorites?albumId=` → `{favorites:[{id,userId,albumId,cardIndex,order,createdAt}], total}` (curado por `order`); `POST /api/favorites/toggle {albumId,cardIndex}` → `{favorited:bool, favorite?}` (idempotente; índice único `userId+albumId+cardIndex`). Auth por `req.user.userId`, sin permiso especial. **Flutter (app coleccionista)**: (1) acción "anclar a favoritos" desde la carta / modo focus (KRO-128); (2) pantalla "Mi galería / escaparate" (grid de favoritos, reusa grid vivo + focus; usa `favoriteKey` para marcar el estado en la rejilla). NO es paridad de render — es UI+API nueva. Diferido (no bloquea): `reorder`/curaduría (el campo `order` ya está en el modelo, falta endpoint + UX), escaparate público/compartible (KRO-66), estantes múltiples. Contrato completo en el comentario de KRO-129.
