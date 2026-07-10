@@ -77,11 +77,34 @@ export const FOIL_PATTERNS: Record<string, FoilPattern> = {
 export const FOIL_PATTERN_IDS = Object.keys(FOIL_PATTERNS) as ReadonlyArray<string>;
 
 /** Host WEB (Studio): construye el string CSS del gradiente de un pattern. Flutter
- *  NO usa esto — construye su gradiente nativo desde `FOIL_PATTERNS[pattern]`. */
-export function foilPatternCss(pattern: string): string {
+ *  NO usa esto — construye su gradiente nativo desde `FOIL_PATTERNS[pattern]`.
+ *  KRO-244 — `rotateDeg` (param `angle` del efecto): giro sobre el ángulo nativo. */
+export function foilPatternCss(pattern: string, rotateDeg = 0): string {
   const p = FOIL_PATTERNS[pattern] ?? FOIL_PATTERNS.spectrum;
-  if (p.kind === 'conic') return `conic-gradient(from ${p.fromDeg}deg,${p.colors.join(',')})`;
-  return `repeating-linear-gradient(${p.angleDeg}deg,${p.stops.map(s => `${s.color} ${s.pos}%`).join(',')})`;
+  if (p.kind === 'conic') return `conic-gradient(from ${p.fromDeg + rotateDeg}deg,${p.colors.join(',')})`;
+  return `repeating-linear-gradient(${p.angleDeg + rotateDeg}deg,${p.stops.map(s => `${s.color} ${s.pos}%`).join(',')})`;
+}
+
+/** KRO-244 — parsea la paleta PERSONALIZADA del foil (`pattern_hex`): 2–4 hex
+ *  `#RRGGBB` separados por coma. `null` si no es válida (→ se usa `pattern`).
+ *  Compartido cross-platform: Flutter valida/parsea igual. */
+export function parseFoilPatternHex(raw: string): string[] | null {
+  if (!raw || !raw.trim()) return null;
+  const parts = raw.split(',').map(s => s.trim()).filter(Boolean);
+  if (parts.length < 2 || parts.length > 4) return null;
+  return parts.every(p => /^#[0-9a-fA-F]{6}$/.test(p)) ? parts : null;
+}
+
+/** Host WEB: gradiente CSS de una paleta personalizada. Mismo CICLO que spectrum
+ *  (la banda se repite cada 45%) con los colores equiespaciados y el primero
+ *  repetido al cierre → repetición sin costura. Flutter construye su
+ *  LinearGradient con estos mismos stops (k·45/n %, cierre en 45%). */
+export function foilCustomPatternCss(colors: string[], angleDeg = 115): string {
+  const cycle = 45;
+  const step  = cycle / colors.length;
+  const stops = colors.map((c, k) => `${c} ${+(k * step).toFixed(1)}%`);
+  stops.push(`${colors[0]} ${cycle}%`);
+  return `repeating-linear-gradient(${angleDeg}deg,${stops.join(',')})`;
 }
 
 /** Opacidad de la capa del efecto `holographic_effect` (preset cerrado) según su

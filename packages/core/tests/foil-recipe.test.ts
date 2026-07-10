@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS } from '../src/foil-recipe';
+import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS, parseFoilPatternHex, foilCustomPatternCss } from '../src/foil-recipe';
 import { getVisualEffect } from '../src/registries/visual-effects';
 
 // Strings EXACTOS que vivían en Studio (VisualEffectLayers `IRID_GRAD`). El builder
@@ -23,6 +23,28 @@ describe('foil-recipe — foilPatternCss reproduce los strings de Studio', () =>
   it('FOIL_PATTERN_IDS = las 6 keys', () => {
     expect([...FOIL_PATTERN_IDS].sort()).toEqual(Object.keys(EXPECTED).sort());
   });
+  // KRO-244 — orientación: rotate=0 NO cambia el string (retro-compat byte a byte).
+  it('foilPatternCss con rotate gira el ángulo (0 = idéntico)', () => {
+    expect(foilPatternCss('spectrum', 0)).toBe(EXPECTED.spectrum);
+    expect(foilPatternCss('spectrum', 30)).toContain('repeating-linear-gradient(145deg,');
+    expect(foilPatternCss('aurora', 90)).toContain('conic-gradient(from 90deg,');
+  });
+
+  // KRO-244 — paleta personalizada (pattern_hex).
+  it('parseFoilPatternHex valida 2–4 hex separados por coma', () => {
+    expect(parseFoilPatternHex('#ff0000,#00ff00')).toEqual(['#ff0000', '#00ff00']);
+    expect(parseFoilPatternHex(' #ff0000 , #00ff00 , #0000ff ')).toHaveLength(3);
+    expect(parseFoilPatternHex('')).toBeNull();
+    expect(parseFoilPatternHex('#ff0000')).toBeNull();            // <2
+    expect(parseFoilPatternHex('#a,#b')).toBeNull();              // hex inválidos
+    expect(parseFoilPatternHex('#ff0000,#00ff00,#0000ff,#ffffff,#000000')).toBeNull(); // >4
+  });
+  it('foilCustomPatternCss — ciclo 45% con cierre en el primer color', () => {
+    expect(foilCustomPatternCss(['#ff0000', '#00ff00', '#0000ff']))
+      .toBe('repeating-linear-gradient(115deg,#ff0000 0%,#00ff00 15%,#0000ff 30%,#ff0000 45%)');
+    expect(foilCustomPatternCss(['#ff0000', '#00ff00'], 145)).toContain('(145deg,#ff0000 0%,#00ff00 22.5%,#ff0000 45%)');
+  });
+
   it('holographicOpacity mapea low/medium/high (default medium)', () => {
     expect(holographicOpacity('low')).toBe(0.18);
     expect(holographicOpacity('medium')).toBe(0.32);

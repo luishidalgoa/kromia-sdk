@@ -117,12 +117,22 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
     layer:       'overlay',
     config: [
       {
+        // KRO-244 — renombrado "Patrón" → "Paleta" (label editor-only): es la
+        // paleta de colores del foil ("el color de foil ES el patrón").
         key:     'pattern',
-        label:   'Patrón',
+        label:   'Paleta',
         type:    'enum',
         options: ['spectrum', 'oilslick', 'sunset', 'mint', 'aurora', 'midnight'],
         default: 'spectrum',
       },
+      // KRO-244 — paleta PERSONALIZADA: 2–4 hex #RRGGBB separados por coma. Si es
+      // válida, MANDA sobre `pattern` (mismo criterio que border_color_hex). El
+      // editor la expone como opción "Personalizada" con pickers de color.
+      { key: 'pattern_hex', label: 'Paleta personalizada', type: 'string' },
+      // KRO-244 — ORIENTACIÓN de las bandas: giro en grados sobre el ángulo nativo
+      // del patrón (0 = tal cual el patrón; p.ej. spectrum nace a 115°). Aplica
+      // también al conic (aurora, gira el from) y a la paleta personalizada.
+      { key: 'angle', label: 'Orientación', type: 'number', min: 0, max: 360, default: 0 },
       { key: 'hue',        label: 'Tono',        type: 'number', min: 0,   max: 360, default: 0 },
       { key: 'opacity',    label: 'Intensidad',  type: 'number', min: 0,   max: 100, default: 95 },
       { key: 'glow',       label: 'Resplandor',  type: 'number', min: 0,   max: 100, default: 35 },

@@ -1,6 +1,6 @@
 {
   "name": "@kromia/core",
-  "version": "5.2.0",
+  "version": "5.3.0",
   "private": true,
   "description": "Core del SDK Kromia. Source-of-truth del modelo (recipes, behaviors, actions, slot kinds, field types) + helpers (classifyField, validateComposition, formatScalar, synthSectionItems). Emite contracts/*.json al regenerar. Consumido por Studio (Next.js), Backend (NodeJS), y futuro Flutter via @kromia/flutter.",
   "main": "./src/index.ts",

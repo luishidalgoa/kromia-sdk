@@ -324,6 +324,9 @@ const EXPECTED_EXPORTS = [
   'foilCardBgCss',
   // KRO-244 UX — presets de fábrica del editor de efectos
   'EFFECT_FACTORY_PRESETS',
+  // KRO-244 — paleta personalizada del foil + orientación
+  'parseFoilPatternHex',
+  'foilCustomPatternCss',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {

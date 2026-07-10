@@ -554,6 +554,7 @@ export type { BorderStyle, BorderFill } from './border-svg';
 export { resolveCardEffects, cardTagValues } from './effect-resolve';
 export type { ResolvedEffect } from './effect-resolve';
 export { FOIL_PATTERNS, FOIL_PATTERN_IDS, foilPatternCss, holographicOpacity } from './foil-recipe';
+export { parseFoilPatternHex, foilCustomPatternCss } from './foil-recipe';
 export { FOIL_BORDER_SOLID, FOIL_CARD_BG, foilCardBgCss } from './foil-recipe';
 export { EFFECT_FACTORY_PRESETS } from './foil-recipe';
 export type { FoilPattern, FoilStop, EffectFactoryPreset } from './foil-recipe';
