@@ -318,6 +318,10 @@ const EXPECTED_EXPORTS = [
   'FOIL_PATTERN_IDS',
   'foilPatternCss',
   'holographicOpacity',
+  // KRO-244 QA — tintes del marco ornamental (data cross-platform)
+  'FOIL_BORDER_SOLID',
+  'FOIL_CARD_BG',
+  'foilCardBgCss',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {

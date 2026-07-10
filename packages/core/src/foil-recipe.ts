@@ -94,3 +94,30 @@ export function holographicOpacity(intensity: string | number | undefined): numb
     default:     return 0.32;
   }
 }
+
+/** KRO-244 (QA) — tintes del MARCO ornamental (`border_color` del iridescent_foil),
+ *  centralizados como DATA cross-platform. SÓLIDOS: 'none'=blanco, gold, silver
+ *  (silver se OSCURECIÓ — antes #cbd5e1 se confundía con el blanco en banda fina).
+ *  aurora/spectrum NO están aquí: son gradientes del foil (FOIL_PATTERNS). */
+export const FOIL_BORDER_SOLID: Record<string, string> = {
+  none:   '#ffffff',
+  gold:   '#f5c542',
+  silver: '#aeb9c7',
+};
+
+/** KRO-244 (QA) — degradados oscuros "fondo carta" del marco (vertical top→bottom).
+ *  RE-SATURADOS para ser DISTINGUIBLES entre sí como banda fina: antes los 4 eran
+ *  casi-negros idénticos; ahora el top lleva el matiz claro (verde/neutro/violeta/
+ *  azul) y el bottom lo ancla en oscuro. Fuente única — Flutter espeja estos hex. */
+export const FOIL_CARD_BG: Record<string, { top: string; bottom: string }> = {
+  forest:   { top: '#2e7d4f', bottom: '#0b2b1a' },   // verde bosque
+  obsidian: { top: '#41444d', bottom: '#0a0a0d' },   // gris neutro casi-negro (su identidad)
+  plum:     { top: '#6d3fa8', bottom: '#22103d' },   // violeta ciruela
+  steel:    { top: '#3f6d99', bottom: '#101f30' },   // azul acero
+};
+
+/** Host WEB: gradiente CSS del tinte oscuro. `undefined` si el id no es "fondo carta". */
+export function foilCardBgCss(id: string): string | undefined {
+  const t = FOIL_CARD_BG[id];
+  return t ? `linear-gradient(180deg,${t.top},${t.bottom})` : undefined;
+}

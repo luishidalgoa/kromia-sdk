@@ -554,6 +554,7 @@ export type { BorderStyle, BorderFill } from './border-svg';
 export { resolveCardEffects, cardTagValues } from './effect-resolve';
 export type { ResolvedEffect } from './effect-resolve';
 export { FOIL_PATTERNS, FOIL_PATTERN_IDS, foilPatternCss, holographicOpacity } from './foil-recipe';
+export { FOIL_BORDER_SOLID, FOIL_CARD_BG, foilCardBgCss } from './foil-recipe';
 export type { FoilPattern, FoilStop } from './foil-recipe';
 
 // KRO-215 — cartas físicas: identidad + propiedad (tronco SDK-first; DATA, no bumpea el KRP).
