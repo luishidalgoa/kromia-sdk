@@ -9,10 +9,41 @@ import 'dart:math' as math;
 const List<String> cardAspects = ['2:3', '3:2', '1:1', '16:9'];
 const List<String> cardSizes = ['mini', 'standard', 'large', 'poster'];
 
+/// KRO-225 — niveles de redondeo de esquina de la carta (enum cerrado). Espejo de
+/// `CARD_CORNER_RADII` (`options.ts`).
+const List<String> cardCornerRadii = ['none', 'sm', 'md', 'lg', 'xl'];
+
+/// KRO-225 — redondeo por nivel. `css` = `border-radius` del contenedor de la
+/// carta en el render, en **PORCENTAJE** (escala con el tamaño → igual de redonda
+/// en grid/focus/preview). `svg` = radio en el espacio 300×420 del `borderSvg`
+/// (≈ css% × 3, porque el lienzo SVG es 300 de ancho). Espejo 1:1 de
+/// `CARD_CORNER_RADIUS_PX` (`options.ts`). Coherencia POR CONSTRUCCIÓN:
+/// `svg/300 == css%` exacto → el render deriva UN solo radio y lo usa para el clip
+/// de la carta Y el radius del marco, así nunca divergen (KRO-225).
+const Map<String, ({String css, double svg})> cardCornerRadiusPx = {
+  'none': (css: '0', svg: 0),
+  'sm': (css: '4%', svg: 12),
+  'md': (css: '8%', svg: 24),
+  'lg': (css: '16%', svg: 48),
+  'xl': (css: '28%', svg: 84),
+};
+
+/// Resuelve el redondeo del formato, con fallback a 'md' si no se declaró
+/// (o si trae un valor fuera del enum). Espejo de `cardCornerRadiusPx(fmt)`.
+({String css, double svg}) cardCornerRadiusOf(CardFormat? fmt) {
+  final key = fmt?.cornerRadius;
+  return cardCornerRadiusPx[key] ?? cardCornerRadiusPx['md']!;
+}
+
 /// Formato persistido de la carta del álbum.
 class CardFormat {
   final String aspect; // CardAspect
   final String size; // CardSize
+
+  /// KRO-225 — redondeo de esquinas (`cardCornerRadii`). Opcional (aditivo):
+  /// ausente ⇒ 'md'. Resuélvelo con `cardCornerRadiusOf`. Ignorado cuando la
+  /// silueta ≠ 'standard' (esquinas horneadas en el path).
+  final String? cornerRadius;
 
   /// KRO-230/232 — SILUETA del recorte: id del catálogo `cardShapes` o `'custom'`.
   /// Ausente ⇒ 'standard' (rect redondeado). Con silueta ≠ standard, cornerRadius
@@ -30,6 +61,7 @@ class CardFormat {
   const CardFormat({
     required this.aspect,
     required this.size,
+    this.cornerRadius,
     this.shape,
     this.shapePath,
     this.shapeScale,
@@ -38,6 +70,7 @@ class CardFormat {
   factory CardFormat.fromJson(Map<String, dynamic> json) => CardFormat(
         aspect: (json['aspect'] as String?) ?? '2:3',
         size: (json['size'] as String?) ?? 'standard',
+        cornerRadius: json['cornerRadius'] as String?,
         shape: json['shape'] as String?,
         shapePath: json['shapePath'] as String?,
         shapeScale: (json['shapeScale'] as num?)?.toDouble(),
