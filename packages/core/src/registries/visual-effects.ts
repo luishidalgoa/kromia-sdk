@@ -63,6 +63,11 @@ export interface VisualEffectConfigParam {
   max?: number;
   /** Si `false`, el publisher DEBE proveer un valor. Default: true (opcional). */
   optional?: boolean;
+  /** KRO-244 — visibilidad CONDICIONADA en el editor: el param solo se muestra si
+   *  el valor actual (o default) del param `key` cumple la condición. P.ej. `warp`
+   *  solo con geometry='organico'; los params de borde solo con un diseño elegido.
+   *  Editor-only: NO va al `.json` (igual que `label`) → editarlo no bumpea. */
+  visibleWhen?: { key: string; equals?: string; notEquals?: string };
 }
 
 export interface VisualEffectDefinition extends EncyclopediaDoc {
@@ -148,7 +153,8 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
       },
       // KRO-244 — cantidad de ONDULACIÓN de la difracción (solo aplica con
       // geometry='organico'): 0 = casi recto, 100 = muy revuelto. Aditivo.
-      { key: 'warp', label: 'Ondulación', type: 'number', min: 0, max: 100, default: 55 },
+      { key: 'warp', label: 'Ondulación', type: 'number', min: 0, max: 100, default: 55,
+        visibleWhen: { key: 'geometry', equals: 'organico' } },
       {
         // KRO-202 — marco ornamental (9 diseños del mockup `borderSVG`). 'none'
         // = sin borde (interruptor maestro). El render lo dibuja como SVG blanco
@@ -168,14 +174,18 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
         type:    'enum',
         options: ['hueco', 'borde', 'marco'],
         default: 'hueco',
+        // KRO-244 — sin diseño elegido, los controles del borde son ruido.
+        visibleWhen: { key: 'border_style', notEquals: 'none' },
       },
       // Ancho de la banda decorativa + margen desde el borde de la carta — los
       // dos números que parametrizan `borderSVG(style, bw, m, fill)` (espejo de
       // los sliders Ancho/Margen del mockup). `border_width` se conserva (0-16)
       // para no romper el contrato; `border_margin` es aditivo (minor). El editor
       // siembra un Ancho visible al elegir un diseño (sin tocar el default).
-      { key: 'border_width',  label: 'Ancho del borde',  type: 'number', min: 0, max: 16, default: 0 },
-      { key: 'border_margin', label: 'Margen del borde', type: 'number', min: 0, max: 24, default: 6 },
+      { key: 'border_width',  label: 'Ancho del borde',  type: 'number', min: 0, max: 16, default: 0,
+        visibleWhen: { key: 'border_style', notEquals: 'none' } },
+      { key: 'border_margin', label: 'Margen del borde', type: 'number', min: 0, max: 24, default: 6,
+        visibleWhen: { key: 'border_style', notEquals: 'none' } },
       {
         key:     'border_color',
         label:   'Color del borde',
@@ -184,6 +194,7 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
         // al foil · forest/obsidian/plum/steel = tonos oscuros tipo "fondo carta".
         options: ['none', 'gold', 'silver', 'aurora', 'spectrum', 'forest', 'obsidian', 'plum', 'steel'],
         default: 'none',
+        visibleWhen: { key: 'border_style', notEquals: 'none' },
       },
       // KRO-202 — color HEX personalizado del borde. Si está (#RRGGBB), MANDA sobre
       // `border_color`. Aditivo (string opcional) → no toca el enum. El editor lo
