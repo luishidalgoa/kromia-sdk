@@ -137,6 +137,8 @@ const String _visualEffectsJson = r'''
       { "key": "contrast", "type": "number", "default": 100, "min": 50, "max": 150 },
       { "key": "scale", "type": "number", "default": 210, "min": 100, "max": 320 },
       { "key": "blend", "type": "enum", "options": ["color-dodge", "overlay", "screen", "soft-light", "hard-light"], "default": "color-dodge" },
+      { "key": "geometry", "type": "enum", "options": ["bandas", "organico"], "default": "bandas" },
+      { "key": "warp", "type": "number", "default": 55, "min": 0, "max": 100 },
       { "key": "border_style", "type": "enum", "options": ["none", "classic", "double", "sticker", "emblema", "tech", "feston", "gotico", "barroco"], "default": "none" },
       { "key": "border_fill", "type": "enum", "options": ["hueco", "borde", "marco"], "default": "hueco" },
       { "key": "border_width", "type": "number", "default": 0, "min": 0, "max": 16 },

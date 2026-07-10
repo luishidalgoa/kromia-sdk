@@ -22,10 +22,10 @@ void main() {
       ]);
     });
 
-    test('iridescent_foil (KRO-224): layer overlay + 17 params + rangos/enums', () {
+    test('iridescent_foil (KRO-224/244): layer overlay + 19 params + rangos/enums', () {
       final e = getVisualEffect('iridescent_foil')!;
       expect(e.layer, 'overlay');
-      expect(e.config.length, 17);
+      expect(e.config.length, 19); // KRO-244 sumó geometry + warp
       final pattern = e.config.firstWhere((p) => p.key == 'pattern');
       expect(pattern.type, 'enum');
       expect(pattern.defaultValue, 'spectrum');
@@ -38,6 +38,17 @@ void main() {
       // border_color_hex es string libre (color personalizado), sin options/min/max.
       final hex = e.config.firstWhere((p) => p.key == 'border_color_hex');
       expect(hex.type, 'string');
+      // KRO-244 — difracción orgánica: geometry (enum, default retro-compat 'bandas')
+      // + warp (0–100, default 55). Espejo del bump KRP 5.2.0.
+      final geometry = e.config.firstWhere((p) => p.key == 'geometry');
+      expect(geometry.type, 'enum');
+      expect(geometry.defaultValue, 'bandas');
+      expect(geometry.options, containsAll(['bandas', 'organico']));
+      final warp = e.config.firstWhere((p) => p.key == 'warp');
+      expect(warp.type, 'number');
+      expect(warp.min, 0);
+      expect(warp.max, 100);
+      expect(warp.defaultValue, 55);
     });
 
     test('IDs únicos', () {
