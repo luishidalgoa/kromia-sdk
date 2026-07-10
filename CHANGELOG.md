@@ -16,12 +16,14 @@ paridad de otro chat → se resumen como nota, no se listan uno a uno.
 > verificados leyendo el `protocolVersion` real del contrato en cada commit).
 > Versiones `< 2.2.2` fuera de registro (previas a esta política).
 
-## [Unreleased] (aditivo desde 5.1.0)
+## [5.2.0] - 2026-07-10
 
-_Tras congelar el KRP en 5.1.0 (2026-06-26): tipos DATA / helpers / paquete nuevo
-que **no bumpean** el `protocolVersion` (2026-06-29 → 2026-07-04)._
+_Bump MINOR del KRP (auto-detectado): params aditivos en `iridescent_foil`.
+Arrastra además lo acumulado en Unreleased desde 5.1.0 (tipos DATA / helpers /
+paquete nuevo, 2026-06-29 → 2026-07-10)._
 
 ### Added
+- **`iridescent_foil` gana `geometry` (`bandas`|`organico`) + `warp` (0–100)**: difracción CURVADA orgánica tipo lámina holográfica real (ref. ticket ISKRA) como evolución del efecto existente — sin efecto nuevo ni migración; default `bandas` = los álbumes existentes no cambian (KRO-244).
 - **`borderSVG`** movido a `@kromia/core` (antes vivía en Studio): generador SVG paramétrico de los 9 marcos ornamentales de carta (`border_style`/`border_fill`/ancho/margen/radio), blanco-sobre-transparente para usar como máscara/relleno teñido. Render-only, TS puro, fuente única cross-platform (Flutter lo espeja en `core_dart`) (KRO-224).
 - **`resolveCardEffects`** (resolución PURA tag→efecto) + **receta DATA del foil iridiscente** (`FOIL_PATTERNS` = los 6 patterns como stops estructurados, `foilPatternCss` builder web, `holographicOpacity`) movidos a `@kromia/core`: la lógica de resolución y el COLOR del foil dejan de vivir solo en Studio (era el drift de KRO-224 — se copiaban a Flutter a mano). Fuente única cross-platform; Flutter los espeja (KRO-224).
 - Nuevo paquete **`@kromia/mcp`**: servidor MCP de Kromia — catálogo + validación del contrato (F1), tools de construcción `auto_compose`/`apply_template`/`get_template` (F2), `apply_composition` con dry-run por defecto (F3) y transporte remoto Streamable HTTP (F4) (KRO-156).

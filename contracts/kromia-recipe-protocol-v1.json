@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
-  "protocolVersion": "5.1.0",
-  "generatedAt": "2026-06-26T18:17:01.525Z",
+  "protocolVersion": "5.2.0",
+  "generatedAt": "2026-07-10T18:38:35.379Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -1242,6 +1242,22 @@
             "hard-light"
           ],
           "default": "color-dodge"
+        },
+        {
+          "key": "geometry",
+          "type": "enum",
+          "options": [
+            "bandas",
+            "organico"
+          ],
+          "default": "bandas"
+        },
+        {
+          "key": "warp",
+          "type": "number",
+          "default": 55,
+          "min": 0,
+          "max": 100
         },
         {
           "key": "border_style",

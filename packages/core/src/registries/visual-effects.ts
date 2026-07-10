@@ -135,6 +135,21 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
         default: 'color-dodge',
       },
       {
+        // KRO-244 — GEOMETRÍA de las bandas del foil. 'bandas' = rayas rectas
+        // clásicas (retro-compat: los álbumes existentes no cambian). 'organico' =
+        // difracción CURVADA tipo lámina holográfica real (ref. ticket ISKRA):
+        // en web, filtro SVG feTurbulence+feDisplacementMap sobre foil+sheen;
+        // en Flutter, noise-warp en el fragment shader. Aditivo (minor).
+        key:     'geometry',
+        label:   'Geometría',
+        type:    'enum',
+        options: ['bandas', 'organico'],
+        default: 'bandas',
+      },
+      // KRO-244 — cantidad de ONDULACIÓN de la difracción (solo aplica con
+      // geometry='organico'): 0 = casi recto, 100 = muy revuelto. Aditivo.
+      { key: 'warp', label: 'Ondulación', type: 'number', min: 0, max: 100, default: 55 },
+      {
         // KRO-202 — marco ornamental (9 diseños del mockup `borderSVG`). 'none'
         // = sin borde (interruptor maestro). El render lo dibuja como SVG blanco
         // sobre transparente y lo tiñe con `border_color` vía máscara CSS.
