@@ -74,6 +74,27 @@ final Map<String, FoilPattern> foilPatterns = {
 /// Ids de los patterns disponibles (orden de declaración).
 List<String> get foilPatternIds => foilPatterns.keys.toList(growable: false);
 
+/// KRO-244 — TINTES SÓLIDOS del marco ornamental del `iridescent_foil` (opción
+/// `border_color`). Espejo 1:1 de `FOIL_BORDER_SOLID` (`foil-recipe.ts`, `f5e0c65`):
+/// `silver` se OSCURECIÓ (antes casi blanco, se confundía con `none`). El render
+/// tiñe el SVG blanco del borde con `srcIn`. FUENTE ÚNICA — no hardcodear en el host.
+final Map<String, Color> foilBorderSolid = {
+  'none': _c(0xffffff),
+  'gold': _c(0xf5c542),
+  'silver': _c(0xaeb9c7),
+};
+
+/// KRO-244 — TINTES "fondo de carta" del marco (degradado vertical top→bottom).
+/// Espejo 1:1 de `FOIL_CARD_BG` (`foil-recipe.ts`, `f5e0c65`): RE-SATURADOS respecto
+/// a los casi-negros previos (los 4 se veían iguales). El render los usa como
+/// gradiente lineal (ShaderMask srcIn sobre el SVG del borde). FUENTE ÚNICA.
+final Map<String, ({Color top, Color bottom})> foilCardBg = {
+  'forest': (top: _c(0x2e7d4f), bottom: _c(0x0b2b1a)),
+  'obsidian': (top: _c(0x41444d), bottom: _c(0x0a0a0d)),
+  'plum': (top: _c(0x6d3fa8), bottom: _c(0x22103d)),
+  'steel': (top: _c(0x3f6d99), bottom: _c(0x101f30)),
+};
+
 /// Opacidad de la capa del efecto `holographic_effect` según su `intensity`
 /// (preset cerrado). Compartida cross-platform (espejo de `holographicOpacity`).
 double holographicOpacity(Object? intensity) {
