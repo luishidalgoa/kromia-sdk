@@ -33,4 +33,32 @@ void main() {
       expect(tops, hasLength(4));
     });
   });
+
+  group('parseFoilPatternHex (KRO-244)', () {
+    test('acepta 2–4 hex #RRGGBB por coma (trim); rechaza el resto', () {
+      expect(parseFoilPatternHex('#ff0000,#00ff00'), ['#ff0000', '#00ff00']);
+      expect(parseFoilPatternHex(' #ff0000 , #00ff00 , #0000ff '),
+          ['#ff0000', '#00ff00', '#0000ff']);
+      expect(parseFoilPatternHex('#111111,#222222,#333333,#444444'), hasLength(4));
+      // inválidos → null (→ se usa pattern)
+      expect(parseFoilPatternHex(null), isNull);
+      expect(parseFoilPatternHex(''), isNull);
+      expect(parseFoilPatternHex('#ff0000'), isNull, reason: '1 color < mínimo 2');
+      expect(parseFoilPatternHex('#1,#2,#3,#4,#5'), isNull, reason: '5 > máximo 4');
+      expect(parseFoilPatternHex('#ff0000,verde'), isNull, reason: 'hex inválido');
+      expect(parseFoilPatternHex('#fff,#000'), isNull, reason: 'shorthand no permitido');
+    });
+  });
+
+  group('foilCustomPattern (KRO-244)', () {
+    test('ciclo 45% equiespaciado + primer color repetido al cierre (sin costura)', () {
+      final p = foilCustomPattern(['#ff0000', '#00ff00', '#0000ff']);
+      expect(p.kind, 'repeating-linear');
+      expect(p.angleDeg, 115, reason: 'ángulo NATIVO = spectrum; angle se suma en render');
+      // 3 colores → 0%, 15%, 30% + cierre color0 @45%.
+      expect(p.stops.map((s) => s.pos).toList(), [0.0, 15.0, 30.0, 45.0]);
+      expect(p.stops.first.color, p.stops.last.color, reason: 'cierre = primer color');
+      expect(p.stops.first.color, _rgb(0xff0000));
+    });
+  });
 }

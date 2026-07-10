@@ -127,6 +127,8 @@ const String _visualEffectsJson = r'''
     "layer": "overlay",
     "config": [
       { "key": "pattern", "type": "enum", "options": ["spectrum", "oilslick", "sunset", "mint", "aurora", "midnight"], "default": "spectrum" },
+      { "key": "pattern_hex", "type": "string" },
+      { "key": "angle", "type": "number", "default": 0, "min": 0, "max": 360 },
       { "key": "hue", "type": "number", "default": 0, "min": 0, "max": 360 },
       { "key": "opacity", "type": "number", "default": 95, "min": 0, "max": 100 },
       { "key": "glow", "type": "number", "default": 35, "min": 0, "max": 100 },

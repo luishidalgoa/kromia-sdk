@@ -74,6 +74,40 @@ final Map<String, FoilPattern> foilPatterns = {
 /// Ids de los patterns disponibles (orden de declaración).
 List<String> get foilPatternIds => foilPatterns.keys.toList(growable: false);
 
+/// KRO-244 — parsea la paleta PERSONALIZADA del foil (`pattern_hex`): 2–4 hex
+/// `#RRGGBB` separados por coma. `null` si no es válida (→ se usa `pattern`).
+/// Espejo 1:1 de `parseFoilPatternHex` (foil-recipe.ts): mismo criterio que
+/// `border_color_hex` (si es válida MANDA sobre `pattern`).
+List<String>? parseFoilPatternHex(String? raw) {
+  if (raw == null || raw.trim().isEmpty) return null;
+  final parts =
+      raw.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+  if (parts.length < 2 || parts.length > 4) return null;
+  final re = RegExp(r'^#[0-9a-fA-F]{6}$');
+  return parts.every(re.hasMatch) ? parts : null;
+}
+
+// #RRGGBB → Color opaco (los stops del foil son opacos; la opacidad la aplica la
+// capa del efecto).
+Color _hex(String h) => Color(0xFF000000 | int.parse(h.substring(1), radix: 16));
+
+/// KRO-244 — `FoilPattern` de una paleta PERSONALIZADA (2–4 colores, ya validados
+/// por [parseFoilPatternHex]). Mismo CICLO que spectrum (banda cada 45%), colores
+/// equiespaciados (`k·45/n %`) y el PRIMERO repetido al cierre (45%) → repetición
+/// sin costura. Espejo (como DATA) de `foilCustomPatternCss`: Flutter construye su
+/// `LinearGradient` con estos MISMOS stops. [angleDeg] = ángulo NATIVO (115, igual
+/// que spectrum); el `angle` del efecto se SUMA en el render, no aquí.
+FoilPattern foilCustomPattern(List<String> hexColors, {double angleDeg = 115}) {
+  const cycle = 45.0;
+  final n = hexColors.length;
+  final step = cycle / n;
+  final stops = <FoilStop>[
+    for (var k = 0; k < n; k++) FoilStop(_hex(hexColors[k]), k * step),
+    FoilStop(_hex(hexColors[0]), cycle),
+  ];
+  return FoilPattern.repeatingLinear(angleDeg, stops);
+}
+
 /// KRO-244 — TINTES SÓLIDOS del marco ornamental del `iridescent_foil` (opción
 /// `border_color`). Espejo 1:1 de `FOIL_BORDER_SOLID` (`foil-recipe.ts`, `f5e0c65`):
 /// `silver` se OSCURECIÓ (antes casi blanco, se confundía con `none`). El render

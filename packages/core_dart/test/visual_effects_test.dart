@@ -22,10 +22,10 @@ void main() {
       ]);
     });
 
-    test('iridescent_foil (KRO-224/244): layer overlay + 19 params + rangos/enums', () {
+    test('iridescent_foil (KRO-224/244): layer overlay + 21 params + rangos/enums', () {
       final e = getVisualEffect('iridescent_foil')!;
       expect(e.layer, 'overlay');
-      expect(e.config.length, 19); // KRO-244 sumó geometry + warp
+      expect(e.config.length, 21); // KRO-244: +geometry +warp +pattern_hex +angle
       final pattern = e.config.firstWhere((p) => p.key == 'pattern');
       expect(pattern.type, 'enum');
       expect(pattern.defaultValue, 'spectrum');
@@ -49,6 +49,15 @@ void main() {
       expect(warp.min, 0);
       expect(warp.max, 100);
       expect(warp.defaultValue, 55);
+      // KRO-244 — paleta personalizada + orientación (KRP 5.3.0). pattern_hex =
+      // string libre (2–4 hex, manda sobre pattern); angle = 0–360, default 0.
+      final patternHex = e.config.firstWhere((p) => p.key == 'pattern_hex');
+      expect(patternHex.type, 'string');
+      final angle = e.config.firstWhere((p) => p.key == 'angle');
+      expect(angle.type, 'number');
+      expect(angle.min, 0);
+      expect(angle.max, 360);
+      expect(angle.defaultValue, 0);
     });
 
     test('IDs únicos', () {
