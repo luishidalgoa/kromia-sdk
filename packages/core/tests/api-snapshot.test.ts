@@ -322,6 +322,8 @@ const EXPECTED_EXPORTS = [
   'FOIL_BORDER_SOLID',
   'FOIL_CARD_BG',
   'foilCardBgCss',
+  // KRO-244 UX — presets de fábrica del editor de efectos
+  'EFFECT_FACTORY_PRESETS',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {

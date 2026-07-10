@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity } from '../src/foil-recipe';
+import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS } from '../src/foil-recipe';
+import { getVisualEffect } from '../src/registries/visual-effects';
 
 // Strings EXACTOS que vivían en Studio (VisualEffectLayers `IRID_GRAD`). El builder
 // DEBE reproducirlos byte a byte para que mover el dato al SDK no cambie el foil.
@@ -27,5 +28,30 @@ describe('foil-recipe — foilPatternCss reproduce los strings de Studio', () =>
     expect(holographicOpacity('medium')).toBe(0.32);
     expect(holographicOpacity('high')).toBe(0.48);
     expect(holographicOpacity(undefined)).toBe(0.32);
+  });
+});
+
+// KRO-244 UX — los presets de fábrica no pueden quedarse obsoletos si cambia
+// el catálogo: cada key debe existir en el config del efecto y cada valor caer
+// dentro de su espacio (enum options / rango numérico).
+describe('EFFECT_FACTORY_PRESETS — configs válidos contra el registry', () => {
+  it('cada preset usa keys existentes y valores dentro del espacio del efecto', () => {
+    for (const [effectId, presets] of Object.entries(EFFECT_FACTORY_PRESETS)) {
+      const def = getVisualEffect(effectId);
+      expect(def, `efecto ${effectId}`).toBeDefined();
+      expect(presets.length).toBeGreaterThan(0);
+      for (const p of presets) {
+        for (const [k, v] of Object.entries(p.config)) {
+          const param = def!.config.find(c => c.key === k);
+          expect(param, `${p.id}.${k} no existe en el config de ${effectId}`).toBeDefined();
+          if (param!.type === 'enum') expect(param!.options, `${p.id}.${k}`).toContain(v);
+          if (param!.type === 'number') {
+            expect(typeof v, `${p.id}.${k}`).toBe('number');
+            if (param!.min !== undefined) expect(v as number).toBeGreaterThanOrEqual(param!.min);
+            if (param!.max !== undefined) expect(v as number).toBeLessThanOrEqual(param!.max);
+          }
+        }
+      }
+    }
   });
 });

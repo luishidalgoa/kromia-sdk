@@ -121,3 +121,36 @@ export function foilCardBgCss(id: string): string | undefined {
   const t = FOIL_CARD_BG[id];
   return t ? `linear-gradient(180deg,${t.top},${t.bottom})` : undefined;
 }
+
+/** KRO-244 UX — preset DE FÁBRICA del editor de efectos: un clic siembra el
+ *  config completo; los sliders quedan como afinado opcional (anti-saturación:
+ *  la mayoría de publishers no debería tocar 12 sliders). Editor-only (no
+ *  render, no contrato). */
+export interface EffectFactoryPreset {
+  id:   string;
+  /** Nombre del chip en el editor. */
+  name: string;
+  /** Tooltip: qué look produce. */
+  hint: string;
+  /** Config completo que siembra (lo no listado cae a los defaults del efecto). */
+  config: Record<string, string | number>;
+}
+
+/** Presets de fábrica por id de efecto — hoy solo el iridiscente los tiene.
+ *  (Las PLANTILLAS del publisher, album-scoped, son otra cosa: KRO-202.) */
+export const EFFECT_FACTORY_PRESETS: Record<string, EffectFactoryPreset[]> = {
+  iridescent_foil: [
+    { id: 'espectro-clasico', name: 'Espectro clásico',
+      hint: 'El arcoíris de siempre, a valores de fábrica.',
+      config: { pattern: 'spectrum' } },
+    { id: 'lamina-real', name: 'Lámina real',
+      hint: 'Difracción orgánica curvada, como una lámina holográfica física.',
+      config: { pattern: 'spectrum', geometry: 'organico', warp: 60, opacity: 80, sheen: 30, noise: 24 } },
+    { id: 'joya-oscura', name: 'Joya oscura',
+      hint: 'Medianoche profunda con marco doble en acero (passe-partout).',
+      config: { pattern: 'midnight', opacity: 62, scale: 262, border_style: 'double', border_fill: 'marco', border_width: 8, border_color: 'steel' } },
+    { id: 'atardecer-dorado', name: 'Atardecer dorado',
+      hint: 'Cálido coral y ámbar con marco clásico dorado.',
+      config: { pattern: 'sunset', opacity: 60, border_style: 'classic', border_fill: 'hueco', border_width: 8, border_color: 'gold' } },
+  ],
+};
