@@ -90,4 +90,70 @@ void main() {
       expect(p.stops.first.color, _rgb(0xff0000));
     });
   });
+
+  group('paleta "Ninguna" (KRO-247, KRP 5.4.0)', () {
+    test('foilPatternNone es un id RESERVADO fuera de foilPatterns', () {
+      expect(foilPatternNone, 'none');
+      expect(foilPatterns.containsKey(foilPatternNone), isFalse);
+    });
+    test('foilNeutralSheen — barrido blanco 115°, alpha 0→0.9→0 (sin costura)', () {
+      expect(foilNeutralSheen.angleDeg, 115);
+      expect(foilNeutralSheen.stops.map((s) => s.alpha).toList(), [0.0, 0.9, 0.0]);
+      expect(foilNeutralSheen.stops.map((s) => s.pos).toList(), [0.0, 50.0, 100.0]);
+    });
+  });
+
+  group('resolveFoilBorderFill (KRO-249, KRP 5.6.0)', () {
+    test('precedencia: textura > hex sólido > degradado custom > enum', () {
+      expect(
+          resolveFoilBorderFill({
+            'border_texture_url': 'foo/metal.png',
+            'border_color_hex': '#ff0000',
+            'border_gradient_hex': '#a1a1a1,#e8e8e8',
+            'border_color': 'gold',
+          }).kind,
+          'texture');
+      final solid = resolveFoilBorderFill({
+        'border_color_hex': '#ff0000',
+        'border_gradient_hex': '#a1a1a1,#e8e8e8',
+        'border_color': 'gold',
+      });
+      expect(solid.kind, 'solid');
+      expect(solid.color, _rgb(0xff0000));
+      // hex inválido NO manda → cae al enum
+      expect(
+          resolveFoilBorderFill({'border_color_hex': 'nope', 'border_color': 'gold'})
+              .color,
+          foilBorderSolid['gold']);
+      final grad = resolveFoilBorderFill(
+          {'border_gradient_hex': '#a1a1a1,#e8e8e8', 'border_color': 'gold'});
+      expect(grad.kind, 'custom-gradient');
+      expect(grad.colors, ['#a1a1a1', '#e8e8e8']);
+    });
+    test('kinds del enum: spectrum=follow-foil · paletas=palette · card-bg · sólidos', () {
+      expect(resolveFoilBorderFill({'border_color': 'spectrum'}).kind, 'follow-foil');
+      expect(resolveFoilBorderFill({'border_color': 'aurora'}).pattern, 'aurora');
+      expect(resolveFoilBorderFill({'border_color': 'midnight'}).kind, 'palette');
+      final bg = resolveFoilBorderFill({'border_color': 'forest'});
+      expect(bg.kind, 'card-bg');
+      expect(bg.top, foilCardBg['forest']!.top);
+      expect(resolveFoilBorderFill({'border_color': 'silver'}).color,
+          foilBorderSolid['silver']);
+      // fallback: sin nada / desconocido = blanco (look base)
+      expect(resolveFoilBorderFill(const {}).color, _rgb(0xffffff));
+      expect(resolveFoilBorderFill({'border_color': 'bogus'}).color, _rgb(0xffffff));
+    });
+    test('las 13 opciones del CONTRATO solo producen kinds conocidos', () {
+      final opts = getVisualEffect('iridescent_foil')!
+          .config
+          .firstWhere((p) => p.key == 'border_color')
+          .options!;
+      expect(opts.length, greaterThanOrEqualTo(13));
+      for (final o in opts) {
+        expect(['solid', 'follow-foil', 'palette', 'card-bg'],
+            contains(resolveFoilBorderFill({'border_color': o}).kind),
+            reason: 'opción "$o"');
+      }
+    });
+  });
 }

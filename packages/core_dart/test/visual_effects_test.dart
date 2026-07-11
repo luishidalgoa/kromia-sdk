@@ -22,14 +22,34 @@ void main() {
       ]);
     });
 
-    test('iridescent_foil (KRO-224/244): layer overlay + 21 params + rangos/enums', () {
+    test('iridescent_foil (KRO-224/244/247-249): layer overlay + 26 params + rangos/enums', () {
       final e = getVisualEffect('iridescent_foil')!;
       expect(e.layer, 'overlay');
-      expect(e.config.length, 21); // KRO-244: +geometry +warp +pattern_hex +angle
+      // KRO-244: +geometry+warp+pattern_hex+angle · KRO-248: +mask_url+mask_layout
+      // +mask_scale · KRO-249: +border_gradient_hex+border_texture_url.
+      expect(e.config.length, 26);
       final pattern = e.config.firstWhere((p) => p.key == 'pattern');
       expect(pattern.type, 'enum');
       expect(pattern.defaultValue, 'spectrum');
       expect(pattern.options, contains('aurora'));
+      // KRO-247 (KRP 5.4.0) — paleta "Ninguna" (lámina neutra sin color).
+      expect(pattern.options, contains('none'));
+      // KRO-248 (KRP 5.5.0) — máscara importable por luminancia + tile.
+      expect(e.config.firstWhere((p) => p.key == 'mask_url').type, 'string');
+      final maskLayout = e.config.firstWhere((p) => p.key == 'mask_layout');
+      expect(maskLayout.options, ['cover', 'tile']);
+      expect(maskLayout.defaultValue, 'cover');
+      final maskScale = e.config.firstWhere((p) => p.key == 'mask_scale');
+      expect(maskScale.min, 5);
+      expect(maskScale.max, 100);
+      expect(maskScale.defaultValue, 25);
+      // KRO-249 (KRP 5.6.0) — fill libre del marco.
+      final borderColor = e.config.firstWhere((p) => p.key == 'border_color');
+      expect(borderColor.options,
+          containsAll(['oilslick', 'sunset', 'mint', 'midnight', 'spectrum']));
+      expect(borderColor.options!.length, greaterThanOrEqualTo(13));
+      expect(e.config.firstWhere((p) => p.key == 'border_gradient_hex').type, 'string');
+      expect(e.config.firstWhere((p) => p.key == 'border_texture_url').type, 'string');
       final scale = e.config.firstWhere((p) => p.key == 'scale');
       expect(scale.type, 'number');
       expect(scale.min, 100);
@@ -182,15 +202,85 @@ void main() {
       expect(err.path, 'tagStyles[1].effect');
     });
 
-    test('valores de tag duplicados → warn (no invalida)', () {
+    // KRO-127 — combinar efectos DISTINTOS sobre el mismo valor = intencionado
+    // (sin aviso); solo el MISMO efecto repetido avisa. Espejo de tag-styles.ts.
+    test('efectos DISTINTOS sobre el mismo valor → SIN aviso (se combinan)', () {
       final r = validateTagStyles(const [
         TagStyle(value: 'Rara', effect: 'glow_border'),
         TagStyle(value: 'Rara', effect: 'holographic_effect'),
       ]);
       expect(r.valid, true);
+      expect(r.issues, isEmpty);
+    });
+    test('el MISMO efecto repetido sobre el mismo valor → warn', () {
+      final r = validateTagStyles(const [
+        TagStyle(value: 'Rara', effect: 'glow_border'),
+        TagStyle(value: 'Rara', effect: 'glow_border'),
+      ]);
+      expect(r.valid, true);
       final warn = r.issues.firstWhere((i) => i.level == 'warn');
       expect(warn.index, 1);
-      expect(warn.message, contains('duplicado'));
+      expect(warn.message, contains('ya está aplicado'));
+    });
+
+    // KRO-122/123 — foil personalizado: incompleto = warn, no error.
+    test('custom_foil sin capas / capa sin textura → warn (no bloquea)', () {
+      final sinCapas = validateTagStyles(const [
+        TagStyle(value: 'comun', effect: 'custom_foil', customLayers: []),
+      ]);
+      expect(sinCapas.valid, true);
+      expect(sinCapas.issues.single.level, 'warn');
+      final sinTextura = validateTagStyles(const [
+        TagStyle(value: 'comun', effect: 'custom_foil', customLayers: [
+          EffectLayer(kind: 'foil', textureUrl: '', blend: 'color-dodge'),
+        ]),
+      ]);
+      expect(sinTextura.valid, true);
+      expect(sinTextura.issues.single.path, contains('textureUrl'));
+    });
+
+    // KRO-250 — capa PROCEDURAL iridiscente en la pila unificada.
+    test('capa iridiscente sin textura → SIN warn; config inválido → error', () {
+      final ok = validateTagStyles(const [
+        TagStyle(value: 'comun', effect: 'custom_foil', customLayers: [
+          EffectLayer(kind: 'iridescent', blend: 'color-dodge', config: {
+            'pattern': 'midnight',
+            'warp': 40,
+          }),
+        ]),
+      ]);
+      expect(ok.valid, true);
+      expect(ok.issues, isEmpty);
+
+      final bad = validateTagStyles(const [
+        TagStyle(value: 'comun', effect: 'custom_foil', customLayers: [
+          EffectLayer(kind: 'iridescent', blend: 'color-dodge', config: {
+            'pattern': 'bogus',
+            'hue': 900,
+          }),
+        ]),
+      ]);
+      expect(bad.valid, false);
+      expect(bad.issues.any((i) => i.path.contains('config.pattern')), isTrue);
+      expect(bad.issues.any((i) => i.path.contains('config.hue')), isTrue);
+    });
+
+    // KRO-247/248/249 — el contrato 5.6.0 embebido admite los params nuevos.
+    test('contrato 5.6.0: pattern none + máscara + fill libre del marco', () {
+      final r = validateTagStyles(const [
+        TagStyle(value: 'Legendaria', effect: 'iridescent_foil', config: {
+          'pattern': 'none',
+          'mask_url': 'x/dots.png',
+          'mask_layout': 'tile',
+          'mask_scale': 18,
+          'border_style': 'classic',
+          'border_gradient_hex': '#8e9aa8,#e8edf2,#8e9aa8',
+          'border_texture_url': 'x/metal.png',
+          'border_color': 'midnight',
+        }),
+      ]);
+      expect(r.valid, true, reason: r.issues.join('; '));
+      expect(r.issues, isEmpty);
     });
 
     test('array vacío → valid:true', () {

@@ -33,6 +33,43 @@ double foilLayerOpacity(num? intensity) =>
 const ({String mode, String fit, String align, bool repeat}) customFoilMask =
     (mode: 'luminance', fit: 'cover', align: 'center', repeat: false);
 
+/// KRO-248 — LAYOUTS de máscara: `cover` (clásico, == [customFoilMask]) o
+/// `tile` (la máscara TESELA el cuadro → "papel perforado"/cosmos-holo).
+/// Compartido por el `iridescent_foil` (`mask_url`/`mask_layout`/`mask_scale`)
+/// y por `EffectLayer.maskLayout`/`maskScale`. SIEMPRE por luminancia.
+const List<String> foilMaskLayouts = ['cover', 'tile'];
+
+/// KRO-248 — parámetros de la tesela (`maskLayout: 'tile'`). Escala = % del
+/// ancho del cuadro que ocupa UNA tesela (alto auto, conserva su aspect).
+const ({double defaultScalePct, double minScalePct, double maxScalePct})
+    foilMaskTile = (defaultScalePct: 25, minScalePct: 5, maxScalePct: 100);
+
+/// KRO-248 — política de render de la máscara según su layout (espejo 1:1 de
+/// `foilMaskLayout`, `custom-foil-recipe.ts`, fuente única — NO hardcodear):
+/// `tile` → repeat, [tileWidthPct] clampeado 5–100 (default 25), anclada a la
+/// esquina; `cover`/desconocido → sin repeat, [tileWidthPct] null (= cover),
+/// centrada. En Flutter: `tile` = wrap-repeat de la tesela antes del luma→alfa.
+({bool repeat, double? tileWidthPct, String align, String mode})
+    foilMaskLayout(String? layout, [num? scalePct]) {
+  if (layout == 'tile') {
+    final w = (scalePct ?? foilMaskTile.defaultScalePct)
+        .clamp(foilMaskTile.minScalePct, foilMaskTile.maxScalePct)
+        .toDouble();
+    return (repeat: true, tileWidthPct: w, align: 'top-left', mode: 'luminance');
+  }
+  return (repeat: false, tileWidthPct: null, align: 'center', mode: 'luminance');
+}
+
+/// KRO-250 — kind de la capa PROCEDURAL iridiscente (pila unificada). No es un
+/// kind de TEXTURA (`effectLayerKinds` sigue siendo foil/glitter/pattern): la
+/// capa se pinta con el motor del `iridescent_foil` usando `EffectLayer.config`
+/// (textura/máscara/blend/intensity de la capa se IGNORAN — el config gobierna).
+/// Spec: `custom-foil-render-spec.md` §4-bis.
+const String iridescentLayerKind = 'iridescent';
+
+/// KRO-250 — ¿la capa (por su [kind]) es procedural (iridiscente)?
+bool isIridescentLayer(String kind) => kind == iridescentLayerKind;
+
 /// TILT: la textura se panea con (hx,hy) 0..1; `motion` RESERVADO (paneo a fuerza
 /// completa en ambos hosts — no inventar fórmula).
 const ({double defaultPoint, int followMs}) customFoilTilt =

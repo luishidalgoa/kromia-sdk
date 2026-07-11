@@ -74,6 +74,25 @@ final Map<String, FoilPattern> foilPatterns = {
 /// Ids de los patterns disponibles (orden de declaración).
 List<String> get foilPatternIds => foilPatterns.keys.toList(growable: false);
 
+/// KRO-247 — paleta "Ninguna": el foil NO pinta gradiente de color. Id reservado
+/// del enum `pattern` (no vive en [foilPatterns]: no hay stops de color). Espejo
+/// de `FOIL_PATTERN_NONE` (`foil-recipe.ts`, KRP 5.4.0).
+const String foilPatternNone = 'none';
+
+/// KRO-247 — RECETA de la lámina NEUTRA (`pattern: 'none'`): sin gradiente de
+/// color, el REFLEJO (sheen) usa este barrido blanco diagonal ÚNICO (NO
+/// repeating) en vez del gradiente de la paleta; la capa foil de color NO se
+/// pinta (hue/brightness/contrast/scale/blend/geometry/warp no aplican). Glare,
+/// grano y borde no cambian. Espejo 1:1 de `FOIL_NEUTRAL_SHEEN`: Flutter
+/// construye su `LinearGradient` con blanco a estas alphas (0→0.9→0) y hereda
+/// el vaivén de rejilla / paneo por tilt. Spec: `iridescent-foil-render-spec.md`
+/// §1-bis.
+const ({double angleDeg, List<({double alpha, double pos})> stops})
+    foilNeutralSheen = (
+  angleDeg: 115,
+  stops: [(alpha: 0.0, pos: 0.0), (alpha: 0.9, pos: 50.0), (alpha: 0.0, pos: 100.0)],
+);
+
 /// KRO-244 — parsea la paleta PERSONALIZADA del foil (`pattern_hex`): 2–4 hex
 /// `#RRGGBB` separados por coma. `null` si no es válida (→ se usa `pattern`).
 /// Espejo 1:1 de `parseFoilPatternHex` (foil-recipe.ts): mismo criterio que
@@ -176,6 +195,62 @@ final Map<String, ({Color top, Color bottom})> foilCardBg = {
   'plum': (top: _c(0x6d3fa8), bottom: _c(0x22103d)),
   'steel': (top: _c(0x3f6d99), bottom: _c(0x101f30)),
 };
+
+/// KRO-249 — FILL LIBRE del marco ornamental: el tinte puede ser una textura
+/// importada, un sólido, un degradado propio (2–4 hex, ciclo 45%), una paleta
+/// del foil como gradiente FIJO, "como el foil" o un fondo-carta oscuro. Espejo
+/// 1:1 de `FoilBorderFill` (`foil-recipe.ts`, KRP 5.6.0). [kind] discrimina:
+/// 'texture' ([url]) · 'solid' ([color]) · 'custom-gradient' ([colors] hex) ·
+/// 'follow-foil' (el gradiente ACTUAL del foil — lo resuelve el host) ·
+/// 'palette' ([pattern] de [foilPatterns]) · 'card-bg' ([top]/[bottom]).
+class FoilBorderFill {
+  final String kind;
+  final String? url;
+  final Color? color;
+  final List<String>? colors;
+  final String? pattern;
+  final Color? top;
+  final Color? bottom;
+
+  const FoilBorderFill._(this.kind,
+      {this.url, this.color, this.colors, this.pattern, this.top, this.bottom});
+}
+
+/// KRO-249 — resolver PURO de la PRECEDENCIA del fill del marco (espejo 1:1 de
+/// `resolveFoilBorderFill` — NO reimplementar la precedencia en el host):
+///   1. `border_texture_url` (no vacía)      → texture (manda sobre todo)
+///   2. `border_color_hex` (#RRGGBB válido)  → solid
+///   3. `border_gradient_hex` (2–4 hex)      → custom-gradient (ciclo 45%,
+///      mismo formato que `pattern_hex` — ver [foilCustomPattern])
+///   4. `border_color` enum: 'spectrum' → follow-foil · paleta de
+///      [foilPatterns] → palette (gradiente fijo) · fondo-carta → card-bg ·
+///      resto → solid ([foilBorderSolid]; desconocido = blanco, look base).
+FoilBorderFill resolveFoilBorderFill(Map<String, Object?> config) {
+  final texture = (config['border_texture_url']?.toString() ?? '').trim();
+  if (texture.isNotEmpty) return FoilBorderFill._('texture', url: texture);
+
+  final hex = (config['border_color_hex']?.toString() ?? '').trim();
+  if (RegExp(r'^#[0-9a-fA-F]{6}$').hasMatch(hex)) {
+    return FoilBorderFill._('solid', color: _hex(hex));
+  }
+
+  final gradient = parseFoilPatternHex(config['border_gradient_hex']?.toString());
+  if (gradient != null) {
+    return FoilBorderFill._('custom-gradient', colors: gradient);
+  }
+
+  final id = config['border_color']?.toString() ?? 'none';
+  if (id == 'spectrum') return const FoilBorderFill._('follow-foil');
+  if (foilPatterns.containsKey(id)) {
+    return FoilBorderFill._('palette', pattern: id);
+  }
+  final cardBg = foilCardBg[id];
+  if (cardBg != null) {
+    return FoilBorderFill._('card-bg', top: cardBg.top, bottom: cardBg.bottom);
+  }
+  return FoilBorderFill._('solid',
+      color: foilBorderSolid[id] ?? foilBorderSolid['none']!);
+}
 
 /// Opacidad de la capa del efecto `holographic_effect` según su `intensity`
 /// (preset cerrado). Compartida cross-platform (espejo de `holographicOpacity`).

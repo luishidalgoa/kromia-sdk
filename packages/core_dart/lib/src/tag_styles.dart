@@ -6,6 +6,7 @@
 library;
 
 import 'card_layers.dart';
+import 'custom_foil_recipe.dart' show isIridescentLayer;
 import 'visual_effects.dart';
 
 /// Mapeo valor-de-tag → efecto visual. Vive en `albumSchema.tagStyles`. Una
@@ -93,6 +94,56 @@ void _collectTagStyleIssues(
         path: '$prefix.value',
         level: 'error',
         message: 'el valor de la tag no puede estar vacío'));
+  }
+
+  // KRO-122 — Foil PERSONALIZADO: no es un efecto de catálogo, sino capas
+  // propias. Un foil INCOMPLETO (sin capas / sin textura) es `warn`, no `error`
+  // (no bloquea el guardado mientras se monta). Espejo de tag-styles.ts.
+  if (ts.effect == 'custom_foil' || (ts.customLayers?.isNotEmpty ?? false)) {
+    final layers = ts.customLayers ?? const <EffectLayer>[];
+    if (layers.isEmpty) {
+      issues.add(TagStyleValidationIssue(
+          index: index,
+          path: '$prefix.customLayers',
+          level: 'warn',
+          message:
+              'el foil personalizado aún no tiene capas (no se aplicará hasta que añadas una)'));
+    }
+    for (var li = 0; li < layers.length; li++) {
+      final l = layers[li];
+      // KRO-250 — capa PROCEDURAL iridiscente: no lleva textura; su `config`
+      // se valida contra los params del catálogo `iridescent_foil`.
+      if (isIridescentLayer(l.kind)) {
+        final def = getVisualEffect('iridescent_foil');
+        final cfg = l.config;
+        if (def != null && cfg != null) {
+          final byKey = {for (final p in def.config) p.key: p};
+          cfg.forEach((key, value) {
+            final param = byKey[key];
+            if (param == null) {
+              issues.add(TagStyleValidationIssue(
+                  index: index,
+                  path: '$prefix.customLayers[$li].config.$key',
+                  level: 'error',
+                  message: '"$key" no es una opción de config del iridiscente'));
+              return;
+            }
+            _validateConfigValue(
+                param, value, index, '$prefix.customLayers[$li].config.$key', issues);
+          });
+        }
+        continue;
+      }
+      if (l.textureUrl.trim().isEmpty) {
+        issues.add(TagStyleValidationIssue(
+            index: index,
+            path: '$prefix.customLayers[$li].textureUrl',
+            level: 'warn',
+            message:
+                'esta capa de foil aún no tiene textura (no se pintará hasta que la añadas)'));
+      }
+    }
+    return;
   }
 
   // 2. effect existe en el catálogo.
@@ -190,21 +241,24 @@ TagStyleValidationResult validateTagStyles(List<TagStyle> tagStyles) {
     _collectTagStyleIssues(tagStyles[index], index, 'tagStyles[$index]', issues);
   }
 
-  // Duplicados por `value` → warn (se aplicaría el primero).
+  // KRO-127 — COMBINAR efectos DISTINTOS sobre el MISMO valor es INTENCIONADO
+  // (el resolver los apila). El aviso de duplicado es por (valor + efecto): solo
+  // el MISMO efecto repetido es redundante. Espejo 1:1 de tag-styles.ts.
   final seen = <String, int>{};
   for (var index = 0; index < tagStyles.length; index++) {
     final ts = tagStyles[index];
     if (ts.value.trim().isEmpty) continue;
-    final prev = seen[ts.value];
+    final key = '${ts.value}::${ts.effect}';
+    final prev = seen[key];
     if (prev != null) {
       issues.add(TagStyleValidationIssue(
           index: index,
-          path: 'tagStyles[$index].value',
+          path: 'tagStyles[$index].effect',
           level: 'warn',
           message:
-              'valor de tag "${ts.value}" duplicado (ya definido en tagStyles[$prev]); se aplicaría el primero'));
+              'el efecto "${ts.effect}" ya está aplicado al valor "${ts.value}" (tagStyles[$prev]); se aplica una sola vez'));
     } else {
-      seen[ts.value] = index;
+      seen[key] = index;
     }
   }
 

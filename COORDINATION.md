@@ -9,7 +9,8 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 | Chat | Repos / propiedad |
 |---|---|
 | **Studio** (sesión *"Kromia studio"*) | `@kromia/core` (TS **canónico**) · `@kromia/react` · `kromia-studio` · `Kromia_NodeJS` (backend) |
-| **Flutter** (sesión *"Kromia flutter"*, `local_a987e3aa-6bba-47b2-b9b6-e34cb9b1c7ae`, cwd `Downloads/kromia-mobile`) | `core_dart` (espejo Dart de `@kromia/core`) · `kromia_flutter` · la app |
+| **Efectos** (sesión especialista en efectos/iridiscente) | Todo lo de Studio en materia de EFECTOS **+ el espejo Dart de EFECTOS en `core_dart`** (`visual_effects.dart`, `foil_recipe.dart`, `custom_foil_recipe.dart`, modelo `EffectLayer`/efectos de `tag_styles`, + su corpus de tests) — decisión del user 2026-07-12: paridad de efectos de punta a punta en un solo chat |
+| **Flutter** (sesión *"Kromia flutter"*, `local_a987e3aa-6bba-47b2-b9b6-e34cb9b1c7ae`, cwd `Downloads/kromia-mobile`) | `core_dart` (resto, NO-efectos) · `kromia_flutter` · la app — incluido el RENDER de efectos en la app (shaders/widgets/giroscopio), coordinado con el chat de Efectos vía Drift Sync |
 
 > **Nadie edita los ficheros del otro.** Si crees que el otro lado debe cambiar,
 > **pídelo** por el canal (abajo) — no lo toques. Si aparece WIP sin commitear del
@@ -57,6 +58,21 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 4. **Verifica** con los tests de drift / paridad.
 
 ## Cola de handoffs abierta (vivo — mantener)
+
+> **⚡ 2026-07-12 — el espejo `core_dart` de EFECTOS de KRO-251/252/253/254 YA
+> ESTÁ HECHO por el chat de Efectos** (reparto nuevo, ver tabla arriba):
+> `visual_effects.dart` regenerado desde el contrato **5.6.0** (26 params del
+> iridiscente) · `foil_recipe.dart` (+`foilPatternNone`, `foilNeutralSheen`,
+> `resolveFoilBorderFill`/`FoilBorderFill`) · `custom_foil_recipe.dart`
+> (+`foilMaskLayouts`/`foilMaskTile`/`foilMaskLayout`, `iridescentLayerKind`/
+> `isIridescentLayer`) · `card_layers.dart` (`EffectLayer` +`config`/
+> `maskLayout`/`maskScale`, `isEffectLayerKind`) · `tag_styles.dart` (validador
+> alineado: rama custom_foil KRO-122/123, dup por valor+efecto KRO-127, capa
+> procedural KRO-250) · `version_compat`+pubspec → **5.6.0**. `flutter test`:
+> **736 tests verdes**. **Al chat de Flutter le queda SOLO el RENDER de la app**
+> (`kromia_flutter`/`kromia-mobile`): pintar `pattern:'none'` (sheen neutro),
+> máscara luma→alfa con tile (wrap-repeat), fill del marco por kind, y el
+> despacho de la capa `iridescent` al shader — specs §1-bis/§1-ter/§3/§4-bis.
 
 - **Studio → Flutter** · **NUEVO 2026-07-12 — KRO-250 · DATA (sin bump, KRP
   sigue 5.6.0)**: pila UNIFICADA — `EffectLayer.kind` gana **`'iridescent'`**

@@ -112,12 +112,7 @@ const String _visualEffectsJson = r'''
     "description": "Capa animada arcoíris superpuesta sobre la imagen principal de la carta.",
     "layer": "overlay",
     "config": [
-      {
-        "key": "intensity",
-        "type": "enum",
-        "options": ["low", "medium", "high"],
-        "default": "medium"
-      }
+      {"key": "intensity", "type": "enum", "options": ["low", "medium", "high"], "default": "medium"}
     ]
   },
   {
@@ -126,47 +121,45 @@ const String _visualEffectsJson = r'''
     "description": "Foil iridiscente ajustable: arcoíris que reluce al inclinar, con tono, brillo, grano y borde configurables en vivo.",
     "layer": "overlay",
     "config": [
-      { "key": "pattern", "type": "enum", "options": ["spectrum", "oilslick", "sunset", "mint", "aurora", "midnight"], "default": "spectrum" },
-      { "key": "pattern_hex", "type": "string" },
-      { "key": "angle", "type": "number", "default": 0, "min": 0, "max": 360 },
-      { "key": "hue", "type": "number", "default": 0, "min": 0, "max": 360 },
-      { "key": "opacity", "type": "number", "default": 95, "min": 0, "max": 100 },
-      { "key": "glow", "type": "number", "default": 35, "min": 0, "max": 100 },
-      { "key": "sheen", "type": "number", "default": 40, "min": 0, "max": 100 },
-      { "key": "shimmer", "type": "number", "default": 50, "min": 0, "max": 100 },
-      { "key": "noise", "type": "number", "default": 16, "min": 0, "max": 100 },
-      { "key": "brightness", "type": "number", "default": 105, "min": 50, "max": 150 },
-      { "key": "contrast", "type": "number", "default": 100, "min": 50, "max": 150 },
-      { "key": "scale", "type": "number", "default": 210, "min": 100, "max": 320 },
-      { "key": "blend", "type": "enum", "options": ["color-dodge", "overlay", "screen", "soft-light", "hard-light"], "default": "color-dodge" },
-      { "key": "geometry", "type": "enum", "options": ["bandas", "organico"], "default": "bandas" },
-      { "key": "warp", "type": "number", "default": 55, "min": 0, "max": 100 },
-      { "key": "border_style", "type": "enum", "options": ["none", "classic", "double", "sticker", "emblema", "tech", "feston", "gotico", "barroco"], "default": "none" },
-      { "key": "border_fill", "type": "enum", "options": ["hueco", "borde", "marco"], "default": "hueco" },
-      { "key": "border_width", "type": "number", "default": 0, "min": 0, "max": 16 },
-      { "key": "border_margin", "type": "number", "default": 6, "min": 0, "max": 24 },
-      { "key": "border_color", "type": "enum", "options": ["none", "gold", "silver", "aurora", "spectrum", "forest", "obsidian", "plum", "steel"], "default": "none" },
-      { "key": "border_color_hex", "type": "string" }
+      {"key": "pattern", "type": "enum", "options": ["none", "spectrum", "oilslick", "sunset", "mint", "aurora", "midnight"], "default": "spectrum"},
+      {"key": "pattern_hex", "type": "string"},
+      {"key": "angle", "type": "number", "default": 0, "min": 0, "max": 360},
+      {"key": "hue", "type": "number", "default": 0, "min": 0, "max": 360},
+      {"key": "opacity", "type": "number", "default": 95, "min": 0, "max": 100},
+      {"key": "glow", "type": "number", "default": 35, "min": 0, "max": 100},
+      {"key": "sheen", "type": "number", "default": 40, "min": 0, "max": 100},
+      {"key": "shimmer", "type": "number", "default": 50, "min": 0, "max": 100},
+      {"key": "noise", "type": "number", "default": 16, "min": 0, "max": 100},
+      {"key": "brightness", "type": "number", "default": 105, "min": 50, "max": 150},
+      {"key": "contrast", "type": "number", "default": 100, "min": 50, "max": 150},
+      {"key": "scale", "type": "number", "default": 210, "min": 100, "max": 320},
+      {"key": "blend", "type": "enum", "options": ["color-dodge", "overlay", "screen", "soft-light", "hard-light"], "default": "color-dodge"},
+      {"key": "geometry", "type": "enum", "options": ["bandas", "organico"], "default": "bandas"},
+      {"key": "warp", "type": "number", "default": 55, "min": 0, "max": 100},
+      {"key": "mask_url", "type": "string"},
+      {"key": "mask_layout", "type": "enum", "options": ["cover", "tile"], "default": "cover"},
+      {"key": "mask_scale", "type": "number", "default": 25, "min": 5, "max": 100},
+      {"key": "border_style", "type": "enum", "options": ["none", "classic", "double", "sticker", "emblema", "tech", "feston", "gotico", "barroco"], "default": "none"},
+      {"key": "border_fill", "type": "enum", "options": ["hueco", "borde", "marco"], "default": "hueco"},
+      {"key": "border_width", "type": "number", "default": 0, "min": 0, "max": 16},
+      {"key": "border_margin", "type": "number", "default": 6, "min": 0, "max": 24},
+      {"key": "border_color", "type": "enum", "options": ["none", "gold", "silver", "aurora", "spectrum", "oilslick", "sunset", "mint", "midnight", "forest", "obsidian", "plum", "steel"], "default": "none"},
+      {"key": "border_color_hex", "type": "string"},
+      {"key": "border_gradient_hex", "type": "string"},
+      {"key": "border_texture_url", "type": "string"}
     ]
   },
   {
     "id": "crown_badge",
-    "displayName": "Insignia de corona",
-    "description": "Corona / icono distintivo en una esquina de la carta.",
+    "displayName": "Insignia",
+    "description": "Corona (o tu imagen propia) como distintivo en una esquina, con separación ajustable.",
     "layer": "badge",
     "config": [
-      {
-        "key": "color",
-        "type": "enum",
-        "options": ["gold", "silver", "bronze"],
-        "default": "gold"
-      },
-      {
-        "key": "position",
-        "type": "enum",
-        "options": ["top-left", "top-right", "bottom-left", "bottom-right"],
-        "default": "top-right"
-      }
+      {"key": "color", "type": "enum", "options": ["gold", "silver", "bronze"], "default": "gold"},
+      {"key": "position", "type": "enum", "options": ["top-left", "top-right", "bottom-left", "bottom-right"], "default": "top-right"},
+      {"key": "image_url", "type": "string", "optional": true},
+      {"key": "padding_x", "type": "number", "default": 4, "min": 0, "max": 48},
+      {"key": "padding_y", "type": "number", "default": 4, "min": 0, "max": 48}
     ]
   },
   {
@@ -175,12 +168,7 @@ const String _visualEffectsJson = r'''
     "description": "Filtro sepia / desaturado que envejece la imagen de la carta.",
     "layer": "filter",
     "config": [
-      {
-        "key": "strength",
-        "type": "enum",
-        "options": ["low", "medium", "high"],
-        "default": "medium"
-      }
+      {"key": "strength", "type": "enum", "options": ["low", "medium", "high"], "default": "medium"}
     ]
   },
   {
@@ -189,12 +177,7 @@ const String _visualEffectsJson = r'''
     "description": "Borde luminoso pulsante alrededor de la carta.",
     "layer": "border",
     "config": [
-      {
-        "key": "color",
-        "type": "enum",
-        "options": ["gold", "blue", "green", "red", "purple"],
-        "default": "gold"
-      }
+      {"key": "color", "type": "enum", "options": ["gold", "blue", "green", "red", "purple"], "default": "gold"}
     ]
   },
   {
@@ -210,11 +193,7 @@ const String _visualEffectsJson = r'''
     "description": "Firma estilizada superpuesta sobre la carta.",
     "layer": "overlay",
     "config": [
-      {
-        "key": "signature_url",
-        "type": "string",
-        "optional": true
-      }
+      {"key": "signature_url", "type": "string", "optional": true}
     ]
   }
 ]

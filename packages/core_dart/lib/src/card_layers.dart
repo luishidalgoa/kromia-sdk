@@ -14,8 +14,18 @@
 /// mano (ver el canario de constantes en `card_layers_test.dart`).
 library;
 
-/// Tipo de capa de efecto (foil importable, KRO-122). Espacio cerrado.
+import 'custom_foil_recipe.dart' show iridescentLayerKind;
+
+/// Tipos de capa DE TEXTURA (foil importable, KRO-122). Espacio cerrado.
+/// ⚠️ NO incluye `'iridescent'` (KRO-250, capa PROCEDURAL): ese kind es válido
+/// en [EffectLayer.kind] (ver [isEffectLayerKind]) pero no lleva textura — se
+/// pinta con el motor del iridiscente desde [EffectLayer.config].
 const Set<String> effectLayerKinds = {'foil', 'glitter', 'pattern'};
+
+/// KRO-250 — ¿[x] es un kind de capa válido? (textura O procedural). Espejo de
+/// `isEffectLayerKind` (`custom-foil-recipe.ts`).
+bool isEffectLayerKind(String x) =>
+    effectLayerKinds.contains(x) || x == iridescentLayerKind;
 
 /// Modos de fusión admitidos (valor técnico CSS; el label es presentación).
 /// Mapean a `BlendMode` de Flutter en el render:
@@ -29,18 +39,36 @@ const Set<String> effectBlendModes = {
   'hard-light',
 };
 
-/// Capa de efecto foil/glitter/pattern (KRO-122) — render-agnóstico, NO entra al
-/// `.json`. La [maskUrl] es una imagen en GRISES interpretada por LUMINANCIA
-/// (BLANCO = brilla, NEGRO = no, gris = parcial) — NO por canal alfa.
+/// Capa de efecto foil/glitter/pattern/iridescent (KRO-122/250) — render-agnóstico,
+/// NO entra al `.json`. La [maskUrl] es una imagen en GRISES interpretada por
+/// LUMINANCIA (BLANCO = brilla, NEGRO = no, gris = parcial) — NO por canal alfa.
 class EffectLayer {
-  /// 'foil' | 'glitter' | 'pattern'.
+  /// 'foil' | 'glitter' | 'pattern' | 'iridescent' (KRO-250, procedural).
   final String kind;
 
   /// Lámina tornasolada / glitter / patrón (URL servida por el proxy de imágenes).
+  /// En el TS es OPCIONAL desde KRO-250; aquí `''` = sin textura (mismo JSON,
+  /// mismo guard `isEmpty` en render). Obligatoria en kinds de TEXTURA (sin ella
+  /// la capa no se pinta); NO aplica a `'iridescent'`.
   final String textureUrl;
+
+  /// KRO-250 — SOLO `kind:'iridescent'`: config del motor iridiscente (los
+  /// params del catálogo `iridescent_foil`). En una capa procedural GOBIERNA
+  /// TODO el pintado: [textureUrl], [maskUrl], [maskLayout], [maskScale],
+  /// [blend], [intensity] y [motion] se IGNORAN. El efecto de catálogo ≡ pila
+  /// de 1 capa iridiscente (retro-compat, nada migra).
+  final Map<String, Object>? config;
 
   /// Máscara en grises (luminancia → opacidad). null = cubre toda la carta.
   final String? maskUrl;
+
+  /// KRO-248 — encaje de la máscara: 'cover' (clásico) | 'tile' (tesela).
+  /// null = 'cover' (retro-compat). Ver `foilMaskLayout` (custom_foil_recipe).
+  final String? maskLayout;
+
+  /// KRO-248 — escala de la tesela con `maskLayout:'tile'` (% del ancho del
+  /// cuadro, 5–100). null = default de la receta (`foilMaskTile`).
+  final double? maskScale;
 
   /// Modo de fusión (uno de [effectBlendModes]).
   final String blend;
@@ -53,9 +81,12 @@ class EffectLayer {
 
   const EffectLayer({
     required this.kind,
-    required this.textureUrl,
+    this.textureUrl = '',
     required this.blend,
+    this.config,
     this.maskUrl,
+    this.maskLayout,
+    this.maskScale,
     this.intensity,
     this.motion,
   });
@@ -64,7 +95,11 @@ class EffectLayer {
         kind: (json['kind'] as String?) ?? 'foil',
         textureUrl: (json['textureUrl'] as String?) ?? '',
         blend: (json['blend'] as String?) ?? 'overlay',
+        config: (json['config'] as Map?)
+            ?.map((k, v) => MapEntry(k.toString(), v as Object)),
         maskUrl: json['maskUrl'] as String?,
+        maskLayout: json['maskLayout'] as String?,
+        maskScale: (json['maskScale'] as num?)?.toDouble(),
         intensity: (json['intensity'] as num?)?.toDouble(),
         motion: (json['motion'] as num?)?.toDouble(),
       );
