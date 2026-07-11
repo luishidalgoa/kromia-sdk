@@ -77,12 +77,30 @@ fieldAppearances, key)`) COMPLETA — color (valor + etiqueta), tipografía, fon
 color efectivo; la ETIQUETA mantiene su rol de caption pero sobre el mismo texto
 base legible.
 
-## 4. Acento (tinte de la carta)
+## 4. Acento del LIENZO RAÍZ (tinte/raya de la carta) ⭐
 
-- Color = primer field con `behavior:'color_hex'` del item → `extractAccentSettings(composition, fields, item)` → `{ color, position, colorFieldKey, style }` (`@kromia/core/extract-accent.ts`).
-- Posición: cascada `composition.accentPosition` → `slot.appearance.accentPosition` → default del recipe.
-- Estilo (`accentStyle`): `bar`/`rounded`/`glow`/`gradient`/`ambient` — la matemática exacta (box-shadow inset / gradient) está en §25 del handoff grande. **Detalle: ancho `w=4`.**
-- El slot cuyo `fields` incluye `colorFieldKey` **NO se pinta como celda** (su color YA es la raya) — §14.2.
+**Lo dibuja el `LayoutRenderer`, NO el host.** En web (`LayoutRenderer.tsx:894-971`) el
+motor: (1) computa `const accent = extractAccentSettings(composition, item, fieldDefs, 'top')`,
+(2) deriva `accentSlots` = slots cuyo `fields` incluye `accent.colorFieldKey`, (3) aplica
+`buildAccentBorderStyle(accent, accentWidth)` como **`extraStyle` del nodo RAÍZ** (`:971`).
+→ **El `layout_renderer.dart` de Flutter debe hacer LO MISMO en su nodo raíz** — si tu
+render no llama a `extractAccentSettings` + no pinta la raya en el contenedor raíz, no
+sale acento (bug reportado).
+
+- **Color** = primer field `behavior:'color_hex'` del item → `extractAccentSettings` →
+  `{ color, position, colorFieldKey, style }`. Sin campo color_hex → sin acento.
+- **⚠️ En el DETALLE el surface raíz PIERDE bg/borde/radius** (fidelidad full-screen,
+  `:915-921`) **pero el acento SÍ se aplica** al raíz. No descartes el acento cuando
+  descartes el surface — es una capa aparte sobre el fondo del root. `accentWidth = 4`
+  en detalle (`:927`); `curvedAccent = style==='rounded' && position!=='none'` (solo
+  `rounded` conserva radius; el resto van rectos).
+- **Estilo (`accentStyle`)**: `bar`/`rounded`/`glow`/`gradient`/`ambient` — la matemática
+  exacta (inset vector `ox/oy`, box-shadow/gradient por estilo) está en **§25.2** del
+  handoff grande. Si solo implementas `bar`, un acento `ambient`/`gradient` (lavado difuso,
+  como el tinte fuego de la captura) **no se dibuja**. `ambient` es un `linear-gradient`
+  (base+0x40 → transparent 55%), NO un borde — rama aparte o sale una raya en vez del lavado.
+- El slot cuyo `fields` incluye `colorFieldKey` **NO se pinta como celda** (su color YA es
+  la raya) — §14.2. Tu `AccentSettings` de `core_dart` aún no expone `colorFieldKey`: añádelo.
 
 ## 5. Header del sheet (chrome de la app, NO del motor)
 
@@ -96,6 +114,35 @@ Lo que el user llama "modificar el header de detalles" = personalizar `surface.b
 + `surface.textColor` (Decoración → Fondo / Color de texto, o un Acabado) + elegir el
 campo título (`cardTitleKey`).
 
+## 6. Cada campo se dibuja SEGÚN SU BEHAVIOR/TIPO ⭐
+
+En la captura: "Fuego" = pastilla roja, `★★★★☆` = estrellas, "Rara" = texto. **NO es
+casualidad: cada valor se formatea y presenta según el `behavior` (y a veces el `type`)
+de su campo.** Dos capas, ambas ya en el SDK (y espejadas en `core_dart`) — el gap es que
+el WIDGET de render de Flutter no las aplica:
+
+**(a) FORMATO del valor → `formatScalar(value, fieldDef)`** (`@kromia/core/format-scalar.ts`,
+espejado en `format_scalar.dart`). **Fuente ÚNICA**; el web lo llama para CADA escalar
+(`LayoutRenderer.tsx:594/648/696`). Conmuta por **`behavior`**:
+- `rating` → `'★'.repeat(v) + '☆'.repeat(max-v)` (= `★★★★☆`) — **no es un widget de estrellas, es el STRING que devuelve formatScalar**; si tu render muestra "4" es que no pasa por formatScalar.
+- `measurement` → `"0.9 m"` (unidad de `behaviorConfig.unit`), `currency` → símbolo, `percentage` → `"18%"`, `iso_date`/`year` → fecha formateada, `incremental` → pad/prefix/suffix, etc.
+→ **Regla: TODO valor escalar del detalle pasa por `formatScalar`**, nunca `value.toString()` crudo.
+
+**(b) PRESENTACIÓN (pastilla vs texto vs enlace vs chips)** — decidida por:
+- `appearance.display` (`'text'` | `'badge'`): `badge` → pastilla (`rounded-full` + bgColor + textColor); `text` → texto plano. ("Fuego" es badge con bg del color/condicional.)
+- **`classifyField(type, behavior)`** (`@kromia/core/classify.ts`, espejado): `rating`/`enum`/`ordinal_enum` → kind `badge`.
+- **behavior**: `tags` (array) → chips; `url`/`email`/`phone` → enlace navegable (href saneado); `url_list`/`email_list` → un enlace por elemento; `markdown`/`html` → tokens; `code` → monoespaciado. Ver §8 del handoff grande.
+- `composableDisplay` (`inline`/`list`/`chips`/`table`/`stats`) para slots multi-campo — §26.
+
+**A qué NIVEL se otorga el estilo** (la duda del user): el **`behavior`** del campo manda el
+FORMATO (`formatScalar`) y, junto al `type`, el **slot-kind** (`classifyField`). El `type`
+(text/number/image) importa para lo estructural. Resumen: **behavior → forma de dibujarse.**
+
+→ **Flutter:** en la ruta del detalle, cada hoja-slot debe (1) formatear con `formatScalar`,
+(2) ramificar la presentación por `appearance.display` + behavior (badge/chips/enlace/texto),
+igual que `SlotContent`/`ComponentContent`/`ScalarText` del web. Ya tienes formatScalar y
+classify en `core_dart`; el trabajo es aplicarlos en el widget, no reimplementarlos.
+
 ## Checklist de paridad (el fix del dark-on-dark)
 
 - [ ] Pantalla = `screenBgHex(surface.screenBgColor ?? surface.bgColor)`.
@@ -103,7 +150,9 @@ campo título (`cardTitleKey`).
 - [ ] **`DefaultTextStyle` con `paletteHex(surface.textColor)` envolviendo el subárbol del detalle** (el fix). Slot con color propio → override.
 - [ ] `null` de `paletteHex`/`screenBgHex` (token de tema) → fallback al tema de la app (no forzar un hex).
 - [ ] StatsRow aplica apariencia efectiva por stat (no `foreground`/`muted` fijos).
-- [ ] Acento por `extractAccentSettings` + `accentStyle`; suprimir la celda del `colorFieldKey`.
+- [ ] **Acento del RAÍZ**: `layout_renderer` computa `extractAccentSettings` y pinta `buildAccentBorderStyle` en el nodo raíz — TAMBIÉN en el detalle (aunque el surface pierda bg/borde). Implementa los 5 `accentStyle` (bar/rounded/glow/gradient/ambient, §25.2), no solo `bar`. `colorFieldKey` en `AccentSettings` de core_dart + suprimir su celda.
+- [ ] **Título**: parsear `cardTitleKey` del schema servido + usar `resolveCardTitle` (core, `7e48b96`): `cardTitleKey` → texto legible → PK → 'Carta' (por eso salía "6").
+- [ ] **Render por behavior/tipo**: cada valor por `formatScalar` (rating→`★★★★☆`, measurement→unidad…) + presentación por `appearance.display`/behavior (badge/chips/enlace). Ya en `core_dart`; aplicarlo en el widget.
 - [ ] Header del sheet = `bgColor`/`textColor` del surface.
 
 > Nada de esto bumpea el KRP (todo render-only / DATA de álbum). El modelo ya es
