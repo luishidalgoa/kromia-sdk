@@ -69,7 +69,7 @@ const Map<String, ComponentDefinition> componentRegistry = {
     displayName: 'Fila de badges',
     description:
         'Pinta cada campo del slot como un BADGE separado (p.ej. "Fuego · Rara · Holo" como pills sueltas), en vez de un único pill que envuelve todo. Para varios atributos cortos en línea.',
-    category: 'basic',
+    category: 'attributes',
     roles: [
       ComponentRole(id: 'badges', label: 'Badges', accepts: ['badge', 'text-short']),
     ],
@@ -82,7 +82,7 @@ const Map<String, ComponentDefinition> componentRegistry = {
     displayName: 'Fila de chips',
     description:
         'Pinta cada campo del slot como una pastilla SUTIL (chip, estilo etiqueta tenue): varios atributos cortos como chips en línea. Más discreto que "Fila de badges".',
-    category: 'basic',
+    category: 'attributes',
     roles: [
       ComponentRole(id: 'chips', label: 'Chips', accepts: ['text-short', 'number', 'badge']),
     ],

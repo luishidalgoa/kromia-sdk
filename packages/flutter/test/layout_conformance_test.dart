@@ -178,6 +178,20 @@ void main() {
     expect(missing, isEmpty, reason: 'prefabs sin soporte en el LayoutRenderer: ${missing.join(', ')}');
   });
 
+  // ── B.2 — ENDURECIMIENTO (KRO-217): el fixture da un slot REAL a cada componente ─
+  // El agujero que dejó pasar `chips_row`: un componente en el catálogo SIN slot en
+  // el fixture renderiza VACÍO, y un host que lo dropea (default:null → SizedBox)
+  // produce el MISMO golden vacío = cero diff = drift silencioso. Esta aserción
+  // fuerza que todo componente (salvo `divider`, que no tiene slots) lleve un slot
+  // real → si añades uno al catálogo y olvidas el slot, salta aquí.
+  test('el fixture da un slot real a cada prefab (no vacío → sin drift silencioso)', () {
+    final orphans = ConformanceCatalog.components
+        .where((c) => c != 'divider' && _roleSlotsFor(c).isEmpty)
+        .toList();
+    expect(orphans, isEmpty,
+        reason: 'componentes sin slot en el fixture (renderizarían vacío): ${orphans.join(', ')}');
+  });
+
   // ── C. Cobertura de CONTAINER KINDS (ratchet duro) ──────────────────────────
   testWidgets('el motor pinta TODOS los container kinds del catálogo', (t) async {
     final defs = const [FieldDefLike(key: 'nombre', type: 'text')];
@@ -275,6 +289,7 @@ Map<String, String> _roleSlotsFor(String component) => switch (component) {
       'divider' => const {},
       'stats_row' => const {'stats': 'stats'},
       'badge_row' => const {'badges': 'badges'},
+      'chips_row' => const {'chips': 'badges'},
       'section_title' => const {'text': 'sectionLabel'},
       'hero_header' => const {'banner': 'banner', 'avatar': 'avatar', 'title': 'title', 'subtitle': 'subtitle'},
       _ => const {},

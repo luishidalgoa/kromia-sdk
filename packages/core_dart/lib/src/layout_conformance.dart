@@ -56,7 +56,6 @@ final Map<String, SlotComposition> _slots = <String, SlotComposition>{
   'cards': const SlotComposition(fields: ['protagonista']),
   'stats': const SlotComposition(fields: ['altura', 'peso']),
   'badges': const SlotComposition(fields: ['elemento', 'rareza']),
-  'chips': const SlotComposition(fields: ['elemento', 'rareza']),
   'sectionLabel': const SlotComposition(fields: ['nombre']),
 };
 
@@ -71,7 +70,10 @@ const Map<String, Map<String, String>> _componentRoleSlots = <String, Map<String
   'divider': {},
   'stats_row': {'stats': 'stats'},
   'badge_row': {'badges': 'badges'},
-  'chips_row': {'chips': 'chips'},
+  // KRO-217 — chips_row con slot REAL (espejo del TS `bfe020e`): reusa 'badges'
+  // (elemento+rareza) → el golden EXIGE que el componente pinte sus chips; un host
+  // que lo dropee produce un golden distinto (antes: slot vacío = drift silencioso).
+  'chips_row': {'chips': 'badges'},
   'section_title': {'text': 'sectionLabel'},
   'hero_header': {'banner': 'banner', 'avatar': 'avatar', 'title': 'title', 'subtitle': 'subtitle'},
 };
