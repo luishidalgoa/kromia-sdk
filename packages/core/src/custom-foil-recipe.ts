@@ -24,7 +24,7 @@
  * `docs/custom-foil-render-spec.md`.
  */
 
-import type { EffectLayer, EffectLayerKind, EffectBlendMode } from './types';
+import type { EffectLayer, EffectLayerKind, EffectBlendMode, EffectMaskLayout } from './types';
 
 /** Los 3 KINDS de capa, en orden de declaración (== orden del selector del editor).
  *  El kind orienta el LAYOUT de la textura (ver `foilTextureLayout`). */
@@ -104,6 +104,47 @@ export const CUSTOM_FOIL_MASK = {
   align: 'center',
   repeat: false,
 } as const;
+
+/**
+ * KRO-248 — LAYOUTS de máscara. Hasta ahora toda máscara era `cover` (contornos
+ * generados del mismo arte). `tile` añade el caso "patrón que se REPITE": una
+ * tesela en grises (p.ej. puntos blancos sobre negro) tesela el cuadro y el foil
+ * solo asoma por sus zonas claras → el fondo "papel perforado" tipo cosmos-holo.
+ * Compartido por el `iridescent_foil` (params `mask_url`/`mask_layout`/`mask_scale`
+ * del contrato) y por `EffectLayer.maskLayout`/`maskScale` del custom_foil.
+ * La interpretación SIEMPRE es por LUMINANCIA (ver `CUSTOM_FOIL_MASK.mode`).
+ */
+export const FOIL_MASK_LAYOUTS: readonly EffectMaskLayout[] = ['cover', 'tile'];
+
+/** Parámetros de la tesela (`maskLayout: 'tile'`). Escala = % del ancho del
+ *  cuadro que ocupa UNA tesela (alto auto = conserva su aspect). */
+export const FOIL_MASK_TILE = {
+  defaultScalePct: 25,
+  minScalePct: 5,
+  maxScalePct: 100,
+} as const;
+
+/** Política de render de la máscara según su layout — fuente única para ambos
+ *  hosts (Studio la traduce a CSS mask-*; Flutter a su muestreo del shader). */
+export interface FoilMaskLayoutSpec {
+  /** ¿La máscara se tesela? (CSS `mask-repeat: repeat`). */
+  repeat: boolean;
+  /** `'cover'` o ancho de tesela en % del cuadro (alto `auto`). */
+  size: 'cover' | { widthPct: number };
+  /** Alineación: `cover` centrado (contorno sobre el arte); `tile` desde esquina. */
+  align: 'center' | 'top-left';
+  /** SIEMPRE luminancia (blanco = brilla). */
+  mode: 'luminance';
+}
+export function foilMaskLayout(layout: EffectMaskLayout | string | undefined, scalePct?: number): FoilMaskLayoutSpec {
+  if (layout === 'tile') {
+    const raw = scalePct ?? FOIL_MASK_TILE.defaultScalePct;
+    const w = Math.max(FOIL_MASK_TILE.minScalePct, Math.min(FOIL_MASK_TILE.maxScalePct, raw));
+    return { repeat: true, size: { widthPct: w }, align: 'top-left', mode: 'luminance' };
+  }
+  // default / desconocido → 'cover' (== CUSTOM_FOIL_MASK, retro-compat).
+  return { repeat: false, size: 'cover', align: 'center', mode: 'luminance' };
+}
 
 /**
  * TILT / movimiento del brillo. La textura (sobredimensionada, ver

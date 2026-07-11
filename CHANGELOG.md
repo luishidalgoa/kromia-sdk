@@ -20,6 +20,14 @@ paridad de otro chat → se resumen como nota, no se listan uno a uno.
 
 _Cambios DATA / render-only (NO bumpean el `protocolVersion`)._
 
+## [5.5.0] - 2026-07-11
+
+_Bump MINOR del KRP (auto-detectado): 3 params aditivos en `iridescent_foil`._
+
+### Added
+- **`iridescent_foil` gana MÁSCARA importable**: `mask_url` (imagen en grises interpretada por **LUMINANCIA** — blanco = el foil asoma) + `mask_layout` (`cover` clásico | **`tile`** = la máscara TESELA el cuadro) + `mask_scale` (% del ancho por tesela, 5–100=25). Recorta las capas foil+sheen (glare/grano/borde no). Con una tesela de puntos → el fondo "papel perforado"/cosmos-holo de las cartas premium físicas (KRO-248).
+- **Layout de máscara compartido** en la receta (`custom-foil-recipe.ts`): `FOIL_MASK_LAYOUTS` + `FOIL_MASK_TILE` + `foilMaskLayout(layout, scalePct)` — fuente única para el iridiscente Y el custom_foil. `EffectLayer` gana `maskLayout?`/`maskScale?` (tipo nuevo `EffectMaskLayout`; DATA, ausente = `cover` retro-compat) (KRO-248).
+
 ## [5.4.0] - 2026-07-11
 
 _Bump MINOR del KRP (auto-detectado): option aditiva en `iridescent_foil`.

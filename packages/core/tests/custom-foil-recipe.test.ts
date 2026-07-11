@@ -3,6 +3,7 @@ import {
   EFFECT_LAYER_KINDS, EFFECT_BLEND_MODES, isEffectBlendMode, isEffectLayerKind,
   CUSTOM_FOIL_LAYER_DEFAULTS, foilLayerOpacity, foilTextureLayout,
   CUSTOM_FOIL_MASK, EFFECT_BLEND_TO_FLUTTER,
+  FOIL_MASK_LAYOUTS, FOIL_MASK_TILE, foilMaskLayout,
 } from '../src/custom-foil-recipe';
 import type { EffectBlendMode } from '../src/types';
 
@@ -49,6 +50,27 @@ describe('custom-foil-recipe — receta DATA del foil personalizado', () => {
     expect(CUSTOM_FOIL_MASK.fit).toBe('cover');
     expect(CUSTOM_FOIL_MASK.align).toBe('center');
     expect(CUSTOM_FOIL_MASK.repeat).toBe(false);
+  });
+
+  // KRO-248 — layouts de máscara (cover | tile).
+  it('foilMaskLayout: cover (default/desconocido) == CUSTOM_FOIL_MASK, siempre luminancia', () => {
+    expect(FOIL_MASK_LAYOUTS).toEqual(['cover', 'tile']);
+    const cover = foilMaskLayout('cover');
+    expect(cover).toEqual({ repeat: false, size: 'cover', align: 'center', mode: 'luminance' });
+    expect(foilMaskLayout(undefined)).toEqual(cover);   // ausente = retro-compat
+    expect(foilMaskLayout('bogus')).toEqual(cover);      // desconocido = fallback seguro
+    expect(cover.repeat).toBe(CUSTOM_FOIL_MASK.repeat);
+    expect(cover.mode).toBe(CUSTOM_FOIL_MASK.mode);
+  });
+  it('foilMaskLayout tile: repite, escala clampeada 5–100 (default 25), desde esquina', () => {
+    expect(foilMaskLayout('tile')).toEqual({ repeat: true, size: { widthPct: 25 }, align: 'top-left', mode: 'luminance' });
+    expect(foilMaskLayout('tile', 40).size).toEqual({ widthPct: 40 });
+    expect(foilMaskLayout('tile', 1).size).toEqual({ widthPct: FOIL_MASK_TILE.minScalePct });
+    expect(foilMaskLayout('tile', 500).size).toEqual({ widthPct: FOIL_MASK_TILE.maxScalePct });
+    // el rango de la receta == el rango del param mask_scale del contrato
+    expect(FOIL_MASK_TILE.minScalePct).toBe(5);
+    expect(FOIL_MASK_TILE.maxScalePct).toBe(100);
+    expect(FOIL_MASK_TILE.defaultScalePct).toBe(25);
   });
 
   it('mapeo blend → Flutter cubre los 5 modos exactamente', () => {

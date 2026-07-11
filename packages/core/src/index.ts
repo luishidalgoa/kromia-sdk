@@ -43,6 +43,7 @@ export type {
   EffectLayer,
   EffectLayerKind,
   EffectBlendMode,
+  EffectMaskLayout,
   CardEffect3D,
   LayerDepth,
   CardDepthLayer,
@@ -574,8 +575,10 @@ export {
   CUSTOM_FOIL_LAYER_DEFAULTS, foilLayerOpacity, foilTextureLayout,
   CUSTOM_FOIL_MASK, CUSTOM_FOIL_TILT, CUSTOM_FOIL_SHIMMER,
   EFFECT_BLEND_TO_FLUTTER, CUSTOM_FOIL_LAYER_ORDER,
+  // KRO-248 — layouts de máscara (cover | tile) compartidos iridiscente↔custom_foil.
+  FOIL_MASK_LAYOUTS, FOIL_MASK_TILE, foilMaskLayout,
 } from './custom-foil-recipe';
-export type { FoilTextureLayout } from './custom-foil-recipe';
+export type { FoilTextureLayout, FoilMaskLayoutSpec } from './custom-foil-recipe';
 
 // KRO-215 — cartas físicas: identidad + propiedad (tronco SDK-first; DATA, no bumpea el KRP).
 export { ownershipBadge, isVerifiedOwnership } from './card-ownership';

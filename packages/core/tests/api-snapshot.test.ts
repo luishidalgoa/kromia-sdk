@@ -350,6 +350,10 @@ const EXPECTED_EXPORTS = [
   'CUSTOM_FOIL_SHIMMER',
   'EFFECT_BLEND_TO_FLUTTER',
   'CUSTOM_FOIL_LAYER_ORDER',
+  // KRO-248 — layouts de máscara (cover | tile) compartidos iridiscente↔custom_foil
+  'FOIL_MASK_LAYOUTS',
+  'FOIL_MASK_TILE',
+  'foilMaskLayout',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {

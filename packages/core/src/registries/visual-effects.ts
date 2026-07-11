@@ -194,6 +194,26 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
           { key: 'geometry', equals: 'organico' },
           { key: 'pattern', notEquals: 'none' },
         ] },
+      // KRO-248 — MÁSCARA importable por LUMINANCIA (blanco = el foil asoma,
+      // negro = oculto), como la del custom_foil. Recorta las capas foil+sheen
+      // (glare/grano/borde no). Con layout 'tile' la máscara TESELA el cuadro
+      // (escala = % del ancho por tesela) → fondos "papel perforado"/cosmos-holo.
+      // Receta compartida: `foilMaskLayout` (custom-foil-recipe.ts). Aditivo (minor).
+      { key: 'mask_url', label: 'Máscara (recorte)', type: 'string' },
+      {
+        key:     'mask_layout',
+        label:   'Encaje de la máscara',
+        type:    'enum',
+        options: ['cover', 'tile'],
+        default: 'cover',
+        visibleWhen: { key: 'mask_url', notEquals: '' },
+      },
+      // Escala de la tesela (% del ancho del cuadro) — solo con encaje Mosaico.
+      { key: 'mask_scale', label: 'Escala de la máscara', type: 'number', min: 5, max: 100, default: 25,
+        visibleWhen: [
+          { key: 'mask_url', notEquals: '' },
+          { key: 'mask_layout', equals: 'tile' },
+        ] },
       {
         // KRO-202 — marco ornamental (9 diseños del mockup `borderSVG`). 'none'
         // = sin borde (interruptor maestro). El render lo dibuja como SVG blanco

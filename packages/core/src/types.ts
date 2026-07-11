@@ -905,6 +905,13 @@ export type EffectLayerKind = 'foil' | 'glitter' | 'pattern';
 export type EffectBlendMode =
   | 'color-dodge' | 'overlay' | 'screen' | 'soft-light' | 'hard-light';
 
+/** KRO-248 — encaje de una MÁSCARA de foil sobre el cuadro de la carta:
+ *  `cover` = escala+recorta centrado (máscaras generadas del mismo arte, el
+ *  comportamiento clásico) · `tile` = TESELA repetida (patrones tipo "papel
+ *  perforado"/cosmos-holo; escala = % del ancho del cuadro). La política de
+ *  render por layout vive en `foilMaskLayout` (custom-foil-recipe.ts). */
+export type EffectMaskLayout = 'cover' | 'tile';
+
 export interface EffectLayer {
   /** Naturaleza de la capa (orienta el render por defecto). */
   kind: EffectLayerKind;
@@ -912,6 +919,11 @@ export interface EffectLayer {
   textureUrl: string;
   /** URL de la máscara en grises (blanco = brilla, negro = no). Opcional. */
   maskUrl?: string;
+  /** KRO-248 — encaje de la máscara. Ausente = 'cover' (retro-compat). */
+  maskLayout?: EffectMaskLayout;
+  /** KRO-248 — escala de la tesela con `maskLayout:'tile'` (% del ancho del
+   *  cuadro, 5–100). Ausente = default de la receta (`FOIL_MASK_TILE`). */
+  maskScale?: number;
   /** Modo de fusión de la capa sobre la imagen. */
   blend: EffectBlendMode;
   /** Intensidad 0..1 (opacidad efectiva). */
