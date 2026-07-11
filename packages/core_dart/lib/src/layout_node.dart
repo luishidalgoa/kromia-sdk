@@ -77,6 +77,18 @@ class ContainerSurface {
   final String? shadow; // none/sm/md/lg/xl
   final String? padding; // none/xs/sm/md/lg/xl
 
+  /// KRO-217 §15.1 — fondo de la PANTALLA que aloja el contenedor (id de paleta),
+  /// independiente de `bgColor`. La pantalla se deriva `screenBgHex(screenBgColor ??
+  /// bgColor)` (papel 18% hacia negro). Render-only, fuera del contrato KRP.
+  final String? screenBgColor;
+
+  /// KRO-217 §20.1 — color de texto GLOBAL del contenedor (id de paleta): se aplica
+  /// como color base de TODO el subárbol (cascada CSS en web; `DefaultTextStyle` en
+  /// Flutter). Un slot con `appearance.textColor` propio lo sobreescribe. Es EL dato
+  /// que garantiza la legibilidad del acabado (`applyThemePreset` lo persiste con AA).
+  /// Render-only, fuera del contrato KRP.
+  final String? textColor;
+
   const ContainerSurface({
     this.background,
     this.bgColor,
@@ -85,6 +97,8 @@ class ContainerSurface {
     this.radiusCorners,
     this.shadow,
     this.padding,
+    this.screenBgColor,
+    this.textColor,
   });
 
   factory ContainerSurface.fromJson(Map<String, dynamic> j) => ContainerSurface(
@@ -97,6 +111,8 @@ class ContainerSurface {
         radiusCorners: (j['radiusCorners'] as List?)?.map((e) => e.toString()).toList(),
         shadow: j['shadow'] as String?,
         padding: j['padding'] as String?,
+        screenBgColor: j['screenBgColor'] as String?,
+        textColor: j['textColor'] as String?,
       );
 }
 

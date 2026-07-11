@@ -132,11 +132,14 @@ Widget? slotContent(RenderCtx ctx, String slotId) {
   // lore): se pinta como markdown INLINE (negrita/cursiva/code/links), no string
   // crudo. Espejo de `ScalarText`→`MarkdownText` (@kromia/react): antes salía
   // `**Ignis**` literal porque el motor de bloques pintaba `Text` plano.
+  // KRO-217 — base SIN color (`bodyBase`): a falta de `appearance.textColor` propio,
+  // el texto HEREDA el color base del contenedor (surface.textColor del acabado, o
+  // foreground). Antes `body` fijaba el foreground → NO heredaba → dark-on-dark.
   Widget textW;
   if (first?.def?.behavior == 'markdown') {
     textW = markdownText(
       shown,
-      base: applyAppearanceText(KromiaTokens.body, ap),
+      base: applyAppearanceText(KromiaTokens.bodyBase, ap),
       maxLines: maxLines,
       textAlign: appearanceTextAlign(ap),
     );
@@ -146,7 +149,7 @@ Widget? slotContent(RenderCtx ctx, String slotId) {
       maxLines: maxLines,
       overflow: TextOverflow.ellipsis,
       textAlign: appearanceTextAlign(ap),
-      style: applyAppearanceText(KromiaTokens.body, ap),
+      style: applyAppearanceText(KromiaTokens.bodyBase, ap),
     );
   }
   // bgColor → fondo del bloque de texto (espejo de paletteClass(bgColor,'bg')).

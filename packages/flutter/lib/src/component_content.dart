@@ -155,24 +155,26 @@ Widget _statsRow(RenderCtx ctx, String? sid) {
     // calcula `ap = mergeFieldAppearance(...)`): el publisher puede recortar/clampar
     // cada stat por separado.
     final ap = mergeFieldAppearance(comp.appearance, comp.fieldAppearances, k);
+    // KRO-217 §18.1 — el VALOR aplica la apariencia EFECTIVA (color/tipografía/
+    // recorte) sobre una base SIN color: a falta de `appearance.textColor` propio,
+    // hereda el color base del contenedor (`surface.textColor`, el DefaultTextStyle
+    // del LayoutRenderer). Antes fijaba `KromiaTokens.body`/`overline` (colores del
+    // tema) → NO heredaban → stats verdes sobre navy (el bug del "dark-on-dark").
+    final valueStyle = applyAppearanceText(
+        const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, height: 1.4, fontFeatures: [FontFeature.tabularFigures()]),
+        ap);
+    final labelColor = appearanceTextColor(ap); // color propio del slot, o null → hereda
     cells.add(Expanded(
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        // KRO-198 — paridad con `StatsRow.tsx`: VALOR `text-lg` (18px) bold
-        // tabular, ETIQUETA `text-[10px]`. Antes 13/9 → ~28% pequeño vs el diseño.
-        // KRO-222 — el VALOR recorta por `truncateChars` (Apariencia→Recorte→
-        // Caracteres) + "…", igual que el resto del motor (antes no se aplicaba aquí);
-        // las líneas las da `appearance.truncate` (1 por defecto, como el `truncate` CSS).
+        // KRO-198 — paridad con `StatsRow.tsx`: VALOR `text-lg` (18px) bold tabular.
+        // KRO-222 — recorta por `truncateChars` + "…"; líneas por `appearance.truncate`.
         Text(applyAppearanceTruncate(formatScalar(v, def), ap),
-            maxLines: appearanceMaxLines(ap), overflow: TextOverflow.ellipsis,
-            style: KromiaTokens.body.copyWith(fontSize: 18, fontWeight: FontWeight.w700, fontFeatures: const [FontFeature.tabularFigures()])),
+            maxLines: appearanceMaxLines(ap), overflow: TextOverflow.ellipsis, style: valueStyle),
         if (def?.label != null && def!.label!.isNotEmpty)
-          // KRO-222 — la ETIQUETA envuelve a 2 líneas (line-clamp-2) y parte palabras
-          // largas: Flutter rompe la palabra si no cabe → "DESCUBIERTO" no se clipa a 1
-          // línea sin ellipsis. El publisher puede forzar otro recorte con su truncate.
-          Text(def.label!.toUpperCase(),
-              maxLines: appearanceMaxLines(ap, def: 2), overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: KromiaTokens.overline.copyWith(fontSize: 10)),
+          // KRO-222 — la ETIQUETA envuelve a 2 líneas (line-clamp-2). Mantiene su rol
+          // de caption: color propio si lo hay; si no, hereda el base ATENUADO (§18.1
+          // "la etiqueta sigue el color, sobre el mismo texto base legible").
+          _statLabel(def.label!.toUpperCase(), labelColor, appearanceMaxLines(ap, def: 2)),
       ]),
     ));
   }
@@ -182,6 +184,17 @@ Widget _statsRow(RenderCtx ctx, String? sid) {
     decoration: BoxDecoration(border: Border(top: BorderSide(color: KromiaTokens.hairline), bottom: BorderSide(color: KromiaTokens.hairline))),
     child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: cells),
   );
+}
+
+/// Etiqueta de una estadística (caption 10px uppercase). Con [color] propio del
+/// slot lo aplica; sin él, hereda el color base del contenedor (surface.textColor)
+/// ATENUADO al 70% para conservar el rol de caption (equivale a `muted-foreground`
+/// pero sobre el texto base legible del acabado — no un gris fijo que se pierde).
+Widget _statLabel(String text, Color? color, int? maxLines) {
+  final t = Text(text,
+      maxLines: maxLines, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center,
+      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, letterSpacing: 1.0, height: 1.4, color: color));
+  return color == null ? Opacity(opacity: 0.7, child: t) : t;
 }
 
 /// KRO-220 — chips de un slot composable. Builder de chip ÚNICO por-field (la

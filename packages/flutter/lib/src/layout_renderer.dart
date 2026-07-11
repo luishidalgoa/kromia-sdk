@@ -36,6 +36,14 @@ class LayoutRenderer extends StatelessWidget {
       content = Padding(padding: const EdgeInsets.all(12), child: content);
     }
     Widget tree = _AccentFrame(accent: accent, width: isDetail ? 4 : 3, child: content);
+    // KRO-217 — color de texto BASE del subárbol (cascada). Web propaga
+    // `surface.textColor` por herencia CSS; Flutter no tiene cascada → los textos de
+    // datos parten de `bodyBase` (sin color) y HEREDAN este `DefaultTextStyle`. Con
+    // acabado = `paletteHex(surface.textColor)` (tono AA); sin él = `foreground` del
+    // tema. Un slot con `appearance.textColor` propio lo sobreescribe (hijo > raíz).
+    // Sin esto el texto salía OSCURO sobre el papel oscuro del acabado (el bug).
+    final baseTextColor = KromiaTokens.paletteHex(root.surface?.textColor) ?? KromiaTokens.text;
+    tree = DefaultTextStyle.merge(style: TextStyle(color: baseTextColor), child: tree);
     if (onTap != null) tree = GestureDetector(onTap: onTap, behavior: HitTestBehavior.opaque, child: tree);
     return tree;
   }

@@ -26,6 +26,14 @@ class KromiaTokens {
   // (@kromia/react); antes 13 = drift de −1px que se notaba pequeño en móvil.
   static const double tBody = 14;
   static const TextStyle body = TextStyle(fontSize: tBody, color: text, height: 1.4);
+
+  /// KRO-217 — como [body] pero SIN color: el texto HEREDA el color base del
+  /// contenedor (el `DefaultTextStyle` que el LayoutRenderer fija desde
+  /// `surface.textColor` del acabado, o `foreground` por defecto). Es la base de los
+  /// textos de DATOS de slot; un `appearance.textColor` propio la sobreescribe. Sin
+  /// esto, el color foreground fijo de `body` no heredaba → texto oscuro sobre el
+  /// papel oscuro del acabado (el bug del detalle).
+  static const TextStyle bodyBase = TextStyle(fontSize: tBody, height: 1.4);
   static const TextStyle overline = TextStyle(fontSize: 9, fontWeight: FontWeight.w600, letterSpacing: 1.0, color: muted, height: 1.4);
   static const TextStyle title = TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: text, height: 1.15);
   static const TextStyle pill = TextStyle(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 0.6);
@@ -109,10 +117,35 @@ class KromiaTokens {
     return _paletteGrid[id] ?? fallback;
   }
 
+  /// KRO-217 — hex CRUDO de un id de paleta, o `null` si es un token de TEMA
+  /// (`card`/`muted`/`foreground`/`accent`/`primary`/`border`), `field:<col>` o
+  /// desconocido. Espejo de `paletteHex` de `@kromia/core/palette.ts`: los tonos de
+  /// paleta (rejilla Tailwind + `white`/`black`) son colores verificados; los tokens
+  /// de tema devuelven `null` para que el render caiga al tema de la APP (sin acabado
+  /// = tema de app). A diferencia de [paletteColor], NO fuerza un fallback. Es la
+  /// pieza del fix del "texto oscuro sobre fondo oscuro": con acabado, `textColor`
+  /// SIEMPRE es un tono crudo con AA garantizado; sin él, `null` → tema de app.
+  static Color? paletteHex(String? id) {
+    if (id == null || id.isEmpty) return null;
+    return _paletteGrid[id]; // token de tema / field: / desconocido → null
+  }
+
+  /// KRO-217 §12.2/§15.1 — color de FONDO de PANTALLA derivado del papel del acabado:
+  /// `paletteHex(id)` mezclado un 18% hacia negro (factor **0.82**) para que la carta
+  /// resalte por elevación sobre la pantalla. `null` si `id` es token de tema (la
+  /// pantalla conserva el fondo de app). Espejo de `screenBgHex` del SDK.
+  static Color? screenBgHex(String? id) {
+    final c = paletteHex(id);
+    if (c == null) return null;
+    return Color.lerp(c, const Color(0xFF000000), 0.18)!; // 82% color + 18% negro
+  }
+
   /// Rejilla de color Tailwind (hue-shade → Color) — valores estándar Tailwind v3.
   /// Tonos: slate/red/orange/amber/emerald/teal/sky/blue/violet/pink; intensidades
-  /// 200/400/500/600/800 (= PALETTE_HUES × PALETTE_SHADES de palette.dart).
+  /// 200/400/500/600/800 (= PALETTE_HUES × PALETTE_SHADES de palette.dart). Más
+  /// `white`/`black` (KRO-217 §21, grupo neutro fijo).
   static const Map<String, Color> _paletteGrid = {
+    'white': Color(0xFFFFFFFF), 'black': Color(0xFF000000),
     'slate-200': Color(0xFFE2E8F0), 'slate-400': Color(0xFF94A3B8), 'slate-500': Color(0xFF64748B), 'slate-600': Color(0xFF475569), 'slate-800': Color(0xFF1E293B),
     'red-200': Color(0xFFFECACA), 'red-400': Color(0xFFF87171), 'red-500': Color(0xFFEF4444), 'red-600': Color(0xFFDC2626), 'red-800': Color(0xFF991B1B),
     'orange-200': Color(0xFFFED7AA), 'orange-400': Color(0xFFFB923C), 'orange-500': Color(0xFFF97316), 'orange-600': Color(0xFFEA580C), 'orange-800': Color(0xFF9A3412),
