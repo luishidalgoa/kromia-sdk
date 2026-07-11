@@ -108,6 +108,54 @@ FoilPattern foilCustomPattern(List<String> hexColors, {double angleDeg = 115}) {
   return FoilPattern.repeatingLinear(angleDeg, stops);
 }
 
+/// Ángulo NATIVO de un pattern (linear = `angleDeg`; conic = `fromDeg`; paleta
+/// personalizada / desconocido = 115°, como spectrum). Espejo de
+/// `foilPatternBaseAngle` (`foil-recipe.ts`, `6cb2c85`).
+double foilPatternBaseAngle(String pattern) {
+  final p = foilPatterns[pattern];
+  return p == null ? 115 : (p.kind == 'conic' ? p.fromDeg : p.angleDeg);
+}
+
+/// KRO-244 — ORIENTACIÓN: ángulo EFECTIVO de las bandas = ángulo nativo del pattern
+/// + [rotate] (param `angle` del efecto). Espejo de `foilEffectiveAngle`.
+double foilEffectiveAngle(String pattern, [double rotate = 0]) =>
+    foilPatternBaseAngle(pattern) + rotate;
+
+/// KRO-244 — RECETA de la GEOMETRÍA ORGÁNICA del foil (`geometry: 'organico'`):
+/// las bandas RECTAS se curvan por un desplazamiento de RUIDO FRACTAL → difracción
+/// tipo lámina holográfica real. Espejo 1:1 de `FOIL_ORGANIC_WARP` (`6cb2c85`),
+/// fuente única cross-platform de los parámetros del ruido.
+///
+/// - Studio: filtro SVG `feTurbulence`+`feDisplacementMap` sobre foil y sheen
+///   (glare/grano/borde NO se deforman).
+/// - Flutter: fragment shader — `uv' = uv + (fbm(uv·baseFrequency, octaves)−0.5)
+///   · foilWarpDisplacement(warp)` antes de muestrear el gradiente.
+///
+/// ⚠️ El algoritmo de ruido DIFIERE (Perlin de SVG vs fbm del shader) → NO es
+/// bit-idéntico; con los MISMOS parámetros el LOOK converge (bandas anchas curvadas
+/// suaves, no zigzag). `seed` fijo = estable entre cartas.
+const ({
+  double baseFrequencyX,
+  double baseFrequencyY,
+  int octaves,
+  int seed,
+  double maxDisplacement,
+  double overscan,
+}) foilOrganicWarp = (
+  baseFrequencyX: 0.008,
+  baseFrequencyY: 0.014,
+  octaves: 2,
+  seed: 7,
+  maxDisplacement: 90,
+  overscan: 0.12,
+);
+
+/// Desplazamiento efectivo del warp orgánico dado el param `warp` (0–100) →
+/// `scale` del feDisplacementMap (Studio) / factor del shader (Flutter). Espejo
+/// de `foilWarpDisplacement`.
+double foilWarpDisplacement(num warp) =>
+    (warp.clamp(0, 100) / 100) * foilOrganicWarp.maxDisplacement;
+
 /// KRO-244 — TINTES SÓLIDOS del marco ornamental del `iridescent_foil` (opción
 /// `border_color`). Espejo 1:1 de `FOIL_BORDER_SOLID` (`foil-recipe.ts`, `f5e0c65`):
 /// `silver` se OSCURECIÓ (antes casi blanco, se confundía con `none`). El render

@@ -50,6 +50,35 @@ void main() {
     });
   });
 
+  group('foilEffectiveAngle / warp orgánico (KRO-244)', () {
+    test('ángulo nativo por pattern (linear=angleDeg, conic=fromDeg, custom/desconocido=115)', () {
+      expect(foilPatternBaseAngle('spectrum'), 115);
+      expect(foilPatternBaseAngle('oilslick'), 120);
+      expect(foilPatternBaseAngle('aurora'), 0, reason: 'conic → fromDeg');
+      expect(foilPatternBaseAngle('zzz'), 115, reason: 'desconocido = 115 (spectrum)');
+    });
+    test('foilEffectiveAngle = nativo + rotate', () {
+      expect(foilEffectiveAngle('spectrum', 30), 145);
+      expect(foilEffectiveAngle('aurora', 90), 90);
+      expect(foilEffectiveAngle('spectrum'), 115);
+    });
+    test('FOIL_ORGANIC_WARP espejado 1:1 (6cb2c85)', () {
+      expect(foilOrganicWarp.baseFrequencyX, 0.008);
+      expect(foilOrganicWarp.baseFrequencyY, 0.014);
+      expect(foilOrganicWarp.octaves, 2);
+      expect(foilOrganicWarp.seed, 7);
+      expect(foilOrganicWarp.maxDisplacement, 90);
+      expect(foilOrganicWarp.overscan, 0.12);
+    });
+    test('foilWarpDisplacement = warp/100 · 90, clampado 0–100', () {
+      expect(foilWarpDisplacement(0), 0);
+      expect(foilWarpDisplacement(55), closeTo(49.5, 1e-9));
+      expect(foilWarpDisplacement(100), 90);
+      expect(foilWarpDisplacement(150), 90);
+      expect(foilWarpDisplacement(-5), 0);
+    });
+  });
+
   group('foilCustomPattern (KRO-244)', () {
     test('ciclo 45% equiespaciado + primer color repetido al cierre (sin costura)', () {
       final p = foilCustomPattern(['#ff0000', '#00ff00', '#0000ff']);
