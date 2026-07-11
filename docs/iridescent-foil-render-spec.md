@@ -54,6 +54,32 @@ un `pattern_hex` válido sigue MANDANDO; el editor garantiza la exclusión):
 - **Para qué sirve**: combinar el brillo del iridiscente (reflejo/resplandor/
   grano/marco) con capas importadas (`custom_foil`) sin teñirlas de arcoíris.
 
+## 1-ter) MÁSCARA importable (`mask_url` + `mask_layout` + `mask_scale`) — KRO-248, KRP 5.5.0
+
+El iridiscente acepta una máscara por **LUMINANCIA** (blanco = el foil asoma,
+negro = oculto), como la del custom_foil. Recorta **solo las capas `foil` y
+`sheen`** (glare/grano/borde NO se recortan). Sin `mask_url` → sin recorte
+(retro-compat). Funciona con CUALQUIER paleta, incluida `none`.
+
+- **Layout** desde la receta compartida **`foilMaskLayout(layout, scalePct)`**
+  (`custom-foil-recipe.ts`), fuente única de ambos efectos:
+  - `cover` (default) = escala+recorta centrada, sin repeat (== `CUSTOM_FOIL_MASK`).
+  - `tile` = la máscara TESELA el cuadro: repeat, tamaño `scale%` del ancho
+    (alto auto, conserva el aspect de la tesela), anclada a la esquina
+    (`top-left`). `mask_scale` 5–100, default 25 (`FOIL_MASK_TILE`).
+- **Studio (CSS)**: `mask-image: url(proxy)` + `mask-mode: luminance` +
+  `mask-size: cover | <scale>% auto` + `mask-repeat: no-repeat | repeat`.
+  La URL SIEMPRE por el proxy same-origin (mask-image cross-origin = CORS).
+- **Flutter**: máscara luma→alfa (`dstIn` / canal de luminancia en el shader)
+  sobre las capas foil+sheen; con `tile` muestrear la tesela con wrap-repeat a
+  la escala dada. NO usar el alfa crudo.
+- **Caso estrella**: tesela de puntos blancos sobre negro + `tile` = fondo
+  "papel perforado"/cosmos-holo (el foil asoma solo por los puntos), combinable
+  con paleta `none` (destellos plata) o cualquier paleta de color.
+- **`EffectLayer` (custom_foil) gana lo mismo**: `maskLayout?`/`maskScale?`
+  (tipo `EffectMaskLayout`, DATA — ausente = `cover`). El render del host usa el
+  MISMO `foilMaskLayout`.
+
 ## 2) Geometría ORGÁNICA (`geometry: 'organico'`)  ⭐ lo que faltaba
 
 Las bandas RECTAS se curvan por un desplazamiento de RUIDO FRACTAL → difracción
@@ -97,5 +123,9 @@ de la carta — ver KRO-225; clip elíptico).
       **`FOIL_PATTERN_NONE` + `FOIL_NEUTRAL_SHEEN`** (KRO-247, §1-bis).
 - [ ] `visual_effects.dart`: opción `none` en el enum `pattern` (KRP **5.4.0**).
 - [ ] Render `pattern:'none'`: sin capa de color; sheen = barrido neutro (§1-bis).
+- [ ] `visual_effects.dart`: params `mask_url`/`mask_layout`/`mask_scale` (KRP **5.5.0**).
+- [ ] `custom_foil_recipe.dart`: `FOIL_MASK_LAYOUTS` + `FOIL_MASK_TILE` + `foilMaskLayout`;
+      `EffectLayer.maskLayout`/`maskScale` en el modelo Dart (§1-ter).
+- [ ] Render máscara: luma→alfa sobre foil+sheen; `tile` = wrap-repeat a escala (§1-ter).
 - [ ] Render app: gradiente (paleta/custom/ángulo) → warp orgánico (fbm) → glare/noise → marco.
 - [ ] `border_svg.dart` (ya hecho, PR#64) + clip elíptico (KRO-225).

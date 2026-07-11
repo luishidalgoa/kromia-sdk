@@ -58,6 +58,18 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 
 ## Cola de handoffs abierta (vivo — mantener)
 
+- **Studio → Flutter** · **NUEVO 2026-07-11 — KRO-248 · KRP 5.5.0 (minor)**: el
+  `iridescent_foil` gana **máscara importable por LUMINANCIA** (`mask_url` +
+  `mask_layout` cover|tile + `mask_scale` 5–100=25) y `EffectLayer` gana
+  `maskLayout?`/`maskScale?` (tipo `EffectMaskLayout`; DATA, ausente = cover).
+  Espejar: (a) `visual_effects.dart` (3 params, 5.5.0); (b)
+  `custom_foil_recipe.dart` — `FOIL_MASK_LAYOUTS` + `FOIL_MASK_TILE` +
+  `foilMaskLayout(layout, scale)` (fuente única del layout); (c) modelo
+  `EffectLayer` Dart con los 2 campos; (d) render: máscara luma→alfa (`dstIn`)
+  SOLO sobre foil+sheen (glare/grano/borde no); `tile` = wrap-repeat de la
+  tesela a `scale%` del ancho (alto auto), anclada a la esquina. Combinable con
+  paleta `none`. Spec: `iridescent-foil-render-spec.md` §1-ter +
+  `custom-foil-render-spec.md` §4. Jira: KRO-248 (+ issue Drift Sync).
 - **Studio → Flutter** · **NUEVO 2026-07-11 — KRO-247 · KRP 5.4.0 (minor)**: el
   `iridescent_foil` gana la paleta **`none`** ("Ninguna") = lámina NEUTRA sin
   gradiente de color. Espejar: (a) `visual_effects.dart` — opción `none` en el

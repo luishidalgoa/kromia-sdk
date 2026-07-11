@@ -87,6 +87,16 @@ brilla, negro = oculta**. Se interpreta por **LUMINANCIA, NO por alfa**. Sin
   el canal de luminancia en el shader).
 - Encaje `cover` + `center` porque la máscara se genera del MISMO arte (mismo
   aspect) → el contorno cae justo sobre los bordes del dibujo.
+- **KRO-248 — layout `tile`** (KRP 5.5.0): `EffectLayer` gana `maskLayout?:
+  'cover'|'tile'` + `maskScale?: number` (5–100 = % del ancho por tesela;
+  ausente = `cover`, retro-compat). Con `tile` la máscara se REPITE
+  (`mask-repeat: repeat`, `mask-size: <scale>% auto`, anclada `top left`) →
+  patrones tipo "papel perforado"/cosmos-holo. Fuente única
+  **`foilMaskLayout(layout, scale)`** (`custom-foil-recipe.ts`) — NO hardcodear
+  el layout en el host. La interpretación sigue siendo por LUMINANCIA. En
+  Flutter: wrap-repeat de la tesela a esa escala antes del luma→alfa. El
+  iridiscente usa el MISMO layout vía sus params `mask_url`/`mask_layout`/
+  `mask_scale` (ver `iridescent-foil-render-spec.md` §1-ter).
 
 ## 5) Tilt / movimiento (`CUSTOM_FOIL_TILT`)
 

@@ -80,6 +80,9 @@ KRO-247) · marco: `border_style` (9 diseños) · `border_fill`
 · `border_color_hex` (MANDA sobre border_color). Con `pattern=none` los params que solo
 parametrizan el gradiente (pattern_hex/angle/hue/opacity/brightness/contrast/scale/
 blend/geometry/warp) se ocultan en el editor (visibleWhen, editor-only).
+**KRO-248 (KRP 5.5.0)**: `mask_url` (máscara por LUMINANCIA, recorta foil+sheen) ·
+`mask_layout` (cover|tile) · `mask_scale` (5–100=25, % del ancho por tesela) →
+fondos "papel perforado". Ver `iridescent-foil-render-spec.md` §1-ter.
 
 ### 3.2 Receta de render (`packages/core/src/foil-recipe.ts`, DATA)
 
@@ -120,6 +123,8 @@ El creador aporta una PILA DE CAPAS (`TagStyle.customLayers: EffectLayer[]`). Ca
 `CUSTOM_FOIL_LAYER_DEFAULTS` (blend color-dodge, intensity 0.6), `foilLayerOpacity`,
 `foilTextureLayout(kind)` (pattern=tesela 160% · foil/glitter=lámina 250%×100%),
 **`CUSTOM_FOIL_MASK`** (máscara por **LUMINANCIA** no alfa, cover/center),
+**`FOIL_MASK_LAYOUTS`/`FOIL_MASK_TILE`/`foilMaskLayout`** (KRO-248: layout cover|tile
+compartido con el iridiscente; `EffectLayer.maskLayout`/`maskScale`),
 `CUSTOM_FOIL_TILT`, `CUSTOM_FOIL_SHIMMER`, **`EFFECT_BLEND_TO_FLUTTER`** (mapeo fusión→BlendMode).
 Spec: **`docs/custom-foil-render-spec.md`**. Resolución: `resolveCardEffects` marca
 `customLayers` en el `ResolvedEffect`.
