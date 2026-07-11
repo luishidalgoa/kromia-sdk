@@ -125,6 +125,9 @@ El creador aporta una PILA DE CAPAS (`TagStyle.customLayers: EffectLayer[]`). Ca
 **`CUSTOM_FOIL_MASK`** (máscara por **LUMINANCIA** no alfa, cover/center),
 **`FOIL_MASK_LAYOUTS`/`FOIL_MASK_TILE`/`foilMaskLayout`** (KRO-248: layout cover|tile
 compartido con el iridiscente; `EffectLayer.maskLayout`/`maskScale`),
+**`IRIDESCENT_LAYER_KIND`/`isIridescentLayer`** (KRO-250: capa PROCEDURAL —
+`EffectLayer.kind:'iridescent'` + `config` embebido = el motor del iridiscente como
+una capa más de la pila; spec §4-bis del custom-foil),
 `CUSTOM_FOIL_TILT`, `CUSTOM_FOIL_SHIMMER`, **`EFFECT_BLEND_TO_FLUTTER`** (mapeo fusión→BlendMode).
 Spec: **`docs/custom-foil-render-spec.md`**. Resolución: `resolveCardEffects` marca
 `customLayers` en el `ResolvedEffect`.

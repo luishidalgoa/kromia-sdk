@@ -98,6 +98,33 @@ brilla, negro = oculta**. Se interpreta por **LUMINANCIA, NO por alfa**. Sin
   iridiscente usa el MISMO layout vía sus params `mask_url`/`mask_layout`/
   `mask_scale` (ver `iridescent-foil-render-spec.md` §1-ter).
 
+## 4-bis) Capa PROCEDURAL iridiscente (`kind: 'iridescent'`) — KRO-250, pila unificada
+
+`EffectLayer.kind` admite **`'iridescent'`**: una capa de la pila que NO lleva
+textura importada — se pinta con el **motor completo del `iridescent_foil`**
+usando `EffectLayer.config` (los MISMOS params del catálogo: paleta incl.
+`none`, warp, `mask_url`/`mask_layout`/`mask_scale`, `border_*` con fill libre…).
+
+Reglas de render (`isIridescentLayer` en `custom-foil-recipe.ts`):
+
+- **`layer.config` GOBIERNA TODO el pintado** de esa capa: `textureUrl`,
+  `maskUrl`, `maskLayout`, `maskScale`, `blend`, `intensity` y `motion` de la
+  capa se **IGNORAN** (la máscara/fusión/intensidad van DENTRO del config,
+  como en el efecto de catálogo).
+- El host despacha por capa: textura → render clásico (§3–§4); iridiscente →
+  el MISMO render del `iridescent_foil` (en Studio, el componente
+  `IridescentFoil`; en Flutter, su shader del iridiscente), insertado en el
+  z-order de la pila (orden del array, §6).
+- El efecto `iridescent_foil` de catálogo ≡ una pila de **1 capa iridiscente**
+  (equivalencia conceptual; retro-compat: NADA migra, ambos caminos conviven).
+- `EFFECT_LAYER_KINDS` sigue siendo SOLO los 3 kinds de textura (alimenta el
+  selector y `foilTextureLayout`); `isEffectLayerKind` acepta también
+  `'iridescent'` (`IRIDESCENT_LAYER_KIND`).
+- Validación (`validateTagStyles`): las capas procedurales no exigen textura;
+  su `config` se valida contra los params del catálogo.
+- La separación de foil para IMPRENTA (KRO-16/216) exporta solo capas con
+  `textureUrl` — la procedural no es estampable tal cual.
+
 ## 5) Tilt / movimiento (`CUSTOM_FOIL_TILT`)
 
 La textura sobredimensionada (§3) se PANEA con la inclinación: el host publica un
@@ -123,6 +150,10 @@ editor. El glare y el tilt 3D los pone el renderer (no se autoran por capa).
 - [ ] `foil_recipe.dart` (o equivalente): `EFFECT_BLEND_MODES`, `EFFECT_LAYER_KINDS`,
       `foilTextureLayout`, `foilLayerOpacity` (default 0.6 + clamp), `CUSTOM_FOIL_MASK`,
       `EFFECT_BLEND_TO_FLUTTER`. Espejo de `custom-foil-recipe.ts`.
+- [ ] KRO-250: `EffectLayerKind` += `'iridescent'` + `EffectLayer.config` (+
+      `textureUrl` opcional) en el modelo Dart; `IRIDESCENT_LAYER_KIND` +
+      `isIridescentLayer`; el render despacha la capa procedural al shader del
+      iridiscente con su config (§4-bis).
 - [ ] Compositing: el blend de cada capa se aplica CONTRA EL ARTE (ShaderMask/shader
       con el arte como sampler), NO contra el fondo de la celda. (= fix KRO-224.)
 - [ ] Máscara por LUMINANCIA→alfa (`dstIn`), NO alfa crudo.

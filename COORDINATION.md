@@ -58,6 +58,20 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 
 ## Cola de handoffs abierta (vivo — mantener)
 
+- **Studio → Flutter** · **NUEVO 2026-07-12 — KRO-250 · DATA (sin bump, KRP
+  sigue 5.6.0)**: pila UNIFICADA — `EffectLayer.kind` gana **`'iridescent'`**
+  (capa PROCEDURAL) + `EffectLayer.config` (params del catálogo embebidos) +
+  `textureUrl` pasa a OPCIONAL. Espejar en `core_dart`: (a) modelo
+  `EffectLayer` (kind nuevo + config + textureUrl opcional); (b)
+  `custom_foil_recipe.dart` — `IRIDESCENT_LAYER_KIND` + `isIridescentLayer`
+  (+ `isEffectLayerKind` acepta el kind; `EFFECT_LAYER_KINDS` sigue siendo solo
+  texturas); (c) validación: capa procedural sin textura NO avisa; su config se
+  valida contra el catálogo; (d) render: al pintar `customLayers`, despachar la
+  capa iridiscente al MISMO shader del `iridescent_foil` con `layer.config`
+  (todo lo demás de la capa se ignora — config gobierna), insertada en el
+  z-order del array. Spec: `custom-foil-render-spec.md` **§4-bis**. Jira:
+  KRO-250 (+ issue Drift Sync). ⚠️ Recomendado espejar 251→252→253→254 en orden
+  (5.4→5.6 + este) — cada uno asume el anterior.
 - **Studio → Flutter** · **NUEVO 2026-07-12 — KRO-249 · KRP 5.6.0 (minor)**: el
   MARCO del `iridescent_foil` gana **fill libre**. Espejar: (a)
   `visual_effects.dart` — `border_color` +4 opciones (oilslick/sunset/mint/
