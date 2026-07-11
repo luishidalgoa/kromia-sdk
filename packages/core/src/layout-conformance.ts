@@ -45,6 +45,12 @@ const COMPONENT_ROLE_SLOTS: Record<string, Record<string, string>> = {
   divider:           {},
   stats_row:         { stats: 'stats' },
   badge_row:         { badges: 'badges' },
+  // chips_row DEBE llevar un slot REAL (no `{}`): si va con slots vacíos el golden
+  // lo renderiza como nada → un host que NO soporte `chips_row` (cae a default:null)
+  // produce el MISMO golden vacío = drift silencioso. Fue exactamente el bug de
+  // 2026-07-11 (chips_row no espejado en core_dart/flutter, termómetro verde). Con
+  // un slot poblado el golden exige que el componente RENDERICE sus chips.
+  chips_row:         { chips: 'badges' },
   section_title:     { text: 'sectionLabel' },
   hero_header:       { banner: 'banner', avatar: 'avatar', title: 'title', subtitle: 'subtitle' },
 };
