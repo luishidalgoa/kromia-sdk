@@ -337,6 +337,8 @@ const EXPECTED_EXPORTS = [
   'FOIL_PATTERN_NONE',
   'FOIL_NEUTRAL_SHEEN',
   'foilNeutralSheenCss',
+  // KRO-249 — fill libre del marco
+  'resolveFoilBorderFill',
   // KRO-122 — receta DATA del render del foil PERSONALIZADO (custom_foil)
   'EFFECT_LAYER_KINDS',
   'EFFECT_BLEND_MODES',

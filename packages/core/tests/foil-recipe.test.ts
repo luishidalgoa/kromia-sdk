@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS, parseFoilPatternHex, foilCustomPatternCss, foilEffectiveAngle, foilPatternBaseAngle, foilWarpDisplacement, FOIL_ORGANIC_WARP, FOIL_PATTERN_NONE, FOIL_NEUTRAL_SHEEN, foilNeutralSheenCss } from '../src/foil-recipe';
+import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS, parseFoilPatternHex, foilCustomPatternCss, foilEffectiveAngle, foilPatternBaseAngle, foilWarpDisplacement, FOIL_ORGANIC_WARP, FOIL_PATTERN_NONE, FOIL_NEUTRAL_SHEEN, foilNeutralSheenCss, resolveFoilBorderFill, FOIL_BORDER_SOLID, FOIL_CARD_BG } from '../src/foil-recipe';
 import { getVisualEffect } from '../src/registries/visual-effects';
 
 // Strings EXACTOS que vivían en Studio (VisualEffectLayers `IRID_GRAD`). El builder
@@ -70,6 +70,39 @@ describe('foil-recipe — foilPatternCss reproduce los strings de Studio', () =>
     expect(FOIL_NEUTRAL_SHEEN.angleDeg).toBe(115);
     expect(FOIL_NEUTRAL_SHEEN.stops[0].alpha).toBe(0);    // sin costura en los extremos
     expect(FOIL_NEUTRAL_SHEEN.stops.at(-1)!.alpha).toBe(0);
+  });
+
+  // KRO-249 — fill libre del marco: precedencia texture > hex > gradiente > enum.
+  it('resolveFoilBorderFill — precedencia y kinds', () => {
+    // 1. textura MANDA sobre todo
+    expect(resolveFoilBorderFill({ border_texture_url: 'foo/metal.png', border_color_hex: '#ff0000', border_gradient_hex: '#a1a1a1,#e8e8e8', border_color: 'gold' }))
+      .toEqual({ kind: 'texture', url: 'foo/metal.png' });
+    // 2. hex sólido sobre gradiente/enum (solo si es #RRGGBB válido)
+    expect(resolveFoilBorderFill({ border_color_hex: '#ff0000', border_gradient_hex: '#a1a1a1,#e8e8e8', border_color: 'gold' }))
+      .toEqual({ kind: 'solid', color: '#ff0000' });
+    expect(resolveFoilBorderFill({ border_color_hex: 'nope', border_color: 'gold' }))
+      .toEqual({ kind: 'solid', color: FOIL_BORDER_SOLID.gold });
+    // 3. degradado custom (formato pattern_hex: 2–4 hex)
+    expect(resolveFoilBorderFill({ border_gradient_hex: '#a1a1a1,#e8e8e8', border_color: 'gold' }))
+      .toEqual({ kind: 'custom-gradient', colors: ['#a1a1a1', '#e8e8e8'] });
+    // 4. enum: spectrum = sigue al foil; paleta = gradiente fijo; card-bg; sólidos
+    expect(resolveFoilBorderFill({ border_color: 'spectrum' })).toEqual({ kind: 'follow-foil' });
+    expect(resolveFoilBorderFill({ border_color: 'aurora' })).toEqual({ kind: 'palette', pattern: 'aurora' });
+    expect(resolveFoilBorderFill({ border_color: 'midnight' })).toEqual({ kind: 'palette', pattern: 'midnight' });
+    expect(resolveFoilBorderFill({ border_color: 'forest' }))
+      .toEqual({ kind: 'card-bg', top: FOIL_CARD_BG.forest.top, bottom: FOIL_CARD_BG.forest.bottom });
+    expect(resolveFoilBorderFill({ border_color: 'silver' })).toEqual({ kind: 'solid', color: FOIL_BORDER_SOLID.silver });
+    // fallback: sin nada / id desconocido = blanco (look base)
+    expect(resolveFoilBorderFill({})).toEqual({ kind: 'solid', color: '#ffffff' });
+    expect(resolveFoilBorderFill({ border_color: 'bogus' })).toEqual({ kind: 'solid', color: '#ffffff' });
+  });
+  it('resolveFoilBorderFill — el enum del contrato solo produce kinds conocidos', () => {
+    const opts = getVisualEffect('iridescent_foil')?.config.find(p => p.key === 'border_color')?.options ?? [];
+    expect(opts.length).toBeGreaterThanOrEqual(13);
+    for (const o of opts) {
+      const kind = resolveFoilBorderFill({ border_color: o }).kind;
+      expect(['solid', 'follow-foil', 'palette', 'card-bg']).toContain(kind);
+    }
   });
 
   // KRO-244 — geometría orgánica: desplazamiento lineal, clampeado.

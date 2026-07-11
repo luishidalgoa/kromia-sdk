@@ -231,6 +231,56 @@ export function foilCardBgCss(id: string): string | undefined {
   return t ? `linear-gradient(180deg,${t.top},${t.bottom})` : undefined;
 }
 
+/**
+ * KRO-249 — FILL LIBRE del marco ornamental. El tinte del marco deja de ser un
+ * catálogo cerrado: puede ser un sólido, un gradiente (cualquier paleta del
+ * foil, o un degradado propio de 2–4 hex), o una TEXTURA importada. Este
+ * resolver PURO centraliza la PRECEDENCIA (antes vivía inline en el render de
+ * Studio = drift). Ambos hosts lo consumen y pintan cada kind con su primitiva:
+ *
+ *   1. `border_texture_url`  → { kind:'texture' }        (manda sobre todo)
+ *   2. `border_color_hex`    → { kind:'solid' }          (hex #RRGGBB válido)
+ *   3. `border_gradient_hex` → { kind:'custom-gradient' } (2–4 hex, ciclo 45%
+ *       como pattern_hex — web: `foilCustomPatternCss(colors)`)
+ *   4. `border_color` enum:
+ *       'spectrum'                → { kind:'follow-foil' } (el gradiente ACTUAL
+ *          del foil: pattern/pattern_hex/none del config — lo resuelve el host)
+ *       paleta de FOIL_PATTERNS   → { kind:'palette' }     (gradiente FIJO)
+ *       'forest'|'obsidian'|…     → { kind:'card-bg' }     (degradado oscuro)
+ *       'none'|'gold'|'silver'|?? → { kind:'solid' }       (FOIL_BORDER_SOLID;
+ *          desconocido cae a blanco, el look base)
+ */
+export type FoilBorderFill =
+  | { kind: 'texture'; url: string }
+  | { kind: 'solid'; color: string }
+  | { kind: 'custom-gradient'; colors: string[] }
+  | { kind: 'follow-foil' }
+  | { kind: 'palette'; pattern: string }
+  | { kind: 'card-bg'; top: string; bottom: string };
+
+export function resolveFoilBorderFill(config: {
+  border_texture_url?: unknown;
+  border_color_hex?: unknown;
+  border_gradient_hex?: unknown;
+  border_color?: unknown;
+}): FoilBorderFill {
+  const texture = String(config.border_texture_url ?? '').trim();
+  if (texture) return { kind: 'texture', url: texture };
+
+  const hex = String(config.border_color_hex ?? '').trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(hex)) return { kind: 'solid', color: hex };
+
+  const gradient = parseFoilPatternHex(String(config.border_gradient_hex ?? ''));
+  if (gradient) return { kind: 'custom-gradient', colors: gradient };
+
+  const id = String(config.border_color ?? 'none');
+  if (id === 'spectrum') return { kind: 'follow-foil' };
+  if (FOIL_PATTERNS[id]) return { kind: 'palette', pattern: id };
+  const cardBg = FOIL_CARD_BG[id];
+  if (cardBg) return { kind: 'card-bg', top: cardBg.top, bottom: cardBg.bottom };
+  return { kind: 'solid', color: FOIL_BORDER_SOLID[id] ?? FOIL_BORDER_SOLID.none };
+}
+
 /** KRO-244 UX — preset DE FÁBRICA del editor de efectos: un clic siembra el
  *  config completo; los sliders quedan como afinado opcional (anti-saturación:
  *  la mayoría de publishers no debería tocar 12 sliders). Editor-only (no

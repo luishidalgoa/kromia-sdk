@@ -20,6 +20,14 @@ paridad de otro chat → se resumen como nota, no se listan uno a uno.
 
 _Cambios DATA / render-only (NO bumpean el `protocolVersion`)._
 
+## [5.6.0] - 2026-07-11
+
+_Bump MINOR del KRP (auto-detectado): fill libre del marco en `iridescent_foil`._
+
+### Added
+- **Marco con FILL LIBRE** (`iridescent_foil`): `border_color` gana las paletas restantes del foil como gradientes fijos (`oilslick`/`sunset`/`mint`/`midnight`; `spectrum` conserva "sigue al foil") + `border_gradient_hex` (degradado propio de 2–4 hex, ciclo 45% como `pattern_hex`) + `border_texture_url` (textura importada — metal cepillado, papel, damasco… — que MANDA sobre los tintes). El marco tiene ya la misma libertad que el foil (KRO-249).
+- **`resolveFoilBorderFill(config)`** + tipo `FoilBorderFill` (receta render-only): resolver PURO de la precedencia del fill del marco (textura > hex sólido > degradado custom > enum) — antes vivía inline en el render de Studio (drift). Ambos hosts lo consumen (KRO-249).
+
 ## [5.5.0] - 2026-07-11
 
 _Bump MINOR del KRP (auto-detectado): 3 params aditivos en `iridescent_foil`._

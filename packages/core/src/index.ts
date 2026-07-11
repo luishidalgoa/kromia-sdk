@@ -563,6 +563,9 @@ export { foilPatternBaseAngle, foilEffectiveAngle, FOIL_ORGANIC_WARP, foilWarpDi
 // KRO-247 — paleta "Ninguna" (pattern:'none'): lámina neutra sin gradiente de color.
 export { FOIL_PATTERN_NONE, FOIL_NEUTRAL_SHEEN, foilNeutralSheenCss } from './foil-recipe';
 export { FOIL_BORDER_SOLID, FOIL_CARD_BG, foilCardBgCss } from './foil-recipe';
+// KRO-249 — fill libre del marco (textura | sólido | degradado custom | paleta | fondo-carta).
+export { resolveFoilBorderFill } from './foil-recipe';
+export type { FoilBorderFill } from './foil-recipe';
 export { EFFECT_FACTORY_PRESETS } from './foil-recipe';
 export type { FoilPattern, FoilStop, EffectFactoryPreset } from './foil-recipe';
 

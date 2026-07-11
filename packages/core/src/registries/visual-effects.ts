@@ -251,7 +251,10 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
         type:    'enum',
         // none=blanco · gold/silver sólidos · aurora=arcoíris fijo · spectrum=sigue
         // al foil · forest/obsidian/plum/steel = tonos oscuros tipo "fondo carta".
-        options: ['none', 'gold', 'silver', 'aurora', 'spectrum', 'forest', 'obsidian', 'plum', 'steel'],
+        // KRO-249 — el marco gana las paletas RESTANTES del foil como gradientes
+        // FIJOS (oilslick/sunset/mint/midnight; 'spectrum' conserva su semántica
+        // "sigue al foil"). Superset aditivo (minor).
+        options: ['none', 'gold', 'silver', 'aurora', 'spectrum', 'oilslick', 'sunset', 'mint', 'midnight', 'forest', 'obsidian', 'plum', 'steel'],
         default: 'none',
         visibleWhen: { key: 'border_style', notEquals: 'none' },
       },
@@ -259,6 +262,16 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
       // `border_color`. Aditivo (string opcional) → no toca el enum. El editor lo
       // expone como opción "Personalizado" con el color-picker del componente.
       { key: 'border_color_hex', label: 'Color personalizado del borde', type: 'string' },
+      // KRO-249 — DEGRADADO personalizado del marco: 2–4 hex #RRGGBB separados por
+      // coma (mismo formato/ciclo 45% que pattern_hex). Si es válido, MANDA sobre
+      // `border_color` (pero NO sobre border_color_hex ni border_texture_url — ver
+      // resolveFoilBorderFill). Gestionado por la opción "Degradado…" del control
+      // de color del borde (no se pinta suelto).
+      { key: 'border_gradient_hex', label: 'Degradado personalizado del borde', type: 'string' },
+      // KRO-249 — TEXTURA importada del marco (metal cepillado, papel, damasco…).
+      // Si está, MANDA sobre todos los tintes. Servida por el proxy de imágenes.
+      { key: 'border_texture_url', label: 'Textura del borde', type: 'string',
+        visibleWhen: { key: 'border_style', notEquals: 'none' } },
     ],
     whenToUse:
       'Cuando quieras un foil holográfico AJUSTABLE en vivo en vez de un preset cerrado: elige el patrón de arcoíris (Spectrum/Oilslick/Sunset/Mint/Aurora) y afina tono, resplandor, grano y borde con sliders. Igual que el Holográfico pero parametrizable.',
