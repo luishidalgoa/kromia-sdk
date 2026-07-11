@@ -553,6 +553,9 @@ export type { BorderStyle, BorderFill } from './border-svg';
 // Render-only cross-platform (Flutter espeja en core_dart); NO va al KRP (no bumpea).
 export { resolveCardEffects, cardTagValues } from './effect-resolve';
 export type { ResolvedEffect } from './effect-resolve';
+// KRO-222/223 — título visible de carta (cardTitleKey→texto→PK→'Carta'). Fuente única
+// cross-platform (antes solo en Studio card-view-data.ts). Render-only, no toca el KRP.
+export { resolveCardTitle } from './card-title';
 export { FOIL_PATTERNS, FOIL_PATTERN_IDS, foilPatternCss, holographicOpacity } from './foil-recipe';
 export { parseFoilPatternHex, foilCustomPatternCss } from './foil-recipe';
 export { foilPatternBaseAngle, foilEffectiveAngle, FOIL_ORGANIC_WARP, foilWarpDisplacement } from './foil-recipe';

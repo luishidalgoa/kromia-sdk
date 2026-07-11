@@ -314,6 +314,8 @@ const EXPECTED_EXPORTS = [
   // KRO-30 / KRO-224 — resolución de efectos por tags (pura) + receta DATA del foil
   'resolveCardEffects',
   'cardTagValues',
+  // KRO-222/223 — título visible de carta
+  'resolveCardTitle',
   'FOIL_PATTERNS',
   'FOIL_PATTERN_IDS',
   'foilPatternCss',
