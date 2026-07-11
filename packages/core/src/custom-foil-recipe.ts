@@ -26,9 +26,22 @@
 
 import type { EffectLayer, EffectLayerKind, EffectBlendMode, EffectMaskLayout } from './types';
 
-/** Los 3 KINDS de capa, en orden de declaración (== orden del selector del editor).
- *  El kind orienta el LAYOUT de la textura (ver `foilTextureLayout`). */
+/** Los 3 KINDS de capa DE TEXTURA, en orden de declaración (== orden del
+ *  selector del editor). El kind orienta el LAYOUT de la textura (ver
+ *  `foilTextureLayout`). ⚠️ NO incluye `'iridescent'` (KRO-250): esa es la capa
+ *  PROCEDURAL (ver `IRIDESCENT_LAYER_KIND`) — no lleva textura, se añade con su
+ *  propio botón en el editor y se pinta con el motor del iridiscente. */
 export const EFFECT_LAYER_KINDS: readonly EffectLayerKind[] = ['foil', 'glitter', 'pattern'];
+
+/** KRO-250 — kind de la capa PROCEDURAL iridiscente (pila unificada). */
+export const IRIDESCENT_LAYER_KIND = 'iridescent' as const;
+
+/** KRO-250 — ¿la capa es procedural (iridiscente)? Su pintado lo gobierna
+ *  `layer.config` (motor del `iridescent_foil`); textura/máscara/blend/
+ *  intensity de la capa se ignoran. */
+export function isIridescentLayer(layer: Pick<EffectLayer, 'kind'>): boolean {
+  return layer.kind === IRIDESCENT_LAYER_KIND;
+}
 
 /** Los 5 modos de FUSIÓN canónicos, en orden del selector. Las keys == nombres de
  *  CSS `mix-blend-mode`; para el mapeo a Flutter ver `EFFECT_BLEND_TO_FLUTTER`. */
@@ -41,9 +54,10 @@ export function isEffectBlendMode(x: unknown): x is EffectBlendMode {
   return typeof x === 'string' && (EFFECT_BLEND_MODES as readonly string[]).includes(x);
 }
 
-/** Type guard: ¿`x` es un kind de capa válido? */
+/** Type guard: ¿`x` es un kind de capa válido? (textura O procedural). */
 export function isEffectLayerKind(x: unknown): x is EffectLayerKind {
-  return typeof x === 'string' && (EFFECT_LAYER_KINDS as readonly string[]).includes(x);
+  return typeof x === 'string'
+    && ((EFFECT_LAYER_KINDS as readonly string[]).includes(x) || x === IRIDESCENT_LAYER_KIND);
 }
 
 /** Defaults de una capa NUEVA (== `emptyEffectLayer` del editor de Studio). Fuente

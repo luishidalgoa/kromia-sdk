@@ -901,7 +901,11 @@ export type LayoutNode = LayoutContainerNode | LayoutSlotNode | LayoutComponentN
  * renderer (no se autoran). Render-agnóstico: Studio (CSS) y Flutter (shader)
  * lo espejan. NO entra al `.json` del contrato (es data de álbum) → sin bump.
  */
-export type EffectLayerKind = 'foil' | 'glitter' | 'pattern';
+/** KRO-250 — `'iridescent'` = capa PROCEDURAL: no lleva textura importada, se
+ *  pinta con el motor del `iridescent_foil` usando `EffectLayer.config` (los
+ *  MISMOS params del catálogo: paleta, warp, máscara, marco…). Los kinds de
+ *  TEXTURA (foil/glitter/pattern) siguen en `EFFECT_LAYER_KINDS`. */
+export type EffectLayerKind = 'foil' | 'glitter' | 'pattern' | 'iridescent';
 export type EffectBlendMode =
   | 'color-dodge' | 'overlay' | 'screen' | 'soft-light' | 'hard-light';
 
@@ -915,8 +919,18 @@ export type EffectMaskLayout = 'cover' | 'tile';
 export interface EffectLayer {
   /** Naturaleza de la capa (orienta el render por defecto). */
   kind: EffectLayerKind;
-  /** URL de la textura/patrón (la lámina que se superpone). */
-  textureUrl: string;
+  /** URL de la textura/patrón (la lámina que se superpone). Obligatoria en los
+   *  kinds de TEXTURA (foil/glitter/pattern — sin ella la capa no se pinta);
+   *  NO aplica a `'iridescent'` (procedural, KRO-250). */
+  textureUrl?: string;
+  /** KRO-250 — SOLO `kind:'iridescent'`: el config del motor iridiscente (los
+   *  params del catálogo `iridescent_foil`: paleta, warp, máscara, marco…).
+   *  En una capa iridiscente GOBIERNA TODO el pintado: `textureUrl`, `maskUrl`,
+   *  `maskLayout`, `maskScale`, `blend`, `intensity` y `motion` de la capa se
+   *  IGNORAN (la máscara/fusión/intensidad van DENTRO del config, como en el
+   *  efecto de catálogo). El efecto `iridescent_foil` clásico ≡ una pila de
+   *  1 capa iridiscente (retro-compat: nada migra). */
+  config?: Record<string, string | number>;
   /** URL de la máscara en grises (blanco = brilla, negro = no). Opcional. */
   maskUrl?: string;
   /** KRO-248 — encaje de la máscara. Ausente = 'cover' (retro-compat). */

@@ -356,6 +356,9 @@ const EXPECTED_EXPORTS = [
   'FOIL_MASK_LAYOUTS',
   'FOIL_MASK_TILE',
   'foilMaskLayout',
+  // KRO-250 — capa procedural iridiscente (pila unificada)
+  'IRIDESCENT_LAYER_KIND',
+  'isIridescentLayer',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {

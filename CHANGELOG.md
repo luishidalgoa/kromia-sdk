@@ -20,6 +20,9 @@ paridad de otro chat → se resumen como nota, no se listan uno a uno.
 
 _Cambios DATA / render-only (NO bumpean el `protocolVersion`)._
 
+### Added
+- **Capa PROCEDURAL iridiscente en la pila unificada** (`EffectLayer.kind: 'iridescent'` + `EffectLayer.config`): una capa del `custom_foil` puede ser el motor del iridiscente completo (paleta, warp, máscara, marco…) en vez de una textura importada — el panel de capas unifica ambos mundos. `textureUrl` pasa a opcional (obligatoria solo en kinds de textura); `IRIDESCENT_LAYER_KIND` + `isIridescentLayer`; `isEffectLayerKind` acepta el kind nuevo; `validateTagStyles` valida el config de la capa contra el catálogo y no exige textura a las procedurales. El efecto `iridescent_foil` clásico ≡ pila de 1 capa (retro-compat, nada migra) (KRO-250).
+
 ## [5.6.0] - 2026-07-11
 
 _Bump MINOR del KRP (auto-detectado): fill libre del marco en `iridescent_foil`._

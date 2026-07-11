@@ -4,6 +4,7 @@ import {
   CUSTOM_FOIL_LAYER_DEFAULTS, foilLayerOpacity, foilTextureLayout,
   CUSTOM_FOIL_MASK, EFFECT_BLEND_TO_FLUTTER,
   FOIL_MASK_LAYOUTS, FOIL_MASK_TILE, foilMaskLayout,
+  IRIDESCENT_LAYER_KIND, isIridescentLayer,
 } from '../src/custom-foil-recipe';
 import type { EffectBlendMode } from '../src/types';
 
@@ -24,6 +25,16 @@ describe('custom-foil-recipe — receta DATA del foil personalizado', () => {
     expect(isEffectBlendMode(42)).toBe(false);
     expect(isEffectLayerKind('glitter')).toBe(true);
     expect(isEffectLayerKind('bogus')).toBe(false);
+  });
+
+  // KRO-250 — capa PROCEDURAL iridiscente: kind válido pero FUERA del selector
+  // de texturas (EFFECT_LAYER_KINDS solo lista los 3 kinds con textureUrl).
+  it('iridescent es kind válido pero no un kind de textura', () => {
+    expect(IRIDESCENT_LAYER_KIND).toBe('iridescent');
+    expect(isEffectLayerKind('iridescent')).toBe(true);
+    expect(EFFECT_LAYER_KINDS).not.toContain('iridescent');
+    expect(isIridescentLayer({ kind: 'iridescent' })).toBe(true);
+    expect(isIridescentLayer({ kind: 'foil' })).toBe(false);
   });
 
   it('defaults de capa nueva == emptyEffectLayer de Studio', () => {

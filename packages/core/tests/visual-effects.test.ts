@@ -189,6 +189,33 @@ describe('validateTagStyles — foil incompleto = warn, no error (KRO-123)', () 
     const r = validateTagStyles([ts]);
     expect(r.issues.filter(i => i.path.includes('customLayers'))).toHaveLength(0);
   });
+
+  // KRO-250 — capa PROCEDURAL iridiscente en la pila unificada.
+  it('capa iridiscente sin textura → SIN warn (es procedural)', () => {
+    const ts: TagStyle = { value: 'comun', effect: 'custom_foil', customLayers: [
+      { kind: 'iridescent', blend: 'color-dodge', config: { pattern: 'midnight', warp: 40 } },
+    ] };
+    const r = validateTagStyles([ts]);
+    expect(r.issues.filter(i => i.path.includes('customLayers'))).toHaveLength(0);
+  });
+  it('capa iridiscente con config INVÁLIDO → error (mismo espacio que el catálogo)', () => {
+    const bad: TagStyle = { value: 'comun', effect: 'custom_foil', customLayers: [
+      { kind: 'iridescent', blend: 'color-dodge', config: { pattern: 'bogus', hue: 900 } },
+    ] };
+    const r = validateTagStyles([bad]);
+    expect(r.valid).toBe(false);
+    expect(r.issues.some(i => i.path.includes('config.pattern') && i.level === 'error')).toBe(true);
+    expect(r.issues.some(i => i.path.includes('config.hue') && i.level === 'error')).toBe(true);
+  });
+  it('capa iridiscente + capa de textura conviven en la pila', () => {
+    const ts: TagStyle = { value: 'comun', effect: 'custom_foil', customLayers: [
+      { kind: 'foil', textureUrl: 'http://x/foil.png', blend: 'color-dodge' },
+      { kind: 'iridescent', blend: 'color-dodge', config: { pattern: 'none', mask_url: 'http://x/dots.png', mask_layout: 'tile' } },
+    ] };
+    const r = validateTagStyles([ts]);
+    expect(r.valid).toBe(true);
+    expect(r.issues.filter(i => i.path.includes('customLayers'))).toHaveLength(0);
+  });
 });
 
 describe('validateTagStyles — combinar efectos en el mismo valor (KRO-127)', () => {

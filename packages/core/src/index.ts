@@ -580,6 +580,8 @@ export {
   EFFECT_BLEND_TO_FLUTTER, CUSTOM_FOIL_LAYER_ORDER,
   // KRO-248 — layouts de máscara (cover | tile) compartidos iridiscente↔custom_foil.
   FOIL_MASK_LAYOUTS, FOIL_MASK_TILE, foilMaskLayout,
+  // KRO-250 — capa PROCEDURAL iridiscente en la pila unificada.
+  IRIDESCENT_LAYER_KIND, isIridescentLayer,
 } from './custom-foil-recipe';
 export type { FoilTextureLayout, FoilMaskLayoutSpec } from './custom-foil-recipe';
 

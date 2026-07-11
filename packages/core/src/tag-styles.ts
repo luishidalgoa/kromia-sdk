@@ -74,6 +74,24 @@ function collectTagStyleIssues(
       issues.push({ index, path: `${prefix}.customLayers`, level: 'warn', message: 'el foil personalizado aún no tiene capas (no se aplicará hasta que añadas una)' });
     }
     layers.forEach((l, li) => {
+      // KRO-250 — capa PROCEDURAL iridiscente: no lleva textura; su `config` se
+      // valida contra los params del catálogo `iridescent_foil` (mismo espacio
+      // de valores que el efecto clásico).
+      if (l.kind === 'iridescent') {
+        const def = getVisualEffect('iridescent_foil');
+        if (def && l.config) {
+          const byKey = new Map(def.config.map(p => [p.key, p]));
+          for (const key of Object.keys(l.config)) {
+            const param = byKey.get(key);
+            if (!param) {
+              issues.push({ index, path: `${prefix}.customLayers[${li}].config.${key}`, level: 'error', message: `"${key}" no es una opción de config del iridiscente` });
+              continue;
+            }
+            validateConfigValue(param, l.config[key], index, `${prefix}.customLayers[${li}].config.${key}`, issues);
+          }
+        }
+        return;
+      }
       if (typeof l.textureUrl !== 'string' || l.textureUrl.trim() === '') {
         issues.push({ index, path: `${prefix}.customLayers[${li}].textureUrl`, level: 'warn', message: 'esta capa de foil aún no tiene textura (no se pintará hasta que la añadas)' });
       }
