@@ -262,14 +262,18 @@ Widget _chipGrid(ChipGrid grid, Map<String, GridPlacement>? placements,
   final gap = KromiaTokens.gap(grid.gap);
   final synth = [for (final c in chips) LayoutSlotNode(slot: c.key, place: placements?[c.key])];
   final g = computeGrid(LayoutContainerNode(kind: 'grid', columns: cols, gap: grid.gap, children: synth), synth);
-  return LayoutBuilder(builder: (context, c) {
-    final maxW = c.hasBoundedWidth ? c.maxWidth : MediaQuery.of(context).size.width;
-    final cellW = ((maxW - gap * (cols - 1)) / cols).clamp(1.0, double.infinity).toDouble();
-    return LayoutGrid(
+  // KRO-217 §26 — columnas FLEXIBLES (1fr) a ANCHO COMPLETO: espejo de CSS
+  // `grid-template-columns: repeat(N, minmax(0,1fr))` + `w-full`. Con `FixedTrackSize`
+  // el grid quedaba content-width → la última columna no llegaba al borde (el chip
+  // "Rara" salía en el medio y no en la mitad derecha). Con 1fr cada columna reparte
+  // el ancho real del contenedor; el `SizedBox` fuerza el `w-full`.
+  return SizedBox(
+    width: double.infinity,
+    child: LayoutGrid(
       gridFit: GridFit.passthrough,
       columnGap: gap,
       rowGap: gap,
-      columnSizes: List.filled(cols, FixedTrackSize(cellW)),
+      columnSizes: [for (var i = 0; i < cols; i++) 1.fr],
       rowSizes: g.rows,
       children: [
         for (var i = 0; i < g.cells.length && i < chips.length; i++)
@@ -280,20 +284,30 @@ Widget _chipGrid(ChipGrid grid, Map<String, GridPlacement>? placements,
             rowSpan: g.cells[i].rowSpan,
           ),
       ],
-    );
-  });
+    ),
+  );
 }
 
-/// chipWidth en la celda: 'content' → `Align` (justify-self por `align`); 'fill'
-/// (def) → el chip llena la celda (align ya movió el texto vía su textAlign).
+/// chipWidth en la celda de un `chipGrid`. KRO-217 §26:
+///  - 'content' → la celda AJUSTA el chip a su contenido y `align` lo posiciona
+///    (justify-self).
+///  - 'fill' (def) → el chip OCUPA el ANCHO de la celda; el `align` coloca el
+///    CONTENIDO dentro. Texto plano: su `textAlign` (ya en el Text) lo alinea dentro
+///    del ancho completo (antes el `Text` no estiraba → el text-align no lo movía y
+///    "Rara" quedaba pegada a la izquierda de su celda). Pastilla: se posiciona con
+///    `Align` en la celda ya ensanchada.
 Widget _chipCell(({String key, Widget chip, SlotAppearance? ap}) c) {
-  if (c.ap?.chipWidth != 'content') return c.chip; // fill (default)
   final align = switch (c.ap?.align) {
     'center' => Alignment.center,
     'right' => Alignment.centerRight,
     _ => Alignment.centerLeft,
   };
-  return Align(alignment: align, child: c.chip);
+  if (c.ap?.chipWidth == 'content') return Align(alignment: align, child: c.chip);
+  // fill (default) → estira a la celda; texto se alinea por su textAlign, pastilla por Align.
+  if (c.ap?.display == 'badge') {
+    return SizedBox(width: double.infinity, child: Align(alignment: align, child: c.chip));
+  }
+  return SizedBox(width: double.infinity, child: c.chip);
 }
 
 Widget _sectionTitle(RenderCtx ctx, String? sid) {
