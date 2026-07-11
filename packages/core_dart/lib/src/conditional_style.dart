@@ -4,11 +4,13 @@
 /// `lt`/`lte` (numéricas) · `truthy`/`falsy` (ignoran value). Texto: trim +
 /// case-insensitive.
 ///
-/// Nota: la resolución de APARIENCIA condicional (resolveConditionalAppearance /
-/// resolveConditionalStyling) es un handoff aparte; aquí solo el primitivo de
-/// matching, que reúsan el reverso (`card_back.dart`, KRO-228) y, en su día, el
-/// estilo condicional de slots.
+/// KRO-198 — además del primitivo de matching, este módulo resuelve la APARIENCIA
+/// condicional completa (`resolveConditionalStyling`/`matchedConditionalCase`/
+/// `resolveConditionalAppearance`), espejo de `conditional-style.ts`. Lo usa el
+/// render de slots/chips (el "estilo por valor": color por rareza/elemento…).
 library;
+
+import 'composition.dart' show ConditionalStyle, ConditionalStyleCase, SlotAppearance;
 
 /// Parsea a número (acepta strings numéricos); null si no es número finito.
 num? _asNumber(Object? v) {
@@ -54,4 +56,44 @@ bool matchConditionalCase({String? op, String? value, required Object? raw}) {
   if (o == 'contains') return t.isNotEmpty && s.contains(t);
   if (o == 'neq') return s != t;
   return s == t; // eq
+}
+
+/// KRO-198 — el CASO que matchea (no el merge): el 1º de `cond.cases` cuyo `{op,
+/// value}` cumple el valor de `cond.fieldKey` en `item`. Para leer su `target` y
+/// aplicar la apariencia a los chips correctos. NO contempla el `otherwise` (else)
+/// — puro "primer caso que coincide". Espejo de `matchedConditionalCase`.
+ConditionalStyleCase? matchedConditionalCase(
+    ConditionalStyle? cond, Map<String, dynamic>? item) {
+  if (cond == null || cond.fieldKey.isEmpty || cond.cases.isEmpty || item == null) {
+    return null;
+  }
+  final raw = item[cond.fieldKey];
+  for (final c in cond.cases) {
+    if (matchConditionalCase(op: c.op, value: c.value, raw: raw)) return c;
+  }
+  return null;
+}
+
+/// KRO-198 — caso EFECTIVO CON la cláusula else: el 1º `case` que coincide o, si
+/// ninguno, `cond.otherwise`; `null` si no hay ni match ni else. El else aplica SOLO
+/// con el condicional configurado (fieldKey + cases) y evaluado contra datos (hay
+/// item). Es el helper que usa el render (para que el else surta efecto). Espejo de
+/// `resolveConditionalStyling`.
+ConditionalStyleCase? resolveConditionalStyling(
+    ConditionalStyle? cond, Map<String, dynamic>? item) {
+  if (cond == null || cond.fieldKey.isEmpty || cond.cases.isEmpty || item == null) {
+    return null;
+  }
+  return matchedConditionalCase(cond, item) ?? cond.otherwise;
+}
+
+/// KRO-198 — apariencia EFECTIVA tras el estilo condicional: la del caso efectivo
+/// mergeada sobre `base` (el caso gana). Sin condicional/match/else → `base` intacta.
+/// Espejo de `resolveConditionalAppearance` (para slots NO composables — sin chips).
+SlotAppearance? resolveConditionalAppearance(
+    ConditionalStyle? cond, SlotAppearance? base, Map<String, dynamic>? item) {
+  final eff = resolveConditionalStyling(cond, item);
+  if (eff == null) return base;
+  final ap = eff.appearance;
+  return ap == null ? base : ap.mergedOver(base);
 }

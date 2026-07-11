@@ -205,6 +205,49 @@ class ChipGrid {
       ChipGrid(columns: (json['columns'] as num?)?.toInt() ?? 1, gap: json['gap'] as String?);
 }
 
+/// KRO-198 — un caso del "estilo por valor" (`conditionalStyle`). Espejo de
+/// `ConditionalStyleCase` (types.ts): si el valor del campo vigilado cumple
+/// `{op, value}`, aplica `appearance` (merge sobre la base). `target` = a qué
+/// chip(s) del slot composable aplica (field-keys); ausente/vacío = TODA la fila.
+class ConditionalStyleCase {
+  final String? op; // eq(def)|neq|contains|gt|gte|lt|lte|truthy|falsy
+  final String? value;
+  final SlotAppearance? appearance;
+  final List<String>? target;
+  const ConditionalStyleCase({this.op, this.value, this.appearance, this.target});
+
+  factory ConditionalStyleCase.fromJson(Map<String, dynamic> j) => ConditionalStyleCase(
+        op: j['op'] as String?,
+        value: j['value'] as String?,
+        appearance: j['appearance'] is Map
+            ? SlotAppearance.fromJson((j['appearance'] as Map).cast<String, dynamic>())
+            : null,
+        target: (j['target'] as List?)?.map((e) => e.toString()).toList(),
+      );
+}
+
+/// KRO-198 — "estilo por valor": la apariencia cambia según el valor de `fieldKey`
+/// (if / else-if / else). Espejo de `ConditionalStyle` (types.ts). `cases` en ORDEN
+/// (el 1º que matchea gana, como un switch); `otherwise` = la cláusula else (se llama
+/// así porque `else` es palabra reservada en Dart). Data de álbum — no entra al KRP.
+class ConditionalStyle {
+  final String fieldKey;
+  final List<ConditionalStyleCase> cases;
+  final ConditionalStyleCase? otherwise;
+  const ConditionalStyle({required this.fieldKey, required this.cases, this.otherwise});
+
+  factory ConditionalStyle.fromJson(Map<String, dynamic> j) => ConditionalStyle(
+        fieldKey: (j['fieldKey'] as String?) ?? '',
+        cases: (j['cases'] as List?)
+                ?.map((e) => ConditionalStyleCase.fromJson((e as Map).cast<String, dynamic>()))
+                .toList() ??
+            const [],
+        otherwise: j['otherwise'] is Map
+            ? ConditionalStyleCase.fromJson((j['otherwise'] as Map).cast<String, dynamic>())
+            : null,
+      );
+}
+
 /// Composición de un slot: qué fields van en el hueco + cómo se componen.
 class SlotComposition {
   /// Keys del schema asignadas al slot.
@@ -237,6 +280,11 @@ class SlotComposition {
   /// 1-based, span def 1, omitir start = auto-flow).
   final Map<String, GridPlacement>? chipPlacements;
 
+  /// KRO-198 — "estilo por valor": la apariencia del slot (o de chips concretos vía
+  /// `case.target`) cambia según el valor de otro campo (if/else-if/else). Lo resuelve
+  /// `resolveConditionalStyling` en el render. DATA — no entra al contrato KRP.
+  final ConditionalStyle? conditionalStyle;
+
   const SlotComposition({
     required this.fields,
     this.orientation,
@@ -246,6 +294,7 @@ class SlotComposition {
     this.fieldAppearances,
     this.chipGrid,
     this.chipPlacements,
+    this.conditionalStyle,
   });
 
   /// Orientación efectiva (aplica el default del SDK).
@@ -276,6 +325,9 @@ class SlotComposition {
         chipPlacements: (json['chipPlacements'] is Map)
             ? (json['chipPlacements'] as Map).map((k, v) => MapEntry(
                 k.toString(), GridPlacement.fromJson((v as Map).cast<String, dynamic>())))
+            : null,
+        conditionalStyle: json['conditionalStyle'] is Map
+            ? ConditionalStyle.fromJson((json['conditionalStyle'] as Map).cast<String, dynamic>())
             : null,
       );
 }

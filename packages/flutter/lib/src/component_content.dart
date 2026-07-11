@@ -212,11 +212,24 @@ Widget _badgeRow(RenderCtx ctx, String? sid) {
   if (sid == null) return const SizedBox.shrink();
   final r = resolveSlot(ctx, sid);
   if (r == null) return const SizedBox.shrink();
+  // KRO-198/217 — "estilo por valor" (conditionalStyle): el caso que coincide (o el
+  // `otherwise`/else) aporta apariencia. Sin `target` → se mergea sobre la base de
+  // TODA la fila; con `target[]` → gana en esos chips concretos (sobre su apariencia
+  // por-field). Es lo que da el color por rareza/elemento (p.ej. tipo Fuego → rojo).
+  final cond = resolveConditionalStyling(ctx.slots[sid]?.conditionalStyle, ctx.item);
+  final condAp = cond?.appearance;
+  final condTargets = cond?.target;
+  final condAllRow = condAp != null && (condTargets == null || condTargets.isEmpty);
+  final baseAp = condAllRow ? condAp.mergedOver(r.appearance) : r.appearance;
   final chips = <({String key, Widget chip, SlotAppearance? ap})>[];
   for (final f in r.fields) {
     final txt = formatScalar(f.value, f.def);
     if (txt.isEmpty) continue;
-    final ap = mergeFieldAppearance(r.appearance, r.fieldAppearances, f.key); // efectiva por-chip
+    var ap = mergeFieldAppearance(baseAp, r.fieldAppearances, f.key); // efectiva por-chip
+    // Caso condicional con target que incluye este chip → su apariencia MANDA.
+    if (condAp != null && (condTargets?.contains(f.key) ?? false)) {
+      ap = condAp.mergedOver(ap);
+    }
     Widget chip = badgePill(applyAppearanceTruncate(txt, ap), ap);
     final shadow = appearanceSlotShadow(ap);
     if (shadow.isNotEmpty) chip = DecoratedBox(decoration: BoxDecoration(boxShadow: shadow), child: chip);
