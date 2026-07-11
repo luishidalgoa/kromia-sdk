@@ -58,6 +58,17 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 
 ## Cola de handoffs abierta (vivo — mantener)
 
+- **Studio → Flutter** · **NUEVO 2026-07-11 — KRO-247 · KRP 5.4.0 (minor)**: el
+  `iridescent_foil` gana la paleta **`none`** ("Ninguna") = lámina NEUTRA sin
+  gradiente de color. Espejar: (a) `visual_effects.dart` — opción `none` en el
+  enum `pattern` (contrato 5.4.0); (b) `foil_recipe.dart` — `FOIL_PATTERN_NONE`
+  + `FOIL_NEUTRAL_SHEEN` (barrido blanco 115°, alpha 0→0.9→0, NO repeating) +
+  `foilNeutralSheenCss` equivalente (Flutter construye su LinearGradient de los
+  stops). Render con `none` (sin `pattern_hex` válido — el hex sigue MANDANDO):
+  NO se pinta la capa de color del foil (hue/brightness/contrast/scale/blend/
+  geometry/warp no aplican); el sheen usa el barrido neutro y hereda el vaivén
+  de rejilla / paneo por tilt; glare, grano y marco no cambian. Spec:
+  `docs/iridescent-foil-render-spec.md` §1-bis. Jira: KRO-247 (+ issue Drift Sync).
 - **Studio → Flutter** · Sistema holográfico 3D / foil / contornos → implementar en
   `core_dart` + app según `docs/holographic-3d-foil-spec.md` (espejar `card_layers.dart`;
   añadir `fieldKey`/`customLayers` a `tag_styles.dart`; máscara por **luminancia**;

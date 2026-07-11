@@ -66,16 +66,20 @@ El foil arcoíris ajustable en vivo. El que más se toca. Dos piezas: el **confi
 
 ### 3.1 Config (params del contrato, `visual-effects.ts:114-213`)
 
-`pattern` (Paleta, enum: spectrum/oilslick/sunset/mint/aurora/midnight) · `pattern_hex`
+`pattern` (Paleta, enum: **none**/spectrum/oilslick/sunset/mint/aurora/midnight;
+`none` = lámina NEUTRA sin gradiente de color, KRO-247/KRP 5.4.0) · `pattern_hex`
 (Paleta personalizada, 2–4 hex `#RRGGBB`, MANDA sobre pattern) · `angle` (Orientación
 0–360°, giro sobre el ángulo nativo del patrón) · `hue` (Tono 0–360) · `opacity`
 (Intensidad 0–100=95) · `glow` (Resplandor=35) · `sheen` (Reflejo=40) · `shimmer`
 (Destello=50) · `noise` (Grano=16) · `brightness` (50–150=105) · `contrast` (50–150=100)
 · `scale` (100–320=210) · `blend` (Fusión: color-dodge/overlay/screen/soft-light/hard-light)
 · **`geometry`** (bandas|organico, default bandas) · **`warp`** (Ondulación 0–100=55,
-`visibleWhen geometry=organico`) · marco: `border_style` (9 diseños) · `border_fill`
+`visibleWhen geometry=organico Y pattern≠none` — visibleWhen admite array AND desde
+KRO-247) · marco: `border_style` (9 diseños) · `border_fill`
 (hueco/borde/marco) · `border_width` · `border_margin` · `border_color` (enum de tonos)
-· `border_color_hex` (MANDA sobre border_color).
+· `border_color_hex` (MANDA sobre border_color). Con `pattern=none` los params que solo
+parametrizan el gradiente (pattern_hex/angle/hue/opacity/brightness/contrast/scale/
+blend/geometry/warp) se ocultan en el editor (visibleWhen, editor-only).
 
 ### 3.2 Receta de render (`packages/core/src/foil-recipe.ts`, DATA)
 
@@ -85,6 +89,9 @@ El foil arcoíris ajustable en vivo. El que más se toca. Dos piezas: el **confi
   sin copiar strings. `foilPatternCss(pattern, rotate)` = builder WEB.
 - **Paleta custom**: `parseFoilPatternHex(raw)` (2–4 hex) + `foilCustomPatternCss(colors, angle)`
   (ciclo 45% equiespaciado). Compartido cross-platform.
+- **Paleta "Ninguna"** (KRO-247): `FOIL_PATTERN_NONE` + `FOIL_NEUTRAL_SHEEN` +
+  `foilNeutralSheenCss()` — sin capa de color; el sheen usa el barrido blanco neutro
+  (115°, alpha 0→0.9→0, NO repeating). Detalle: `iridescent-foil-render-spec.md` §1-bis.
 - **Orientación**: `foilPatternBaseAngle(pattern)` + `foilEffectiveAngle(pattern, rotate)`.
 - **Geometría orgánica** (`geometry:'organico'`): `FOIL_ORGANIC_WARP` (baseFreq X/Y,
   octaves, seed, maxDisplacement, overscan) + `foilWarpDisplacement(warp)`. Las bandas

@@ -33,6 +33,27 @@ SDK (`@kromia/core/foil-recipe.ts`). Referencia de Studio: `VisualEffectLayers.t
 - **glare**: radial blanco al puntero/tilt, `blend: soft-light`, alpha = `glow/100`.
 - **noise**: textura fractal, `blend: overlay`, `opacity: noise/100`.
 
+## 1-bis) Paleta "Ninguna" (`pattern: 'none'`) — lámina NEUTRA (KRO-247, KRP 5.4.0)
+
+Sin gradiente de color. Reglas (con `pattern:'none'` y SIN `pattern_hex` válido —
+un `pattern_hex` válido sigue MANDANDO; el editor garantiza la exclusión):
+
+- **La capa foil de color NO se pinta** → `hue`, `opacity` (de la capa foil),
+  `brightness`, `contrast`, `scale`, `blend`, `angle`, `geometry` y `warp` **no
+  aplican** (el editor los oculta vía `visibleWhen`, editor-only). Un valor
+  residual de `geometry:'organico'` en el config se IGNORA.
+- **El sheen usa el barrido neutro** `FOIL_NEUTRAL_SHEEN` (foil-recipe.ts):
+  linear-gradient **único, NO repeating**, 115°, blanco con alpha `0 → 0.9 → 0`
+  (pos 0/50/100%). Studio: `foilNeutralSheenCss()`; Flutter: `LinearGradient`
+  desde los MISMOS stops. `blend: screen`, `opacity: sheen/100`, size 250%.
+  En rejilla hereda el vaivén `kr-holo-sweep` (velocidad = `shimmer`; con paleta
+  de color ese vaivén lo lleva la capa foil); en foco se panea con el tilt
+  (dirección opuesta, como el sheen normal).
+- **glare (`glow`), grano (`noise`) y marco (`border_*`) NO cambian.**
+- Tinte de borde `spectrum` ("sigue al foil") con `none` = el barrido neutro.
+- **Para qué sirve**: combinar el brillo del iridiscente (reflejo/resplandor/
+  grano/marco) con capas importadas (`custom_foil`) sin teñirlas de arcoíris.
+
 ## 2) Geometría ORGÁNICA (`geometry: 'organico'`)  ⭐ lo que faltaba
 
 Las bandas RECTAS se curvan por un desplazamiento de RUIDO FRACTAL → difracción
@@ -72,6 +93,9 @@ de la carta — ver KRO-225; clip elíptico).
 
 - [ ] `visual_effects.dart`: los 22 params (incl. geometry/warp/angle/pattern_hex). ✅ (5.3.0)
 - [ ] `foil_recipe.dart`: `FOIL_PATTERNS`, `parseFoilPatternHex`, receta custom (ciclo 45%),
-      `foilEffectiveAngle`, **`FOIL_ORGANIC_WARP` + `foilWarpDisplacement`**, tintes.
+      `foilEffectiveAngle`, **`FOIL_ORGANIC_WARP` + `foilWarpDisplacement`**, tintes,
+      **`FOIL_PATTERN_NONE` + `FOIL_NEUTRAL_SHEEN`** (KRO-247, §1-bis).
+- [ ] `visual_effects.dart`: opción `none` en el enum `pattern` (KRP **5.4.0**).
+- [ ] Render `pattern:'none'`: sin capa de color; sheen = barrido neutro (§1-bis).
 - [ ] Render app: gradiente (paleta/custom/ángulo) → warp orgánico (fbm) → glare/noise → marco.
 - [ ] `border_svg.dart` (ya hecho, PR#64) + clip elíptico (KRO-225).
