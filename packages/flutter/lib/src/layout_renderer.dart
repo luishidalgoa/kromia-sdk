@@ -37,7 +37,12 @@ class LayoutRenderer extends StatelessWidget {
       });
     }
 
-    Widget content = _node(root, accentSlots);
+    // KRO-217 §25.3 — en el DETALLE el surface RAÍZ pierde bg/borde/radius
+    // (fidelidad full-screen): el papel lo pinta el panel del sheet (host) y el
+    // acento se pinta aparte (_AccentFrame). Sin esto, el bgColor OPACO del root
+    // TAPA el lavado `ambient` del acento (el tinte fuego no salía). El padding del
+    // surface SÍ se conserva. Fuera del detalle, el root pinta su surface normal.
+    Widget content = _container(root, accentSlots, stripSurfaceDeco: isDetail);
     // Lienzo raíz SIN surface → padding por defecto p-3 (12px), espejo de react
     // LayoutRenderer (`!rootHasSurface && 'p-3'`). Con surface, el padding ya lo
     // pone la propia surface. Sin esto el contenido (p. ej. la imagen del
@@ -67,7 +72,7 @@ class LayoutRenderer extends StatelessWidget {
         LayoutContainerNode k => _container(k, accentSlots),
       };
 
-  Widget _container(LayoutContainerNode node, Set<String> accentSlots) {
+  Widget _container(LayoutContainerNode node, Set<String> accentSlots, {bool stripSurfaceDeco = false}) {
     final inflow = <LayoutNode>[];
     final absolute = <LayoutNode>[];
     for (final ch in node.children) {
@@ -90,13 +95,17 @@ class LayoutRenderer extends StatelessWidget {
     }
 
     final surf = surfaceDecoration(node.surface);
-    if (surf.decoration != null || surf.padding != EdgeInsets.zero) {
+    // KRO-217 §25.3 — `stripSurfaceDeco` (root del detalle): descarta bg/borde/radius
+    // pero conserva el padding, para no tapar el acento ni doblar el papel del panel.
+    final deco = stripSurfaceDeco ? null : surf.decoration;
+    final clip = !stripSurfaceDeco && node.surface?.radius != null && node.surface!.radius != 'none';
+    if (deco != null || surf.padding != EdgeInsets.zero) {
       Widget decorated = Container(
-        decoration: surf.decoration,
+        decoration: deco,
         padding: surf.padding == EdgeInsets.zero ? null : surf.padding,
         child: body,
       );
-      if (node.surface?.radius != null && node.surface!.radius != 'none') {
+      if (clip) {
         decorated = ClipRRect(borderRadius: BorderRadius.circular(KromiaTokens.radius(node.surface!.radius)), child: decorated);
       }
       return decorated;
