@@ -331,6 +331,19 @@ const EXPECTED_EXPORTS = [
   'foilEffectiveAngle',
   'FOIL_ORGANIC_WARP',
   'foilWarpDisplacement',
+  // KRO-122 — receta DATA del render del foil PERSONALIZADO (custom_foil)
+  'EFFECT_LAYER_KINDS',
+  'EFFECT_BLEND_MODES',
+  'isEffectBlendMode',
+  'isEffectLayerKind',
+  'CUSTOM_FOIL_LAYER_DEFAULTS',
+  'foilLayerOpacity',
+  'foilTextureLayout',
+  'CUSTOM_FOIL_MASK',
+  'CUSTOM_FOIL_TILT',
+  'CUSTOM_FOIL_SHIMMER',
+  'EFFECT_BLEND_TO_FLUTTER',
+  'CUSTOM_FOIL_LAYER_ORDER',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {

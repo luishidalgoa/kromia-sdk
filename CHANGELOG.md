@@ -16,6 +16,21 @@ paridad de otro chat → se resumen como nota, no se listan uno a uno.
 > verificados leyendo el `protocolVersion` real del contrato en cada commit).
 > Versiones `< 2.2.2` fuera de registro (previas a esta política).
 
+## [Unreleased]
+
+_Cambios DATA / render-only (NO bumpean el `protocolVersion`)._
+
+### Added
+- **Receta DATA del render del foil PERSONALIZADO** (`custom-foil-recipe.ts`): las reglas de compositing de la pila de capas del `custom_foil` (textura + máscara + fusión + intensidad) dejan de vivir hardcodeadas en Studio (`FoilLayer.tsx`) y pasan a `@kromia/core` como fuente única cross-platform — `EFFECT_LAYER_KINDS`, `EFFECT_BLEND_MODES` (+ `isEffectBlendMode`/`isEffectLayerKind`), `CUSTOM_FOIL_LAYER_DEFAULTS`, `foilLayerOpacity`, `foilTextureLayout`, `CUSTOM_FOIL_MASK` (máscara por LUMINANCIA), `CUSTOM_FOIL_TILT`, `CUSTOM_FOIL_SHIMMER`, `EFFECT_BLEND_TO_FLUTTER` (mapeo fusión→`BlendMode` de Flutter). Flutter lo espeja para reactivar el custom foil sin lavado. Spec: `docs/custom-foil-render-spec.md` (KRO-122).
+- **Receta DATA de la geometría orgánica + orientación del foil iridiscente** (`FOIL_ORGANIC_WARP` + `foilWarpDisplacement` + `foilEffectiveAngle`/`foilPatternBaseAngle`): parámetros del ruido fractal del warp orgánico y ángulo efectivo de las bandas, antes hardcodeados en el render de Studio. Render-only, fuente única cross-platform. Spec: `docs/iridescent-foil-render-spec.md` (KRO-244).
+
+## [5.3.0] - 2026-07-10
+
+_Bump MINOR del KRP (auto-detectado): params aditivos en `iridescent_foil`._
+
+### Added
+- **`iridescent_foil` gana `pattern_hex` (paleta personalizada: 2–4 hex `#RRGGBB`) + `angle` (orientación 0–360°)**: el creador puede definir su propia paleta del tornasol y girar las bandas, sin efecto nuevo ni migración (defaults = comportamiento previo; los álbumes existentes no cambian). Helpers `parseFoilPatternHex` + `foilCustomPatternCss` (KRO-244).
+
 ## [5.2.0] - 2026-07-10
 
 _Bump MINOR del KRP (auto-detectado): params aditivos en `iridescent_foil`.

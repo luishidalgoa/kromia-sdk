@@ -560,6 +560,18 @@ export { FOIL_BORDER_SOLID, FOIL_CARD_BG, foilCardBgCss } from './foil-recipe';
 export { EFFECT_FACTORY_PRESETS } from './foil-recipe';
 export type { FoilPattern, FoilStop, EffectFactoryPreset } from './foil-recipe';
 
+// KRO-122 — receta DATA del render del FOIL PERSONALIZADO (custom_foil): pila de
+// capas (textura + máscara + fusión + intensidad). Reglas de compositing como
+// fuente única cross-platform (antes hardcodeadas en Studio FoilLayer.tsx = drift).
+// Render-only; NO va al KRP. Spec: docs/custom-foil-render-spec.md
+export {
+  EFFECT_LAYER_KINDS, EFFECT_BLEND_MODES, isEffectBlendMode, isEffectLayerKind,
+  CUSTOM_FOIL_LAYER_DEFAULTS, foilLayerOpacity, foilTextureLayout,
+  CUSTOM_FOIL_MASK, CUSTOM_FOIL_TILT, CUSTOM_FOIL_SHIMMER,
+  EFFECT_BLEND_TO_FLUTTER, CUSTOM_FOIL_LAYER_ORDER,
+} from './custom-foil-recipe';
+export type { FoilTextureLayout } from './custom-foil-recipe';
+
 // KRO-215 — cartas físicas: identidad + propiedad (tronco SDK-first; DATA, no bumpea el KRP).
 export { ownershipBadge, isVerifiedOwnership } from './card-ownership';
 export type { CardIdentity, CardOwnership, OwnershipSource, TransferToken, CardQrPayload, CardTransferBundle } from './types';
