@@ -20,9 +20,20 @@ paridad de otro chat → se resumen como nota, no se listan uno a uno.
 
 _Cambios DATA / render-only (NO bumpean el `protocolVersion`)._
 
+## [5.4.0] - 2026-07-11
+
+_Bump MINOR del KRP (auto-detectado): option aditiva en `iridescent_foil`.
+Arrastra lo acumulado en Unreleased (recetas render-only del custom foil y del
+warp orgánico, 2026-07-10 → 2026-07-11)._
+
 ### Added
+- **`iridescent_foil` gana la paleta `none` ("Ninguna")**: lámina NEUTRA sin gradiente de color — quedan el reflejo blanco diagonal (receta nueva `FOIL_NEUTRAL_SHEEN` + `foilNeutralSheenCss` + id reservado `FOIL_PATTERN_NONE`), resplandor, grano y marco. Base para combinar el brillo del iridiscente con capas importadas (`custom_foil`) sin teñirlas de arcoíris. Los params que solo parametrizan el gradiente (angle/hue/opacity/brightness/contrast/scale/blend/geometry/warp) se ocultan en el editor con `none` (`visibleWhen`, editor-only). Aditivo: default sigue `spectrum`, los álbumes existentes no cambian (KRO-247).
 - **Receta DATA del render del foil PERSONALIZADO** (`custom-foil-recipe.ts`): las reglas de compositing de la pila de capas del `custom_foil` (textura + máscara + fusión + intensidad) dejan de vivir hardcodeadas en Studio (`FoilLayer.tsx`) y pasan a `@kromia/core` como fuente única cross-platform — `EFFECT_LAYER_KINDS`, `EFFECT_BLEND_MODES` (+ `isEffectBlendMode`/`isEffectLayerKind`), `CUSTOM_FOIL_LAYER_DEFAULTS`, `foilLayerOpacity`, `foilTextureLayout`, `CUSTOM_FOIL_MASK` (máscara por LUMINANCIA), `CUSTOM_FOIL_TILT`, `CUSTOM_FOIL_SHIMMER`, `EFFECT_BLEND_TO_FLUTTER` (mapeo fusión→`BlendMode` de Flutter). Flutter lo espeja para reactivar el custom foil sin lavado. Spec: `docs/custom-foil-render-spec.md` (KRO-122).
 - **Receta DATA de la geometría orgánica + orientación del foil iridiscente** (`FOIL_ORGANIC_WARP` + `foilWarpDisplacement` + `foilEffectiveAngle`/`foilPatternBaseAngle`): parámetros del ruido fractal del warp orgánico y ángulo efectivo de las bandas, antes hardcodeados en el render de Studio. Render-only, fuente única cross-platform. Spec: `docs/iridescent-foil-render-spec.md` (KRO-244).
+
+### Changed
+- **Detector de bump (`version-bump.ts`)**: AMPLIAR las `options` de un param de efecto (superset — solo añade, nada eliminado) ahora clasifica como **minor** (aditivo: el cliente viejo cae al default/fallback), no major. Eliminar/sustituir options sigue siendo major (KRO-247).
+- `visibleWhen` (editor-only) admite ARRAY de condiciones (AND) — p.ej. `warp` exige `geometry='organico'` Y `pattern≠'none'` (KRO-247).
 
 ## [5.3.0] - 2026-07-10
 

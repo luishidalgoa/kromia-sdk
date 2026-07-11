@@ -76,6 +76,40 @@ export const FOIL_PATTERNS: Record<string, FoilPattern> = {
 /** Ids de los patterns disponibles (orden de declaración). */
 export const FOIL_PATTERN_IDS = Object.keys(FOIL_PATTERNS) as ReadonlyArray<string>;
 
+/** KRO-247 — paleta "Ninguna": el foil NO pinta gradiente de color. Id reservado
+ *  del enum `pattern` (no vive en `FOIL_PATTERNS`: no hay stops de color). */
+export const FOIL_PATTERN_NONE = 'none';
+
+/**
+ * KRO-247 — RECETA de la lámina NEUTRA (`pattern: 'none'`): sin gradiente de
+ * color, el REFLEJO (sheen) usa este barrido blanco diagonal ÚNICO (no
+ * repeating) en vez del gradiente de la paleta; la capa foil de color NO se
+ * pinta (hue/brightness/contrast/scale/blend no aplican). Glare, grano y borde
+ * no cambian. Es la base para combinar el brillo del iridiscente con capas
+ * importadas (`custom_foil`) sin teñirlas de arcoíris.
+ *
+ * Fuente única cross-platform: Studio construye el CSS con
+ * `foilNeutralSheenCss()`; Flutter su `LinearGradient` desde estos MISMOS stops
+ * (blanco con alpha 0→0.9→0). El barrido se panea con el tilt / hace vaivén en
+ * rejilla igual que el foil de color.
+ */
+export const FOIL_NEUTRAL_SHEEN = {
+  /** Ángulo del barrido (el nativo de spectrum, mismo carácter diagonal). */
+  angleDeg: 115,
+  /** Stops BLANCOS con alpha 0–1 en pos % — barrido único, NO repeating. */
+  stops: [
+    { alpha: 0,   pos: 0 },
+    { alpha: 0.9, pos: 50 },
+    { alpha: 0,   pos: 100 },
+  ],
+} as const;
+
+/** Host WEB: gradiente CSS del barrido neutro (`pattern: 'none'`). */
+export function foilNeutralSheenCss(): string {
+  const stops = FOIL_NEUTRAL_SHEEN.stops.map(s => `rgba(255,255,255,${s.alpha}) ${s.pos}%`);
+  return `linear-gradient(${FOIL_NEUTRAL_SHEEN.angleDeg}deg,${stops.join(',')})`;
+}
+
 /** Host WEB (Studio): construye el string CSS del gradiente de un pattern. Flutter
  *  NO usa esto — construye su gradiente nativo desde `FOIL_PATTERNS[pattern]`.
  *  KRO-244 — `rotateDeg` (param `angle` del efecto): giro sobre el ángulo nativo. */

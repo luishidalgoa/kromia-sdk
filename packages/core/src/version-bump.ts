@@ -372,7 +372,11 @@ function diffRecipeSlots(
  *   - param añadido → minor si es opcional (default o `optional !== false`),
  *     major si es REQUERIDO (`optional === false`): un álbum viejo sin ese
  *     valor quedaría inválido.
- *   - param modificado en shape (type/options/default/min/max) → major.
+ *   - param modificado en shape (type/default/min/max) → major.
+ *   - KRO-247: `options` AMPLIADO (superset — solo opciones añadidas, ninguna
+ *     eliminada) → minor: es aditivo, el cliente viejo cae al default/fallback
+ *     ante un valor que no conoce (misma semántica que "entidad nueva").
+ *     `options` con eliminaciones → major (valores serializados quedan huérfanos).
  * El `label` no se serializa (editor-only) → nunca aparece aquí.
  */
 function diffVisualEffectConfig(
@@ -432,6 +436,16 @@ function diffVisualEffectConfig(
     const fields = new Set<string>([...Object.keys(prevParam), ...Object.keys(nextParam)]);
     for (const f of fields) {
       if (!deepEqual(prevParam[f], nextParam[f])) {
+        // KRO-247 — `options` ampliado (superset, sin eliminaciones) = aditivo → minor.
+        if (f === 'options' && isOptionsSuperset(prevParam[f], nextParam[f])) {
+          reasons.push({
+            level:       'minor',
+            collection:  'visualEffects',
+            entityId:    effectId,
+            description: `visualEffects.${effectId}.config.${k}.options ampliado (aditivo)`,
+          });
+          continue;
+        }
         reasons.push({
           level:       'major',
           collection:  'visualEffects',
@@ -441,6 +455,16 @@ function diffVisualEffectConfig(
       }
     }
   }
+}
+
+/** KRO-247 — ¿`next` contiene TODAS las opciones de `prev` (solo añade, no
+ *  elimina)? Compara como CONJUNTOS (el orden de options es presentación de
+ *  editor, no semántica del valor serializado). Ambos deben ser string[]. */
+function isOptionsSuperset(prev: unknown, next: unknown): boolean {
+  if (!Array.isArray(prev) || !Array.isArray(next)) return false;
+  if (!prev.every(o => typeof o === 'string') || !next.every(o => typeof o === 'string')) return false;
+  const nextSet = new Set(next as string[]);
+  return next.length > prev.length && (prev as string[]).every(o => nextSet.has(o));
 }
 
 /** Deep equality recursiva. Orden importa en arrays (conservador). */

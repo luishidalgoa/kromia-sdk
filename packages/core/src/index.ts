@@ -559,6 +559,8 @@ export { resolveCardTitle } from './card-title';
 export { FOIL_PATTERNS, FOIL_PATTERN_IDS, foilPatternCss, holographicOpacity } from './foil-recipe';
 export { parseFoilPatternHex, foilCustomPatternCss } from './foil-recipe';
 export { foilPatternBaseAngle, foilEffectiveAngle, FOIL_ORGANIC_WARP, foilWarpDisplacement } from './foil-recipe';
+// KRO-247 — paleta "Ninguna" (pattern:'none'): lámina neutra sin gradiente de color.
+export { FOIL_PATTERN_NONE, FOIL_NEUTRAL_SHEEN, foilNeutralSheenCss } from './foil-recipe';
 export { FOIL_BORDER_SOLID, FOIL_CARD_BG, foilCardBgCss } from './foil-recipe';
 export { EFFECT_FACTORY_PRESETS } from './foil-recipe';
 export type { FoilPattern, FoilStop, EffectFactoryPreset } from './foil-recipe';

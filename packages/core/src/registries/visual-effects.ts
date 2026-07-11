@@ -66,8 +66,17 @@ export interface VisualEffectConfigParam {
   /** KRO-244 — visibilidad CONDICIONADA en el editor: el param solo se muestra si
    *  el valor actual (o default) del param `key` cumple la condición. P.ej. `warp`
    *  solo con geometry='organico'; los params de borde solo con un diseño elegido.
-   *  Editor-only: NO va al `.json` (igual que `label`) → editarlo no bumpea. */
-  visibleWhen?: { key: string; equals?: string; notEquals?: string };
+   *  KRO-247 — admite ARRAY de condiciones (AND): `warp` exige geometry='organico'
+   *  Y pattern≠'none'. Editor-only: NO va al `.json` (igual que `label`) → editarlo
+   *  no bumpea. */
+  visibleWhen?: VisualEffectVisibleWhen | VisualEffectVisibleWhen[];
+}
+
+/** Una condición de visibilidad editor-only de un param (ver `visibleWhen`). */
+export interface VisualEffectVisibleWhen {
+  key: string;
+  equals?: string;
+  notEquals?: string;
 }
 
 export interface VisualEffectDefinition extends EncyclopediaDoc {
@@ -119,35 +128,50 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
       {
         // KRO-244 — renombrado "Patrón" → "Paleta" (label editor-only): es la
         // paleta de colores del foil ("el color de foil ES el patrón").
+        // KRO-247 — 'none' = SIN paleta: lámina NEUTRA (sin gradiente de color;
+        // quedan reflejo blanco, resplandor, grano y borde). Base para combinar
+        // con capas importadas (custom_foil). Aditivo (minor).
         key:     'pattern',
         label:   'Paleta',
         type:    'enum',
-        options: ['spectrum', 'oilslick', 'sunset', 'mint', 'aurora', 'midnight'],
+        options: ['none', 'spectrum', 'oilslick', 'sunset', 'mint', 'aurora', 'midnight'],
         default: 'spectrum',
       },
       // KRO-244 — paleta PERSONALIZADA: 2–4 hex #RRGGBB separados por coma. Si es
-      // válida, MANDA sobre `pattern` (mismo criterio que border_color_hex). El
-      // editor la expone como opción "Personalizada" con pickers de color.
-      { key: 'pattern_hex', label: 'Paleta personalizada', type: 'string' },
+      // válida, MANDA sobre `pattern` (mismo criterio que border_color_hex; también
+      // sobre 'none' — el editor garantiza la exclusión mutua). El editor la
+      // expone como opción "Personalizada" con pickers de color.
+      { key: 'pattern_hex', label: 'Paleta personalizada', type: 'string',
+        visibleWhen: { key: 'pattern', notEquals: 'none' } },
       // KRO-244 — ORIENTACIÓN de las bandas: giro en grados sobre el ángulo nativo
       // del patrón (0 = tal cual el patrón; p.ej. spectrum nace a 115°). Aplica
       // también al conic (aurora, gira el from) y a la paleta personalizada.
-      { key: 'angle', label: 'Orientación', type: 'number', min: 0, max: 360, default: 0 },
-      { key: 'hue',        label: 'Tono',        type: 'number', min: 0,   max: 360, default: 0 },
-      { key: 'opacity',    label: 'Intensidad',  type: 'number', min: 0,   max: 100, default: 95 },
+      // KRO-247 — los params que solo parametrizan el GRADIENTE de color (angle,
+      // hue, opacity, brightness, contrast, scale, blend, geometry, warp) se
+      // ocultan con paleta 'none' (visibleWhen, editor-only).
+      { key: 'angle', label: 'Orientación', type: 'number', min: 0, max: 360, default: 0,
+        visibleWhen: { key: 'pattern', notEquals: 'none' } },
+      { key: 'hue',        label: 'Tono',        type: 'number', min: 0,   max: 360, default: 0,
+        visibleWhen: { key: 'pattern', notEquals: 'none' } },
+      { key: 'opacity',    label: 'Intensidad',  type: 'number', min: 0,   max: 100, default: 95,
+        visibleWhen: { key: 'pattern', notEquals: 'none' } },
       { key: 'glow',       label: 'Resplandor',  type: 'number', min: 0,   max: 100, default: 35 },
       { key: 'sheen',      label: 'Reflejo',     type: 'number', min: 0,   max: 100, default: 40 },
       { key: 'shimmer',    label: 'Destello',    type: 'number', min: 0,   max: 100, default: 50 },
       { key: 'noise',      label: 'Grano',       type: 'number', min: 0,   max: 100, default: 16 },
-      { key: 'brightness', label: 'Luminosidad', type: 'number', min: 50,  max: 150, default: 105 },
-      { key: 'contrast',   label: 'Contraste',   type: 'number', min: 50,  max: 150, default: 100 },
-      { key: 'scale',      label: 'Escala',      type: 'number', min: 100, max: 320, default: 210 },
+      { key: 'brightness', label: 'Luminosidad', type: 'number', min: 50,  max: 150, default: 105,
+        visibleWhen: { key: 'pattern', notEquals: 'none' } },
+      { key: 'contrast',   label: 'Contraste',   type: 'number', min: 50,  max: 150, default: 100,
+        visibleWhen: { key: 'pattern', notEquals: 'none' } },
+      { key: 'scale',      label: 'Escala',      type: 'number', min: 100, max: 320, default: 210,
+        visibleWhen: { key: 'pattern', notEquals: 'none' } },
       {
         key:     'blend',
         label:   'Fusión',
         type:    'enum',
         options: ['color-dodge', 'overlay', 'screen', 'soft-light', 'hard-light'],
         default: 'color-dodge',
+        visibleWhen: { key: 'pattern', notEquals: 'none' },
       },
       {
         // KRO-244 — GEOMETRÍA de las bandas del foil. 'bandas' = rayas rectas
@@ -160,11 +184,16 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
         type:    'enum',
         options: ['bandas', 'organico'],
         default: 'bandas',
+        visibleWhen: { key: 'pattern', notEquals: 'none' },
       },
       // KRO-244 — cantidad de ONDULACIÓN de la difracción (solo aplica con
       // geometry='organico'): 0 = casi recto, 100 = muy revuelto. Aditivo.
+      // KRO-247 — doble condición (AND): también exige paleta ≠ 'none'.
       { key: 'warp', label: 'Ondulación', type: 'number', min: 0, max: 100, default: 55,
-        visibleWhen: { key: 'geometry', equals: 'organico' } },
+        visibleWhen: [
+          { key: 'geometry', equals: 'organico' },
+          { key: 'pattern', notEquals: 'none' },
+        ] },
       {
         // KRO-202 — marco ornamental (9 diseños del mockup `borderSVG`). 'none'
         // = sin borde (interruptor maestro). El render lo dibuja como SVG blanco

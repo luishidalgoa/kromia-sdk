@@ -446,9 +446,28 @@ describe('detectBumpKind — visualEffects.config', () => {
     expect(detectBumpKind(a, b).kind).toBe('major');
   });
 
-  it('cambiar el shape de un param (options) → major', () => {
+  // KRO-247 — AMPLIAR options (superset) es aditivo: el cliente viejo cae al
+  // default/fallback ante un valor que no conoce → minor, no major.
+  it('ampliar las options de un param (superset) → minor', () => {
     const a = baseJson({ visualEffects: [visualEffect('crown_badge', [{ key: 'color', type: 'enum', options: ['gold'] }])] });
     const b = baseJson({ visualEffects: [visualEffect('crown_badge', [{ key: 'color', type: 'enum', options: ['gold', 'silver'] }])] });
+    const r = detectBumpKind(a, b);
+    expect(r.kind).toBe('minor');
+    expect(r.reasons[0].description).toMatch(/options ampliado/);
+  });
+  it('ampliar options por el FRENTE (superset, orden distinto) → minor', () => {
+    const a = baseJson({ visualEffects: [visualEffect('iridescent_foil', [{ key: 'pattern', type: 'enum', options: ['spectrum', 'mint'] }])] });
+    const b = baseJson({ visualEffects: [visualEffect('iridescent_foil', [{ key: 'pattern', type: 'enum', options: ['none', 'spectrum', 'mint'] }])] });
+    expect(detectBumpKind(a, b).kind).toBe('minor');
+  });
+  it('ELIMINAR o sustituir una option → major (valores serializados huérfanos)', () => {
+    const a = baseJson({ visualEffects: [visualEffect('crown_badge', [{ key: 'color', type: 'enum', options: ['gold', 'silver'] }])] });
+    const b = baseJson({ visualEffects: [visualEffect('crown_badge', [{ key: 'color', type: 'enum', options: ['gold', 'bronze'] }])] });
+    expect(detectBumpKind(a, b).kind).toBe('major');
+  });
+  it('cambiar otro shape de un param (default) → major', () => {
+    const a = baseJson({ visualEffects: [visualEffect('crown_badge', [{ key: 'color', type: 'enum', options: ['gold', 'silver'], default: 'gold' }])] });
+    const b = baseJson({ visualEffects: [visualEffect('crown_badge', [{ key: 'color', type: 'enum', options: ['gold', 'silver'], default: 'silver' }])] });
     expect(detectBumpKind(a, b).kind).toBe('major');
   });
 

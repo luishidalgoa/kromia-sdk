@@ -333,6 +333,10 @@ const EXPECTED_EXPORTS = [
   'foilEffectiveAngle',
   'FOIL_ORGANIC_WARP',
   'foilWarpDisplacement',
+  // KRO-247 — paleta "Ninguna" (lámina neutra sin gradiente de color)
+  'FOIL_PATTERN_NONE',
+  'FOIL_NEUTRAL_SHEEN',
+  'foilNeutralSheenCss',
   // KRO-122 — receta DATA del render del foil PERSONALIZADO (custom_foil)
   'EFFECT_LAYER_KINDS',
   'EFFECT_BLEND_MODES',

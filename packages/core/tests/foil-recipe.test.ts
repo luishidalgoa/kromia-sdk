@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS, parseFoilPatternHex, foilCustomPatternCss, foilEffectiveAngle, foilPatternBaseAngle, foilWarpDisplacement, FOIL_ORGANIC_WARP } from '../src/foil-recipe';
+import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS, parseFoilPatternHex, foilCustomPatternCss, foilEffectiveAngle, foilPatternBaseAngle, foilWarpDisplacement, FOIL_ORGANIC_WARP, FOIL_PATTERN_NONE, FOIL_NEUTRAL_SHEEN, foilNeutralSheenCss } from '../src/foil-recipe';
 import { getVisualEffect } from '../src/registries/visual-effects';
 
 // Strings EXACTOS que vivían en Studio (VisualEffectLayers `IRID_GRAD`). El builder
@@ -54,6 +54,22 @@ describe('foil-recipe — foilPatternCss reproduce los strings de Studio', () =>
     expect(foilEffectiveAngle('spectrum', 30)).toBe(145);
     expect(foilEffectiveAngle('aurora', 90)).toBe(90);
     expect(foilEffectiveAngle('spectrum')).toBe(115);
+  });
+
+  // KRO-247 — paleta "Ninguna": id reservado FUERA de FOIL_PATTERNS + barrido neutro.
+  it('FOIL_PATTERN_NONE no vive en FOIL_PATTERNS (id reservado del enum)', () => {
+    expect(FOIL_PATTERN_NONE).toBe('none');
+    expect(FOIL_PATTERN_IDS).not.toContain(FOIL_PATTERN_NONE);
+    // el enum `pattern` del contrato SÍ lo incluye (aditivo)
+    expect(getVisualEffect('iridescent_foil')?.config.find(p => p.key === 'pattern')?.options)
+      .toContain(FOIL_PATTERN_NONE);
+  });
+  it('foilNeutralSheenCss — barrido blanco diagonal desde FOIL_NEUTRAL_SHEEN', () => {
+    expect(foilNeutralSheenCss())
+      .toBe('linear-gradient(115deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0.9) 50%,rgba(255,255,255,0) 100%)');
+    expect(FOIL_NEUTRAL_SHEEN.angleDeg).toBe(115);
+    expect(FOIL_NEUTRAL_SHEEN.stops[0].alpha).toBe(0);    // sin costura en los extremos
+    expect(FOIL_NEUTRAL_SHEEN.stops.at(-1)!.alpha).toBe(0);
   });
 
   // KRO-244 — geometría orgánica: desplazamiento lineal, clampeado.
