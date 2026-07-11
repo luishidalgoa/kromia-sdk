@@ -74,6 +74,19 @@ const Map<String, ComponentDefinition> componentRegistry = {
       ComponentRole(id: 'badges', label: 'Badges', accepts: ['badge', 'text-short']),
     ],
   ),
+  // KRO-198 — fila de CHIPS: cada field como una pastilla SUTIL (chip tenue), p.ej.
+  // "Fuego · Rara · Holo". Igual que `badge_row` pero con estilo chip (más discreto).
+  // Faltaba en el espejo Dart → el motor caía a null y la fila no se pintaba (KRO-217).
+  'chips_row': ComponentDefinition(
+    id: 'chips_row',
+    displayName: 'Fila de chips',
+    description:
+        'Pinta cada campo del slot como una pastilla SUTIL (chip, estilo etiqueta tenue): varios atributos cortos como chips en línea. Más discreto que "Fila de badges".',
+    category: 'basic',
+    roles: [
+      ComponentRole(id: 'chips', label: 'Chips', accepts: ['text-short', 'number', 'badge']),
+    ],
+  ),
   'section_title': ComponentDefinition(
     id: 'section_title',
     displayName: 'Título de sección',

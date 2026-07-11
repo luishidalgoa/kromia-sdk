@@ -74,6 +74,12 @@ Widget? componentContent(RenderCtx ctx, LayoutComponentNode node) {
       inner = _statsRow(ctx, sidOf('stats'));
     case 'badge_row':
       inner = isHidden('badges') ? null : _badgeRow(ctx, sidOf('badges'));
+    case 'chips_row':
+      // KRO-217 — fila de CHIPS (rol 'chips'): faltaba en el switch → caía a null y
+      // la fila entera desaparecía en la app (Fuego/rareza/tipo). Mismo patrón que
+      // `badge_row` (per-field: formatScalar por behavior → rating '★★★★☆', enum, etc.
+      // + apariencia efectiva → pastilla/texto por `display`, color por-chip, chipGrid).
+      inner = isHidden('chips') ? null : _badgeRow(ctx, sidOf('chips'));
     case 'section_title':
       inner = isHidden('text') ? null : _sectionTitle(ctx, sidOf('text'));
     case 'hero_header':
