@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS, parseFoilPatternHex, foilCustomPatternCss } from '../src/foil-recipe';
+import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS, parseFoilPatternHex, foilCustomPatternCss, foilEffectiveAngle, foilPatternBaseAngle, foilWarpDisplacement, FOIL_ORGANIC_WARP } from '../src/foil-recipe';
 import { getVisualEffect } from '../src/registries/visual-effects';
 
 // Strings EXACTOS que vivían en Studio (VisualEffectLayers `IRID_GRAD`). El builder
@@ -43,6 +43,26 @@ describe('foil-recipe — foilPatternCss reproduce los strings de Studio', () =>
     expect(foilCustomPatternCss(['#ff0000', '#00ff00', '#0000ff']))
       .toBe('repeating-linear-gradient(115deg,#ff0000 0%,#00ff00 15%,#0000ff 30%,#ff0000 45%)');
     expect(foilCustomPatternCss(['#ff0000', '#00ff00'], 145)).toContain('(145deg,#ff0000 0%,#00ff00 22.5%,#ff0000 45%)');
+  });
+
+  // KRO-244 — orientación: ángulo efectivo = nativo + rotate.
+  it('foilPatternBaseAngle / foilEffectiveAngle', () => {
+    expect(foilPatternBaseAngle('spectrum')).toBe(115);
+    expect(foilPatternBaseAngle('sunset')).toBe(110);
+    expect(foilPatternBaseAngle('aurora')).toBe(0);       // conic → fromDeg
+    expect(foilPatternBaseAngle('nope')).toBe(115);       // desconocido/custom → 115
+    expect(foilEffectiveAngle('spectrum', 30)).toBe(145);
+    expect(foilEffectiveAngle('aurora', 90)).toBe(90);
+    expect(foilEffectiveAngle('spectrum')).toBe(115);
+  });
+
+  // KRO-244 — geometría orgánica: desplazamiento lineal, clampeado.
+  it('foilWarpDisplacement escala 0..maxDisplacement, clampeado', () => {
+    expect(foilWarpDisplacement(0)).toBe(0);
+    expect(foilWarpDisplacement(100)).toBe(FOIL_ORGANIC_WARP.maxDisplacement);
+    expect(foilWarpDisplacement(50)).toBe(FOIL_ORGANIC_WARP.maxDisplacement / 2);
+    expect(foilWarpDisplacement(-20)).toBe(0);            // clamp inferior
+    expect(foilWarpDisplacement(500)).toBe(FOIL_ORGANIC_WARP.maxDisplacement); // clamp superior
   });
 
   it('holographicOpacity mapea low/medium/high (default medium)', () => {

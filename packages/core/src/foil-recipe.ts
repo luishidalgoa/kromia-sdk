@@ -107,6 +107,58 @@ export function foilCustomPatternCss(colors: string[], angleDeg = 115): string {
   return `repeating-linear-gradient(${angleDeg}deg,${stops.join(',')})`;
 }
 
+/** Ángulo NATIVO de un pattern (linear = `angleDeg`; conic = `fromDeg`; paleta
+ *  personalizada / desconocido = 115°, como spectrum). */
+export function foilPatternBaseAngle(pattern: string): number {
+  const p = FOIL_PATTERNS[pattern];
+  return p ? (p.kind === 'conic' ? p.fromDeg : p.angleDeg) : 115;
+}
+
+/** KRO-244 — ORIENTACIÓN: ángulo EFECTIVO de las bandas = ángulo nativo del pattern
+ *  + `rotate` (param `angle` del efecto). Fuente única para ambos hosts. */
+export function foilEffectiveAngle(pattern: string, rotate = 0): number {
+  return foilPatternBaseAngle(pattern) + rotate;
+}
+
+/**
+ * KRO-244 — RECETA de la GEOMETRÍA ORGÁNICA del foil (`geometry: 'organico'`):
+ * las bandas RECTAS se curvan por un desplazamiento de RUIDO FRACTAL → difracción
+ * tipo lámina holográfica real (ref. ticket ISKRA). Estos son los PARÁMETROS del
+ * ruido, fuente única cross-platform (antes vivían hardcodeados en el render de
+ * Studio = drift).
+ *
+ * - Studio los aplica con un filtro SVG `feTurbulence` + `feDisplacementMap` sobre
+ *   las capas foil y sheen (glare/grano/borde NO se deforman).
+ * - Flutter los aplica en su fragment shader (fbm sobre las UV antes de muestrear
+ *   el gradiente): `uv' = uv + (fbm(uv * baseFrequency, octaves) - 0.5) * disp`.
+ *
+ * ⚠️ El algoritmo de ruido DIFIERE (Perlin de SVG vs fbm del shader) → el resultado
+ * NO es bit-idéntico entre plataformas. Con los MISMOS parámetros el LOOK converge:
+ * bandas anchas curvadas SUAVES (no zigzag). `seed` fijo = estable entre cartas.
+ */
+export const FOIL_ORGANIC_WARP = {
+  /** `feTurbulence baseFrequency` (X, Y). Bajo = ondas anchas y suaves. */
+  baseFrequencyX: 0.008,
+  baseFrequencyY: 0.014,
+  /** `feTurbulence numOctaves`. */
+  octaves: 2,
+  /** `feTurbulence seed` (fijo → estable; Flutter usa el mismo como ancla). */
+  seed: 7,
+  /** Desplazamiento MÁXIMO (a warp=100) en el espacio de la carta. El scale
+   *  efectivo = `foilWarpDisplacement(warp)`. */
+  maxDisplacement: 90,
+  /** Overscan (fracción del lado) para que el desplazamiento no revele los bordes
+   *  transparentes de las capas (el host clipa con el redondeado/silueta). */
+  overscan: 0.12,
+} as const;
+
+/** Desplazamiento efectivo del warp orgánico dado el param `warp` (0–100) →
+ *  `scale` del feDisplacementMap (Studio) / factor del shader (Flutter). */
+export function foilWarpDisplacement(warp: number): number {
+  const w = Math.max(0, Math.min(100, warp));
+  return (w / 100) * FOIL_ORGANIC_WARP.maxDisplacement;
+}
+
 /** Opacidad de la capa del efecto `holographic_effect` (preset cerrado) según su
  *  `intensity`. Compartido cross-platform (Studio y Flutter aplican la misma). */
 export function holographicOpacity(intensity: string | number | undefined): number {
