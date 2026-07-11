@@ -106,14 +106,34 @@ Parámetros (fuente única: `FOIL_ORGANIC_WARP` en `foil-recipe.ts`):
 - ⚠️ El ruido difiere (Perlin SVG vs fbm shader) → **NO bit-idéntico**; con los mismos
   parámetros el LOOK converge (bandas anchas curvadas suaves). Apunta al look, no al píxel.
 
-## 3) Marco (borde)
+## 3) Marco (borde) — FILL LIBRE (KRO-249, KRP 5.6.0)
 
 `border_style` (9 diseños) → `borderSVG(style, border_width, border_margin, border_fill,
-radius)` (en `@kromia/core/border-svg.ts`, ya espejado). Tinte: `border_color_hex`
-(si válido MANDA) · `FOIL_BORDER_SOLID[gold|silver|none]` · `aurora`/`spectrum` =
-gradiente del foil · `FOIL_CARD_BG[forest|obsidian|plum|steel]` (degradado oscuro).
-Radio del marco = `CARD_CORNER_RADIUS_PX[fmt.cornerRadius].svg` (mismo que el clip
-de la carta — ver KRO-225; clip elíptico).
+radius)` (en `@kromia/core/border-svg.ts`, ya espejado). Radio del marco =
+`CARD_CORNER_RADIUS_PX[fmt.cornerRadius].svg` (mismo que el clip de la carta —
+ver KRO-225; clip elíptico).
+
+**El FILL del marco lo resuelve `resolveFoilBorderFill(config)`** (`foil-recipe.ts`,
+fuente única — NO reimplementar la precedencia en el host):
+
+1. `border_texture_url` → `{kind:'texture'}` — imagen que rellena el marco
+   (cover, centrada, por el proxy). MANDA sobre todo.
+2. `border_color_hex` (#RRGGBB válido) → `{kind:'solid'}`.
+3. `border_gradient_hex` (2–4 hex, formato/ciclo 45% de `pattern_hex`) →
+   `{kind:'custom-gradient', colors}` — web: `foilCustomPatternCss(colors)`.
+   Caso estrella: `#8e9aa8,#e8edf2,#8e9aa8` = marco metálico plateado.
+4. `border_color` enum (ahora 13 opciones): `spectrum` → `{kind:'follow-foil'}`
+   (el gradiente ACTUAL del foil, incl. paleta custom/none) · cualquier paleta de
+   `FOIL_PATTERNS` (aurora/oilslick/sunset/mint/midnight) → `{kind:'palette'}`
+   (gradiente FIJO, `foilPatternCss(pattern)`) · forest/obsidian/plum/steel →
+   `{kind:'card-bg'}` (degradado oscuro vertical) · none/gold/silver →
+   `{kind:'solid'}` (`FOIL_BORDER_SOLID`; desconocido = blanco).
+
+Los gradientes se pintan a `scale% scale%` (mismo size que el foil); el blend
+`screen` SOLO con el blanco base (`kind:'solid'` #ffffff con `border_color`
+'none' sin overrides) — el resto `normal`. En Flutter: el `borderSVG` sigue de
+máscara y el fill se pinta con la primitiva del kind (imagen / color /
+LinearGradient de los stops / SweepGradient para aurora).
 
 ## Checklist de paridad Flutter
 
@@ -127,5 +147,9 @@ de la carta — ver KRO-225; clip elíptico).
 - [ ] `custom_foil_recipe.dart`: `FOIL_MASK_LAYOUTS` + `FOIL_MASK_TILE` + `foilMaskLayout`;
       `EffectLayer.maskLayout`/`maskScale` en el modelo Dart (§1-ter).
 - [ ] Render máscara: luma→alfa sobre foil+sheen; `tile` = wrap-repeat a escala (§1-ter).
+- [ ] `visual_effects.dart`: `border_color` +4 opciones, `border_gradient_hex`,
+      `border_texture_url` (KRP **5.6.0**).
+- [ ] `foil_recipe.dart`: `resolveFoilBorderFill` + `FoilBorderFill` (§3) — la
+      precedencia del fill NO se reimplementa a mano.
 - [ ] Render app: gradiente (paleta/custom/ángulo) → warp orgánico (fbm) → glare/noise → marco.
 - [ ] `border_svg.dart` (ya hecho, PR#64) + clip elíptico (KRO-225).

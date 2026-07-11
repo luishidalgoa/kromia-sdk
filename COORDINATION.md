@@ -58,6 +58,18 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 
 ## Cola de handoffs abierta (vivo — mantener)
 
+- **Studio → Flutter** · **NUEVO 2026-07-12 — KRO-249 · KRP 5.6.0 (minor)**: el
+  MARCO del `iridescent_foil` gana **fill libre**. Espejar: (a)
+  `visual_effects.dart` — `border_color` +4 opciones (oilslick/sunset/mint/
+  midnight = gradientes FIJOS; 'spectrum' sigue significando "como el foil") +
+  `border_gradient_hex` (2–4 hex, ciclo 45%) + `border_texture_url` (5.6.0);
+  (b) `foil_recipe.dart` — **`resolveFoilBorderFill(config)` + `FoilBorderFill`**
+  (precedencia: textura > hex sólido > degradado custom > enum; NO
+  reimplementarla a mano); (c) render: el borderSVG sigue de máscara, el fill se
+  pinta según el kind (imagen cover por el proxy / color / LinearGradient de los
+  stops / SweepGradient aurora / degradado oscuro card-bg); gradientes a
+  `scale%`; blend screen SOLO con el blanco base. Spec:
+  `iridescent-foil-render-spec.md` §3. Jira: KRO-249 (+ issue Drift Sync).
 - **Studio → Flutter** · **NUEVO 2026-07-11 — KRO-248 · KRP 5.5.0 (minor)**: el
   `iridescent_foil` gana **máscara importable por LUMINANCIA** (`mask_url` +
   `mask_layout` cover|tile + `mask_scale` 5–100=25) y `EffectLayer` gana
