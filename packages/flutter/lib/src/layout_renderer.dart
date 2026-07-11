@@ -27,7 +27,17 @@ class LayoutRenderer extends StatelessWidget {
     final isDetail = getRecipeManifest(ctx.composition.recipe)?.kind == 'detail';
     final accent = extractAccentSettings(ctx.composition, ctx.item, ctx.fieldDefs, 'top');
 
-    Widget content = _node(root);
+    // KRO-217 §14.2 — slots cuyo campo ALIMENTA el acento: su color YA es la raya,
+    // así que NO se pintan como celda (si no, swatch + raya duplicados). Solo con el
+    // acento activo (position != 'none'). El host web deriva el mismo `accentSlots`.
+    final accentSlots = <String>{};
+    if (accent != null && accent.position != 'none' && accent.colorFieldKey != null) {
+      ctx.composition.slots.forEach((id, slot) {
+        if (slot.fields.contains(accent.colorFieldKey)) accentSlots.add(id);
+      });
+    }
+
+    Widget content = _node(root, accentSlots);
     // Lienzo raíz SIN surface → padding por defecto p-3 (12px), espejo de react
     // LayoutRenderer (`!rootHasSurface && 'p-3'`). Con surface, el padding ya lo
     // pone la propia surface. Sin esto el contenido (p. ej. la imagen del
@@ -48,13 +58,16 @@ class LayoutRenderer extends StatelessWidget {
     return tree;
   }
 
-  Widget _node(LayoutNode n) => switch (n) {
-        LayoutSlotNode s => slotContent(ctx, s.slot) ?? const SizedBox.shrink(),
+  Widget _node(LayoutNode n, Set<String> accentSlots) => switch (n) {
+        // KRO-217 §14.2 — el slot que alimenta el acento no se pinta (celda colapsa).
+        LayoutSlotNode s => accentSlots.contains(s.slot)
+            ? const SizedBox.shrink()
+            : (slotContent(ctx, s.slot) ?? const SizedBox.shrink()),
         LayoutComponentNode c => componentContent(ctx, c) ?? const SizedBox.shrink(),
-        LayoutContainerNode k => _container(k),
+        LayoutContainerNode k => _container(k, accentSlots),
       };
 
-  Widget _container(LayoutContainerNode node) {
+  Widget _container(LayoutContainerNode node, Set<String> accentSlots) {
     final inflow = <LayoutNode>[];
     final absolute = <LayoutNode>[];
     for (final ch in node.children) {
@@ -62,9 +75,9 @@ class LayoutRenderer extends StatelessWidget {
     }
 
     Widget body = switch (node.kind) {
-      'stack' => Stack(children: [for (final ch in inflow) _node(ch)]),
-      'grid' => _grid(node, inflow),
-      _ => _flex(node, inflow),
+      'stack' => Stack(children: [for (final ch in inflow) _node(ch, accentSlots)]),
+      'grid' => _grid(node, inflow, accentSlots),
+      _ => _flex(node, inflow, accentSlots),
     };
 
     final scrim = scrimOverlay(node.scrim);
@@ -72,7 +85,7 @@ class LayoutRenderer extends StatelessWidget {
       body = Stack(children: [
         body,
         if (scrim != null) scrim,
-        for (final ch in absolute) _absolute(ch),
+        for (final ch in absolute) _absolute(ch, accentSlots),
       ]);
     }
 
@@ -91,14 +104,14 @@ class LayoutRenderer extends StatelessWidget {
     return body;
   }
 
-  Widget _flex(LayoutContainerNode node, List<LayoutNode> children) {
+  Widget _flex(LayoutContainerNode node, List<LayoutNode> children, Set<String> accentSlots) {
     final isRow = node.direction == 'row';
     final gap = KromiaTokens.gap(node.gap);
     final kids = <Widget>[];
     for (var i = 0; i < children.length; i++) {
       if (i > 0 && gap > 0) kids.add(SizedBox(width: isRow ? gap : 0, height: isRow ? 0 : gap));
       final ch = children[i];
-      Widget w = _node(ch);
+      Widget w = _node(ch, accentSlots);
       if (isRow && ch is LayoutSlotNode && (ch.grow ?? 0) > 0) w = Expanded(flex: ch.grow!.toInt(), child: w);
       kids.add(w);
     }
@@ -116,7 +129,7 @@ class LayoutRenderer extends StatelessWidget {
   /// colapsaba a 1 fila). `computeGrid` resuelve la geometría espejando el
   /// @kromia/react (tracks + colocación); aquí solo montamos el widget, dando a
   /// cada hijo su celda explícita (sin depender del auto-placement del paquete).
-  Widget _grid(LayoutContainerNode node, List<LayoutNode> children) {
+  Widget _grid(LayoutContainerNode node, List<LayoutNode> children, Set<String> accentSlots) {
     final g = computeGrid(node, children);
     final gap = KromiaTokens.gap(node.gap);
     // 2D REAL SOLO si hay MÚLTIPLES columnas Y algún rowSpan>1 (una celda alta
@@ -128,17 +141,17 @@ class LayoutRenderer extends StatelessWidget {
     // detalle salía EN BLANCO). Los lienzos de detalle del publisher (hero) usan
     // grids de 1 columna con rowSpan → este es el caso real.
     final needs2D = g.columns.length > 1 && g.cells.any((c) => c.rowSpan > 1);
-    return needs2D ? _layoutGrid(node, g, gap) : _emulatedGrid(node, children, g, gap);
+    return needs2D ? _layoutGrid(node, g, gap, accentSlots) : _emulatedGrid(node, children, g, gap, accentSlots);
   }
 
   /// Grid 2D nativo (flutter_layout_grid). `LayoutBuilder` + columnas `fr` fijadas
   /// a píxeles: con altura sin acotar (scroll), el grid mide el alto de cada fila
   /// `auto` pasando a los hijos el ancho de su columna; si fuese `fr` ese ancho es
   /// ∞ y un hijo con alto∝ancho (AspectRatio) devolvería alto ∞ y reventaría.
-  Widget _layoutGrid(LayoutContainerNode node, GridResult g, double gap) {
+  Widget _layoutGrid(LayoutContainerNode node, GridResult g, double gap, Set<String> accentSlots) {
     final kids = <Widget>[
       for (var i = 0; i < g.cells.length; i++)
-        _node(g.children[i]).withGridPlacement(
+        _node(g.children[i], accentSlots).withGridPlacement(
           columnStart: g.cells[i].columnStart,
           columnSpan: g.cells[i].columnSpan,
           rowStart: g.cells[i].rowStart,
@@ -159,7 +172,7 @@ class LayoutRenderer extends StatelessWidget {
 
   /// Emulación 1D del grid (Column de Rows con celdas `Expanded` ponderadas por
   /// los tracks `fr`). Sin rowSpan (innecesario aquí) y sin intrínsecos frágiles.
-  Widget _emulatedGrid(LayoutContainerNode node, List<LayoutNode> children, GridResult g, double gap) {
+  Widget _emulatedGrid(LayoutContainerNode node, List<LayoutNode> children, GridResult g, double gap, Set<String> accentSlots) {
     final cols = g.columns.length;
     final weights = [for (final t in g.columns) t is FlexibleTrackSize ? t.flex.round().clamp(1, 999) : 1];
     final maxRow = g.rows.length;
@@ -168,7 +181,7 @@ class LayoutRenderer extends StatelessWidget {
       final inRow = <({int col, int span, Widget w})>[];
       for (var i = 0; i < children.length; i++) {
         if (g.cells[i].rowStart == r) {
-          inRow.add((col: g.cells[i].columnStart, span: g.cells[i].columnSpan, w: _node(children[i])));
+          inRow.add((col: g.cells[i].columnStart, span: g.cells[i].columnSpan, w: _node(children[i], accentSlots)));
         }
       }
       // Fila sin hijos = hueco de un `rowSpan` (la celda alta ya pintó su
@@ -235,11 +248,11 @@ class LayoutRenderer extends StatelessWidget {
     return [for (final f in flexes) FixedTrackSize(content * (f / sum))];
   }
 
-  Widget _absolute(LayoutNode child) {
+  Widget _absolute(LayoutNode child, Set<String> accentSlots) {
     final p = _placeOf(child)!;
     final ax = (((p.x ?? 0) / 100.0) * 2 - 1).clamp(-1.0, 1.0);
     final ay = (((p.y ?? 0) / 100.0) * 2 - 1).clamp(-1.0, 1.0);
-    Widget c = _node(child);
+    Widget c = _node(child, accentSlots);
     if (p.w != null || p.h != null) {
       c = FractionallySizedBox(
         widthFactor: p.w != null ? (p.w! / 100.0).clamp(0.0, 1.0) : null,

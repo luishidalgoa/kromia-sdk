@@ -31,6 +31,7 @@ export 'src/compose_slot.dart';
 export 'src/auto_detail.dart';
 export 'src/synth.dart';
 export 'src/extract_accent.dart';
+export 'src/card_title.dart';
 export 'src/schema_version.dart';
 export 'src/target_chain.dart';
 export 'src/interaction.dart';

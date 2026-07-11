@@ -22,20 +22,28 @@ class AccentSettings {
   /// default 'bar'. Copiado de `composition.accentStyle` (NO altera color/posición).
   final String style;
 
-  const AccentSettings({required this.color, required this.position, this.style = 'bar'});
+  /// KRO-217 §14.2 — key del field `color_hex` que ALIMENTA el acento. El host
+  /// suprime la celda del slot cuyo `fields` incluye esta key (su color YA es la
+  /// raya; si no, saldría swatch + raya duplicados). `null` si no hay acento.
+  final String? colorFieldKey;
+
+  const AccentSettings(
+      {required this.color, required this.position, this.style = 'bar', this.colorFieldKey});
 
   @override
   bool operator ==(Object other) =>
       other is AccentSettings &&
       other.color == color &&
       other.position == position &&
-      other.style == style;
+      other.style == style &&
+      other.colorFieldKey == colorFieldKey;
 
   @override
-  int get hashCode => Object.hash(color, position, style);
+  int get hashCode => Object.hash(color, position, style, colorFieldKey);
 
   @override
-  String toString() => 'AccentSettings(color: $color, position: $position, style: $style)';
+  String toString() =>
+      'AccentSettings(color: $color, position: $position, style: $style, colorFieldKey: $colorFieldKey)';
 }
 
 /// Mismo patrón que `extract-accent.ts`: `#RRGGBB` o `#RRGGBBAA`, con o sin `#`.
@@ -81,5 +89,10 @@ AccentSettings? extractAccentSettings(
   }
   final position = resolved == 'auto' ? recipeDefault : resolved;
   // KRO-219 — el estilo se copia tal cual (default 'bar'); no afecta color/posición.
-  return AccentSettings(color: color, position: position, style: composition?.accentStyle ?? 'bar');
+  // KRO-217 §14.2 — se devuelve colorFieldKey para que el host colapse su celda.
+  return AccentSettings(
+      color: color,
+      position: position,
+      style: composition?.accentStyle ?? 'bar',
+      colorFieldKey: colorFieldKey);
 }

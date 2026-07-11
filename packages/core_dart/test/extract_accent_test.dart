@@ -12,7 +12,8 @@ void main() {
   group('extractAccentSettings — color hex detection', () {
     test('item con color hex válido (#ff0000) → color + position', () {
       final r = extractAccentSettings(null, {'color': '#ff0000'}, [colorField], 'top');
-      expect(r, const AccentSettings(color: '#ff0000', position: 'top'));
+      // KRO-217 §14.2 — ahora también devuelve el colorFieldKey (para colapsar su celda).
+      expect(r, const AccentSettings(color: '#ff0000', position: 'top', colorFieldKey: 'color'));
     });
 
     test('color hex sin "#" (ff0000) → añade el prefix', () {
