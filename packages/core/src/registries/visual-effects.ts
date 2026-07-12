@@ -275,7 +275,17 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
     ],
     whenToUse:
       'Cuando quieras un foil holográfico AJUSTABLE en vivo en vez de un preset cerrado: elige el patrón de arcoíris (Spectrum/Oilslick/Sunset/Mint/Aurora) y afina tono, resplandor, grano y borde con sliders. Igual que el Holográfico pero parametrizable.',
-    related: ['concept:tag-style', 'effect:holographic_effect', 'effect:glow_border'],
+    // KRO-247/248/249 — doc rica (NO entra al .json, no bumpea): el sistema
+    // completo del efecto para la wiki; menciona los conceptos por su nombre
+    // para que el linkify los encadene (máscara, textura del borde…).
+    long: `El Iridiscente tiene tres bloques, todos opcionales salvo la paleta:
+
+**1. La lámina de color** — la *paleta* elige el arcoíris (o crea la tuya con *Personalizada*); orientación, tono, escala, geometría *orgánica* con ondulación… La paleta **Ninguna** apaga el color y deja una lámina neutra (reflejo blanco + resplandor + grano): ideal para combinar con capas importadas del foil personalizado sin teñirlas.
+
+**2. La máscara (recorte)** — una imagen en grises que decide *dónde* asoma el foil (blanco = brilla). Con encaje **Sobre el arte** sigue los contornos del dibujo; con **Mosaico** la imagen se repite como tesela (con su escala) — así se hacen los fondos "papel perforado" de las cartas premium físicas.
+
+**3. El marco (borde)** — un diseño (Clásico, Doble, Gótico…) + un *relleno del borde*: **hueco** (solo trazo), **borde** (banda) o **marco** (passe-partout: toda la banda perimetral, el look de carta física premium). Su color puede ser un tinte del catálogo, un color propio, un **degradado personalizado** (p.ej. metálico plateado) o una **textura del borde** — tu propia imagen rellenando el marco, que manda sobre el tinte.`,
+    related: ['concept:tag-style', 'effect:holographic_effect', 'effect:border-texture'],
     aliases: ['iridiscente', 'iridescent', 'tornasol', 'arcoíris', 'foil parametrizable'],
   },
   {
