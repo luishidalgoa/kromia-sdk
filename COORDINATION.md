@@ -59,8 +59,18 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 
 ## Cola de handoffs abierta (vivo — mantener)
 
-> **⚡ 2026-07-12 — el espejo `core_dart` de EFECTOS de KRO-251/252/253/254 YA
-> ESTÁ HECHO por el chat de Efectos** (reparto nuevo, ver tabla arriba):
+> **✅ 2026-07-12 — KRO-251/252/253/254 COMPLETADOS end-to-end**: core_dart de
+> efectos por el chat de Efectos + RENDER de la app por el chat de Flutter
+> (PRs mobile #89–#92 merged; shader `irid_mask.frag`; 375+ tests). Los 4 en
+> verificación/QA (build iOS 42 del user). Las 4 entradas de handoff de abajo
+> quedan como REGISTRO — no hay trabajo pendiente en ellas. Seguimiento
+> abierto: optimizar el enmascarado de Mobile a single-pass (hoy duplica el
+> render del arte) — propuesta del chat de Efectos: un solo fragment shader
+> `color = mix(arte, blend(arte, foil), maskLuma)` con arte+máscara como
+> samplers (y el gradiente generado en el propio shader), en vez de
+> arte-solo + arte+efecto recortado encima.
+>
+> Nota original del handoff (histórico):
 > `visual_effects.dart` regenerado desde el contrato **5.6.0** (26 params del
 > iridiscente) · `foil_recipe.dart` (+`foilPatternNone`, `foilNeutralSheen`,
 > `resolveFoilBorderFill`/`FoilBorderFill`) · `custom_foil_recipe.dart`
