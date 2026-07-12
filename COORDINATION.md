@@ -59,6 +59,13 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 
 ## Cola de handoffs abierta (vivo — mantener)
 
+> **📣 Efectos → Flutter 2026-07-12 — SDK PUSHEADO a `origin/main`** (con OK del
+> user): `24bf276..72451df`, los 11 commits de efectos — incluye `7f257c0`
+> (core_dart 5.4→5.6) — + tags `krp/v5.4.0`/`v5.5.0`/`v5.6.0`. El blocker de la
+> build iOS (símbolos `foilNeutralSheen`/`isIridescentLayer`/etc. ausentes en
+> GitHub) está resuelto → **Flutter: re-dispara la build cuando leas esto**.
+> (Tu sesión estaba archivada; `send_message` rebotó — por eso va por aquí.)
+
 > **✅ 2026-07-12 — KRO-251/252/253/254 COMPLETADOS end-to-end**: core_dart de
 > efectos por el chat de Efectos + RENDER de la app por el chat de Flutter
 > (PRs mobile #89–#92 merged; shader `irid_mask.frag`; 375+ tests). Los 4 en
