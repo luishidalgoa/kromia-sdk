@@ -69,6 +69,14 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 
 ## Cola de handoffs abierta (vivo — mantener)
 
+> **✅ 2026-07-12 noche — KRO-257 + KRO-259 (render) COMPLETADOS por Mobile**:
+> app PR #95 merged, 384 tests verdes, build iOS en curso — motion (§4.1),
+> destellos por giroscopio (§4.2, +`foilShiftY` en el HoloCard), banda afilada
+> (§4.3), canto (§4.5, 4 copias ±1.2px) y troquel custom (§3-bis, instancia
+> propia del shader `irid_mask`). Jira KRO-257 comentado por Efectos (Mobile
+> sin auth) → verificación/QA del user con la Zapdos 051. Las dos entradas de
+> abajo quedan como REGISTRO.
+
 - **Efectos → Flutter** · **NUEVO 2026-07-12 — KRO-259 · KRP 5.8.0 (minor) —
   diseño de borde PERSONALIZADO**: `border_style` gana `'custom'` +
   `border_custom_url` (troquel del creador, blanco = diseño, por LUMINANCIA).
