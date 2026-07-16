@@ -34,8 +34,18 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 1. **Directo — `send_message`** (`mcp__ccd_session_mgmt__send_message`): llega al
    otro chat como turno *"From {título}"* con enlace de vuelta; **pide confirmación
    al user**. Para pasar trabajo, pedir un cambio de contrato o avisar de un hallazgo.
-   - Studio → Flutter: `session_id = local_a987e3aa-6bba-47b2-b9b6-e34cb9b1c7ae` (cwd `Downloads/kromia-mobile`; el id viejo `local_18daf528-…` MURIÓ, carpeta borrada — reconfirmar con `list_sessions` si falla).
-   - Flutter → Studio: `list_sessions` → busca la sesión de Studio.
+
+   **Las TRES sesiones (al 2026-07-12)** — si un id falla, reconfírmalo con `list_sessions`:
+
+   | Chat | `session_id` | cwd |
+   |---|---|---|
+   | **Kromia Brain** (Studio: editor web + backend + SDK no-efectos) | `local_13e92463-5a04-40c8-b4bb-e182142b2f94` | `Downloads/kromia-studio` |
+   | **Efectos Kromia** (especialista en efectos, incl. espejo Dart de efectos) | `local_bbf3e3ef-b2c1-401d-abc4-9ca388229fd0` | `Downloads/kromia-studio` |
+   | **Kromia mobile** (Flutter: `core_dart` no-efectos + app + render) | `local_a987e3aa-6bba-47b2-b9b6-e34cb9b1c7ae` | `Downloads/kromia-mobile` |
+
+   ⚠️ Ids MUERTOS que no debes usar: `local_18daf528-…` (Flutter viejo, lanzado desde
+   `Downloads/GameHub` — carpeta borrada). **Una sesión archivada o con su cwd borrado
+   hace que `send_message` rebote**; en ese caso deja el handoff en la *Cola* de abajo.
 2. **Durable — spec en `kromia-sdk/docs/<tema>.md`**: para cualquier cosa no trivial,
    el mensaje **apunta** a la spec (no metas el detalle largo en el mensaje). Ej:
    `docs/holographic-3d-foil-spec.md`.
