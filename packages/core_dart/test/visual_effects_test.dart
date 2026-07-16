@@ -22,12 +22,13 @@ void main() {
       ]);
     });
 
-    test('iridescent_foil (KRO-224/244/247-249): layer overlay + 26 params + rangos/enums', () {
+    test('iridescent_foil (KRO-224/244/247-249/256): layer overlay + 29 params + rangos/enums', () {
       final e = getVisualEffect('iridescent_foil')!;
       expect(e.layer, 'overlay');
       // KRO-244: +geometry+warp+pattern_hex+angle · KRO-248: +mask_url+mask_layout
-      // +mask_scale · KRO-249: +border_gradient_hex+border_texture_url.
-      expect(e.config.length, 26);
+      // +mask_scale · KRO-249: +border_gradient_hex+border_texture_url ·
+      // KRO-256: +motion+mask_sparkle+border_sheen.
+      expect(e.config.length, 29);
       final pattern = e.config.firstWhere((p) => p.key == 'pattern');
       expect(pattern.type, 'enum');
       expect(pattern.defaultValue, 'spectrum');
@@ -78,6 +79,18 @@ void main() {
       expect(angle.min, 0);
       expect(angle.max, 360);
       expect(angle.defaultValue, 0);
+      // KRO-256 (KRP 5.7.0) — vida del iridiscente: movimiento a elección,
+      // destellos por perforación y brillo del marco.
+      final motion = e.config.firstWhere((p) => p.key == 'motion');
+      expect(motion.type, 'enum');
+      expect(motion.options, ['auto', 'deriva', 'tono', 'total']);
+      expect(motion.defaultValue, 'auto');
+      final sparkle = e.config.firstWhere((p) => p.key == 'mask_sparkle');
+      expect(sparkle.options, ['no', 'pastel', 'vivo']);
+      expect(sparkle.defaultValue, 'no');
+      final bsheen = e.config.firstWhere((p) => p.key == 'border_sheen');
+      expect(bsheen.options, ['no', 'metalico', 'iridiscente']);
+      expect(bsheen.defaultValue, 'no');
     });
 
     test('IDs únicos', () {

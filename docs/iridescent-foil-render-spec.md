@@ -135,6 +135,68 @@ Los gradientes se pintan a `scale% scale%` (mismo size que el foil); el blend
 máscara y el fill se pinta con la primitiva del kind (imagen / color /
 LinearGradient de los stops / SweepGradient para aurora).
 
+## 4) VIDA del efecto — movimiento, destellos y brillo del marco (KRO-256, KRP 5.7.0)
+
+Tres params nuevos ("la carta vive sola", feedback QA de la Zapdos vs la física):
+
+### 4.1 `motion` — movimiento autónomo a elección del diseñador
+
+`foilMotionFlags(config.motion)` → `{drift, hueCycle}` (receta `foil_recipe`):
+
+- **`auto`** (default, retro-compat): comportamiento clásico — vaivén en rejilla,
+  paneo con inclinación/giroscopio en focus. Nada cambia.
+- **`deriva`** (`drift`): el barrido del foil/sheen corre EN CONTINUO también en
+  focus (mismo vaivén ping-pong `alternate` del grid, sin reinicio brusco).
+- **`tono`** (`hueCycle`): el matiz del gradiente rota 0→360° en bucle lineal
+  ("la rotación del iridiscente"). Compone con el `hue` estático del config.
+- **`total`**: ambos.
+
+**Velocidad** = `shimmer` (0–100) vía `FOIL_MOTION_TIMING`: deriva
+`foilMotionSweepSec(shimmer)` (5.5s→2.0s, MISMO mapeo que el vaivén clásico);
+tono `foilMotionHueSec(shimmer)` (14s→4s por vuelta). En el shader: el giro de
+matiz es una rotación de matiz al muestrear el gradiente
+(`hueTotal = hue + 360·(t / hueSec % 1)`), coste cero.
+
+### 4.2 `mask_sparkle` — destellos por perforación ('no' | 'pastel' | 'vivo')
+
+Solo con `mask_url`. Una capa EXTRA tras la MISMA máscara/layout: campo
+multicolor de grano fino cuyo matiz cicla en continuo → **cada perforación
+muestra SU color, distinto del vecino, y todos van rotando** (look "cosmos").
+Receta `FOIL_MASK_SPARKLE`:
+
+- Gradiente = paleta `spectrum` girada `angleOffsetDeg` (−30°) sobre su ángulo
+  nativo (cruza la lámina) a `sizePct` (46%) — tamaño pequeño ⇒ vecinos en
+  colores distintos.
+- Variantes `foilMaskSparkleVariants`: `pastel` = opacity 0.7 · saturate 0.85;
+  `vivo` = opacity 1 · saturate 1.6.
+- Blend `screen` (enciende los orificios sin oscurecer el arte). Ciclo de matiz
+  SIEMPRE activo (es su razón de ser), duración `foilMotionHueSec(shimmer)`.
+- En el shader single-pass: `sparkle = hueRotate(spectrum(uv·k), t) · maskLuma`
+  añadido en screen — un término más, sin pasada extra.
+
+### 4.3 `border_sheen` — brillo del marco ('no' | 'metalico' | 'iridiscente')
+
+Solo con `border_style`. Capa APARTE encima del fill del marco (mismo
+`borderSVG` como máscara) → el "borde metálico por capas" de las cartas
+físicas. Receta `FOIL_BORDER_SHEEN`:
+
+- `metalico`: banda especular blanca — gradiente lineal a `angleDeg` (100°) con
+  stops alpha 0→0→0.85→0→0 (pos 0/35/50/65/100), barriendo a
+  `sizePct` 250% con el MISMO ping-pong del vaivén, duración
+  `foilMotionSweepSec(shimmer)`, blend `screen`.
+- `iridiscente`: la banda usa la paleta `spectrum` completa, atenuada a
+  `iridescentOpacity` (0.75).
+
+### ⚠️ 4.4 PERF — máscara estática, animación en el hijo (lección Studio)
+
+Animar `filter`/gradiente EN el mismo elemento enmascarado re-rasteriza la
+máscara de luminancia POR FRAME (con máscaras grandes tipo 1500×2100 congeló la
+página). En Studio la solución es wrapper con máscara/blend ESTÁTICOS + hijo
+interior animado (keyframes de filter puros → compositor). **En Flutter el
+shader single-pass ya lo evita de serie** (la máscara es un sampler; el giro de
+matiz es aritmética en el fragment) — no dupliquéis pasadas de máscara por
+frame.
+
 ## Checklist de paridad Flutter
 
 - [ ] `visual_effects.dart`: los 22 params (incl. geometry/warp/angle/pattern_hex). ✅ (5.3.0)
@@ -153,3 +215,10 @@ LinearGradient de los stops / SweepGradient para aurora).
       precedencia del fill NO se reimplementa a mano.
 - [ ] Render app: gradiente (paleta/custom/ángulo) → warp orgánico (fbm) → glare/noise → marco.
 - [ ] `border_svg.dart` (ya hecho, PR#64) + clip elíptico (KRO-225).
+- [x] `visual_effects.dart`: params `motion`/`mask_sparkle`/`border_sheen` (KRP **5.7.0**) —
+      hecho por el chat de Efectos.
+- [x] `foil_recipe.dart`: `foilMotions`/`foilMotionTiming`/`foilMotionFlags`/
+      `foilMotionSweepSec`/`foilMotionHueSec` + `foilMaskSparkle(+Variants)` +
+      `foilBorderSheen` (§4) — hecho por el chat de Efectos.
+- [ ] Render app (§4): deriva continua + ciclo de matiz en el shader; capa sparkle
+      tras la máscara; banda especular/espectral barriendo el marco (§4.3). PERF §4.4.

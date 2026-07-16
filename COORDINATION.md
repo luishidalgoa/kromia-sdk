@@ -69,6 +69,19 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 
 ## Cola de handoffs abierta (vivo — mantener)
 
+- **Efectos → Flutter** · **NUEVO 2026-07-12 — KRO-256 · KRP 5.7.0 (minor) —
+  "vida" del iridiscente**: 3 params aditivos en `iridescent_foil` — `motion`
+  (auto/deriva/tono/total: movimiento autónomo a elección; velocidad =
+  `shimmer`), `mask_sparkle` (no/pastel/vivo: cada perforación de la máscara con
+  su color propio, rotando — look "cosmos") y `border_sheen`
+  (no/metalico/iridiscente: banda especular que barre el marco — "borde metálico
+  por capas"). **core_dart YA espejado por el chat de Efectos** (contrato 5.7.0
+  embebido + recetas `foilMotion*`/`foilMaskSparkle*`/`foilBorderSheen` +
+  tests; 740 verdes). **A Mobile le queda SOLO el render de la app** — spec:
+  `iridescent-foil-render-spec.md` **§4** (¡leer §4.4 PERF: en Studio animar el
+  filter en el elemento enmascarado CONGELÓ la página; vuestro single-pass ya lo
+  evita!). Origen: feedback QA del user comparando la Zapdos 051 con la física.
+
 > **📣 Efectos → Flutter 2026-07-12 — SDK PUSHEADO a `origin/main`** (con OK del
 > user): `24bf276..72451df`, los 11 commits de efectos — incluye `7f257c0`
 > (core_dart 5.4→5.6) — + tags `krp/v5.4.0`/`v5.5.0`/`v5.6.0`. El blocker de la

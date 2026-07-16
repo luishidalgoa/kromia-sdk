@@ -252,6 +252,99 @@ FoilBorderFill resolveFoilBorderFill(Map<String, Object?> config) {
       color: foilBorderSolid[id] ?? foilBorderSolid['none']!);
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// KRO-256 — VIDA del iridiscente: movimiento autónomo, destellos de máscara y
+// brillo del marco. Espejo 1:1 de las recetas de `foil-recipe.ts` (KRP 5.7.0).
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Valores del param `motion` (contrato). 'auto' = clásico (vaivén en rejilla,
+/// sigue la inclinación/giroscopio en focus). 'deriva' = barrido continuo.
+/// 'tono' = el matiz cicla en sitio. 'total' = ambos. Espejo de `FOIL_MOTIONS`.
+const List<String> foilMotions = ['auto', 'deriva', 'tono', 'total'];
+
+/// Tiempos del movimiento: segundos por ciclo según `shimmer` (0–100; alto =
+/// rápido): `sec = baseSec − (shimmer/100)·spanSec`. La deriva usa el MISMO
+/// mapeo que el vaivén de rejilla clásico. Espejo de `FOIL_MOTION_TIMING`.
+const ({
+  ({double baseSec, double spanSec}) sweep,
+  ({double baseSec, double spanSec}) hue,
+}) foilMotionTiming = (
+  sweep: (baseSec: 5.5, spanSec: 3.5), // 5.5s (shimmer 0) → 2.0s (100)
+  hue: (baseSec: 14, spanSec: 10), // 14s → 4s por vuelta completa de matiz
+);
+
+/// Flags de render derivados del param `motion` (tolerante a valores raros).
+/// Espejo de `foilMotionFlags`.
+({bool drift, bool hueCycle}) foilMotionFlags(Object? motion) {
+  final m = motion?.toString() ?? 'auto';
+  return (
+    drift: m == 'deriva' || m == 'total',
+    hueCycle: m == 'tono' || m == 'total',
+  );
+}
+
+double _motionSec(num shimmer, ({double baseSec, double spanSec}) t) {
+  final raw = shimmer.toDouble();
+  final s = (raw.isFinite ? raw : 50.0).clamp(0.0, 100.0) / 100.0;
+  return ((t.baseSec - s * t.spanSec) * 100).roundToDouble() / 100;
+}
+
+/// Segundos del ciclo de deriva (barrido) para `shimmer` 0–100. Espejo de
+/// `foilMotionSweepSec` (mismo redondeo a 2 decimales).
+double foilMotionSweepSec(num shimmer) => _motionSec(shimmer, foilMotionTiming.sweep);
+
+/// Segundos de la vuelta completa del ciclo de tono para `shimmer` 0–100.
+/// Espejo de `foilMotionHueSec`.
+double foilMotionHueSec(num shimmer) => _motionSec(shimmer, foilMotionTiming.hue);
+
+/// Valores del param `mask_sparkle` (contrato). Espejo de `FOIL_MASK_SPARKLES`.
+const List<String> foilMaskSparkles = ['no', 'pastel', 'vivo'];
+
+/// KRO-256 — DESTELLOS de la máscara: un campo multicolor de grano fino se
+/// pinta TRAS la máscara (misma máscara/layout que el foil) y su matiz cicla en
+/// continuo ([foilMotionHueSec]) → cada perforación muestra SU color, distinto
+/// del vecino, rotando (look "cosmos"). El campo reusa la paleta 'spectrum'
+/// girada [foilMaskSparkle.angleOffsetDeg] sobre su ángulo nativo, con
+/// [foilMaskSparkle.sizePct] pequeño (vecinos ⇒ colores distintos). Espejo de
+/// `FOIL_MASK_SPARKLE`. ⚠️ Render: la máscara se rasteriza UNA vez (estática) y
+/// el ciclo de matiz anima la capa interior — en el shader single-pass basta
+/// sumar el giro de matiz al muestrear el gradiente.
+const ({double sizePct, double angleOffsetDeg}) foilMaskSparkle =
+    (sizePct: 46, angleOffsetDeg: -30);
+
+/// Variantes del sparkle (opacidad + saturación del campo).
+final Map<String, ({double opacity, double saturate})> foilMaskSparkleVariants = {
+  'pastel': (opacity: 0.7, saturate: 0.85),
+  'vivo': (opacity: 1.0, saturate: 1.6),
+};
+
+/// Valores del param `border_sheen` (contrato). Espejo de `FOIL_BORDER_SHEENS`.
+const List<String> foilBorderSheens = ['no', 'metalico', 'iridiscente'];
+
+/// KRO-256 — BRILLO del marco: banda especular que barre el marco en continuo,
+/// como capa APARTE encima del fill (mismo borderSVG como máscara) → "borde
+/// metálico por capas". 'metalico' = esta banda blanca (stops alpha);
+/// 'iridiscente' = la banda usa la paleta spectrum atenuada a
+/// [foilBorderSheen.iridescentOpacity]. Duración = [foilMotionSweepSec].
+/// Espejo de `FOIL_BORDER_SHEEN`.
+const ({
+  double angleDeg,
+  List<({double alpha, double pos})> stops,
+  double sizePct,
+  double iridescentOpacity,
+}) foilBorderSheen = (
+  angleDeg: 100,
+  stops: [
+    (alpha: 0.0, pos: 0.0),
+    (alpha: 0.0, pos: 35.0),
+    (alpha: 0.85, pos: 50.0),
+    (alpha: 0.0, pos: 65.0),
+    (alpha: 0.0, pos: 100.0),
+  ],
+  sizePct: 250,
+  iridescentOpacity: 0.75,
+);
+
 /// Opacidad de la capa del efecto `holographic_effect` según su `intensity`
 /// (preset cerrado). Compartida cross-platform (espejo de `holographicOpacity`).
 double holographicOpacity(Object? intensity) {

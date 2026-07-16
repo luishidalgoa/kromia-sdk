@@ -156,4 +156,56 @@ void main() {
       }
     });
   });
+
+  // KRO-256 — vida del iridiscente: movimiento + destellos de máscara + brillo
+  // del marco. Espejo 1:1 del corpus TS (foil-recipe.test.ts).
+  group('KRO-256 — motion / mask_sparkle / border_sheen', () {
+    test('los valores de las recetas == options del contrato (anti-drift)', () {
+      final cfg = getVisualEffect('iridescent_foil')!.config;
+      expect(cfg.firstWhere((p) => p.key == 'motion').options, foilMotions);
+      expect(cfg.firstWhere((p) => p.key == 'mask_sparkle').options,
+          foilMaskSparkles);
+      expect(cfg.firstWhere((p) => p.key == 'border_sheen').options,
+          foilBorderSheens);
+    });
+    test('foilMotionFlags deriva drift/hueCycle (tolerante a basura)', () {
+      expect(foilMotionFlags('auto'), (drift: false, hueCycle: false));
+      expect(foilMotionFlags('deriva'), (drift: true, hueCycle: false));
+      expect(foilMotionFlags('tono'), (drift: false, hueCycle: true));
+      expect(foilMotionFlags('total'), (drift: true, hueCycle: true));
+      expect(foilMotionFlags(null), (drift: false, hueCycle: false));
+      expect(foilMotionFlags('bogus'), (drift: false, hueCycle: false));
+    });
+    test('tiempos: shimmer 0/50/100 + clamps + default del vaivén clásico', () {
+      expect(foilMotionSweepSec(0), foilMotionTiming.sweep.baseSec);
+      expect(foilMotionSweepSec(100), 2.0);
+      // shimmer 50 (default) = 3.75s — MISMO valor que el vaivén de rejilla.
+      expect(foilMotionSweepSec(50), 3.75);
+      expect(foilMotionHueSec(0), 14);
+      expect(foilMotionHueSec(100), 4);
+      expect(foilMotionSweepSec(-50), 5.5); // clamp inferior
+      expect(foilMotionHueSec(500), 4); // clamp superior
+      expect(foilMotionSweepSec(double.nan), 3.75); // basura → default 50
+    });
+    test('recetas del sparkle y del brillo del marco: valores exactos del core', () {
+      expect(foilMaskSparkle.sizePct, 46);
+      expect(foilMaskSparkle.angleOffsetDeg, -30);
+      expect(foilMaskSparkleVariants['pastel'], (opacity: 0.7, saturate: 0.85));
+      expect(foilMaskSparkleVariants['vivo'], (opacity: 1.0, saturate: 1.6));
+      // cada opción activa del contrato tiene variante
+      for (final v in foilMaskSparkles.where((v) => v != 'no')) {
+        expect(foilMaskSparkleVariants[v], isNotNull, reason: 'variante "$v"');
+      }
+      expect(foilBorderSheen.angleDeg, 100);
+      expect(foilBorderSheen.sizePct, 250);
+      expect(foilBorderSheen.iridescentOpacity, 0.75);
+      expect(foilBorderSheen.stops, [
+        (alpha: 0.0, pos: 0.0),
+        (alpha: 0.0, pos: 35.0),
+        (alpha: 0.85, pos: 50.0),
+        (alpha: 0.0, pos: 65.0),
+        (alpha: 0.0, pos: 100.0),
+      ]);
+    });
+  });
 }
