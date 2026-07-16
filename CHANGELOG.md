@@ -20,7 +20,17 @@ paridad de otro chat → se resumen como nota, no se listan uno a uno.
 
 _Cambios DATA / render-only (NO bumpean el `protocolVersion`)._
 
+## [5.7.0] - 2026-07-12
+
+_Bump MINOR del KRP (auto-detectado): 3 params aditivos en `iridescent_foil` —
+"vida" del efecto (feedback QA de la carta Zapdos vs la física)._
+
 ### Added
+- **Movimiento a elección del diseñador** (`motion`): `auto` (clásico: vaivén en rejilla, sigue la inclinación en focus) | `deriva` (las bandas barren la carta en continuo) | `tono` (el matiz cicla en sitio — la "rotación" del iridiscente) | `total` (ambos). La velocidad la gobierna el `shimmer` existente. Receta `FOIL_MOTION_TIMING` + helpers `foilMotionFlags`/`foilMotionSweepSec`/`foilMotionHueSec` (KRO-256).
+- **Destellos de la máscara** (`mask_sparkle`: `no`|`pastel`|`vivo`): campo multicolor de grano fino tras la máscara cuyo matiz cicla en continuo → cada perforación muestra SU color, distinto del vecino, rotando (look "cosmos"; con paleta 'Ninguna' los orificios dejan de ser solo blancos). Receta `FOIL_MASK_SPARKLE` (KRO-256).
+- **Brillo del marco** (`border_sheen`: `no`|`metalico`|`iridiscente`): banda especular que barre el marco en continuo como capa aparte encima del fill — el "borde metálico por capas" de las cartas físicas. Receta `FOIL_BORDER_SHEEN` + `foilBorderSheenCss()` (KRO-256).
+
+_Arrastra lo acumulado en Unreleased (KRO-250):_
 - **Capa PROCEDURAL iridiscente en la pila unificada** (`EffectLayer.kind: 'iridescent'` + `EffectLayer.config`): una capa del `custom_foil` puede ser el motor del iridiscente completo (paleta, warp, máscara, marco…) en vez de una textura importada — el panel de capas unifica ambos mundos. `textureUrl` pasa a opcional (obligatoria solo en kinds de textura); `IRIDESCENT_LAYER_KIND` + `isIridescentLayer`; `isEffectLayerKind` acepta el kind nuevo; `validateTagStyles` valida el config de la capa contra el catálogo y no exige textura a las procedurales. El efecto `iridescent_foil` clásico ≡ pila de 1 capa (retro-compat, nada migra) (KRO-250).
 
 ## [5.6.0] - 2026-07-11

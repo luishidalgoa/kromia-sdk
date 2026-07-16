@@ -339,6 +339,17 @@ const EXPECTED_EXPORTS = [
   'foilNeutralSheenCss',
   // KRO-249 — fill libre del marco
   'resolveFoilBorderFill',
+  // KRO-256 — vida del iridiscente (movimiento + destellos de máscara + brillo del marco)
+  'FOIL_MOTIONS',
+  'FOIL_MOTION_TIMING',
+  'foilMotionFlags',
+  'foilMotionSweepSec',
+  'foilMotionHueSec',
+  'FOIL_MASK_SPARKLES',
+  'FOIL_MASK_SPARKLE',
+  'FOIL_BORDER_SHEENS',
+  'FOIL_BORDER_SHEEN',
+  'foilBorderSheenCss',
   // KRO-122 — receta DATA del render del foil PERSONALIZADO (custom_foil)
   'EFFECT_LAYER_KINDS',
   'EFFECT_BLEND_MODES',

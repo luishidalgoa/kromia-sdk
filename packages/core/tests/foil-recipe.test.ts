@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS, parseFoilPatternHex, foilCustomPatternCss, foilEffectiveAngle, foilPatternBaseAngle, foilWarpDisplacement, FOIL_ORGANIC_WARP, FOIL_PATTERN_NONE, FOIL_NEUTRAL_SHEEN, foilNeutralSheenCss, resolveFoilBorderFill, FOIL_BORDER_SOLID, FOIL_CARD_BG } from '../src/foil-recipe';
+import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS, parseFoilPatternHex, foilCustomPatternCss, foilEffectiveAngle, foilPatternBaseAngle, foilWarpDisplacement, FOIL_ORGANIC_WARP, FOIL_PATTERN_NONE, FOIL_NEUTRAL_SHEEN, foilNeutralSheenCss, resolveFoilBorderFill, FOIL_BORDER_SOLID, FOIL_CARD_BG, FOIL_MOTIONS, FOIL_MOTION_TIMING, foilMotionFlags, foilMotionSweepSec, foilMotionHueSec, FOIL_MASK_SPARKLES, FOIL_MASK_SPARKLE, FOIL_BORDER_SHEENS, FOIL_BORDER_SHEEN, foilBorderSheenCss } from '../src/foil-recipe';
 import { getVisualEffect } from '../src/registries/visual-effects';
 
 // Strings EXACTOS que vivían en Studio (VisualEffectLayers `IRID_GRAD`). El builder
@@ -119,6 +119,45 @@ describe('foil-recipe — foilPatternCss reproduce los strings de Studio', () =>
     expect(holographicOpacity('medium')).toBe(0.32);
     expect(holographicOpacity('high')).toBe(0.48);
     expect(holographicOpacity(undefined)).toBe(0.32);
+  });
+});
+
+// KRO-256 — vida del iridiscente: movimiento + destellos de máscara + brillo del marco.
+describe('KRO-256 — motion / mask_sparkle / border_sheen', () => {
+  it('los valores de las recetas == options del contrato (anti-drift)', () => {
+    const def = getVisualEffect('iridescent_foil')!;
+    expect(def.config.find(p => p.key === 'motion')?.options).toEqual([...FOIL_MOTIONS]);
+    expect(def.config.find(p => p.key === 'mask_sparkle')?.options).toEqual([...FOIL_MASK_SPARKLES]);
+    expect(def.config.find(p => p.key === 'border_sheen')?.options).toEqual([...FOIL_BORDER_SHEENS]);
+  });
+  it('foilMotionFlags deriva drift/hueCycle (tolerante a basura)', () => {
+    expect(foilMotionFlags('auto')).toEqual({ drift: false, hueCycle: false });
+    expect(foilMotionFlags('deriva')).toEqual({ drift: true, hueCycle: false });
+    expect(foilMotionFlags('tono')).toEqual({ drift: false, hueCycle: true });
+    expect(foilMotionFlags('total')).toEqual({ drift: true, hueCycle: true });
+    expect(foilMotionFlags(undefined)).toEqual({ drift: false, hueCycle: false });
+    expect(foilMotionFlags('bogus')).toEqual({ drift: false, hueCycle: false });
+  });
+  it('tiempos del movimiento: shimmer 0/50/100 + clamps + el default del vaivén clásico', () => {
+    expect(foilMotionSweepSec(0)).toBe(FOIL_MOTION_TIMING.sweep.baseSec);
+    expect(foilMotionSweepSec(100)).toBe(+(FOIL_MOTION_TIMING.sweep.baseSec - FOIL_MOTION_TIMING.sweep.spanSec).toFixed(2));
+    // shimmer 50 (default) = 3.75s — MISMO valor que el vaivén de rejilla clásico (5.5 - 0.5*3.5)
+    expect(foilMotionSweepSec(50)).toBe(3.75);
+    expect(foilMotionHueSec(0)).toBe(14);
+    expect(foilMotionHueSec(100)).toBe(4);
+    expect(foilMotionSweepSec(-50)).toBe(5.5);   // clamp inferior
+    expect(foilMotionHueSec(500)).toBe(4);       // clamp superior
+    expect(foilMotionSweepSec(NaN)).toBe(3.75);  // basura → default 50
+  });
+  it('foilBorderSheenCss reproduce la banda especular de la receta', () => {
+    expect(foilBorderSheenCss()).toBe(
+      'linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 35%,rgba(255,255,255,0.85) 50%,rgba(255,255,255,0) 65%,rgba(255,255,255,0) 100%)');
+    expect(FOIL_BORDER_SHEEN.sizePct).toBe(250);
+  });
+  it('FOIL_MASK_SPARKLE: variantes completas para cada opción activa del contrato', () => {
+    for (const v of FOIL_MASK_SPARKLES.filter(v => v !== 'no')) {
+      expect(FOIL_MASK_SPARKLE.variants[v as keyof typeof FOIL_MASK_SPARKLE.variants]).toBeDefined();
+    }
   });
 });
 

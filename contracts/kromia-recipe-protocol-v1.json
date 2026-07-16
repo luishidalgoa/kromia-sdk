@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
-  "protocolVersion": "5.6.0",
-  "generatedAt": "2026-07-12T00:16:39.011Z",
+  "protocolVersion": "5.7.0",
+  "generatedAt": "2026-07-16T14:52:55.401Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -1216,6 +1216,17 @@
           "max": 100
         },
         {
+          "key": "motion",
+          "type": "enum",
+          "options": [
+            "auto",
+            "deriva",
+            "tono",
+            "total"
+          ],
+          "default": "auto"
+        },
+        {
           "key": "noise",
           "type": "number",
           "default": 16,
@@ -1292,6 +1303,16 @@
           "max": 100
         },
         {
+          "key": "mask_sparkle",
+          "type": "enum",
+          "options": [
+            "no",
+            "pastel",
+            "vivo"
+          ],
+          "default": "no"
+        },
+        {
           "key": "border_style",
           "type": "enum",
           "options": [
@@ -1362,6 +1383,16 @@
         {
           "key": "border_texture_url",
           "type": "string"
+        },
+        {
+          "key": "border_sheen",
+          "type": "enum",
+          "options": [
+            "no",
+            "metalico",
+            "iridiscente"
+          ],
+          "default": "no"
         }
       ]
     },

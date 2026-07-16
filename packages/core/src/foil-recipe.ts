@@ -281,6 +281,89 @@ export function resolveFoilBorderFill(config: {
   return { kind: 'solid', color: FOIL_BORDER_SOLID[id] ?? FOIL_BORDER_SOLID.none };
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+ * KRO-256 — VIDA del iridiscente: movimiento autónomo, destellos de máscara y
+ * brillo del marco. Recetas numéricas cross-platform (Studio CSS / Flutter
+ * shader espejan ESTOS valores).
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+/** Valores del param `motion` (contrato). 'auto' = clásico (vaivén en rejilla,
+ *  sigue la inclinación en focus). 'deriva' = barrido continuo. 'tono' = el
+ *  matiz cicla en sitio. 'total' = ambos. */
+export const FOIL_MOTIONS = ['auto', 'deriva', 'tono', 'total'] as const;
+export type FoilMotion = (typeof FOIL_MOTIONS)[number];
+
+/** Tiempos del movimiento: segundos por ciclo según `shimmer` (0–100; alto =
+ *  rápido): sec = baseSec − (shimmer/100)·spanSec. La deriva usa el MISMO mapeo
+ *  que el vaivén de rejilla clásico (continuidad visual). */
+export const FOIL_MOTION_TIMING = {
+  sweep: { baseSec: 5.5, spanSec: 3.5 },  // 5.5s (shimmer 0) → 2.0s (100)
+  hue:   { baseSec: 14,  spanSec: 10 },   // 14s → 4s por vuelta completa de matiz
+} as const;
+
+/** Flags de render derivados del param `motion` (tolerante a valores raros). */
+export function foilMotionFlags(motion: unknown): { drift: boolean; hueCycle: boolean } {
+  const m = String(motion ?? 'auto');
+  return { drift: m === 'deriva' || m === 'total', hueCycle: m === 'tono' || m === 'total' };
+}
+
+/** Segundos del ciclo de deriva (barrido) para un `shimmer` 0–100. */
+export function foilMotionSweepSec(shimmer: number): number {
+  const s = Math.min(1, Math.max(0, (Number.isFinite(shimmer) ? shimmer : 50) / 100));
+  return +(FOIL_MOTION_TIMING.sweep.baseSec - s * FOIL_MOTION_TIMING.sweep.spanSec).toFixed(2);
+}
+
+/** Segundos de la vuelta completa del ciclo de tono para un `shimmer` 0–100. */
+export function foilMotionHueSec(shimmer: number): number {
+  const s = Math.min(1, Math.max(0, (Number.isFinite(shimmer) ? shimmer : 50) / 100));
+  return +(FOIL_MOTION_TIMING.hue.baseSec - s * FOIL_MOTION_TIMING.hue.spanSec).toFixed(2);
+}
+
+/** Valores del param `mask_sparkle` (contrato). */
+export const FOIL_MASK_SPARKLES = ['no', 'pastel', 'vivo'] as const;
+
+/** KRO-256 — DESTELLOS de la máscara: un campo multicolor de grano fino se
+ *  pinta TRAS la máscara (misma máscara/layout que el foil) y su matiz cicla en
+ *  continuo (`foilMotionHueSec`) → cada perforación muestra SU color, distinto
+ *  del vecino, y todos van rotando (look "cosmos"). El campo reusa la paleta
+ *  'spectrum' girada `angleOffsetDeg` sobre su ángulo nativo (cruza la lámina)
+ *  con `sizePct` pequeño (vecinos ⇒ colores distintos). */
+export const FOIL_MASK_SPARKLE = {
+  sizePct: 46,
+  angleOffsetDeg: -30,
+  variants: {
+    pastel: { opacity: 0.7, saturate: 0.85 },
+    vivo:   { opacity: 1,   saturate: 1.6 },
+  },
+} as const;
+
+/** Valores del param `border_sheen` (contrato). */
+export const FOIL_BORDER_SHEENS = ['no', 'metalico', 'iridiscente'] as const;
+
+/** KRO-256 — BRILLO del marco: banda especular que barre el marco en continuo,
+ *  como capa APARTE encima del fill (mismo borderSVG como máscara) → "borde
+ *  metálico por capas". 'metalico' = esta banda blanca; 'iridiscente' = la banda
+ *  usa la paleta spectrum. Duración = `foilMotionSweepSec(shimmer)`. */
+export const FOIL_BORDER_SHEEN = {
+  angleDeg: 100,
+  /** Banda blanca especular: stops alpha 0→0.85→0 concentrados al centro. */
+  stops: [
+    { alpha: 0, pos: 0 },
+    { alpha: 0, pos: 35 },
+    { alpha: 0.85, pos: 50 },
+    { alpha: 0, pos: 65 },
+    { alpha: 0, pos: 100 },
+  ],
+  /** background-size del barrido (%) — mismo recorrido que kr-holo-sweep. */
+  sizePct: 250,
+} as const;
+
+/** Host WEB: gradiente CSS de la banda especular del brillo del marco. */
+export function foilBorderSheenCss(): string {
+  const stops = FOIL_BORDER_SHEEN.stops.map(s => `rgba(255,255,255,${s.alpha}) ${s.pos}%`);
+  return `linear-gradient(${FOIL_BORDER_SHEEN.angleDeg}deg,${stops.join(',')})`;
+}
+
 /** KRO-244 UX — preset DE FÁBRICA del editor de efectos: un clic siembra el
  *  config completo; los sliders quedan como afinado opcional (anti-saturación:
  *  la mayoría de publishers no debería tocar 12 sliders). Editor-only (no

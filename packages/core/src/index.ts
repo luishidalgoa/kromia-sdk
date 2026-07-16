@@ -566,6 +566,10 @@ export { FOIL_BORDER_SOLID, FOIL_CARD_BG, foilCardBgCss } from './foil-recipe';
 // KRO-249 — fill libre del marco (textura | sólido | degradado custom | paleta | fondo-carta).
 export { resolveFoilBorderFill } from './foil-recipe';
 export type { FoilBorderFill } from './foil-recipe';
+// KRO-256 — vida del iridiscente: movimiento autónomo + destellos de máscara + brillo del marco
+export { FOIL_MOTIONS, FOIL_MOTION_TIMING, foilMotionFlags, foilMotionSweepSec, foilMotionHueSec } from './foil-recipe';
+export { FOIL_MASK_SPARKLES, FOIL_MASK_SPARKLE, FOIL_BORDER_SHEENS, FOIL_BORDER_SHEEN, foilBorderSheenCss } from './foil-recipe';
+export type { FoilMotion } from './foil-recipe';
 export { EFFECT_FACTORY_PRESETS } from './foil-recipe';
 export type { FoilPattern, FoilStop, EffectFactoryPreset } from './foil-recipe';
 

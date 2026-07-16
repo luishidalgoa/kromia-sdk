@@ -158,6 +158,20 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
       { key: 'glow',       label: 'Resplandor',  type: 'number', min: 0,   max: 100, default: 35 },
       { key: 'sheen',      label: 'Reflejo',     type: 'number', min: 0,   max: 100, default: 40 },
       { key: 'shimmer',    label: 'Destello',    type: 'number', min: 0,   max: 100, default: 50 },
+      {
+        // KRO-256 — MOVIMIENTO autónomo del foil, a elección del diseñador (las
+        // cartas físicas premium "viven": el color se desplaza solo, no solo al
+        // inclinar). 'auto' = comportamiento clásico (vaivén en rejilla, sigue la
+        // inclinación en focus; retro-compat). 'deriva' = las bandas barren la
+        // carta en continuo. 'tono' = el matiz cicla en sitio (rotación del
+        // iridiscente). 'total' = deriva + tono. La VELOCIDAD la gobierna el
+        // `shimmer` existente (receta `FOIL_MOTION_TIMING`). Aditivo (minor).
+        key:     'motion',
+        label:   'Movimiento',
+        type:    'enum',
+        options: ['auto', 'deriva', 'tono', 'total'],
+        default: 'auto',
+      },
       { key: 'noise',      label: 'Grano',       type: 'number', min: 0,   max: 100, default: 16 },
       { key: 'brightness', label: 'Luminosidad', type: 'number', min: 50,  max: 150, default: 105,
         visibleWhen: { key: 'pattern', notEquals: 'none' } },
@@ -214,6 +228,20 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
           { key: 'mask_url', notEquals: '' },
           { key: 'mask_layout', equals: 'tile' },
         ] },
+      {
+        // KRO-256 — DESTELLOS de la máscara: un campo de color multicolor de
+        // grano fino tras la máscara cuyo matiz CICLA en continuo → cada
+        // perforación muestra SU color, distinto del vecino, y todos van rotando
+        // (el look "cosmos" de las cartas premium; con paleta 'Ninguna' los
+        // orificios dejan de ser solo blancos). 'pastel' = suave/desaturado,
+        // 'vivo' = saturado brillante. Receta `FOIL_MASK_SPARKLE`. Aditivo.
+        key:     'mask_sparkle',
+        label:   'Destellos de la máscara',
+        type:    'enum',
+        options: ['no', 'pastel', 'vivo'],
+        default: 'no',
+        visibleWhen: { key: 'mask_url', notEquals: '' },
+      },
       {
         // KRO-202 — marco ornamental (9 diseños del mockup `borderSVG`). 'none'
         // = sin borde (interruptor maestro). El render lo dibuja como SVG blanco
@@ -272,6 +300,19 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
       // Si está, MANDA sobre todos los tintes. Servida por el proxy de imágenes.
       { key: 'border_texture_url', label: 'Textura del borde', type: 'string',
         visibleWhen: { key: 'border_style', notEquals: 'none' } },
+      {
+        // KRO-256 — BRILLO del marco: un reflejo especular que BARRE el marco en
+        // continuo, encima del fill (capa aparte → "borde metálico por capas",
+        // como los marcos foil de las cartas físicas). 'metalico' = banda blanca
+        // especular; 'iridiscente' = banda espectral. La velocidad la gobierna
+        // `shimmer`. Receta `FOIL_BORDER_SHEEN`. Aditivo (minor).
+        key:     'border_sheen',
+        label:   'Brillo del marco',
+        type:    'enum',
+        options: ['no', 'metalico', 'iridiscente'],
+        default: 'no',
+        visibleWhen: { key: 'border_style', notEquals: 'none' },
+      },
     ],
     whenToUse:
       'Cuando quieras un foil holográfico AJUSTABLE en vivo en vez de un preset cerrado: elige el patrón de arcoíris (Spectrum/Oilslick/Sunset/Mint/Aurora) y afina tono, resplandor, grano y borde con sliders. Igual que el Holográfico pero parametrizable.',
@@ -280,11 +321,11 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
     // para que el linkify los encadene (máscara, textura del borde…).
     long: `El Iridiscente tiene tres bloques, todos opcionales salvo la paleta:
 
-**1. La lámina de color** — la *paleta* elige el arcoíris (o crea la tuya con *Personalizada*); orientación, tono, escala, geometría *orgánica* con ondulación… La paleta **Ninguna** apaga el color y deja una lámina neutra (reflejo blanco + resplandor + grano): ideal para combinar con capas importadas del foil personalizado sin teñirlas.
+**1. La lámina de color** — la *paleta* elige el arcoíris (o crea la tuya con *Personalizada*); orientación, tono, escala, geometría *orgánica* con ondulación… La paleta **Ninguna** apaga el color y deja una lámina neutra (reflejo blanco + resplandor + grano): ideal para combinar con capas importadas del foil personalizado sin teñirlas. El **Movimiento** decide si el foil "vive" solo: *auto* (reluce al inclinar), *deriva* (las bandas barren en continuo), *tono* (los colores rotan en sitio) o *total* (ambos) — la velocidad la marca el *Destello*.
 
-**2. La máscara (recorte)** — una imagen en grises que decide *dónde* asoma el foil (blanco = brilla). Con encaje **Sobre el arte** sigue los contornos del dibujo; con **Mosaico** la imagen se repite como tesela (con su escala) — así se hacen los fondos "papel perforado" de las cartas premium físicas.
+**2. La máscara (recorte)** — una imagen en grises que decide *dónde* asoma el foil (blanco = brilla). Con encaje **Sobre el arte** sigue los contornos del dibujo; con **Mosaico** la imagen se repite como tesela (con su escala) — así se hacen los fondos "papel perforado" de las cartas premium físicas. Los **Destellos de la máscara** encienden cada perforación con su propio color, distinto del vecino y rotando en continuo (el look "cosmos"): *pastel* suave o *vivo* saturado.
 
-**3. El marco (borde)** — un diseño (Clásico, Doble, Gótico…) + un *relleno del borde*: **hueco** (solo trazo), **borde** (banda) o **marco** (passe-partout: toda la banda perimetral, el look de carta física premium). Su color puede ser un tinte del catálogo, un color propio, un **degradado personalizado** (p.ej. metálico plateado) o una **textura del borde** — tu propia imagen rellenando el marco, que manda sobre el tinte.`,
+**3. El marco (borde)** — un diseño (Clásico, Doble, Gótico…) + un *relleno del borde*: **hueco** (solo trazo), **borde** (banda) o **marco** (passe-partout: toda la banda perimetral, el look de carta física premium). Su color puede ser un tinte del catálogo, un color propio, un **degradado personalizado** (p.ej. metálico plateado) o una **textura del borde** — tu propia imagen rellenando el marco, que manda sobre el tinte. El **Brillo del marco** añade encima un reflejo que barre el borde en continuo — *metálico* (destello blanco especular) o *iridiscente* (banda espectral) — el acabado "borde metálico por capas" de las cartas físicas.`,
     related: ['concept:tag-style', 'effect:holographic_effect', 'effect:border-texture'],
     aliases: ['iridiscente', 'iridescent', 'tornasol', 'arcoíris', 'foil parametrizable'],
   },
