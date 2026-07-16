@@ -249,8 +249,22 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
         key:     'border_style',
         label:   'Diseño del borde',
         type:    'enum',
-        options: ['none', 'classic', 'double', 'sticker', 'emblema', 'tech', 'feston', 'gotico', 'barroco'],
+        // KRO-259 — 'custom': el creador sube SU PROPIO troquel (ver
+        // border_custom_url). Superset aditivo (minor).
+        options: ['none', 'classic', 'double', 'sticker', 'emblema', 'tech', 'feston', 'gotico', 'barroco', 'custom'],
         default: 'none',
+      },
+      {
+        // KRO-259 — DISEÑO PERSONALIZADO del marco: imagen troquel del creador
+        // (blanco = diseño, interpretada por LUMINANCIA — mismo contrato visual
+        // que los borderSVG de fábrica, que son blanco sobre transparente).
+        // La FORMA ya viene dibujada → border_fill/border_width no aplican
+        // (ocultos, editor-only); margen (inset), tintes/degradado/textura,
+        // brillo del marco y canto siguen aplicando sobre el troquel.
+        key:     'border_custom_url',
+        label:   'Tu diseño del borde',
+        type:    'string',
+        visibleWhen: { key: 'border_style', equals: 'custom' },
       },
       {
         // Relleno del marco: hueco (solo trazo) · borde (banda decorativa
@@ -262,7 +276,11 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
         options: ['hueco', 'borde', 'marco'],
         default: 'hueco',
         // KRO-244 — sin diseño elegido, los controles del borde son ruido.
-        visibleWhen: { key: 'border_style', notEquals: 'none' },
+        // KRO-259 — con diseño CUSTOM la forma ya viene dibujada (AND).
+        visibleWhen: [
+          { key: 'border_style', notEquals: 'none' },
+          { key: 'border_style', notEquals: 'custom' },
+        ],
       },
       // Ancho de la banda decorativa + margen desde el borde de la carta — los
       // dos números que parametrizan `borderSVG(style, bw, m, fill)` (espejo de
@@ -270,7 +288,10 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
       // para no romper el contrato; `border_margin` es aditivo (minor). El editor
       // siembra un Ancho visible al elegir un diseño (sin tocar el default).
       { key: 'border_width',  label: 'Ancho del borde',  type: 'number', min: 0, max: 16, default: 0,
-        visibleWhen: { key: 'border_style', notEquals: 'none' } },
+        visibleWhen: [
+          { key: 'border_style', notEquals: 'none' },
+          { key: 'border_style', notEquals: 'custom' },
+        ] },
       { key: 'border_margin', label: 'Margen del borde', type: 'number', min: 0, max: 24, default: 6,
         visibleWhen: { key: 'border_style', notEquals: 'none' } },
       {

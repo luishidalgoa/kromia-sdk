@@ -20,6 +20,17 @@ paridad de otro chat → se resumen como nota, no se listan uno a uno.
 
 _Cambios DATA / render-only (NO bumpean el `protocolVersion`)._
 
+## [5.8.0] - 2026-07-12
+
+_Bump MINOR del KRP (auto-detectado): diseño de borde personalizado en `iridescent_foil`._
+
+### Added
+- **Diseño de borde PERSONALIZADO** (`border_style: 'custom'` + `border_custom_url`): el creador sube su propio troquel (imagen blanco = diseño, por LUMINANCIA — mismo contrato visual que los borderSVG de fábrica) y este se rellena/brilla/margina como los 9 diseños del catálogo. Con diseño custom, `border_fill`/`border_width` se ocultan (la forma ya viene dibujada); tintes/degradado/textura, `border_sheen` y el canto siguen aplicando. Separa por capas la FORMA del RELLENO del marco (KRO-259).
+
+### Added (render-only, arrastrado de la ronda QA de KRO-256)
+- **`FOIL_BORDER_EDGE`** (canto del marco): contorno fino oscuro alrededor de la silueta del marco (exterior + ventana) — el marco se lee como pieza en vez de fundirse con la carta.
+- **Banda especular del `border_sheen` AFILADA**: stops re-perfilados a 0/0@42/1.0@50/0@58/0 (una banda ancha y tenue leía como "lavado", no como metal).
+
 ## [5.7.0] - 2026-07-12
 
 _Bump MINOR del KRP (auto-detectado): 3 params aditivos en `iridescent_foil` —

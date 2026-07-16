@@ -1,7 +1,7 @@
 {
   "$schema": "./kromia-recipe-protocol-v1.schema.json",
-  "protocolVersion": "5.7.0",
-  "generatedAt": "2026-07-16T14:52:55.401Z",
+  "protocolVersion": "5.8.0",
+  "generatedAt": "2026-07-16T16:42:44.001Z",
   "generatedFrom": {
     "packagePath": "packages/core/",
     "note": "JSON derivado — no editar a mano. Regenerar con `pnpm gen` desde el root del monorepo."
@@ -1324,9 +1324,14 @@
             "tech",
             "feston",
             "gotico",
-            "barroco"
+            "barroco",
+            "custom"
           ],
           "default": "none"
+        },
+        {
+          "key": "border_custom_url",
+          "type": "string"
         },
         {
           "key": "border_fill",
