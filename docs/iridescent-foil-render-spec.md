@@ -192,6 +192,25 @@ físicas. Receta `FOIL_BORDER_SHEEN`:
   inclinación/giroscopio (misma fórmula de paneo que el foil, `shiftPos`); el
   barrido en bucle (ping-pong, duración `foilMotionSweepSec(shimmer)`) solo en
   rejilla (`animated`) o con `motion: 'deriva'/'total'`.
+- **QA 2026-07-12 bis — banda AFILADA**: stops re-perfilados a
+  0/0@42/1.0@50/0@58/0@100 (una banda ancha y tenue leía como "lavado pastel",
+  no como metal).
+
+### 4.5 CANTO del marco (`FOIL_BORDER_EDGE`) — QA "el borde se funde con la carta"
+
+SIEMPRE que el marco tenga fill con presencia (todo salvo el blanco base con
+blend screen): un contorno fino oscuro (`color` rgba(24,22,34,0.75), radio
+`blurPx` 0.6) alrededor de la SILUETA del marco — borde exterior E interior
+(la ventana del arte). Es lo que hace que el marco se lea como PIEZA (metal
+troquelado) en vez de un degradado fundido con la carta.
+
+- Studio: doble `drop-shadow` sub-píxel sobre la capa del fill (el drop-shadow
+  contornea el alfa de la máscara del borderSVG).
+- Flutter: **stroke fino del path del borderSVG** con `foilBorderEdge.color`
+  (ancho ≈ 2·blurPx lógicos), pintado bajo el fill.
+- Combinación estrella (la Zapdos): `border_texture_url` con una textura de
+  remolinos foil ("swirl" tipo damasco) + `border_sheen: 'metalico'` + este
+  canto = el marco metálico grabado de las cartas físicas premium.
 
 ### ⚠️ 4.4 PERF — máscara estática, animación en el hijo (lección Studio)
 
