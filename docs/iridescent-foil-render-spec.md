@@ -160,9 +160,12 @@ matiz es una rotación de matiz al muestrear el gradiente
 ### 4.2 `mask_sparkle` — destellos por perforación ('no' | 'pastel' | 'vivo')
 
 Solo con `mask_url`. Una capa EXTRA tras la MISMA máscara/layout: campo
-multicolor de grano fino cuyo matiz cicla en continuo → **cada perforación
-muestra SU color, distinto del vecino, y todos van rotando** (look "cosmos").
-Receta `FOIL_MASK_SPARKLE`:
+multicolor de grano fino → **cada perforación muestra SU color, distinto del
+vecino** (look "cosmos"). **QA 2026-07-12 — el matiz sigue la ROTACIÓN de la
+carta por defecto** (como el holográfico de siempre): en focus,
+`hueOffset = (holoX + holoY) · 360°` (tilt en Studio, **giroscopio en la
+app**); el bucle de reloj (`foilMotionHueSec`) solo en la rejilla (`animated`)
+o si el diseñador eligió `motion: 'tono'/'total'`. Receta `FOIL_MASK_SPARKLE`:
 
 - Gradiente = paleta `spectrum` girada `angleOffsetDeg` (−30°) sobre su ángulo
   nativo (cruza la lámina) a `sizePct` (46%) — tamaño pequeño ⇒ vecinos en
@@ -181,11 +184,14 @@ Solo con `border_style`. Capa APARTE encima del fill del marco (mismo
 físicas. Receta `FOIL_BORDER_SHEEN`:
 
 - `metalico`: banda especular blanca — gradiente lineal a `angleDeg` (100°) con
-  stops alpha 0→0→0.85→0→0 (pos 0/35/50/65/100), barriendo a
-  `sizePct` 250% con el MISMO ping-pong del vaivén, duración
-  `foilMotionSweepSec(shimmer)`, blend `screen`.
+  stops alpha 0→0→0.85→0→0 (pos 0/35/50/65/100), a `sizePct` 250%, blend
+  `screen`.
 - `iridiscente`: la banda usa la paleta `spectrum` completa, atenuada a
   `iridescentOpacity` (0.75).
+- **QA 2026-07-12 — posición de la banda**: en focus RECORRE el marco con la
+  inclinación/giroscopio (misma fórmula de paneo que el foil, `shiftPos`); el
+  barrido en bucle (ping-pong, duración `foilMotionSweepSec(shimmer)`) solo en
+  rejilla (`animated`) o con `motion: 'deriva'/'total'`.
 
 ### ⚠️ 4.4 PERF — máscara estática, animación en el hijo (lección Studio)
 
