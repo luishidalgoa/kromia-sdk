@@ -346,12 +346,13 @@ export const FOIL_BORDER_SHEENS = ['no', 'metalico', 'iridiscente'] as const;
  *  usa la paleta spectrum. Duración = `foilMotionSweepSec(shimmer)`. */
 export const FOIL_BORDER_SHEEN = {
   angleDeg: 100,
-  /** Banda blanca especular: stops alpha 0→0.85→0 concentrados al centro. */
+  /** Banda blanca especular: AFILADA (QA: una banda ancha y tenue lee como
+   *  "lavado", no como metal) — pico 1.0 concentrado en ±8%. */
   stops: [
     { alpha: 0, pos: 0 },
-    { alpha: 0, pos: 35 },
-    { alpha: 0.85, pos: 50 },
-    { alpha: 0, pos: 65 },
+    { alpha: 0, pos: 42 },
+    { alpha: 1, pos: 50 },
+    { alpha: 0, pos: 58 },
     { alpha: 0, pos: 100 },
   ],
   /** background-size del barrido (%) — mismo recorrido que kr-holo-sweep. */
@@ -366,6 +367,17 @@ export function foilBorderSheenCss(): string {
   const stops = FOIL_BORDER_SHEEN.stops.map(s => `rgba(255,255,255,${s.alpha}) ${s.pos}%`);
   return `linear-gradient(${FOIL_BORDER_SHEEN.angleDeg}deg,${stops.join(',')})`;
 }
+
+/** KRO-256 QA — CANTO del marco: contorno fino oscuro alrededor de la SILUETA
+ *  del marco (incluida la ventana del arte) → el marco se LEE como pieza
+ *  aparte en vez de fundirse con la carta (feedback: "difuminado, no parece un
+ *  borde"). Web: doble drop-shadow sub-píxel sobre la capa del fill (el
+ *  drop-shadow contornea el ALFA de la máscara); Flutter: stroke fino del path
+ *  del borderSVG con este color. */
+export const FOIL_BORDER_EDGE = {
+  color: 'rgba(24,22,34,0.75)',
+  blurPx: 0.6,
+} as const;
 
 /** KRO-244 UX — preset DE FÁBRICA del editor de efectos: un clic siembra el
  *  config completo; los sliders quedan como afinado opcional (anti-saturación:

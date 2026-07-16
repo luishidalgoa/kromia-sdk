@@ -350,6 +350,7 @@ const EXPECTED_EXPORTS = [
   'FOIL_BORDER_SHEENS',
   'FOIL_BORDER_SHEEN',
   'foilBorderSheenCss',
+  'FOIL_BORDER_EDGE',
   // KRO-122 — receta DATA del render del foil PERSONALIZADO (custom_foil)
   'EFFECT_LAYER_KINDS',
   'EFFECT_BLEND_MODES',

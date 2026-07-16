@@ -334,15 +334,25 @@ const ({
   double iridescentOpacity,
 }) foilBorderSheen = (
   angleDeg: 100,
+  // QA: banda AFILADA (pico 1.0 en ±8%) — ancha y tenue leía como "lavado".
   stops: [
     (alpha: 0.0, pos: 0.0),
-    (alpha: 0.0, pos: 35.0),
-    (alpha: 0.85, pos: 50.0),
-    (alpha: 0.0, pos: 65.0),
+    (alpha: 0.0, pos: 42.0),
+    (alpha: 1.0, pos: 50.0),
+    (alpha: 0.0, pos: 58.0),
     (alpha: 0.0, pos: 100.0),
   ],
   sizePct: 250,
   iridescentOpacity: 0.75,
+);
+
+/// KRO-256 QA — CANTO del marco: contorno fino oscuro alrededor de la silueta
+/// del marco (incluida la ventana del arte) → el marco se lee como pieza
+/// aparte en vez de fundirse con la carta. Espejo de `FOIL_BORDER_EDGE`.
+/// Render Flutter: stroke fino del path del borderSVG con este color/anchura.
+const ({Color color, double blurPx}) foilBorderEdge = (
+  color: Color(0xBF181622), // rgba(24,22,34,0.75)
+  blurPx: 0.6,
 );
 
 /// Opacidad de la capa del efecto `holographic_effect` según su `intensity`

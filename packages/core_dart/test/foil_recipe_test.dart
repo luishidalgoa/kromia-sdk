@@ -199,13 +199,17 @@ void main() {
       expect(foilBorderSheen.angleDeg, 100);
       expect(foilBorderSheen.sizePct, 250);
       expect(foilBorderSheen.iridescentOpacity, 0.75);
+      // QA: banda afilada (pico 1.0 en ±8%)
       expect(foilBorderSheen.stops, [
         (alpha: 0.0, pos: 0.0),
-        (alpha: 0.0, pos: 35.0),
-        (alpha: 0.85, pos: 50.0),
-        (alpha: 0.0, pos: 65.0),
+        (alpha: 0.0, pos: 42.0),
+        (alpha: 1.0, pos: 50.0),
+        (alpha: 0.0, pos: 58.0),
         (alpha: 0.0, pos: 100.0),
       ]);
+      // QA: canto del marco — rgba(24,22,34,0.75) + blur sub-píxel
+      expect(foilBorderEdge.color, const Color(0xBF181622));
+      expect(foilBorderEdge.blurPx, 0.6);
     });
   });
 }

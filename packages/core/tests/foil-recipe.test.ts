@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS, parseFoilPatternHex, foilCustomPatternCss, foilEffectiveAngle, foilPatternBaseAngle, foilWarpDisplacement, FOIL_ORGANIC_WARP, FOIL_PATTERN_NONE, FOIL_NEUTRAL_SHEEN, foilNeutralSheenCss, resolveFoilBorderFill, FOIL_BORDER_SOLID, FOIL_CARD_BG, FOIL_MOTIONS, FOIL_MOTION_TIMING, foilMotionFlags, foilMotionSweepSec, foilMotionHueSec, FOIL_MASK_SPARKLES, FOIL_MASK_SPARKLE, FOIL_BORDER_SHEENS, FOIL_BORDER_SHEEN, foilBorderSheenCss } from '../src/foil-recipe';
+import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS, parseFoilPatternHex, foilCustomPatternCss, foilEffectiveAngle, foilPatternBaseAngle, foilWarpDisplacement, FOIL_ORGANIC_WARP, FOIL_PATTERN_NONE, FOIL_NEUTRAL_SHEEN, foilNeutralSheenCss, resolveFoilBorderFill, FOIL_BORDER_SOLID, FOIL_CARD_BG, FOIL_MOTIONS, FOIL_MOTION_TIMING, foilMotionFlags, foilMotionSweepSec, foilMotionHueSec, FOIL_MASK_SPARKLES, FOIL_MASK_SPARKLE, FOIL_BORDER_SHEENS, FOIL_BORDER_SHEEN, foilBorderSheenCss, FOIL_BORDER_EDGE } from '../src/foil-recipe';
 import { getVisualEffect } from '../src/registries/visual-effects';
 
 // Strings EXACTOS que vivían en Studio (VisualEffectLayers `IRID_GRAD`). El builder
@@ -149,10 +149,14 @@ describe('KRO-256 — motion / mask_sparkle / border_sheen', () => {
     expect(foilMotionHueSec(500)).toBe(4);       // clamp superior
     expect(foilMotionSweepSec(NaN)).toBe(3.75);  // basura → default 50
   });
-  it('foilBorderSheenCss reproduce la banda especular de la receta', () => {
+  it('foilBorderSheenCss reproduce la banda especular de la receta (afilada, QA)', () => {
     expect(foilBorderSheenCss()).toBe(
-      'linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 35%,rgba(255,255,255,0.85) 50%,rgba(255,255,255,0) 65%,rgba(255,255,255,0) 100%)');
+      'linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 42%,rgba(255,255,255,1) 50%,rgba(255,255,255,0) 58%,rgba(255,255,255,0) 100%)');
     expect(FOIL_BORDER_SHEEN.sizePct).toBe(250);
+  });
+  it('FOIL_BORDER_EDGE — canto del marco (contorno oscuro sub-píxel)', () => {
+    expect(FOIL_BORDER_EDGE.color).toBe('rgba(24,22,34,0.75)');
+    expect(FOIL_BORDER_EDGE.blurPx).toBe(0.6);
   });
   it('FOIL_MASK_SPARKLE: variantes completas para cada opción activa del contrato', () => {
     for (const v of FOIL_MASK_SPARKLES.filter(v => v !== 'no')) {
