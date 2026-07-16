@@ -69,6 +69,16 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 
 ## Cola de handoffs abierta (vivo — mantener)
 
+- **Efectos → Flutter** · **NUEVO 2026-07-12 — KRO-259 · KRP 5.8.0 (minor) —
+  diseño de borde PERSONALIZADO**: `border_style` gana `'custom'` +
+  `border_custom_url` (troquel del creador, blanco = diseño, por LUMINANCIA).
+  El troquel sustituye al borderSVG como máscara; fill/sheen/canto se aplican
+  igual encima; `border_fill`/`border_width` no aplican; `border_margin` =
+  inset (margin/300). **core_dart YA espejado por el chat de Efectos**
+  (contrato embebido 5.8.0, 740 tests). A Mobile: solo el render — spec
+  `iridescent-foil-render-spec.md` **§3-bis**. Mismo issue paraguas de render:
+  KRO-257 (comentado).
+
 - **Efectos → Flutter** · **NUEVO 2026-07-12 — KRO-256 · KRP 5.7.0 (minor) —
   "vida" del iridiscente**: 3 params aditivos en `iridescent_foil` — `motion`
   (auto/deriva/tono/total: movimiento autónomo a elección; velocidad =

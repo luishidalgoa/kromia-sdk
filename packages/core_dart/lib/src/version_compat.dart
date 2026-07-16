@@ -9,7 +9,7 @@
 /// (packages/core/package.json#version, de donde el TS deriva PROTOCOL_VERSION).
 /// El script de paridad (KRO-64) lo verifica: si difiere de la versión del
 /// paquete, la app rechazaría como "incompatible" álbumes/QRs del protocolo actual.
-const String protocolVersion = '5.7.0';
+const String protocolVersion = '5.8.0';
 
 /// SemVer parseado (major.minor.patch). Ignora sufijos (-beta, +build).
 class Semver {

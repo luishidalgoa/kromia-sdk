@@ -4,7 +4,7 @@ description: >-
   clasificacion field -> slot + compatibilidad de protocolo. La paridad
   cross-language se garantiza por el corpus de tests (mismos inputs, mismos
   outputs que el TS). El cliente Flutter consume este paquete.
-version: 5.7.0
+version: 5.8.0
 publish_to: none
 
 # La version DEBE matchear @kromia/core (packages/core/package.json#version).

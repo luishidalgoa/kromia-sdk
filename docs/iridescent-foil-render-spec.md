@@ -135,6 +135,28 @@ Los gradientes se pintan a `scale% scale%` (mismo size que el foil); el blend
 máscara y el fill se pinta con la primitiva del kind (imagen / color /
 LinearGradient de los stops / SweepGradient para aurora).
 
+### 3-bis) Diseño de borde PERSONALIZADO (KRO-259, KRP 5.8.0)
+
+`border_style: 'custom'` + `border_custom_url` (troquel del creador: imagen
+donde el **blanco = diseño**, interpretada por **LUMINANCIA** — mismo contrato
+visual que los borderSVG de fábrica, que son blanco sobre transparente; con
+luminancia valen ambos formatos). Reglas:
+
+- El troquel **sustituye al borderSVG como máscara** del marco; TODO el
+  pipeline del fill (tinte / degradado custom / textura / `border_sheen` /
+  canto §4.5) se aplica igual encima → separa por capas la FORMA (diseño) del
+  RELLENO (material).
+- `border_fill` y `border_width` **no aplican** (la forma ya viene dibujada;
+  el editor los oculta con `visibleWhen`); un valor residual en el config se
+  ignora.
+- `border_margin` se aplica como **INSET** del cuadro de la máscara:
+  `inset = border_margin / 300` (fracción del ancho de la carta, mismo eje
+  visual que el margen del borderSVG), en ambos ejes.
+- Troquel vacío / URL rota ⇒ sin marco (como `border_style: 'none'`).
+- Flutter: el troquel es un sampler más — luma→alfa (como la máscara del foil)
+  y encima el fill; en el single-pass es un término idéntico al del borderSVG
+  rasterizado.
+
 ## 4) VIDA del efecto — movimiento, destellos y brillo del marco (KRO-256, KRP 5.7.0)
 
 Tres params nuevos ("la carta vive sola", feedback QA de la Zapdos vs la física):
