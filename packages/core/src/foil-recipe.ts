@@ -356,6 +356,9 @@ export const FOIL_BORDER_SHEEN = {
   ],
   /** background-size del barrido (%) — mismo recorrido que kr-holo-sweep. */
   sizePct: 250,
+  /** Opacidad de la variante 'iridiscente' (la banda espectral satura más que
+   *  la blanca → se atenúa para no comerse el fill de debajo). */
+  iridescentOpacity: 0.75,
 } as const;
 
 /** Host WEB: gradiente CSS de la banda especular del brillo del marco. */
