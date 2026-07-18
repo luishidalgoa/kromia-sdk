@@ -19,6 +19,23 @@ SDK (`@kromia/core/foil-recipe.ts`). Referencia de Studio: `VisualEffectLayers.t
 
 `foil` → `sheen` → `glare` → `noise` → `borde`. Todas recortadas al redondeado/silueta.
 
+**Z-order CANÓNICO de la CARTA con capas 3D** (KRO-128; verificado en el código
+de Studio 2026-07-18, `CardFocusOverlay`/`AlbumAppPreview`/`VisualEffectLayers`,
+QA carta 006):
+
+```
+fondo (arte plano + depth `back`)
+  → foils de TARJETA (la pila entera: iridescent/holographic/custom)
+    → SUJETO limpio (depth `mid` + `front`, cada una con su foil POR-CAPA
+       `__depthLayers[i].foil` — eso es lo que tiñe al sujeto, NO el foil de tarjeta)
+      → frozen / signed
+        → badge
+```
+
+Ni "todo-limpio" (KRO-224 viejo) ni "todo-bañado": el foil de tarjeta baña SOLO
+fondo+`back`; **`mid` y `front` van LIMPIAS encima**. Sin capas 3D, el foil
+cubre toda la carta (cartas planas).
+
 ## 1) Gradiente del foil (color + orientación + paleta custom)
 
 - **Paleta**: `FOIL_PATTERNS[pattern]` (datos: stops + ángulo nativo). Si
