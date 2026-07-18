@@ -351,6 +351,12 @@ const EXPECTED_EXPORTS = [
   'FOIL_BORDER_SHEEN',
   'foilBorderSheenCss',
   'FOIL_BORDER_EDGE',
+  // KRO-264 — degradado multibanda del marco
+  'FOIL_GRADIENT_SPEC',
+  'parseFoilGradientSpec',
+  'isMultibandGradient',
+  'foilGradientPositions',
+  'foilWeightedGradientCss',
   // KRO-122 — receta DATA del render del foil PERSONALIZADO (custom_foil)
   'EFFECT_LAYER_KINDS',
   'EFFECT_BLEND_MODES',

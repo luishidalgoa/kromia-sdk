@@ -316,7 +316,21 @@ const VISUAL_EFFECTS: VisualEffectDefinition[] = [
       // `border_color` (pero NO sobre border_color_hex ni border_texture_url — ver
       // resolveFoilBorderFill). Gestionado por la opción "Degradado…" del control
       // de color del borde (no se pinta suelto).
+      // KRO-264 — MULTIBANDA: acepta 2–16 colores con peso opcional (`#hex@1.4`
+      // = ancho relativo de su banda). 2–4 sin pesos = look clásico (retro-compat).
       { key: 'border_gradient_hex', label: 'Degradado personalizado del borde', type: 'string' },
+      {
+        // KRO-264 — CICLO del degradado: % del cuadro que ocupa un ciclo completo
+        // antes de repetirse. El foil real cicla ~cada 25-35% con bandas finas;
+        // 45 = el clásico (retro-compat). Aditivo (minor).
+        key:     'border_gradient_cycle',
+        label:   'Ciclo del degradado',
+        type:    'number',
+        min:     6,
+        max:     100,
+        default: 45,
+        visibleWhen: { key: 'border_gradient_hex', notEquals: '' },
+      },
       // KRO-249 — TEXTURA importada del marco (metal cepillado, papel, damasco…).
       // Si está, MANDA sobre todos los tintes. Servida por el proxy de imágenes.
       { key: 'border_texture_url', label: 'Textura del borde', type: 'string',

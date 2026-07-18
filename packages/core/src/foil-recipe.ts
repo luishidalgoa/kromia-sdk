@@ -253,7 +253,9 @@ export function foilCardBgCss(id: string): string | undefined {
 export type FoilBorderFill =
   | { kind: 'texture'; url: string }
   | { kind: 'solid'; color: string }
-  | { kind: 'custom-gradient'; colors: string[] }
+  // KRO-264 — `stops` (color+peso) es la fuente de render; `colors` se conserva
+  // por retro-compat de los hosts que aún no leen pesos.
+  | { kind: 'custom-gradient'; colors: string[]; stops: FoilGradientStop[] }
   | { kind: 'follow-foil' }
   | { kind: 'palette'; pattern: string }
   | { kind: 'card-bg'; top: string; bottom: string };
@@ -270,8 +272,10 @@ export function resolveFoilBorderFill(config: {
   const hex = String(config.border_color_hex ?? '').trim();
   if (/^#[0-9a-fA-F]{6}$/.test(hex)) return { kind: 'solid', color: hex };
 
-  const gradient = parseFoilPatternHex(String(config.border_gradient_hex ?? ''));
-  if (gradient) return { kind: 'custom-gradient', colors: gradient };
+  // KRO-264 — el spec MULTIBANDA (2–16 colores, pesos `@`) sustituye al parser
+  // clásico en el marco; un spec 2–4 sin pesos produce el MISMO layout que antes.
+  const gradient = parseFoilGradientSpec(String(config.border_gradient_hex ?? ''));
+  if (gradient) return { kind: 'custom-gradient', colors: gradient.map(s => s.color), stops: gradient };
 
   const id = String(config.border_color ?? 'none');
   if (id === 'spectrum') return { kind: 'follow-foil' };
@@ -378,6 +382,74 @@ export const FOIL_BORDER_EDGE = {
   color: 'rgba(24,22,34,0.75)',
   blurPx: 0.6,
 } as const;
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * KRO-264 — Degradado MULTIBANDA del marco. El foil real no es un degradado de
+ * 3-4 colores: son ~15 bandas ESTRECHAS de anchos IRREGULARES con casi-blancos
+ * intercalados (eso lee como metal nacarado), ciclando mucho más rápido que el
+ * 45% clásico. Sintaxis: hasta 16 colores `#RRGGBB` con peso opcional
+ * `#RRGGBB@1.4` (ancho relativo de su banda; default 1) + `border_gradient_cycle`
+ * (% del cuadro por ciclo). Retro-compat: 2–4 colores sin pesos = look clásico.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+export interface FoilGradientStop { color: string; weight: number }
+
+/** Límites del spec multibanda (contrato de validación compartido). */
+export const FOIL_GRADIENT_SPEC = {
+  minColors: 2,
+  maxColors: 16,
+  minWeight: 0.1,
+  maxWeight: 20,
+  /** Ciclo (% del cuadro) — rango del param `border_gradient_cycle`. */
+  cycle: { min: 6, max: 100, default: 45 },
+} as const;
+
+/** KRO-264 — parsea el spec multibanda: `#RRGGBB[@peso],…` (2–16 entradas).
+ *  `null` si no es válido. El parser CLÁSICO (`parseFoilPatternHex`, 2–4 sin
+ *  pesos) sigue vigente para `pattern_hex`. */
+export function parseFoilGradientSpec(raw: string): FoilGradientStop[] | null {
+  if (!raw || !raw.trim()) return null;
+  const parts = raw.split(',').map(s => s.trim()).filter(s => s !== '');
+  if (parts.length < FOIL_GRADIENT_SPEC.minColors || parts.length > FOIL_GRADIENT_SPEC.maxColors) return null;
+  const out: FoilGradientStop[] = [];
+  for (const p of parts) {
+    const m = p.match(/^(#[0-9a-fA-F]{6})(?:@([0-9]+(?:\.[0-9]+)?))?$/);
+    if (!m) return null;
+    const weight = m[2] !== undefined ? Number(m[2]) : 1;
+    if (!(weight >= FOIL_GRADIENT_SPEC.minWeight && weight <= FOIL_GRADIENT_SPEC.maxWeight)) return null;
+    out.push({ color: m[1], weight });
+  }
+  return out;
+}
+
+/** ¿El spec necesita el camino MULTIBANDA? (más de 4 colores, algún peso ≠ 1,
+ *  o ciclo explícito) — si no, el render clásico (ciclo 45%, bgSize=scale)
+ *  se conserva byte a byte para los configs existentes. */
+export function isMultibandGradient(stops: FoilGradientStop[], cycle?: number): boolean {
+  return stops.length > 4 || stops.some(s => s.weight !== 1) || cycle !== undefined;
+}
+
+/** Posiciones ACUMULADAS de cada stop dentro del ciclo (0..cyclePct): el peso
+ *  de un color = la distancia hasta el siguiente (el último cierra contra el
+ *  primero repetido en cyclePct). Fuente única cross-platform del layout. */
+export function foilGradientPositions(stops: FoilGradientStop[], cyclePct: number): number[] {
+  const total = stops.reduce((a, s) => a + s.weight, 0) || 1;
+  const out: number[] = [];
+  let acc = 0;
+  for (const s of stops) {
+    out.push(+(cyclePct * acc / total).toFixed(3));
+    acc += s.weight;
+  }
+  return out;
+}
+
+/** Host WEB: CSS del degradado multibanda (repeating, cierra con el 1er color). */
+export function foilWeightedGradientCss(stops: FoilGradientStop[], angleDeg = 115, cyclePct: number = FOIL_GRADIENT_SPEC.cycle.default): string {
+  const pos = foilGradientPositions(stops, cyclePct);
+  const parts = stops.map((s, i) => `${s.color} ${pos[i]}%`);
+  parts.push(`${stops[0].color} ${cyclePct}%`);
+  return `repeating-linear-gradient(${angleDeg}deg,${parts.join(',')})`;
+}
 
 /** KRO-244 UX — preset DE FÁBRICA del editor de efectos: un clic siembra el
  *  config completo; los sliders quedan como afinado opcional (anti-saturación:

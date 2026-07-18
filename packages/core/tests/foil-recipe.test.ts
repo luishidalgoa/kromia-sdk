@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS, parseFoilPatternHex, foilCustomPatternCss, foilEffectiveAngle, foilPatternBaseAngle, foilWarpDisplacement, FOIL_ORGANIC_WARP, FOIL_PATTERN_NONE, FOIL_NEUTRAL_SHEEN, foilNeutralSheenCss, resolveFoilBorderFill, FOIL_BORDER_SOLID, FOIL_CARD_BG, FOIL_MOTIONS, FOIL_MOTION_TIMING, foilMotionFlags, foilMotionSweepSec, foilMotionHueSec, FOIL_MASK_SPARKLES, FOIL_MASK_SPARKLE, FOIL_BORDER_SHEENS, FOIL_BORDER_SHEEN, foilBorderSheenCss, FOIL_BORDER_EDGE } from '../src/foil-recipe';
+import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS, parseFoilPatternHex, foilCustomPatternCss, foilEffectiveAngle, foilPatternBaseAngle, foilWarpDisplacement, FOIL_ORGANIC_WARP, FOIL_PATTERN_NONE, FOIL_NEUTRAL_SHEEN, foilNeutralSheenCss, resolveFoilBorderFill, FOIL_BORDER_SOLID, FOIL_CARD_BG, FOIL_MOTIONS, FOIL_MOTION_TIMING, foilMotionFlags, foilMotionSweepSec, foilMotionHueSec, FOIL_MASK_SPARKLES, FOIL_MASK_SPARKLE, FOIL_BORDER_SHEENS, FOIL_BORDER_SHEEN, foilBorderSheenCss, FOIL_BORDER_EDGE, FOIL_GRADIENT_SPEC, parseFoilGradientSpec, isMultibandGradient, foilGradientPositions, foilWeightedGradientCss } from '../src/foil-recipe';
 import { getVisualEffect } from '../src/registries/visual-effects';
 
 // Strings EXACTOS que vivían en Studio (VisualEffectLayers `IRID_GRAD`). El builder
@@ -82,9 +82,13 @@ describe('foil-recipe — foilPatternCss reproduce los strings de Studio', () =>
       .toEqual({ kind: 'solid', color: '#ff0000' });
     expect(resolveFoilBorderFill({ border_color_hex: 'nope', border_color: 'gold' }))
       .toEqual({ kind: 'solid', color: FOIL_BORDER_SOLID.gold });
-    // 3. degradado custom (formato pattern_hex: 2–4 hex)
+    // 3. degradado custom — KRO-264: gana `stops` (peso 1 por defecto)
     expect(resolveFoilBorderFill({ border_gradient_hex: '#a1a1a1,#e8e8e8', border_color: 'gold' }))
-      .toEqual({ kind: 'custom-gradient', colors: ['#a1a1a1', '#e8e8e8'] });
+      .toEqual({
+        kind: 'custom-gradient',
+        colors: ['#a1a1a1', '#e8e8e8'],
+        stops: [{ color: '#a1a1a1', weight: 1 }, { color: '#e8e8e8', weight: 1 }],
+      });
     // 4. enum: spectrum = sigue al foil; paleta = gradiente fijo; card-bg; sólidos
     expect(resolveFoilBorderFill({ border_color: 'spectrum' })).toEqual({ kind: 'follow-foil' });
     expect(resolveFoilBorderFill({ border_color: 'aurora' })).toEqual({ kind: 'palette', pattern: 'aurora' });
@@ -162,6 +166,47 @@ describe('KRO-256 — motion / mask_sparkle / border_sheen', () => {
     for (const v of FOIL_MASK_SPARKLES.filter(v => v !== 'no')) {
       expect(FOIL_MASK_SPARKLE.variants[v as keyof typeof FOIL_MASK_SPARKLE.variants]).toBeDefined();
     }
+  });
+});
+
+// KRO-264 — degradado MULTIBANDA del marco (hasta 16 colores, pesos, ciclo).
+describe('KRO-264 — parseFoilGradientSpec / foilWeightedGradientCss', () => {
+  it('parsea pesos opcionales (@) y defaultea 1', () => {
+    expect(parseFoilGradientSpec('#ff0000,#00ff00@2.5')).toEqual([
+      { color: '#ff0000', weight: 1 },
+      { color: '#00ff00', weight: 2.5 },
+    ]);
+  });
+  it('acepta hasta 16 colores; rechaza <2, >16, hex o pesos inválidos', () => {
+    const dieciseis = Array.from({ length: 16 }, (_, i) => `#0000${(10 + i).toString(16).padStart(2, '0')}`).join(',');
+    expect(parseFoilGradientSpec(dieciseis)).toHaveLength(16);
+    expect(parseFoilGradientSpec(dieciseis + ',#ffffff')).toBeNull();  // 17
+    expect(parseFoilGradientSpec('#ff0000')).toBeNull();               // 1
+    expect(parseFoilGradientSpec('#xyz,#00ff00')).toBeNull();
+    expect(parseFoilGradientSpec('#ff0000@0,#00ff00')).toBeNull();     // peso < 0.1
+    expect(parseFoilGradientSpec('#ff0000@25,#00ff00')).toBeNull();    // peso > 20
+  });
+  it('isMultibandGradient: >4 colores, pesos ≠1 o ciclo explícito', () => {
+    const s4 = parseFoilGradientSpec('#111111,#222222,#333333,#444444')!;
+    expect(isMultibandGradient(s4)).toBe(false);                        // clásico
+    expect(isMultibandGradient(s4, 30)).toBe(true);
+    expect(isMultibandGradient(parseFoilGradientSpec('#111111,#222222@2')!)).toBe(true);
+    expect(isMultibandGradient(parseFoilGradientSpec('#111111,#222222,#333333,#444444,#555555')!)).toBe(true);
+  });
+  it('foilGradientPositions reparte el ciclo por pesos acumulados', () => {
+    const stops = parseFoilGradientSpec('#111111@1,#222222@2,#333333@1')!;
+    expect(foilGradientPositions(stops, 40)).toEqual([0, 10, 30]);      // 1:2:1 de 40
+  });
+  it('foilWeightedGradientCss cierra el ciclo con el primer color', () => {
+    const stops = parseFoilGradientSpec('#111111,#222222')!;
+    expect(foilWeightedGradientCss(stops, 115, 20))
+      .toBe('repeating-linear-gradient(115deg,#111111 0%,#222222 10%,#111111 20%)');
+  });
+  it('el param del contrato refleja los límites de la receta', () => {
+    const p = getVisualEffect('iridescent_foil')!.config.find(c => c.key === 'border_gradient_cycle')!;
+    expect(p.min).toBe(FOIL_GRADIENT_SPEC.cycle.min);
+    expect(p.max).toBe(FOIL_GRADIENT_SPEC.cycle.max);
+    expect(p.default).toBe(FOIL_GRADIENT_SPEC.cycle.default);
   });
 });
 

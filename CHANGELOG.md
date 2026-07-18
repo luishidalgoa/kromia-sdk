@@ -20,6 +20,13 @@ paridad de otro chat → se resumen como nota, no se listan uno a uno.
 
 _Cambios DATA / render-only (NO bumpean el `protocolVersion`)._
 
+## [5.9.0] - 2026-07-18
+
+_Bump MINOR del KRP (auto-detectado): degradado multibanda del marco en `iridescent_foil`._
+
+### Added
+- **Degradado MULTIBANDA del marco** (KRO-264, del análisis del user contra el foil físico — ~15 bandas estrechas de anchos irregulares con casi-blancos intercalados): `border_gradient_hex` acepta **2–16 colores** con **peso opcional** `#RRGGBB@1.4` (ancho relativo de su banda) + param nuevo **`border_gradient_cycle`** (6–100, default 45 = % del cuadro por ciclo → frecuencia de repetición). Recetas: `parseFoilGradientSpec` (el clásico `parseFoilPatternHex` sigue para `pattern_hex`), `foilGradientPositions` (layout ponderado, fuente única), `foilWeightedGradientCss` (host web), `isMultibandGradient` (retro-compat: 2–4 sin pesos ni ciclo = camino clásico byte a byte) y `FOIL_GRADIENT_SPEC` (límites). `FoilBorderFill.custom-gradient` gana `stops` (color+peso; `colors` se conserva).
+
 ## [5.8.0] - 2026-07-12
 
 _Bump MINOR del KRP (auto-detectado): diseño de borde personalizado en `iridescent_foil`._
