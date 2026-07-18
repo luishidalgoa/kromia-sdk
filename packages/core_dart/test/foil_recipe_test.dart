@@ -129,6 +129,8 @@ void main() {
           {'border_gradient_hex': '#a1a1a1,#e8e8e8', 'border_color': 'gold'});
       expect(grad.kind, 'custom-gradient');
       expect(grad.colors, ['#a1a1a1', '#e8e8e8']);
+      // KRO-264 — stops con peso (default 1)
+      expect(grad.stops!.map((s) => s.weight).toList(), [1.0, 1.0]);
     });
     test('kinds del enum: spectrum=follow-foil · paletas=palette · card-bg · sólidos', () {
       expect(resolveFoilBorderFill({'border_color': 'spectrum'}).kind, 'follow-foil');
@@ -210,6 +212,34 @@ void main() {
       // QA: canto del marco — rgba(24,22,34,0.75) + blur sub-píxel
       expect(foilBorderEdge.color, const Color(0xBF181622));
       expect(foilBorderEdge.blurPx, 0.6);
+    });
+  });
+
+  // KRO-264 — degradado MULTIBANDA (espejo del corpus TS).
+  group('KRO-264 — parseFoilGradientSpec / posiciones', () {
+    test('pesos opcionales (@), default 1', () {
+      final s = parseFoilGradientSpec('#ff0000,#00ff00@2.5')!;
+      expect(s.map((e) => e.weight).toList(), [1.0, 2.5]);
+      expect(s.map((e) => e.hex).toList(), ['#ff0000', '#00ff00']);
+    });
+    test('limites: 2..16 colores, pesos 0.1..20, hex validos', () {
+      final dieciseis = List.generate(
+          16, (i) => '#0000${(10 + i).toRadixString(16).padLeft(2, '0')}').join(',');
+      expect(parseFoilGradientSpec(dieciseis), isNotNull);
+      expect(parseFoilGradientSpec('$dieciseis,#ffffff'), isNull);
+      expect(parseFoilGradientSpec('#ff0000'), isNull);
+      expect(parseFoilGradientSpec('#ff0000@0,#00ff00'), isNull);
+      expect(parseFoilGradientSpec('#ff0000@25,#00ff00'), isNull);
+    });
+    test('isMultibandGradient: >4 colores, pesos o ciclo', () {
+      final s4 = parseFoilGradientSpec('#111111,#222222,#333333,#444444')!;
+      expect(isMultibandGradient(s4), false);
+      expect(isMultibandGradient(s4, 30), true);
+      expect(isMultibandGradient(parseFoilGradientSpec('#111111,#222222@2')!), true);
+    });
+    test('foilGradientPositions reparte el ciclo por pesos (1:2:1 de 40)', () {
+      final stops = parseFoilGradientSpec('#111111@1,#222222@2,#333333@1')!;
+      expect(foilGradientPositions(stops, 40), [0.0, 10.0, 30.0]);
     });
   });
 }

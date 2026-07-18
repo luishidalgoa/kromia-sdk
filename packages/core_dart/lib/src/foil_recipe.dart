@@ -208,12 +208,15 @@ class FoilBorderFill {
   final String? url;
   final Color? color;
   final List<String>? colors;
+  /// KRO-264 — stops con PESO del degradado multibanda (fuente de render;
+  /// [colors] se conserva por retro-compat).
+  final List<FoilGradientStop>? stops;
   final String? pattern;
   final Color? top;
   final Color? bottom;
 
   const FoilBorderFill._(this.kind,
-      {this.url, this.color, this.colors, this.pattern, this.top, this.bottom});
+      {this.url, this.color, this.colors, this.stops, this.pattern, this.top, this.bottom});
 }
 
 /// KRO-249 — resolver PURO de la PRECEDENCIA del fill del marco (espejo 1:1 de
@@ -234,9 +237,11 @@ FoilBorderFill resolveFoilBorderFill(Map<String, Object?> config) {
     return FoilBorderFill._('solid', color: _hex(hex));
   }
 
-  final gradient = parseFoilPatternHex(config['border_gradient_hex']?.toString());
+  // KRO-264 — spec MULTIBANDA (2–16 colores, pesos `@`); 2–4 sin pesos = clásico.
+  final gradient = parseFoilGradientSpec(config['border_gradient_hex']?.toString());
   if (gradient != null) {
-    return FoilBorderFill._('custom-gradient', colors: gradient);
+    return FoilBorderFill._('custom-gradient',
+        colors: gradient.map((s) => s.hex).toList(), stops: gradient);
   }
 
   final id = config['border_color']?.toString() ?? 'none';
@@ -354,6 +359,78 @@ const ({Color color, double blurPx}) foilBorderEdge = (
   color: Color(0xBF181622), // rgba(24,22,34,0.75)
   blurPx: 0.6,
 );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// KRO-264 — Degradado MULTIBANDA del marco. Espejo 1:1 de `foil-recipe.ts`
+// (KRP 5.9.0): hasta 16 colores `#RRGGBB` con peso opcional `@1.4` (ancho
+// relativo de su banda) + `border_gradient_cycle` (% del cuadro por ciclo).
+// Retro-compat: 2–4 sin pesos ni ciclo = layout clásico.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Un stop del degradado multibanda (color + peso relativo de su banda).
+class FoilGradientStop {
+  final Color color;
+  final String hex;
+  final double weight;
+  const FoilGradientStop(this.color, this.hex, this.weight);
+}
+
+/// Límites del spec multibanda. Espejo de `FOIL_GRADIENT_SPEC`.
+const ({int minColors, int maxColors, double minWeight, double maxWeight,
+        ({double min, double max, double def}) cycle}) foilGradientSpec = (
+  minColors: 2,
+  maxColors: 16,
+  minWeight: 0.1,
+  maxWeight: 20,
+  cycle: (min: 6, max: 100, def: 45),
+);
+
+/// Parsea `#RRGGBB[@peso],…` (2–16). `null` si inválido. Espejo de
+/// `parseFoilGradientSpec` (el clásico [parseFoilPatternHex] sigue para
+/// `pattern_hex`).
+List<FoilGradientStop>? parseFoilGradientSpec(String? raw) {
+  if (raw == null || raw.trim().isEmpty) return null;
+  final parts =
+      raw.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+  if (parts.length < foilGradientSpec.minColors ||
+      parts.length > foilGradientSpec.maxColors) {
+    return null;
+  }
+  final re = RegExp(r'^(#[0-9a-fA-F]{6})(?:@([0-9]+(?:\.[0-9]+)?))?$');
+  final out = <FoilGradientStop>[];
+  for (final p in parts) {
+    final m = re.firstMatch(p);
+    if (m == null) return null;
+    final weight = m.group(2) != null ? double.parse(m.group(2)!) : 1.0;
+    if (weight < foilGradientSpec.minWeight ||
+        weight > foilGradientSpec.maxWeight) {
+      return null;
+    }
+    out.add(FoilGradientStop(_hex(m.group(1)!), m.group(1)!, weight));
+  }
+  return out;
+}
+
+/// ¿Necesita el camino MULTIBANDA? (>4 colores, pesos ≠1 o ciclo explícito).
+/// Si no, el render clásico se conserva. Espejo de `isMultibandGradient`.
+bool isMultibandGradient(List<FoilGradientStop> stops, [double? cycle]) =>
+    stops.length > 4 || stops.any((s) => s.weight != 1) || cycle != null;
+
+/// Posiciones acumuladas (0..cyclePct) de cada stop: el peso de un color = la
+/// distancia hasta el siguiente (el último cierra contra el primero repetido en
+/// cyclePct). Fuente única del layout. Espejo de `foilGradientPositions`
+/// (mismo redondeo a 3 decimales).
+List<double> foilGradientPositions(List<FoilGradientStop> stops, double cyclePct) {
+  final total = stops.fold<double>(0, (a, s) => a + s.weight);
+  final t = total == 0 ? 1 : total;
+  final out = <double>[];
+  var acc = 0.0;
+  for (final s in stops) {
+    out.add((cyclePct * acc / t * 1000).roundToDouble() / 1000);
+    acc += s.weight;
+  }
+  return out;
+}
 
 /// Opacidad de la capa del efecto `holographic_effect` según su `intensity`
 /// (preset cerrado). Compartida cross-platform (espejo de `holographicOpacity`).

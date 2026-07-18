@@ -69,6 +69,21 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 
 ## Cola de handoffs abierta (vivo — mantener)
 
+- **Efectos → Flutter** · **NUEVO 2026-07-18 — KRO-264 · KRP 5.9.0 (minor) —
+  degradado MULTIBANDA del marco**: `border_gradient_hex` acepta ahora 2–16
+  colores con peso opcional `#RRGGBB@1.4` (ancho relativo de banda) + param
+  nuevo `border_gradient_cycle` (6–100, default 45: % del cuadro por ciclo).
+  Origen: QA del user contra la Zapdos ex FÍSICA (el foil real = ~15 bandas
+  estrechas irregulares con casi-blancos intercalados, no un degradado suave).
+  **core_dart YA espejado por el chat de Efectos** (contrato 5.9.0 embebido +
+  `parseFoilGradientSpec`/`foilGradientPositions`/`isMultibandGradient` +
+  `FoilBorderFill.stops`; 744 tests verdes). **A Mobile le queda SOLO el
+  render**: en el kind `custom-gradient`, si `isMultibandGradient(stops, cycle)`
+  → `LinearGradient` con las posiciones de `foilGradientPositions` y `tileMode:
+  repeated` a tamaño `cycle%` del cuadro; si no, camino clásico intacto. Spec:
+  `iridescent-foil-render-spec.md` **§3-ter**. Issue paraguas de render:
+  KRO-257 (comentado).
+
 > **✅ 2026-07-12 noche — KRO-257 + KRO-259 (render) COMPLETADOS por Mobile**:
 > app PR #95 merged, 384 tests verdes, build iOS en curso — motion (§4.1),
 > destellos por giroscopio (§4.2, +`foilShiftY` en el HoloCard), banda afilada

@@ -119,9 +119,11 @@ fuente única — NO reimplementar la precedencia en el host):
 1. `border_texture_url` → `{kind:'texture'}` — imagen que rellena el marco
    (cover, centrada, por el proxy). MANDA sobre todo.
 2. `border_color_hex` (#RRGGBB válido) → `{kind:'solid'}`.
-3. `border_gradient_hex` (2–4 hex, formato/ciclo 45% de `pattern_hex`) →
-   `{kind:'custom-gradient', colors}` — web: `foilCustomPatternCss(colors)`.
-   Caso estrella: `#8e9aa8,#e8edf2,#8e9aa8` = marco metálico plateado.
+3. `border_gradient_hex` → `{kind:'custom-gradient', colors, stops}` — ver
+   §3-ter (multibanda): hasta 16 colores con peso `@`; 2–4 sin pesos ni
+   `border_gradient_cycle` = camino clásico (`foilCustomPatternCss(colors)`,
+   ciclo 45%). Caso estrella clásico: `#8e9aa8,#e8edf2,#8e9aa8` = marco
+   metálico plateado.
 4. `border_color` enum (ahora 13 opciones): `spectrum` → `{kind:'follow-foil'}`
    (el gradiente ACTUAL del foil, incl. paleta custom/none) · cualquier paleta de
    `FOIL_PATTERNS` (aurora/oilslick/sunset/mint/midnight) → `{kind:'palette'}`
@@ -156,6 +158,41 @@ luminancia valen ambos formatos). Reglas:
 - Flutter: el troquel es un sampler más — luma→alfa (como la máscara del foil)
   y encima el fill; en el single-pass es un término idéntico al del borderSVG
   rasterizado.
+
+### 3-ter) Degradado MULTIBANDA del marco (KRO-264, KRP 5.9.0)
+
+El foil prismático real (QA con la Zapdos ex física) no es un degradado suave de
+3–4 colores: son **~15 bandas ESTRECHAS de anchos IRREGULARES**, con casi-blancos
+intercalados (el "metal" asoma entre color y color) y un ciclo mucho más
+frecuente. Respuesta algorítmica:
+
+- **Spec extendido de `border_gradient_hex`**: `#RRGGBB[@peso],…` con **2–16**
+  colores. El `@peso` (0.1–20, default 1) = **ancho relativo de la banda** de ese
+  color (la distancia hasta el color siguiente). Parser canónico:
+  `parseFoilGradientSpec(raw)` → `FoilGradientStop{color,hex,weight}[] | null`
+  (null = inválido → cae al enum, como siempre).
+- **`border_gradient_cycle`** (número 6–100, default 45, `FOIL_GRADIENT_SPEC.cycle`;
+  solo visible con `border_gradient_hex` no vacío): % del cuadro que ocupa UN
+  ciclo completo antes de repetir. Bajarlo = bandas más frecuentes (la
+  referencia física ≈ 28).
+- **Layout canónico**: `foilGradientPositions(stops, cyclePct)` → posición
+  acumulada de cada stop en `[0, cyclePct)` proporcional a los pesos, redondeo a
+  3 decimales. El ciclo **cierra repitiendo el primer color** en `cyclePct` (sin
+  costura). Web: `foilWeightedGradientCss(stops, angleDeg=115, cyclePct)` →
+  `repeating-linear-gradient` pintado a **`background-size: 100% 100%`** (el
+  ciclo YA es fracción del cuadro; no re-escalar con `scale`). Flutter: mismas
+  posiciones/colores en un `LinearGradient` con `tileMode: repeated` (§3 kind
+  `custom-gradient` usando `stops` en vez de `colors`).
+- **Retro-compat dura**: `isMultibandGradient(stops, cycle?)` decide el camino —
+  multibanda si (>4 colores) O (algún peso ≠ 1) O (`border_gradient_cycle`
+  explícito). Si no → camino clásico byte a byte (2–4 equiespaciados, ciclo 45%,
+  size `scale%`): ninguna carta guardada cambia de aspecto.
+- Preset de referencia ("Nácar", editor de Studio; muestreado de la carta física
+  de arriba→abajo): `#7784bd@1.2,#caa7fe@0.8,#90a0fc,#dcfefe@1.5,#f9fefe,`
+  `#9dbdc3@0.7,#9dfeff,#f0feff@1.4,#a5c0e2@0.9,#b6cfff,#87aee8@0.8,#fdbefe@1.2,`
+  `#fce78d,#fcfdec@1.3,#d9fd6f@0.9,#b6f8d5` + `border_gradient_cycle: 28`. Los
+  casi-blancos (`#f9fefe`, `#f0feff`, `#fcfdec`) VAN COMO STOPS — son los que dan
+  el aspecto metal; no filtrarlos.
 
 ## 4) VIDA del efecto — movimiento, destellos y brillo del marco (KRO-256, KRP 5.7.0)
 

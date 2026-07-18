@@ -22,13 +22,14 @@ void main() {
       ]);
     });
 
-    test('iridescent_foil (KRO-224/244/247-249/256/259): layer overlay + 30 params + rangos/enums', () {
+    test('iridescent_foil (KRO-224/244/247-249/256/259): layer overlay + 31 params + rangos/enums', () {
       final e = getVisualEffect('iridescent_foil')!;
       expect(e.layer, 'overlay');
       // KRO-244: +geometry+warp+pattern_hex+angle · KRO-248: +mask_url+mask_layout
       // +mask_scale · KRO-249: +border_gradient_hex+border_texture_url ·
-      // KRO-256: +motion+mask_sparkle+border_sheen · KRO-259: +border_custom_url.
-      expect(e.config.length, 30);
+      // KRO-256: +motion+mask_sparkle+border_sheen · KRO-259: +border_custom_url ·
+      // KRO-264: +border_gradient_cycle.
+      expect(e.config.length, 31);
       final pattern = e.config.firstWhere((p) => p.key == 'pattern');
       expect(pattern.type, 'enum');
       expect(pattern.defaultValue, 'spectrum');
@@ -95,6 +96,11 @@ void main() {
       final bstyle = e.config.firstWhere((p) => p.key == 'border_style');
       expect(bstyle.options, contains('custom'));
       expect(e.config.firstWhere((p) => p.key == 'border_custom_url').type, 'string');
+      // KRO-264 (KRP 5.9.0) — ciclo del degradado multibanda.
+      final cycle = e.config.firstWhere((p) => p.key == 'border_gradient_cycle');
+      expect(cycle.min, 6);
+      expect(cycle.max, 100);
+      expect(cycle.defaultValue, 45);
     });
 
     test('IDs únicos', () {
