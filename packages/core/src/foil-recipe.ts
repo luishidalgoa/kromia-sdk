@@ -451,6 +451,21 @@ export function foilWeightedGradientCss(stops: FoilGradientStop[], angleDeg = 11
   return `repeating-linear-gradient(${angleDeg}deg,${parts.join(',')})`;
 }
 
+/** QA KRO-264 — el multibanda debe DESLIZARSE con la inclinación como el foil
+ *  (física: rotar el prismático desplaza las bandas). A tamaño exacto (100%)
+ *  el pan del tilt es un no-op → el lienzo del degradado se pinta SOBREDIMENSIONADO
+ *  a `sizePct` del cuadro (deja recorrido) y el ciclo se COMPENSA en espacio de
+ *  imagen para que el ancho visual de banda no cambie:
+ *  `cicloImagen = foilMultibandCycle(ciclo)` = ciclo·100/sizePct.
+ *  Web: bgSize `sizePct%` + el mismo backgroundPosition del tilt que el resto de
+ *  fills; Flutter: gradiente a sizePct del cuadro paneado por giroscopio. */
+export const FOIL_MULTIBAND_PAN = { sizePct: 200 } as const;
+
+/** Ciclo en ESPACIO DE IMAGEN para el lienzo sobredimensionado del multibanda. */
+export function foilMultibandCycle(cyclePct: number): number {
+  return +(cyclePct * 100 / FOIL_MULTIBAND_PAN.sizePct).toFixed(3);
+}
+
 /** KRO-244 UX — preset DE FÁBRICA del editor de efectos: un clic siembra el
  *  config completo; los sliders quedan como afinado opcional (anti-saturación:
  *  la mayoría de publishers no debería tocar 12 sliders). Editor-only (no

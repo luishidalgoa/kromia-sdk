@@ -178,11 +178,19 @@ frecuente. Respuesta algorítmica:
 - **Layout canónico**: `foilGradientPositions(stops, cyclePct)` → posición
   acumulada de cada stop en `[0, cyclePct)` proporcional a los pesos, redondeo a
   3 decimales. El ciclo **cierra repitiendo el primer color** en `cyclePct` (sin
-  costura). Web: `foilWeightedGradientCss(stops, angleDeg=115, cyclePct)` →
-  `repeating-linear-gradient` pintado a **`background-size: 100% 100%`** (el
-  ciclo YA es fracción del cuadro; no re-escalar con `scale`). Flutter: mismas
-  posiciones/colores en un `LinearGradient` con `tileMode: repeated` (§3 kind
-  `custom-gradient` usando `stops` en vez de `colors`).
+  costura). Flutter: mismas posiciones/colores en un `LinearGradient` con
+  `tileMode: repeated` (§3 kind `custom-gradient` usando `stops` en vez de
+  `colors`).
+- **El multibanda SE DESLIZA con la inclinación** (QA: física real — rotar el
+  prismático desplaza las bandas). A tamaño exacto del cuadro el pan del tilt es
+  un no-op, así que el lienzo del degradado se pinta **sobredimensionado** a
+  `FOIL_MULTIBAND_PAN.sizePct` (200 %) y el ciclo se **compensa en espacio de
+  imagen** con `foilMultibandCycle(ciclo)` (= ciclo·100/sizePct; p.ej. 28 → 14)
+  para que el ancho VISUAL de banda no cambie. Web:
+  `foilWeightedGradientCss(stops, 115, foilMultibandCycle(c))` + `background-size:
+  200% 200%` + el MISMO `background-position` del tilt que el resto de fills del
+  marco. Flutter: gradiente a 200 % del cuadro paneado por giroscopio (mismo eje
+  que el foil).
 - **Retro-compat dura**: `isMultibandGradient(stops, cycle?)` decide el camino —
   multibanda si (>4 colores) O (algún peso ≠ 1) O (`border_gradient_cycle`
   explícito). Si no → camino clásico byte a byte (2–4 equiespaciados, ciclo 45%,

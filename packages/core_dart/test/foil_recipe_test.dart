@@ -241,5 +241,10 @@ void main() {
       final stops = parseFoilGradientSpec('#111111@1,#222222@2,#333333@1')!;
       expect(foilGradientPositions(stops, 40), [0.0, 10.0, 30.0]);
     });
+    test('QA tilt: lienzo sobredimensionado + ciclo compensado (espejo TS)', () {
+      expect(foilMultibandPan.sizePct, 200);
+      expect(foilMultibandCycle(28), 14.0);
+      expect(foilMultibandCycle(45), 22.5);
+    });
   });
 }

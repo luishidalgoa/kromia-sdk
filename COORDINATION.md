@@ -79,10 +79,12 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   `parseFoilGradientSpec`/`foilGradientPositions`/`isMultibandGradient` +
   `FoilBorderFill.stops`; 744 tests verdes). **A Mobile le queda SOLO el
   render**: en el kind `custom-gradient`, si `isMultibandGradient(stops, cycle)`
-  → `LinearGradient` con las posiciones de `foilGradientPositions` y `tileMode:
-  repeated` a tamaño `cycle%` del cuadro; si no, camino clásico intacto. Spec:
-  `iridescent-foil-render-spec.md` **§3-ter**. Issue paraguas de render:
-  KRO-257 (comentado).
+  → `LinearGradient` con las posiciones de `foilGradientPositions(stops,
+  foilMultibandCycle(cycle))`, `tileMode: repeated`, a lienzo
+  `foilMultibandPan.sizePct` (200 %) del cuadro **paneado por giroscopio** (QA:
+  las bandas deben deslizarse al inclinar, como el foil); si no, camino clásico
+  intacto. Spec: `iridescent-foil-render-spec.md` **§3-ter**. Issue paraguas de
+  render: KRO-257 (comentado).
 
 > **✅ 2026-07-12 noche — KRO-257 + KRO-259 (render) COMPLETADOS por Mobile**:
 > app PR #95 merged, 384 tests verdes, build iOS en curso — motion (§4.1),

@@ -432,6 +432,18 @@ List<double> foilGradientPositions(List<FoilGradientStop> stops, double cyclePct
   return out;
 }
 
+/// QA KRO-264 — el multibanda debe DESLIZARSE con la inclinación como el foil.
+/// A tamaño exacto el pan es no-op → lienzo sobredimensionado a `sizePct` del
+/// cuadro + ciclo compensado en espacio de imagen (espejo de
+/// `FOIL_MULTIBAND_PAN` / `foilMultibandCycle`). En la app: gradiente a
+/// sizePct del cuadro paneado por giroscopio.
+const ({int sizePct}) foilMultibandPan = (sizePct: 200);
+
+/// Ciclo en ESPACIO DE IMAGEN para el lienzo sobredimensionado (mismo redondeo
+/// a 3 decimales que el TS).
+double foilMultibandCycle(double cyclePct) =>
+    (cyclePct * 100 / foilMultibandPan.sizePct * 1000).roundToDouble() / 1000;
+
 /// Opacidad de la capa del efecto `holographic_effect` según su `intensity`
 /// (preset cerrado). Compartida cross-platform (espejo de `holographicOpacity`).
 double holographicOpacity(Object? intensity) {
