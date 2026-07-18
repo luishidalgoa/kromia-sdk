@@ -359,6 +359,8 @@ const EXPECTED_EXPORTS = [
   'foilWeightedGradientCss',
   'FOIL_MULTIBAND_PAN',
   'foilMultibandCycle',
+  'foilPatternCycle',
+  'FOIL_CUSTOM_CYCLE_PCT',
   // KRO-122 — receta DATA del render del foil PERSONALIZADO (custom_foil)
   'EFFECT_LAYER_KINDS',
   'EFFECT_BLEND_MODES',

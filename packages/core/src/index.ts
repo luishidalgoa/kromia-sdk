@@ -570,7 +570,7 @@ export type { FoilBorderFill } from './foil-recipe';
 export { FOIL_MOTIONS, FOIL_MOTION_TIMING, foilMotionFlags, foilMotionSweepSec, foilMotionHueSec } from './foil-recipe';
 export { FOIL_MASK_SPARKLES, FOIL_MASK_SPARKLE, FOIL_BORDER_SHEENS, FOIL_BORDER_SHEEN, foilBorderSheenCss, FOIL_BORDER_EDGE } from './foil-recipe';
 // KRO-264 — degradado multibanda del marco (pesos + ciclo)
-export { FOIL_GRADIENT_SPEC, parseFoilGradientSpec, isMultibandGradient, foilGradientPositions, foilWeightedGradientCss, FOIL_MULTIBAND_PAN, foilMultibandCycle } from './foil-recipe';
+export { FOIL_GRADIENT_SPEC, parseFoilGradientSpec, isMultibandGradient, foilGradientPositions, foilWeightedGradientCss, FOIL_MULTIBAND_PAN, foilMultibandCycle, foilPatternCycle, FOIL_CUSTOM_CYCLE_PCT } from './foil-recipe';
 export type { FoilGradientStop } from './foil-recipe';
 export type { FoilMotion } from './foil-recipe';
 export { EFFECT_FACTORY_PRESETS } from './foil-recipe';

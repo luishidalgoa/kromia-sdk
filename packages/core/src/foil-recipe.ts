@@ -129,12 +129,15 @@ export function parseFoilPatternHex(raw: string): string[] | null {
   return parts.every(p => /^#[0-9a-fA-F]{6}$/.test(p)) ? parts : null;
 }
 
+/** Ciclo del gradiente de paleta PERSONALIZADA clásica (= el de spectrum). */
+export const FOIL_CUSTOM_CYCLE_PCT = 45;
+
 /** Host WEB: gradiente CSS de una paleta personalizada. Mismo CICLO que spectrum
  *  (la banda se repite cada 45%) con los colores equiespaciados y el primero
  *  repetido al cierre → repetición sin costura. Flutter construye su
  *  LinearGradient con estos mismos stops (k·45/n %, cierre en 45%). */
 export function foilCustomPatternCss(colors: string[], angleDeg = 115): string {
-  const cycle = 45;
+  const cycle = FOIL_CUSTOM_CYCLE_PCT;
   const step  = cycle / colors.length;
   const stops = colors.map((c, k) => `${c} ${+(k * step).toFixed(1)}%`);
   stops.push(`${colors[0]} ${cycle}%`);
@@ -449,6 +452,21 @@ export function foilWeightedGradientCss(stops: FoilGradientStop[], angleDeg = 11
   const parts = stops.map((s, i) => `${s.color} ${pos[i]}%`);
   parts.push(`${stops[0].color} ${cyclePct}%`);
   return `repeating-linear-gradient(${angleDeg}deg,${parts.join(',')})`;
+}
+
+/** Ciclo CANÓNICO (% del lienzo del gradiente) al que cierra el `repeating` de
+ *  una paleta = posición del ÚLTIMO stop (el primer color repetido): spectrum/
+ *  midnight 45 · oilslick 40 · sunset/mint 48 · custom (`pattern_hex` clásico)
+ *  45. Cónicas (aurora) → `null` (giran, no ciclan). El % es relativo al LIENZO
+ *  (background-size), así que el periodo VISUAL sobre la carta =
+ *  ciclo · scale/100 (a scale 300, spectrum = 1.35 anchos de carta = lavado
+ *  ancho, no una banda fina). Fuente única para la paridad de tamaño en la app.
+ *  Desconocida (o custom) = 45, el ciclo de `foilCustomPattern`. */
+export function foilPatternCycle(pattern: string): number | null {
+  const p = FOIL_PATTERNS[pattern];
+  if (!p) return FOIL_CUSTOM_CYCLE_PCT;
+  if (p.kind !== 'repeating-linear') return null;
+  return p.stops[p.stops.length - 1]!.pos;
 }
 
 /** QA KRO-264 — el multibanda debe DESLIZARSE con la inclinación como el foil

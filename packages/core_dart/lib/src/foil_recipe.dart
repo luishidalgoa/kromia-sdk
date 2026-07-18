@@ -116,8 +116,26 @@ Color _hex(String h) => Color(0xFF000000 | int.parse(h.substring(1), radix: 16))
 /// sin costura. Espejo (como DATA) de `foilCustomPatternCss`: Flutter construye su
 /// `LinearGradient` con estos MISMOS stops. [angleDeg] = ángulo NATIVO (115, igual
 /// que spectrum); el `angle` del efecto se SUMA en el render, no aquí.
+/// Ciclo del gradiente de paleta PERSONALIZADA clásica (= el de spectrum).
+/// Espejo de `FOIL_CUSTOM_CYCLE_PCT`.
+const double foilCustomCyclePct = 45;
+
+/// Ciclo CANÓNICO (% del lienzo del gradiente) al que cierra el `repeating` de
+/// una paleta = posición del ÚLTIMO stop (el primer color repetido): spectrum/
+/// midnight 45 · oilslick 40 · sunset/mint 48. Cónicas (aurora) → `null`
+/// (giran, no ciclan); desconocida/custom → 45. El % es relativo al LIENZO
+/// (background-size en CSS): periodo VISUAL sobre la carta = ciclo · scale/100
+/// (a scale 300, spectrum = 1.35 anchos de carta = lavado ancho). Espejo de
+/// `foilPatternCycle` — fuente única de la paridad de TAMAÑO del foil.
+double? foilPatternCycle(String pattern) {
+  final p = foilPatterns[pattern];
+  if (p == null) return foilCustomCyclePct;
+  if (p.kind != 'repeating-linear') return null;
+  return p.stops.last.pos;
+}
+
 FoilPattern foilCustomPattern(List<String> hexColors, {double angleDeg = 115}) {
-  const cycle = 45.0;
+  const cycle = foilCustomCyclePct;
   final n = hexColors.length;
   final step = cycle / n;
   final stops = <FoilStop>[

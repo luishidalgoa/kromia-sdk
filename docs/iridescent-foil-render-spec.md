@@ -33,6 +33,16 @@ SDK (`@kromia/core/foil-recipe.ts`). Referencia de Studio: `VisualEffectLayers.t
 - **glare**: radial blanco al puntero/tilt, `blend: soft-light`, alpha = `glow/100`.
 - **noise**: textura fractal, `blend: overlay`, `opacity: noise/100`.
 
+**Ciclo canónico del repeating (paridad de TAMAÑO)**: `foilPatternCycle(pattern)`
+(TS y Dart) — posición del último stop: spectrum/midnight **45** · oilslick **40** ·
+sunset/mint **48** · custom clásico (`FOIL_CUSTOM_CYCLE_PCT`) **45** · aurora
+(cónica) **null** (gira, no cicla). El % es relativo al LIENZO (`background-size`),
+así que el **periodo visual sobre la carta = ciclo · scale/100**: a scale 300,
+spectrum cierra cada 1.35 anchos de carta (lavado ancho, <1 ciclo visible), NO
+bandas finas. ⚠️ Al estirar, el blowout del blend se controla con la
+`opacity`/blend de la capa (un lavado overlay@30 es sutil por diseño) — no
+recortar el periodo para compensar.
+
 ## 1-bis) Paleta "Ninguna" (`pattern: 'none'`) — lámina NEUTRA (KRO-247, KRP 5.4.0)
 
 Sin gradiente de color. Reglas (con `pattern:'none'` y SIN `pattern_hex` válido —

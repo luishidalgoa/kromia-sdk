@@ -241,6 +241,15 @@ void main() {
       final stops = parseFoilGradientSpec('#111111@1,#222222@2,#333333@1')!;
       expect(foilGradientPositions(stops, 40), [0.0, 10.0, 30.0]);
     });
+    test('foilPatternCycle — ciclo canónico por paleta (paridad de tamaño app)', () {
+      expect(foilPatternCycle('spectrum'), 45);
+      expect(foilPatternCycle('midnight'), 45);
+      expect(foilPatternCycle('oilslick'), 40);
+      expect(foilPatternCycle('sunset'), 48);
+      expect(foilPatternCycle('mint'), 48);
+      expect(foilPatternCycle('aurora'), isNull); // cónica: gira, no cicla
+      expect(foilPatternCycle('nope'), foilCustomCyclePct); // custom/desconocida = 45
+    });
     test('QA tilt: lienzo sobredimensionado + ciclo compensado (espejo TS)', () {
       expect(foilMultibandPan.sizePct, 200);
       expect(foilMultibandCycle(28), 14.0);

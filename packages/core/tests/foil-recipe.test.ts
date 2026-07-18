@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS, parseFoilPatternHex, foilCustomPatternCss, foilEffectiveAngle, foilPatternBaseAngle, foilWarpDisplacement, FOIL_ORGANIC_WARP, FOIL_PATTERN_NONE, FOIL_NEUTRAL_SHEEN, foilNeutralSheenCss, resolveFoilBorderFill, FOIL_BORDER_SOLID, FOIL_CARD_BG, FOIL_MOTIONS, FOIL_MOTION_TIMING, foilMotionFlags, foilMotionSweepSec, foilMotionHueSec, FOIL_MASK_SPARKLES, FOIL_MASK_SPARKLE, FOIL_BORDER_SHEENS, FOIL_BORDER_SHEEN, foilBorderSheenCss, FOIL_BORDER_EDGE, FOIL_GRADIENT_SPEC, FOIL_MULTIBAND_PAN, foilMultibandCycle, parseFoilGradientSpec, isMultibandGradient, foilGradientPositions, foilWeightedGradientCss } from '../src/foil-recipe';
+import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS, parseFoilPatternHex, foilCustomPatternCss, foilEffectiveAngle, foilPatternBaseAngle, foilWarpDisplacement, FOIL_ORGANIC_WARP, FOIL_PATTERN_NONE, FOIL_NEUTRAL_SHEEN, foilNeutralSheenCss, resolveFoilBorderFill, FOIL_BORDER_SOLID, FOIL_CARD_BG, FOIL_MOTIONS, FOIL_MOTION_TIMING, foilMotionFlags, foilMotionSweepSec, foilMotionHueSec, FOIL_MASK_SPARKLES, FOIL_MASK_SPARKLE, FOIL_BORDER_SHEENS, FOIL_BORDER_SHEEN, foilBorderSheenCss, FOIL_BORDER_EDGE, FOIL_GRADIENT_SPEC, FOIL_MULTIBAND_PAN, foilMultibandCycle, foilPatternCycle, FOIL_CUSTOM_CYCLE_PCT, parseFoilGradientSpec, isMultibandGradient, foilGradientPositions, foilWeightedGradientCss } from '../src/foil-recipe';
 import { getVisualEffect } from '../src/registries/visual-effects';
 
 // Strings EXACTOS que vivían en Studio (VisualEffectLayers `IRID_GRAD`). El builder
@@ -207,6 +207,15 @@ describe('KRO-264 — parseFoilGradientSpec / foilWeightedGradientCss', () => {
     expect(p.min).toBe(FOIL_GRADIENT_SPEC.cycle.min);
     expect(p.max).toBe(FOIL_GRADIENT_SPEC.cycle.max);
     expect(p.default).toBe(FOIL_GRADIENT_SPEC.cycle.default);
+  });
+  it('foilPatternCycle — ciclo canónico de cada paleta (paridad de tamaño app)', () => {
+    expect(foilPatternCycle('spectrum')).toBe(45);
+    expect(foilPatternCycle('midnight')).toBe(45);
+    expect(foilPatternCycle('oilslick')).toBe(40);
+    expect(foilPatternCycle('sunset')).toBe(48);
+    expect(foilPatternCycle('mint')).toBe(48);
+    expect(foilPatternCycle('aurora')).toBeNull();          // cónica: gira, no cicla
+    expect(foilPatternCycle('nope')).toBe(FOIL_CUSTOM_CYCLE_PCT); // custom/desconocida = 45
   });
   it('QA tilt: lienzo sobredimensionado + ciclo compensado (el ancho visual de banda no cambia)', () => {
     expect(FOIL_MULTIBAND_PAN.sizePct).toBe(200);
