@@ -506,10 +506,12 @@ export function foilMultibandCycle(cyclePct: number): number {
  *      El rango sano [minFrac, maxFrac] acota TODO `pattern·scale` del contrato.
  * ──────────────────────────────────────────────────────────────────────────── */
 
-/** Papel CANÓNICO de una carta con arte vacío (`arte:''`): gris CLARO NEUTRO,
- *  calibrado 1:1 contra Studio (QA KRO-257). Sustrato del wash del foil — debe ser
- *  NEUTRO (un cálido lo desatura) y no blanco puro (el `overlay` no lo tiñe). */
-export const FOIL_ART_VOID_SUBSTRATE = '#D8D8D8' as const;
+/** Papel CANÓNICO de una carta con arte vacío (`arte:''`): gris NEUTRO,
+ *  calibrado en dispositivo contra Studio (QA KRO-257, build 59). Sustrato del
+ *  wash del foil — debe ser NEUTRO (un cálido lo desatura) y no blanco puro (el
+ *  `overlay` no lo tiñe). #A0A0A0 fue el equilibrio validado en iPhone: #808080
+ *  quedaba oscuro, #D8D8D8 muy lavado por el brillo de pantalla. */
+export const FOIL_ART_VOID_SUBSTRATE = '#A0A0A0' as const;
 
 /** Rango SANO del periodo visual de banda (fracción del ancho de carta): fuera de
  *  él el foil "lava" (>maxFrac = banda única, KRO-224) o se promedia a gris

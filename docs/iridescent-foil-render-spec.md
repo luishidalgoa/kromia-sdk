@@ -43,9 +43,11 @@ come el arte) por dos causas de raíz. Ambas están canonizadas en `@kromia/core
 con tests de paridad TS↔Dart (`foil-recipe.test.ts` / `foil_recipe_test.dart`,
 grupo "KRO-257"). El host DEBE respetarlas:
 
-1. **Sustrato del arte vacío = `FOIL_ART_VOID_SUBSTRATE` (`#D8D8D8`, gris CLARO
+1. **Sustrato del arte vacío = `FOIL_ART_VOID_SUBSTRATE` (`#A0A0A0`, gris
    neutro).** Cuando `arte:''`, el "papel" sobre el que se compone el wash DEBE
-   ser este claro NEUTRO — calibrado 1:1 contra Studio (QA KRO-257). Dos fallos
+   ser este gris NEUTRO — calibrado en dispositivo contra Studio (QA KRO-257,
+   build 59; #808080 quedaba oscuro y #D8D8D8 muy lavado por el brillo de la
+   pantalla del iPhone). Dos fallos
    simétricos: un fondo **cálido** (el peach `#F5DEC0`) desatura el wash → fondo
    plano + sparkles `screen` blancos; el **blanco puro** no lo tiñe el `overlay`
    en absoluto. El wash rinde pastel sobre el claro-neutro gracias al `saturate(
