@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS, parseFoilPatternHex, foilCustomPatternCss, foilEffectiveAngle, foilPatternBaseAngle, foilWarpDisplacement, FOIL_ORGANIC_WARP, FOIL_PATTERN_NONE, FOIL_NEUTRAL_SHEEN, foilNeutralSheenCss, resolveFoilBorderFill, FOIL_BORDER_SOLID, FOIL_CARD_BG, FOIL_MOTIONS, FOIL_MOTION_TIMING, foilMotionFlags, foilMotionSweepSec, foilMotionHueSec, FOIL_MASK_SPARKLES, FOIL_MASK_SPARKLE, FOIL_BORDER_SHEENS, FOIL_BORDER_SHEEN, foilBorderSheenCss, FOIL_BORDER_EDGE, FOIL_GRADIENT_SPEC, FOIL_MULTIBAND_PAN, foilMultibandCycle, foilPatternCycle, FOIL_CUSTOM_CYCLE_PCT, parseFoilGradientSpec, isMultibandGradient, foilGradientPositions, foilWeightedGradientCss } from '../src/foil-recipe';
+import { foilPatternCss, FOIL_PATTERN_IDS, holographicOpacity, EFFECT_FACTORY_PRESETS, parseFoilPatternHex, foilCustomPatternCss, foilEffectiveAngle, foilPatternBaseAngle, foilWarpDisplacement, FOIL_ORGANIC_WARP, FOIL_PATTERN_NONE, FOIL_NEUTRAL_SHEEN, foilNeutralSheenCss, resolveFoilBorderFill, FOIL_BORDER_SOLID, FOIL_CARD_BG, FOIL_MOTIONS, FOIL_MOTION_TIMING, foilMotionFlags, foilMotionSweepSec, foilMotionHueSec, FOIL_MASK_SPARKLES, FOIL_MASK_SPARKLE, FOIL_BORDER_SHEENS, FOIL_BORDER_SHEEN, foilBorderSheenCss, FOIL_BORDER_EDGE, FOIL_GRADIENT_SPEC, FOIL_MULTIBAND_PAN, foilMultibandCycle, foilPatternCycle, FOIL_CUSTOM_CYCLE_PCT, FOIL_ART_VOID_SUBSTRATE, FOIL_BAND_PERIOD_SAFE, foilBandPeriodFrac, parseFoilGradientSpec, isMultibandGradient, foilGradientPositions, foilWeightedGradientCss } from '../src/foil-recipe';
 import { getVisualEffect } from '../src/registries/visual-effects';
 
 // Strings EXACTOS que vivían en Studio (VisualEffectLayers `IRID_GRAD`). El builder
@@ -226,6 +226,47 @@ describe('KRO-264 — parseFoilGradientSpec / foilWeightedGradientCss', () => {
     const stops = parseFoilGradientSpec('#111111@1,#222222@2,#333333@1')!;
     expect(foilWeightedGradientCss(stops, 115, foilMultibandCycle(40)))
       .toBe('repeating-linear-gradient(115deg,#111111 0%,#222222 5%,#333333 15%,#111111 20%)');
+  });
+});
+
+// KRO-257 — salvaguardas ANTI-"LAVADO". Fijan las dos causas de raíz que
+// hundieron el foil del fondo en la app: (1) fondo del arte vacío demasiado
+// CLARO → el overlay no tiñe; (2) periodo de banda degenerado → banda única
+// (regresión KRO-224) o bandas finas promediadas a gris.
+describe('KRO-257 — salvaguardas anti-"lavado"', () => {
+  it('FOIL_ART_VOID_SUBSTRATE es un gris MEDIO NEUTRO (el overlay solo tiñe midtones)', () => {
+    const hex = FOIL_ART_VOID_SUBSTRATE;
+    expect(hex).toMatch(/^#[0-9a-fA-F]{6}$/);
+    const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+    // NEUTRO: sin sesgo cálido/frío (el peach cálido #F5DEC0 desaturaba el wash → bug)
+    expect(r).toBe(g);
+    expect(g).toBe(b);
+    // MIDTONE: ni claro (blanco/peach no tiñen bajo overlay) ni oscuro (traga el color)
+    const lum = r / 255;
+    expect(lum).toBeGreaterThanOrEqual(0.35);
+    expect(lum).toBeLessThanOrEqual(0.65);
+  });
+
+  it('foilBandPeriodFrac = ciclo·scale/100 (fracción del ancho); cónicas → null', () => {
+    expect(foilBandPeriodFrac('spectrum', 300)).toBe(1.35);  // 45·3 = 1.35 anchos (lavado ancho, NO banda única)
+    expect(foilBandPeriodFrac('oilslick', 100)).toBe(0.40);
+    expect(foilBandPeriodFrac('aurora', 210)).toBeNull();    // cónica: no cicla linealmente
+  });
+
+  it('el periodo visual queda en rango SANO para TODO pattern·scale del contrato (anti-KRO-224 + anti-promediado)', () => {
+    const scaleParam = getVisualEffect('iridescent_foil')!.config.find(c => c.key === 'scale')!;
+    const smin = scaleParam.min!, smax = scaleParam.max!;
+    const repeating = [...FOIL_PATTERN_IDS].filter(p => foilPatternCycle(p) !== null);
+    expect(repeating.length).toBeGreaterThan(0);
+    for (const p of repeating) {
+      for (const scale of [smin, scaleParam.default!, smax]) {
+        const frac = foilBandPeriodFrac(p, scale)!;
+        // >maxFrac = una banda cubre la carta → el blend se come el arte (KRO-224)
+        expect(frac, `${p}@${scale} = ${frac} anchos`).toBeLessThanOrEqual(FOIL_BAND_PERIOD_SAFE.maxFrac);
+        // <minFrac = bandas tan finas que el color se promedia a gris
+        expect(frac, `${p}@${scale} = ${frac} anchos`).toBeGreaterThanOrEqual(FOIL_BAND_PERIOD_SAFE.minFrac);
+      }
+    }
   });
 });
 

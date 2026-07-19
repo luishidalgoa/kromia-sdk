@@ -361,6 +361,9 @@ const EXPECTED_EXPORTS = [
   'foilMultibandCycle',
   'foilPatternCycle',
   'FOIL_CUSTOM_CYCLE_PCT',
+  'FOIL_ART_VOID_SUBSTRATE',
+  'FOIL_BAND_PERIOD_SAFE',
+  'foilBandPeriodFrac',
   // KRO-122 — receta DATA del render del foil PERSONALIZADO (custom_foil)
   'EFFECT_LAYER_KINDS',
   'EFFECT_BLEND_MODES',

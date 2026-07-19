@@ -36,6 +36,29 @@ Ni "todo-limpio" (KRO-224 viejo) ni "todo-bañado": el foil de tarjeta baña SOL
 fondo+`back`; **`mid` y `front` van LIMPIAS encima**. Sin capas 3D, el foil
 cubre toda la carta (cartas planas).
 
+### ⚠️ Salvaguardas anti-"lavado" (KRO-257) — DOS invariantes duras
+
+El foil del fondo se hundió (fondo plano / sparkles blancos / o el arcoíris se
+come el arte) por dos causas de raíz. Ambas están canonizadas en `@kromia/core`
+con tests de paridad TS↔Dart (`foil-recipe.test.ts` / `foil_recipe_test.dart`,
+grupo "KRO-257"). El host DEBE respetarlas:
+
+1. **Sustrato del arte vacío = `FOIL_ART_VOID_SUBSTRATE` (`#808080`, gris MEDIO
+   neutro).** Cuando `arte:''`, el "papel" sobre el que se compone el wash DEBE
+   ser este gris medio — NO un claro ni un cálido. El wash es `mix-blend-mode:
+   overlay`, que **solo tiñe midtones**: sobre blanco/peach no tiñe → fondo plano
+   y los sparkles `screen` salen blancos (no hay color debajo). Studio lo logra
+   con un blanco translúcido (`bg-muted/30`) sobre la carta = midtone efectivo;
+   los demás hosts pintan esta constante. (Experimento: overlay del spectrum
+   sobre blanco→0 color, sobre `#F5DEC0`→casi nada, sobre `#808080`→pastel
+   colorido.)
+2. **Periodo de banda acotado.** El periodo VISUAL = `foilBandPeriodFrac(pattern,
+   scale)` = `foilPatternCycle·scale/100` (anchos de carta). Debe quedar en
+   `FOIL_BAND_PERIOD_SAFE` `[0.35, 1.6]`: si >1.6 una banda cubre la carta y el
+   blend se come el arte (**regresión KRO-224**, el "estirado" que hubo que
+   revertir); si <0.35 las bandas son tan finas que el color se promedia a gris.
+   El test lo verifica para TODO `pattern·scale` del contrato.
+
 ## 1) Gradiente del foil (color + orientación + paleta custom)
 
 - **Paleta**: `FOIL_PATTERNS[pattern]` (datos: stops + ángulo nativo). Si

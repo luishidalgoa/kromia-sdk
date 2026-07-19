@@ -256,4 +256,37 @@ void main() {
       expect(foilMultibandCycle(45), 22.5);
     });
   });
+
+  // KRO-257 — salvaguardas anti-"lavado" (espejo del corpus TS).
+  group('KRO-257 — salvaguardas anti-"lavado"', () {
+    test('foilArtVoidSubstrate es un gris MEDIO NEUTRO (el overlay solo tiñe midtones)', () {
+      final hex = foilArtVoidSubstrate;
+      expect(RegExp(r'^#[0-9a-fA-F]{6}$').hasMatch(hex), isTrue);
+      final r = int.parse(hex.substring(1, 3), radix: 16);
+      final g = int.parse(hex.substring(3, 5), radix: 16);
+      final b = int.parse(hex.substring(5, 7), radix: 16);
+      expect(r, g); // neutro: sin sesgo cálido/frío (el peach cálido era el bug)
+      expect(g, b);
+      final lum = r / 255; // midtone: ni claro (no tiñe) ni oscuro (traga el color)
+      expect(lum, greaterThanOrEqualTo(0.35));
+      expect(lum, lessThanOrEqualTo(0.65));
+    });
+    test('foilBandPeriodFrac = ciclo·scale/100; cónicas → null', () {
+      expect(foilBandPeriodFrac('spectrum', 300), 1.35);
+      expect(foilBandPeriodFrac('oilslick', 100), 0.40);
+      expect(foilBandPeriodFrac('aurora', 210), isNull);
+    });
+    test('periodo visual en rango SANO para TODO pattern·scale del contrato', () {
+      final scale = getVisualEffect('iridescent_foil')!
+          .config
+          .firstWhere((p) => p.key == 'scale');
+      for (final p in foilPatternIds.where((p) => foilPatternCycle(p) != null)) {
+        for (final s in [scale.min!, scale.defaultValue as num, scale.max!]) {
+          final frac = foilBandPeriodFrac(p, (s as num).toDouble())!;
+          expect(frac, lessThanOrEqualTo(foilBandPeriodSafe.maxFrac), reason: '$p@$s');
+          expect(frac, greaterThanOrEqualTo(foilBandPeriodSafe.minFrac), reason: '$p@$s');
+        }
+      }
+    });
+  });
 }

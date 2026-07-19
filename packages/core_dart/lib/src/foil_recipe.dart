@@ -462,6 +462,34 @@ const ({int sizePct}) foilMultibandPan = (sizePct: 200);
 double foilMultibandCycle(double cyclePct) =>
     (cyclePct * 100 / foilMultibandPan.sizePct * 1000).roundToDouble() / 1000;
 
+// ─────────────────────────────────────────────────────────────────────────────
+// KRO-257 — SALVAGUARDAS ANTI-"LAVADO" (espejo de foil-recipe.ts). (1) el papel
+// del arte vacío DEBE ser gris MEDIO neutro: el wash `overlay` solo tiñe
+// midtones, sobre claro/peach no tiñe (fondo plano + sparkles blancos). (2) el
+// periodo VISUAL de banda = ciclo·scale/100 (anchos de carta) debe quedar en
+// rango sano: >maxFrac = banda única (regresión KRO-224), <minFrac = bandas
+// finas promediadas a gris.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Papel CANÓNICO de la carta con arte vacío: gris MEDIO neutro. Sustrato del
+/// wash del foil (imprescindible midtone para que el `overlay` tiña). Espejo de
+/// `FOIL_ART_VOID_SUBSTRATE`. El host debe pintar ESTE fondo, no un claro/cálido.
+const String foilArtVoidSubstrate = '#808080';
+
+/// Rango sano del periodo visual de banda (fracción del ancho de carta). Espejo
+/// de `FOIL_BAND_PERIOD_SAFE`.
+const ({double minFrac, double maxFrac}) foilBandPeriodSafe =
+    (minFrac: 0.35, maxFrac: 1.6);
+
+/// Periodo VISUAL de las bandas del foil en FRACCIÓN del ancho de carta, para un
+/// `pattern` y `scalePct` (background-size). `null` para cónicas. Espejo de
+/// `foilBandPeriodFrac` (mismo redondeo a 4 decimales).
+double? foilBandPeriodFrac(String pattern, double scalePct) {
+  final cyclePct = foilPatternCycle(pattern);
+  if (cyclePct == null) return null;
+  return (cyclePct / 100 * scalePct / 100 * 10000).roundToDouble() / 10000;
+}
+
 /// Opacidad de la capa del efecto `holographic_effect` según su `intensity`
 /// (preset cerrado). Compartida cross-platform (espejo de `holographicOpacity`).
 double holographicOpacity(Object? intensity) {

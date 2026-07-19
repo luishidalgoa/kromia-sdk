@@ -484,6 +484,45 @@ export function foilMultibandCycle(cyclePct: number): number {
   return +(cyclePct * 100 / FOIL_MULTIBAND_PAN.sizePct).toFixed(3);
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+ * KRO-257 — SALVAGUARDAS ANTI-"LAVADO". Dos causas de raíz hundieron el foil del
+ * fondo en la app (la criatura/fondo salían planos o el arcoíris se comía el
+ * arte). Se canonizan aquí, con tests de paridad TS↔Dart, para que NINGÚN host
+ * las re-rompa:
+ *
+ *   1. SUSTRATO del arte vacío. El wash del foil es `mix-blend-mode: overlay`, que
+ *      SOLO tiñe MEDIOS TONOS: sobre un fondo claro (blanco, o un peach cálido)
+ *      no tiñe nada → fondo plano + destellos `screen` que salen blancos. El
+ *      "papel" de una carta con arte vacío DEBE ser un gris MEDIO neutro para que
+ *      el overlay exprese color. (Studio lo logra con un blanco translúcido sobre
+ *      la carta = midtone efectivo; la app debe usar esta constante.)
+ *
+ *   2. PERIODO de banda. El periodo VISUAL de las bandas = `foilPatternCycle·
+ *      scale/100` (anchos de carta). Si degenera a >~1.6 anchos, una sola banda
+ *      cubre la carta y el blend se come el arte (regresión KRO-224); si <~0.35,
+ *      las bandas son tan finas que se promedian a gris y el color desaparece.
+ *      El rango sano [minFrac, maxFrac] acota TODO `pattern·scale` del contrato.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+/** Papel CANÓNICO de una carta con arte vacío (`arte:''`): gris MEDIO neutro.
+ *  Sustrato sobre el que se compone el wash del foil — imprescindible que sea
+ *  midtone para que el `overlay` tiña (ver salvaguarda 1). NO un claro/cálido. */
+export const FOIL_ART_VOID_SUBSTRATE = '#808080' as const;
+
+/** Rango SANO del periodo visual de banda (fracción del ancho de carta): fuera de
+ *  él el foil "lava" (>maxFrac = banda única, KRO-224) o se promedia a gris
+ *  (<minFrac). Contrato de la salvaguarda 2. */
+export const FOIL_BAND_PERIOD_SAFE = { minFrac: 0.35, maxFrac: 1.6 } as const;
+
+/** Periodo VISUAL de las bandas del foil sobre la carta, en FRACCIÓN de su ancho,
+ *  para un `pattern` y `scale%` (background-size). `null` para cónicas (no ciclan
+ *  linealmente). Fuente única de la paridad de tamaño y de la salvaguarda 2. */
+export function foilBandPeriodFrac(pattern: string, scalePct: number): number | null {
+  const cyclePct = foilPatternCycle(pattern);
+  if (cyclePct === null) return null;
+  return +(cyclePct / 100 * scalePct / 100).toFixed(4);
+}
+
 /** KRO-244 UX — preset DE FÁBRICA del editor de efectos: un clic siembra el
  *  config completo; los sliders quedan como afinado opcional (anti-saturación:
  *  la mayoría de publishers no debería tocar 12 sliders). Editor-only (no
