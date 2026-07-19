@@ -234,17 +234,17 @@ describe('KRO-264 — parseFoilGradientSpec / foilWeightedGradientCss', () => {
 // CLARO → el overlay no tiñe; (2) periodo de banda degenerado → banda única
 // (regresión KRO-224) o bandas finas promediadas a gris.
 describe('KRO-257 — salvaguardas anti-"lavado"', () => {
-  it('FOIL_ART_VOID_SUBSTRATE es un gris MEDIO NEUTRO (el overlay solo tiñe midtones)', () => {
+  it('FOIL_ART_VOID_SUBSTRATE es un gris CLARO NEUTRO (calibrado 1:1 vs Studio)', () => {
     const hex = FOIL_ART_VOID_SUBSTRATE;
     expect(hex).toMatch(/^#[0-9a-fA-F]{6}$/);
     const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
-    // NEUTRO: sin sesgo cálido/frío (el peach cálido #F5DEC0 desaturaba el wash → bug)
+    // INVARIANTE dura: NEUTRO (R=G=B). Un cálido como el peach #F5DEC0 desatura el wash → el bug.
     expect(r).toBe(g);
     expect(g).toBe(b);
-    // MIDTONE: ni claro (blanco/peach no tiñen bajo overlay) ni oscuro (traga el color)
+    // Claro pero NO blanco puro (el overlay no tiñe el blanco) ni oscuro (traga el color).
     const lum = r / 255;
-    expect(lum).toBeGreaterThanOrEqual(0.35);
-    expect(lum).toBeLessThanOrEqual(0.65);
+    expect(lum).toBeGreaterThanOrEqual(0.5);
+    expect(lum).toBeLessThan(0.98);
   });
 
   it('foilBandPeriodFrac = ciclo·scale/100 (fracción del ancho); cónicas → null', () => {

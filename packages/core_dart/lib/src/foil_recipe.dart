@@ -471,10 +471,11 @@ double foilMultibandCycle(double cyclePct) =>
 // finas promediadas a gris.
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// Papel CANÓNICO de la carta con arte vacío: gris MEDIO neutro. Sustrato del
-/// wash del foil (imprescindible midtone para que el `overlay` tiña). Espejo de
-/// `FOIL_ART_VOID_SUBSTRATE`. El host debe pintar ESTE fondo, no un claro/cálido.
-const String foilArtVoidSubstrate = '#808080';
+/// Papel CANÓNICO de la carta con arte vacío: gris CLARO NEUTRO (calibrado 1:1
+/// vs Studio, QA KRO-257). Sustrato del wash del foil — NEUTRO (un cálido lo
+/// desatura) y no blanco puro (el `overlay` no lo tiñe). Espejo de
+/// `FOIL_ART_VOID_SUBSTRATE`. El host pinta ESTE fondo cuando el arte es vacío.
+const String foilArtVoidSubstrate = '#D8D8D8';
 
 /// Rango sano del periodo visual de banda (fracción del ancho de carta). Espejo
 /// de `FOIL_BAND_PERIOD_SAFE`.

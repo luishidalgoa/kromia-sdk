@@ -490,12 +490,14 @@ export function foilMultibandCycle(cyclePct: number): number {
  * arte). Se canonizan aquí, con tests de paridad TS↔Dart, para que NINGÚN host
  * las re-rompa:
  *
- *   1. SUSTRATO del arte vacío. El wash del foil es `mix-blend-mode: overlay`, que
- *      SOLO tiñe MEDIOS TONOS: sobre un fondo claro (blanco, o un peach cálido)
- *      no tiñe nada → fondo plano + destellos `screen` que salen blancos. El
- *      "papel" de una carta con arte vacío DEBE ser un gris MEDIO neutro para que
- *      el overlay exprese color. (Studio lo logra con un blanco translúcido sobre
- *      la carta = midtone efectivo; la app debe usar esta constante.)
+ *   1. SUSTRATO del arte vacío. El wash del foil tiñe sobre el "papel" de la
+ *      carta; con `arte:''` ese papel DEBE ser un gris CLARO NEUTRO. Dos fallos
+ *      simétricos: (a) un fondo CÁLIDO (el peach `#F5DEC0`) desatura el wash →
+ *      fondo plano + destellos `screen` blancos; (b) el BLANCO PURO no lo tiñe el
+ *      `overlay` en absoluto. El punto dulce es un claro NEUTRO (`#D8D8D8`),
+ *      calibrado 1:1 contra Studio (QA KRO-257): el wash rinde pastel gracias al
+ *      `saturate(1.25) brightness(1.05)` de su base. La INVARIANTE dura es la
+ *      NEUTRALIDAD (R=G=B); la luminancia clara evita tragar el color.
  *
  *   2. PERIODO de banda. El periodo VISUAL de las bandas = `foilPatternCycle·
  *      scale/100` (anchos de carta). Si degenera a >~1.6 anchos, una sola banda
@@ -504,10 +506,10 @@ export function foilMultibandCycle(cyclePct: number): number {
  *      El rango sano [minFrac, maxFrac] acota TODO `pattern·scale` del contrato.
  * ──────────────────────────────────────────────────────────────────────────── */
 
-/** Papel CANÓNICO de una carta con arte vacío (`arte:''`): gris MEDIO neutro.
- *  Sustrato sobre el que se compone el wash del foil — imprescindible que sea
- *  midtone para que el `overlay` tiña (ver salvaguarda 1). NO un claro/cálido. */
-export const FOIL_ART_VOID_SUBSTRATE = '#808080' as const;
+/** Papel CANÓNICO de una carta con arte vacío (`arte:''`): gris CLARO NEUTRO,
+ *  calibrado 1:1 contra Studio (QA KRO-257). Sustrato del wash del foil — debe ser
+ *  NEUTRO (un cálido lo desatura) y no blanco puro (el `overlay` no lo tiñe). */
+export const FOIL_ART_VOID_SUBSTRATE = '#D8D8D8' as const;
 
 /** Rango SANO del periodo visual de banda (fracción del ancho de carta): fuera de
  *  él el foil "lava" (>maxFrac = banda única, KRO-224) o se promedia a gris

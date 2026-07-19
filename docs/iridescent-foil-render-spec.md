@@ -43,15 +43,16 @@ come el arte) por dos causas de raíz. Ambas están canonizadas en `@kromia/core
 con tests de paridad TS↔Dart (`foil-recipe.test.ts` / `foil_recipe_test.dart`,
 grupo "KRO-257"). El host DEBE respetarlas:
 
-1. **Sustrato del arte vacío = `FOIL_ART_VOID_SUBSTRATE` (`#808080`, gris MEDIO
+1. **Sustrato del arte vacío = `FOIL_ART_VOID_SUBSTRATE` (`#D8D8D8`, gris CLARO
    neutro).** Cuando `arte:''`, el "papel" sobre el que se compone el wash DEBE
-   ser este gris medio — NO un claro ni un cálido. El wash es `mix-blend-mode:
-   overlay`, que **solo tiñe midtones**: sobre blanco/peach no tiñe → fondo plano
-   y los sparkles `screen` salen blancos (no hay color debajo). Studio lo logra
-   con un blanco translúcido (`bg-muted/30`) sobre la carta = midtone efectivo;
-   los demás hosts pintan esta constante. (Experimento: overlay del spectrum
-   sobre blanco→0 color, sobre `#F5DEC0`→casi nada, sobre `#808080`→pastel
-   colorido.)
+   ser este claro NEUTRO — calibrado 1:1 contra Studio (QA KRO-257). Dos fallos
+   simétricos: un fondo **cálido** (el peach `#F5DEC0`) desatura el wash → fondo
+   plano + sparkles `screen` blancos; el **blanco puro** no lo tiñe el `overlay`
+   en absoluto. El wash rinde pastel sobre el claro-neutro gracias al `saturate(
+   1.25) brightness(1.05)` de su base. La INVARIANTE dura es la NEUTRALIDAD
+   (R=G=B). Studio usa un blanco translúcido (`bg-muted/30`) sobre la carta =
+   claro-neutro efectivo. (Toggle en vivo: ocultar el wash en Studio → el fondo
+   pasa de pastel a beige plano, confirma que el color viene del wash.)
 2. **Periodo de banda acotado.** El periodo VISUAL = `foilBandPeriodFrac(pattern,
    scale)` = `foilPatternCycle·scale/100` (anchos de carta). Debe quedar en
    `FOIL_BAND_PERIOD_SAFE` `[0.35, 1.6]`: si >1.6 una banda cubre la carta y el
