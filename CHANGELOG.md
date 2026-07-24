@@ -20,6 +20,9 @@ paridad de otro chat → se resumen como nota, no se listan uno a uno.
 
 _Cambios DATA / render-only (NO bumpean el `protocolVersion`)._
 
+### Added
+- **Comunidad del publisher — modelo de canales y posts** (KRO-265 / Epic KRO-209): tipos `Channel` (canal de un publisher: `kind` announcements/discussion/events · `visibility` public/collectors/followers · archivado · soft-delete) y `Post` (markdown + adjuntos de imagen + reacciones + edición `editedAt/editedBy` + soft-delete `deletedAt/deletedBy`). Set cerrado `POST_REACTION_EMOJIS` y helpers puros cross-host: `isValidReactionEmoji`, `reactionCount`, `hasReacted`, `channelSlugify`, `isDeleted`, `isEdited`. DATA social (ajena al render de cartas) → no toca el KRP. Espejo `core_dart` pendiente (handoff Mobile).
+
 ## [5.9.0] - 2026-07-18
 
 _Bump MINOR del KRP (auto-detectado): degradado multibanda del marco en `iridescent_foil`._
