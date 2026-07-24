@@ -12,6 +12,7 @@ import {
   isEdited,
   reactionsAllowed,
   notifiesFollowers,
+  canPinAnother,
   validateChannel,
   validatePost,
 } from '../src/community';
@@ -141,5 +142,27 @@ describe('KRO-265 — validatePost', () => {
     const dup = validatePost({ ...basePost, reactions: [{ emoji: '🔥', userIds: ['a'] }, { emoji: '🔥', userIds: ['b'] }] });
     expect(dup.valid).toBe(false);
     expect(dup.issues.some(i => /duplicada/i.test(i.message))).toBe(true);
+  });
+});
+
+describe('canPinAnother (tope de fijadas · KRO-265)', () => {
+  const max = COMMUNITY_LIMITS.pinnedPerChannel.max;
+
+  it('deja fijar mientras se esté por debajo del tope', () => {
+    for (let n = 0; n < max; n++) expect(canPinAnother(n)).toBe(true);
+  });
+
+  it('bloquea justo AL llegar al tope, no después', () => {
+    expect(canPinAnother(max)).toBe(false);
+    expect(canPinAnother(max + 5)).toBe(false);
+  });
+
+  // Ante un contador corrupto preferimos dejar fijar: el coste de un cuarto post
+  // fijado es cosmético; el de bloquear al publisher sin explicación, no.
+  it('ante un contador roto deja pasar en vez de bloquear al usuario', () => {
+    expect(canPinAnother(NaN)).toBe(true);
+    expect(canPinAnother(Infinity)).toBe(true);
+    expect(canPinAnother(-3)).toBe(true);
+    expect(canPinAnother(2.7)).toBe(true); // trunca a 2, por debajo del tope
   });
 });

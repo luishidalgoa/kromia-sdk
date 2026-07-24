@@ -169,7 +169,23 @@ export const COMMUNITY_LIMITS = {
   channelDescription: { max: 280 },
   postBody:           { max: 2000 },
   postAttachments:    { max: 10 },
+  /**
+   * Cuántas publicaciones pueden estar fijadas a la vez en un canal. Fijar es un
+   * recurso ESCASO a propósito: si todo está fijado, nada destaca. El host debe
+   * negar la fijación número 4 y decir cuál desfijar.
+   */
+  pinnedPerChannel:   { max: 3 },
 } as const;
+
+/**
+ * ¿Cabe otra publicación fijada en el canal? `currentPinnedCount` NO debe incluir
+ * el post que se está fijando. Un valor no finito o negativo se trata como 0:
+ * ante un contador roto, preferimos dejar fijar a bloquear al usuario.
+ */
+export function canPinAnother(currentPinnedCount: number): boolean {
+  const n = Number.isFinite(currentPinnedCount) ? Math.max(0, Math.trunc(currentPinnedCount)) : 0;
+  return n < COMMUNITY_LIMITS.pinnedPerChannel.max;
+}
 
 /** Un slug válido: minúsculas/números en grupos separados por un solo guion, sin guiones en los extremos. */
 const CHANNEL_SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
