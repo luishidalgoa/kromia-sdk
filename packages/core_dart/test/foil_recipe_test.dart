@@ -1,5 +1,3 @@
-import 'dart:ui' show Color;
-
 import 'package:kromia_core/kromia_core.dart';
 import 'package:test/test.dart';
 
@@ -7,7 +5,8 @@ import 'package:test/test.dart';
 /// `@kromia/core` `foil-recipe.ts` (`f5e0c65`). Fuente única: el render del host los
 /// lee de aquí, no hardcodea hex. Los valores se re-saturaron (los 4 oscuros se
 /// veían iguales; `silver` era casi blanco).
-Color _rgb(int rgb) => Color(0xFF000000 | rgb);
+// KRO-266: el espejo guarda el HEX canónico del TS (no Color de Flutter).
+String _rgb(int rgb) => '#${rgb.toRadixString(16).padLeft(6, '0')}';
 
 void main() {
   group('foilBorderSolid (KRO-244)', () {
@@ -209,8 +208,10 @@ void main() {
         (alpha: 0.0, pos: 58.0),
         (alpha: 0.0, pos: 100.0),
       ]);
-      // QA: canto del marco — rgba(24,22,34,0.75) + blur sub-píxel
-      expect(foilBorderEdge.color, const Color(0xBF181622));
+      // QA: canto del marco — rgba(24,22,34,0.75) + blur sub-píxel. KRO-266: el
+      // espejo guarda el LITERAL del TS; el host lo pinta con foilArgb().
+      expect(foilBorderEdge.color, 'rgba(24,22,34,0.75)');
+      expect(foilArgb(foilBorderEdge.color), 0xBF181622);
       expect(foilBorderEdge.blurPx, 0.6);
     });
   });
@@ -287,6 +288,38 @@ void main() {
           expect(frac, greaterThanOrEqualTo(foilBandPeriodSafe.minFrac), reason: '$p@$s');
         }
       }
+    });
+  });
+
+  // KRO-266 — el espejo es Dart PURO: los colores se guardan como el MISMO
+  // literal que el TS (hex / rgba), NUNCA como `Color` de Flutter. Importar
+  // `dart:ui` aquí tumba el job `corpus-parity` del drift-CI (`dart test` no
+  // tiene esa librería) — 20 push en rojo hasta que se cazó.
+  group('KRO-266 — colores canónicos (sin dart:ui)', () {
+    test('los colores del contrato son strings hex, espejo literal del TS', () {
+      for (final v in foilBorderSolid.values) {
+        expect(v, matches(r'^#[0-9a-f]{6}$'), reason: 'foilBorderSolid');
+      }
+      for (final v in foilCardBg.values) {
+        expect(v.top, matches(r'^#[0-9a-f]{6}$'));
+        expect(v.bottom, matches(r'^#[0-9a-f]{6}$'));
+      }
+      for (final p in foilPatterns.values) {
+        for (final s in p.stops) {
+          expect(s.color, matches(r'^#[0-9a-f]{6}$'), reason: 'stop de \${p.kind}');
+        }
+        for (final c in p.colors) {
+          expect(c, matches(r'^#[0-9a-f]{6}$'), reason: 'conic');
+        }
+      }
+      expect(parseFoilGradientSpec('#ff0000@2,#00ff00')!.first.color, '#ff0000');
+    });
+    test('foilArgb convierte los dos formatos del contrato (host → Color)', () {
+      expect(foilArgb('#ffffff'), 0xFFFFFFFF);
+      expect(foilArgb('#f5c542'), 0xFFF5C542);
+      expect(foilArgb('rgba(24,22,34,0.75)'), 0xBF181622);
+      expect(foilArgb('rgb(255,0,0)'), 0xFFFF0000);
+      expect(foilArgb('desconocido'), 0xFFFFFFFF, reason: 'fallback = blanco');
     });
   });
 }

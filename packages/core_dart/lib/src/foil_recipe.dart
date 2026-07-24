@@ -9,11 +9,33 @@
 /// NO se espeja — Flutter construye el gradiente desde `foilPatterns[pattern]`.
 library;
 
-import 'dart:ui' show Color;
+
+/// KRO-266 — Convierte un color CANÓNICO del contrato (`#rrggbb` o
+/// `rgba(r,g,b,a)`, los MISMOS literales que el TS) a un entero **ARGB**.
+/// El espejo guarda strings (paridad 1:1 con `foil-recipe.ts`) y es el HOST
+/// quien los pinta: en Flutter, `Color(foilArgb(hex))`. Puro Dart a propósito:
+/// `core_dart` NO puede importar `dart:ui` (rompe `dart test` del drift-CI).
+int foilArgb(String color) {
+  final c = color.trim();
+  if (c.startsWith('#') && c.length == 7) {
+    return 0xFF000000 | int.parse(c.substring(1), radix: 16);
+  }
+  final m = RegExp(r'^rgba?\(([^)]+)\)$').firstMatch(c);
+  if (m != null) {
+    final parts = m.group(1)!.split(',').map((e) => e.trim()).toList();
+    if (parts.length >= 3) {
+      final r = int.parse(parts[0]), g = int.parse(parts[1]), b = int.parse(parts[2]);
+      final a = parts.length > 3 ? (double.parse(parts[3]) * 255).round() : 255;
+      return (a.clamp(0, 255) << 24) | (r << 16) | (g << 8) | b;
+    }
+  }
+  return 0xFFFFFFFF; // desconocido = blanco opaco (mismo fallback que el TS)
+}
 
 /// Un stop del gradiente del foil. [pos] en % (0–100).
 class FoilStop {
-  final Color color;
+  /// Hex `#rrggbb` — MISMO literal que el TS (el host lo convierte con [foilArgb]).
+  final String color;
   final double pos;
   const FoilStop(this.color, this.pos);
 }
@@ -26,7 +48,7 @@ class FoilPattern {
   final double angleDeg; // repeating-linear
   final List<FoilStop> stops; // repeating-linear
   final double fromDeg; // conic
-  final List<Color> colors; // conic
+  final List<String> colors; // conic (hex #rrggbb)
 
   const FoilPattern.repeatingLinear(this.angleDeg, this.stops)
       : kind = 'repeating-linear',
@@ -39,9 +61,9 @@ class FoilPattern {
         stops = const [];
 }
 
-// Hex #rrggbb → Color opaco (los stops del mockup son opacos; la opacidad la
-// aplica la capa del efecto).
-Color _c(int rgb) => Color(0xFF000000 | rgb);
+// int RGB → hex `#rrggbb` (el literal EXACTO del TS; la opacidad la aplica la
+// capa del efecto en el host).
+String _c(int rgb) => '#${rgb.toRadixString(16).padLeft(6, '0')}';
 
 /// Los 6 patterns del `iridescent_foil` (stops EXACTOS, calcados del mockup).
 /// El enum `pattern` del efecto = estas keys.
@@ -106,9 +128,9 @@ List<String>? parseFoilPatternHex(String? raw) {
   return parts.every(re.hasMatch) ? parts : null;
 }
 
-// #RRGGBB → Color opaco (los stops del foil son opacos; la opacidad la aplica la
-// capa del efecto).
-Color _hex(String h) => Color(0xFF000000 | int.parse(h.substring(1), radix: 16));
+// El dato canónico YA es el hex del TS: identidad (se conserva por legibilidad
+// en los constructores de abajo).
+String _hex(String h) => h;
 
 /// KRO-244 — `FoilPattern` de una paleta PERSONALIZADA (2–4 colores, ya validados
 /// por [parseFoilPatternHex]). Mismo CICLO que spectrum (banda cada 45%), colores
@@ -197,7 +219,7 @@ double foilWarpDisplacement(num warp) =>
 /// `border_color`). Espejo 1:1 de `FOIL_BORDER_SOLID` (`foil-recipe.ts`, `f5e0c65`):
 /// `silver` se OSCURECIÓ (antes casi blanco, se confundía con `none`). El render
 /// tiñe el SVG blanco del borde con `srcIn`. FUENTE ÚNICA — no hardcodear en el host.
-final Map<String, Color> foilBorderSolid = {
+final Map<String, String> foilBorderSolid = {
   'none': _c(0xffffff),
   'gold': _c(0xf5c542),
   'silver': _c(0xaeb9c7),
@@ -207,7 +229,7 @@ final Map<String, Color> foilBorderSolid = {
 /// Espejo 1:1 de `FOIL_CARD_BG` (`foil-recipe.ts`, `f5e0c65`): RE-SATURADOS respecto
 /// a los casi-negros previos (los 4 se veían iguales). El render los usa como
 /// gradiente lineal (ShaderMask srcIn sobre el SVG del borde). FUENTE ÚNICA.
-final Map<String, ({Color top, Color bottom})> foilCardBg = {
+final Map<String, ({String top, String bottom})> foilCardBg = {
   'forest': (top: _c(0x2e7d4f), bottom: _c(0x0b2b1a)),
   'obsidian': (top: _c(0x41444d), bottom: _c(0x0a0a0d)),
   'plum': (top: _c(0x6d3fa8), bottom: _c(0x22103d)),
@@ -224,14 +246,16 @@ final Map<String, ({Color top, Color bottom})> foilCardBg = {
 class FoilBorderFill {
   final String kind;
   final String? url;
-  final Color? color;
+  /// Hex `#rrggbb` (kind 'solid').
+  final String? color;
   final List<String>? colors;
   /// KRO-264 — stops con PESO del degradado multibanda (fuente de render;
   /// [colors] se conserva por retro-compat).
   final List<FoilGradientStop>? stops;
   final String? pattern;
-  final Color? top;
-  final Color? bottom;
+  /// Hex `#rrggbb` (kind 'card-bg').
+  final String? top;
+  final String? bottom;
 
   const FoilBorderFill._(this.kind,
       {this.url, this.color, this.colors, this.stops, this.pattern, this.top, this.bottom});
@@ -373,8 +397,8 @@ const ({
 /// del marco (incluida la ventana del arte) → el marco se lee como pieza
 /// aparte en vez de fundirse con la carta. Espejo de `FOIL_BORDER_EDGE`.
 /// Render Flutter: stroke fino del path del borderSVG con este color/anchura.
-const ({Color color, double blurPx}) foilBorderEdge = (
-  color: Color(0xBF181622), // rgba(24,22,34,0.75)
+const ({String color, double blurPx}) foilBorderEdge = (
+  color: 'rgba(24,22,34,0.75)', // literal EXACTO del TS (host: [foilArgb])
   blurPx: 0.6,
 );
 
@@ -387,10 +411,13 @@ const ({Color color, double blurPx}) foilBorderEdge = (
 
 /// Un stop del degradado multibanda (color + peso relativo de su banda).
 class FoilGradientStop {
-  final Color color;
-  final String hex;
+  /// Hex `#rrggbb` — espejo del TS `{ color: string; weight: number }`.
+  final String color;
   final double weight;
-  const FoilGradientStop(this.color, this.hex, this.weight);
+  const FoilGradientStop(this.color, this.weight);
+
+  /// Alias retro-compat del hex (== [color]).
+  String get hex => color;
 }
 
 /// Límites del spec multibanda. Espejo de `FOIL_GRADIENT_SPEC`.
@@ -424,7 +451,7 @@ List<FoilGradientStop>? parseFoilGradientSpec(String? raw) {
         weight > foilGradientSpec.maxWeight) {
       return null;
     }
-    out.add(FoilGradientStop(_hex(m.group(1)!), m.group(1)!, weight));
+    out.add(FoilGradientStop(m.group(1)!, weight));
   }
   return out;
 }
