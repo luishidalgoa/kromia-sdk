@@ -42,6 +42,17 @@ export interface Channel {
   /** Archivado: sigue VISIBLE en read-only, no acepta posts nuevos. Distinto de eliminado. */
   archived?:    boolean;
   /**
+   * KRO-265 (diseño) — ¿se puede reaccionar en este canal? Es propiedad del CANAL,
+   * no del post: al apagarlo, los posts pierden la fila de emojis y el muro avisa.
+   * Ausente = true (retro-compat: los canales existentes ya permiten reaccionar).
+   */
+  reactionsEnabled?: boolean;
+  /**
+   * KRO-265 (diseño) — ¿cada publicación avisa a los seguidores? Ausente = true
+   * (el fan-out de KRO-211 es el comportamiento por defecto del canal de anuncios).
+   */
+  notifyFollowers?: boolean;
+  /**
    * Soft-delete (tombstone): si presente, el canal está ELIMINADO (oculto).
    * Borrarlo arrastra sus posts — el backend los da por eliminados en cascada
    * (mismo criterio que la cascada de borrado de álbum). Se conserva el registro.
@@ -136,6 +147,19 @@ export function isEdited(post: Post): boolean {
   return post.editedAt != null;
 }
 
+/**
+ * ¿Se puede reaccionar en este canal? Ausente = SÍ (retro-compat). Fuente única
+ * para los tres hosts: el backend rechaza la reacción y la UI oculta la fila.
+ */
+export function reactionsAllowed(channel: Pick<Channel, 'reactionsEnabled'> | null | undefined): boolean {
+  return channel?.reactionsEnabled !== false;
+}
+
+/** ¿Publicar en este canal avisa a los seguidores? Ausente = SÍ (retro-compat). */
+export function notifiesFollowers(channel: Pick<Channel, 'notifyFollowers'> | null | undefined): boolean {
+  return channel?.notifyFollowers !== false;
+}
+
 // ── Contratos de validación (compartidos por backend + Studio + Flutter) ──────
 
 /** Límites de contrato de canales y posts. Fuente ÚNICA — no re-declarar en los hosts. */
@@ -143,7 +167,7 @@ export const COMMUNITY_LIMITS = {
   channelName:        { min: 1, max: 60 },
   channelSlug:        { min: 1, max: 48 },
   channelDescription: { max: 280 },
-  postBody:           { max: 5000 },
+  postBody:           { max: 2000 },
   postAttachments:    { max: 10 },
 } as const;
 

@@ -10,6 +10,8 @@ import {
   channelSlugify,
   isDeleted,
   isEdited,
+  reactionsAllowed,
+  notifiesFollowers,
   validateChannel,
   validatePost,
 } from '../src/community';
@@ -57,6 +59,20 @@ describe('KRO-265 — isDeleted / isEdited', () => {
   it('detecta edición', () => {
     expect(isEdited(basePost)).toBe(false);
     expect(isEdited({ ...basePost, editedAt: '2026-07-24T02:00:00Z' })).toBe(true);
+  });
+});
+
+describe('KRO-265 — interruptores del canal (reacciones / aviso)', () => {
+  it('ausente = permitido (retro-compat de los canales ya creados)', () => {
+    expect(reactionsAllowed(baseChannel)).toBe(true);
+    expect(notifiesFollowers(baseChannel)).toBe(true);
+    expect(reactionsAllowed(null)).toBe(true);
+    expect(notifiesFollowers(undefined)).toBe(true);
+  });
+  it('solo `false` explícito lo apaga', () => {
+    expect(reactionsAllowed({ ...baseChannel, reactionsEnabled: false })).toBe(false);
+    expect(reactionsAllowed({ ...baseChannel, reactionsEnabled: true })).toBe(true);
+    expect(notifiesFollowers({ ...baseChannel, notifyFollowers: false })).toBe(false);
   });
 });
 
