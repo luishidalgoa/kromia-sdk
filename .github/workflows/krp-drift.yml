@@ -249,6 +249,11 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: '24'
+          # setup-node v5 auto-detecta el gestor (packageManager: pnpm) y activa
+          # su caché; pnpm NO está en el runner y el job fallaba con "Unable to
+          # locate executable file: pnpm". Este job solo corre un .mjs sin deps,
+          # así que no necesita caché de dependencias.
+          package-manager-cache: false
       - name: Comprobar paridad de superficie de API
         # Modo WARN por defecto (no bloquea main mientras Flutter se pone al día).
         # Para gate duro: env KRP_PARITY_STRICT=1.
