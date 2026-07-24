@@ -36,14 +36,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           # fetch-depth: 0 daría el git-revision-date-localized plugin
           # toda la historia si lo añadimos en el futuro. Por ahora 1.
           fetch-depth: 1
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
           cache: pip

@@ -58,7 +58,7 @@ jobs:
     name: Corpus Dart (paridad de comportamiento)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: '3.12.0'
@@ -74,7 +74,7 @@ jobs:
     name: Drift de versión TS↔Dart
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0  # historia completa para el changeset de contracts/
 
@@ -245,10 +245,10 @@ jobs:
     name: Paridad de API TS↔Dart (capacidades additive sin espejar)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '24'
       - name: Comprobar paridad de superficie de API
         # Modo WARN por defecto (no bloquea main mientras Flutter se pone al día).
         # Para gate duro: env KRP_PARITY_STRICT=1.
