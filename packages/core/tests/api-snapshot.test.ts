@@ -384,6 +384,34 @@ const EXPECTED_EXPORTS = [
   // KRO-250 — capa procedural iridiscente (pila unificada)
   'IRIDESCENT_LAYER_KIND',
   'isIridescentLayer',
+  // KRO-265 — comunidad del publisher (canales + publicaciones + reacciones)
+  'CHANNEL_KINDS',
+  'CHANNEL_VISIBILITIES',
+  'COMMUNITY_LIMITS',
+  'POST_REACTION_EMOJIS',
+  'canPinAnother',
+  'channelSlugify',
+  'hasReacted',
+  'isDeleted',
+  'isEdited',
+  'isValidReactionEmoji',
+  'notifiesFollowers',
+  'reactionCount',
+  'reactionsAllowed',
+  'validateChannel',
+  'validatePost',
+  // KRO-272 — adjuntos como unión discriminada (imagen | fichero | álbum | enlace)
+  'ATTACHMENT_KINDS',
+  'hasUnknownAttachments',
+  'isKnownAttachment',
+  'knownAttachments',
+  'linkDomain',
+  // KRO-272 — convención de keys de los medios de comunidad en el bucket
+  'COMMUNITY_MEDIA_PREFIX',
+  'RESERVED_MEDIA_NAMESPACES',
+  'channelIdFromCommunityKey',
+  'communityMediaKey',
+  'isCommunityMediaKey',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
