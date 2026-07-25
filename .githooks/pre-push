@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+#
+# Pre-push del SDK — corre EN LOCAL lo mismo que el CI, antes de subir.
+#
+# Existe por un caso real: el workflow de docs quedó roto y LATENTE durante un
+# día entero. Solo se dispara cuando cambia `docs/`, así que no volvía a
+# ejecutarse, no se arreglaba solo, y seguía mandando el correo de fallo.
+#
+# Regla: si el CI lo va a comprobar, esto lo comprueba antes. Y lo que el CI
+# comprueba de forma que NO se puede reproducir en local (el entorno del runner)
+# se AVISA, para que nadie lo dé por verde sin mirarlo.
+#
+# Instalación (una vez por checkout):   pnpm run hooks:install
+# Saltárselo en una emergencia:         git push --no-verify
+
+set -uo pipefail
+
+RAIZ="$(git rev-parse --show-toplevel)"
+cd "$RAIZ" || exit 1
+
+rojo()  { printf '\033[31m%s\033[0m\n' "$1"; }
+verde() { printf '\033[32m%s\033[0m\n' "$1"; }
+gris()  { printf '\033[90m%s\033[0m\n' "$1"; }
+aviso() { printf '\033[33m%s\033[0m\n' "$1"; }
+
+# Ficheros que se van a subir. Sin upstream (primer push) se revisa todo.
+if git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
+    CAMBIOS="$(git diff --name-only '@{u}..HEAD')"
+else
+    CAMBIOS="$(git ls-files)"
+fi
+
+toca() { echo "$CAMBIOS" | grep -qE "$1"; }
+
+FALLOS=0
+paso() {  # paso <nombre> <comando…>
+    local nombre="$1"; shift
+    printf '  %s… ' "$nombre"
+    if salida="$("$@" 2>&1)"; then
+        verde 'ok'
+    else
+        rojo 'FALLA'
+        echo "$salida" | tail -25
+        FALLOS=$((FALLOS + 1))
+    fi
+}
+
+echo ''
+gris '── pre-push del SDK ────────────────────────────────────────────'
+
+# ── Lo que corre el CI (krp-drift) ──────────────────────────────────────────
+if toca '^packages/core/(src|scripts|package\.json)|^packages/core_dart/|^contracts/'; then
+    paso 'tests del core (TS)'      npx vitest run packages/core/tests
+    paso 'paridad de API TS↔Dart'   node packages/core/scripts/check-api-parity.mjs
+
+    if command -v dart >/dev/null 2>&1; then
+        paso 'corpus Dart (core_dart)' bash -c 'cd packages/core_dart && dart test'
+    else
+        # No se bloquea: no todos los checkouts tienen Dart. Pero que quede claro
+        # que el CI SÍ lo va a correr y puede ponerse rojo después del push.
+        aviso '  corpus Dart… OMITIDO (no hay `dart` en el PATH)'
+        gris  '     El CI sí lo corre: si tocaste core_dart, vigila el run.'
+    fi
+else
+    gris '  (sin cambios en el contrato — se omiten las comprobaciones del drift)'
+fi
+
+# ── Lo que NO se puede validar en local ─────────────────────────────────────
+if toca '^\.github/workflows/'; then
+    echo ''
+    aviso '  Has tocado un WORKFLOW.'
+    gris  '     Un fallo de entorno del runner (cachés, versiones de acciones) NO'
+    gris  '     se reproduce aquí. Compruébalo tras el push:'
+    gris  '       gh run list --limit 3'
+    gris  '     Y si el workflow se dispara por rutas, fuérzalo para no dejarlo'
+    gris  '     roto y latente:  gh workflow run <fichero>.yml --ref main'
+fi
+
+echo ''
+if [ "$FALLOS" -gt 0 ]; then
+    rojo "✗ $FALLOS comprobación(es) en rojo — push cancelado."
+    gris '  Arregla y reintenta, o `git push --no-verify` si sabes lo que haces.'
+    exit 1
+fi
+
+verde '✓ Todo verde. Subiendo.'
+exit 0
