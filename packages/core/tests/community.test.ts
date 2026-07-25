@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import {
+  validateAttachmentUpload,
+  matchesMagicBytes,
+  MAGIC_BYTES,
+  MAGIC_BYTES_NEEDED,
   POST_REACTION_EMOJIS,
   CHANNEL_KINDS,
   CHANNEL_VISIBILITIES,
@@ -262,5 +266,82 @@ describe('KRO-272 — adjuntos: unión discriminada', () => {
       const r = validatePost({ ...basePost, attachments: [{ key: 'k' } as any] });
       expect(r.valid).toBe(false);
     });
+  });
+});
+
+/**
+ * KRO-272 — reglas de la SUBIDA de adjuntos.
+ *
+ * Viven en el SDK y no en cada host porque basta con que UNO sea más permisivo
+ * para que el objeto acabe en el bucket: mandaría el más flojo, no el más
+ * estricto. Y son DOS controles distintos que no se sustituyen — uno cree al
+ * cliente para no subir 60 MB en balde, el otro comprueba el contenido real.
+ */
+describe('KRO-272 · autorizar una subida (lo que el cliente DICE)', () => {
+  it('acepta un PDF dentro del tope', () => {
+    expect(validateAttachmentUpload('file', 'application/pdf', 5_000_000)).toBeNull();
+  });
+
+  it('rechaza cualquier cosa que no sea PDF, aunque suene inofensiva', () => {
+    for (const mime of ['application/zip', 'text/plain', 'image/png', 'application/x-msdownload']) {
+      expect(validateAttachmentUpload('file', mime, 1000)?.reason).toBe('mime');
+    }
+  });
+
+  it('tolera el Content-Type con parámetros', () => {
+    expect(validateAttachmentUpload('file', 'application/pdf; charset=binary', 1000)).toBeNull();
+    expect(validateAttachmentUpload('image', 'IMAGE/PNG', 1000)).toBeNull();
+  });
+
+  it('rechaza pasarse del tope, y por exactamente un byte también', () => {
+    expect(validateAttachmentUpload('file', 'application/pdf', COMMUNITY_LIMITS.file.maxBytes)).toBeNull();
+    expect(validateAttachmentUpload('file', 'application/pdf', COMMUNITY_LIMITS.file.maxBytes + 1)?.reason).toBe('size');
+  });
+
+  it('la imagen tiene su propio tope, más bajo que el del fichero', () => {
+    expect(COMMUNITY_LIMITS.image.maxBytes).toBeLessThan(COMMUNITY_LIMITS.file.maxBytes);
+    expect(validateAttachmentUpload('image', 'image/png', COMMUNITY_LIMITS.image.maxBytes + 1)?.reason).toBe('size');
+  });
+
+  it('un tamaño ausente o absurdo NO pasa por bueno', () => {
+    for (const size of [0, -1, NaN, Infinity]) {
+      expect(validateAttachmentUpload('file', 'application/pdf', size)?.reason).toBe('size');
+    }
+  });
+});
+
+describe('KRO-272 · comprobar el contenido REAL (magic bytes)', () => {
+  const cabecera = (...b: number[]) => new Uint8Array([...b, ...Array(12 - b.length).fill(0)]);
+
+  it('un PDF de verdad empieza por %PDF', () => {
+    expect(matchesMagicBytes('application/pdf', cabecera(0x25, 0x50, 0x44, 0x46))).toBe(true);
+  });
+
+  it('un ejecutable renombrado a .pdf NO cuela', () => {
+    // MZ — cabecera de un .exe de Windows. Es EL caso que motiva todo esto.
+    expect(matchesMagicBytes('application/pdf', cabecera(0x4d, 0x5a, 0x90, 0x00))).toBe(false);
+  });
+
+  it('un mime sin firma conocida se da por NO válido (se prefiere borrar)', () => {
+    expect(matchesMagicBytes('application/zip', cabecera(0x50, 0x4b, 0x03, 0x04))).toBe(false);
+  });
+
+  it('una cabecera más corta que la firma no revienta ni pasa', () => {
+    expect(matchesMagicBytes('application/pdf', new Uint8Array([0x25, 0x50]))).toBe(false);
+    expect(matchesMagicBytes('application/pdf', new Uint8Array([]))).toBe(false);
+  });
+
+  it('WebP: un RIFF que NO es WEBP se rechaza (un .wav también empieza por RIFF)', () => {
+    const riff = [0x52, 0x49, 0x46, 0x46];
+    const wav  = new Uint8Array([...riff, 0, 0, 0, 0, 0x57, 0x41, 0x56, 0x45]);   // WAVE
+    const webp = new Uint8Array([...riff, 0, 0, 0, 0, 0x57, 0x45, 0x42, 0x50]);   // WEBP
+    expect(matchesMagicBytes('image/webp', wav)).toBe(false);
+    expect(matchesMagicBytes('image/webp', webp)).toBe(true);
+  });
+
+  it('se leen suficientes bytes para comprobar cualquier firma declarada', () => {
+    const masLarga = Math.max(...Object.values(MAGIC_BYTES).map(f => f.length));
+    expect(MAGIC_BYTES_NEEDED).toBeGreaterThanOrEqual(masLarga);
+    expect(MAGIC_BYTES_NEEDED).toBeGreaterThanOrEqual(12);   // WebP mira hasta el byte 11
   });
 });

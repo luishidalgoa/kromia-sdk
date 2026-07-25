@@ -412,6 +412,11 @@ const EXPECTED_EXPORTS = [
   'channelIdFromCommunityKey',
   'communityMediaKey',
   'isCommunityMediaKey',
+  // KRO-272 — reglas de la SUBIDA de adjuntos (mismo tope en los tres hosts)
+  'MAGIC_BYTES',
+  'MAGIC_BYTES_NEEDED',
+  'matchesMagicBytes',
+  'validateAttachmentUpload',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {

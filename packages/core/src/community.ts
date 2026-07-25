@@ -228,7 +228,112 @@ export const COMMUNITY_LIMITS = {
     maxBytes: 60 * 1024 * 1024,          // 60 MB
     mimes:    ['application/pdf'] as readonly string[],
   },
+  /**
+   * Imágenes adjuntas. Tope MUY inferior al de los ficheros a propósito: una
+   * imagen de muro se ve a un par de miles de píxeles, y lo que pasa de ahí es
+   * casi siempre un original sin redimensionar que solo cuesta ancho de banda.
+   * El PDF es distinto —se descarga entero y su tamaño es intrínseco—, por eso
+   * tiene su propio límite.
+   */
+  image: {
+    maxBytes: 10 * 1024 * 1024,          // 10 MB
+    mimes:    ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as readonly string[],
+  },
 } as const;
+
+/** Motivo por el que una subida no se autoriza, o `null` si es aceptable. */
+export type UploadRejection =
+  | { reason: 'kind'; message: string }
+  | { reason: 'mime'; message: string }
+  | { reason: 'size'; message: string };
+
+/**
+ * ¿Se puede AUTORIZAR esta subida? Se comprueba antes de firmar nada: negar
+ * aquí ahorra subir 60 MB para rechazarlos al final.
+ *
+ * Vive en el SDK porque los tres hosts tienen que aplicar el mismo límite. Si
+ * cada uno pusiera el suyo mandaría el más permisivo — basta con que UN cliente
+ * se salte el tope para que el objeto acabe en el bucket.
+ *
+ * OJO a lo que esto NO es: valida lo que el cliente DICE que va a subir. No
+ * sustituye ni a las condiciones que se firman en la política (esas las hace
+ * cumplir el servidor de almacenamiento) ni a comprobar el contenido REAL una
+ * vez subido — el `Content-Type` lo elige quien sube, y renombrar un `.exe` a
+ * `.pdf` no puede colar.
+ */
+export function validateAttachmentUpload(
+  kind: 'image' | 'file',
+  mime: string,
+  size: number,
+): UploadRejection | null {
+  if (kind !== 'image' && kind !== 'file') {
+    return { reason: 'kind', message: 'Solo se pueden subir imágenes y ficheros.' };
+  }
+  const limite = kind === 'image' ? COMMUNITY_LIMITS.image : COMMUNITY_LIMITS.file;
+
+  // El `Content-Type` puede venir con parámetros («application/pdf; charset=…»).
+  const normalizado = String(mime ?? '').trim().toLowerCase().split(';')[0];
+  if (!limite.mimes.includes(normalizado)) {
+    return {
+      reason: 'mime',
+      message: kind === 'file'
+        ? 'Solo se admiten PDF.'
+        : `Formato de imagen no admitido. Se admiten: ${limite.mimes.join(', ')}.`,
+    };
+  }
+
+  if (!Number.isFinite(size) || size <= 0) {
+    return { reason: 'size', message: 'No se puede determinar el tamaño del fichero.' };
+  }
+  if (size > limite.maxBytes) {
+    return {
+      reason: 'size',
+      message: `Supera el máximo de ${Math.round(limite.maxBytes / 1024 / 1024)} MB.`,
+    };
+  }
+  return null;
+}
+
+/**
+ * Los primeros bytes que DEBE tener un fichero para ser lo que dice ser.
+ *
+ * Es la contrapartida de `validateAttachmentUpload`: aquella cree al cliente,
+ * esta lo comprueba. El host lee esos bytes del objeto ya subido y, si no casan,
+ * lo borra. Sin esto, el «solo PDF» es una sugerencia — la extensión y el
+ * `Content-Type` los pone quien sube.
+ */
+export const MAGIC_BYTES: Readonly<Record<string, readonly number[]>> = {
+  'application/pdf': [0x25, 0x50, 0x44, 0x46],              // %PDF
+  'image/jpeg':      [0xff, 0xd8, 0xff],
+  'image/png':       [0x89, 0x50, 0x4e, 0x47],              // \x89PNG
+  'image/gif':       [0x47, 0x49, 0x46, 0x38],              // GIF8
+  // WebP es RIFF....WEBP: los bytes 8-11 son los que identifican, no los primeros.
+  'image/webp':      [0x52, 0x49, 0x46, 0x46],              // RIFF
+};
+
+/** Cuántos bytes hay que leer del objeto para poder comprobar cualquier firma. */
+export const MAGIC_BYTES_NEEDED = 12;
+
+/**
+ * ¿El contenido real casa con el mime declarado? `head` son los primeros bytes
+ * del objeto. Un mime sin firma conocida devuelve `false`: preferimos borrar un
+ * fichero legítimo a aceptar uno que no sabemos identificar.
+ */
+export function matchesMagicBytes(mime: string, head: Uint8Array | number[]): boolean {
+  const normalizado = String(mime ?? '').trim().toLowerCase().split(';')[0];
+  const firma = MAGIC_BYTES[normalizado];
+  if (!firma) return false;
+  if (head.length < firma.length) return false;
+  for (let i = 0; i < firma.length; i++) if (head[i] !== firma[i]) return false;
+  // WebP: RIFF es un contenedor genérico (también .wav). El formato real está en
+  // los bytes 8..11, así que sin comprobarlos un audio pasaría por imagen.
+  if (normalizado === 'image/webp') {
+    const webp = [0x57, 0x45, 0x42, 0x50];                  // WEBP
+    if (head.length < 12) return false;
+    for (let i = 0; i < 4; i++) if (head[8 + i] !== webp[i]) return false;
+  }
+  return true;
+}
 
 /**
  * ¿Cabe otra publicación fijada en el canal? `currentPinnedCount` NO debe incluir
