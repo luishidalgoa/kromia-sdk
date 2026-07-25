@@ -46,7 +46,12 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-          cache: pip
+          # SIN `cache: pip`. La caché de pip exige un requirements.txt o un
+          # pyproject.toml del que derivar la clave, y este repo no tiene
+          # ninguno: mkdocs-material se instala suelto en el paso siguiente. Con
+          # la caché activada el job muere en el setup con «No file matched to
+          # [**/requirements.txt or **/pyproject.toml]» — mismo tropiezo que tuvo
+          # el job de paridad con setup-node v5 y su caché de pnpm.
 
       - name: Install MkDocs Material
         run: |
