@@ -39,6 +39,7 @@ export 'src/validate.dart';
 export 'src/visual_effects.dart';
 export 'src/tag_styles.dart';
 export 'src/card_layers.dart';
+export 'src/community.dart';
 export 'src/rarity.dart';
 export 'src/media_path.dart';
 export 'src/layout_node.dart';
