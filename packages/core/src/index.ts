@@ -610,8 +610,8 @@ export { favoriteKey } from './favorite';
 export type { Favorite, FavoriteCardRef } from './favorite';
 
 // KRO-265 / Epic KRO-209 — comunidad del publisher: canales + posts. DATA social (no bumpea KRP).
-export { POST_REACTION_EMOJIS, CHANNEL_KINDS, CHANNEL_VISIBILITIES, COMMUNITY_LIMITS, isValidReactionEmoji, reactionCount, hasReacted, channelSlugify, isDeleted, isEdited, reactionsAllowed, notifiesFollowers, canPinAnother, validateChannel, validatePost } from './community';
-export type { Channel, ChannelKind, ChannelVisibility, PostAttachment, PostReaction, Post, PostReactionEmoji, CommunityIssue, CommunityValidationResult } from './community';
+export { POST_REACTION_EMOJIS, CHANNEL_KINDS, CHANNEL_VISIBILITIES, COMMUNITY_LIMITS, isValidReactionEmoji, reactionCount, hasReacted, channelSlugify, isDeleted, isEdited, reactionsAllowed, notifiesFollowers, canPinAnother, validateChannel, validatePost, ATTACHMENT_KINDS, isKnownAttachment, knownAttachments, hasUnknownAttachments, linkDomain } from './community';
+export type { Channel, ChannelKind, ChannelVisibility, PostAttachment, PostAttachmentKind, PostImageAttachment, PostFileAttachment, PostAlbumRefAttachment, PostLinkAttachment, PostReaction, Post, PostReactionEmoji, CommunityIssue, CommunityValidationResult } from './community';
 
 // KRO-16 — QR firmado de carta física: contrato + verificación pública (ECDSA P-256).
 export {

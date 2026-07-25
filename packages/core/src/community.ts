@@ -63,15 +63,59 @@ export interface Channel {
   updatedAt?:   string;
 }
 
-/** Adjunto de un post. V1 solo imágenes, servidas por el proxy de medios (MinIO hoy). */
-export interface PostAttachment {
-  /** Key del objeto en el almacenamiento de medios — se sirve vía `/api/images/<key>`. */
+/**
+ * Adjunto de un post — **unión discriminada por `kind`** (KRO-272).
+ *
+ * Nace extensible a propósito: añadir una variante nueva (`card-ref` está ya
+ * previsto) es ADITIVO y no rompe a nadie, porque cada variante lleva solo sus
+ * propios campos y los hosts ignoran los `kind` que no conocen. Si esto fuera
+ * un objeto plano con todo opcional, un `album-ref` tendría que rellenar `key`
+ * con basura y nadie sabría qué campos son obligatorios en cada caso.
+ *
+ * Las referencias internas guardan **solo el id**, nunca datos derivados
+ * (nombre, portada): el preview se resuelve al leer, así no miente cuando el
+ * álbum se renombra o cambia de imagen.
+ */
+export type PostAttachment =
+  | PostImageAttachment
+  | PostFileAttachment
+  | PostAlbumRefAttachment
+  | PostLinkAttachment;
+
+/** Imagen subida por el publisher; se sirve por el proxy de medios. */
+export interface PostImageAttachment {
+  kind:    'image';
+  /** Key del objeto en el almacenamiento — se sirve vía `/api/images/<key>`. */
   key:     string;
-  kind:    'image';                // V1 solo 'image'
   width?:  number;
   height?: number;
   alt?:    string;                 // texto alternativo (a11y)
 }
+
+/** Fichero adjunto. Whitelist ESTRICTA: hoy solo PDF (ver `COMMUNITY_LIMITS.file`). */
+export interface PostFileAttachment {
+  kind:  'file';
+  key:   string;
+  mime:  string;                   // debe estar en COMMUNITY_LIMITS.file.mimes
+  size:  number;                   // bytes; tope en COMMUNITY_LIMITS.file.maxBytes
+  name?: string;                   // nombre visible para descargar
+}
+
+/** Referencia a un álbum del propio publisher. El host pinta la tarjeta embebida. */
+export interface PostAlbumRefAttachment {
+  kind:    'album-ref';
+  albumId: string;
+}
+
+/** Enlace externo. V1 muestra SOLO el dominio — el servidor no visita la URL. */
+export interface PostLinkAttachment {
+  kind: 'link';
+  url:  string;                    // http/https únicamente
+}
+
+/** Los `kind` que este SDK sabe validar. Uno fuera de esta lista se IGNORA, no invalida. */
+export const ATTACHMENT_KINDS = ['image', 'file', 'album-ref', 'link'] as const;
+export type PostAttachmentKind = typeof ATTACHMENT_KINDS[number];
 
 /** Reacción agregada a un post: un emoji + quiénes reaccionaron. */
 export interface PostReaction {
@@ -175,6 +219,15 @@ export const COMMUNITY_LIMITS = {
    * negar la fijación número 4 y decir cuál desfijar.
    */
   pinnedPerChannel:   { max: 3 },
+  /**
+   * Ficheros adjuntos (KRO-272). Whitelist ESTRICTA por decisión del user: solo
+   * PDF, y tope de 60 MB. Vive aquí para que backend, Studio y Flutter apliquen
+   * el MISMO límite — si cada host pusiera el suyo, el más permisivo mandaría.
+   */
+  file: {
+    maxBytes: 60 * 1024 * 1024,          // 60 MB
+    mimes:    ['application/pdf'] as readonly string[],
+  },
 } as const;
 
 /**
@@ -226,10 +279,104 @@ export function validateChannel(input: Partial<Channel> | null | undefined): Com
   return { valid: issues.length === 0, issues };
 }
 
+/** ¿Es un `kind` de adjunto que este SDK sabe validar y pintar? */
+export function isKnownAttachment(a: PostAttachment | null | undefined): boolean {
+  return !!a && (ATTACHMENT_KINDS as readonly string[]).includes((a as any).kind);
+}
+
+/**
+ * Los adjuntos que el host sabe tratar. Un cliente antiguo que reciba un `kind`
+ * futuro lo descarta con esto en vez de intentar pintarlo.
+ */
+export function knownAttachments(attachments: PostAttachment[] | null | undefined): PostAttachment[] {
+  return (attachments ?? []).filter(isKnownAttachment);
+}
+
+/**
+ * ¿Viene algún adjunto con un `kind` que no reconocemos?
+ *
+ * Existe porque LEER y CREAR piden lo contrario: al leer hay que tolerar lo
+ * desconocido (un cliente viejo no debe dar por rota una publicación nueva),
+ * pero al CREAR hay que rechazarlo — si no, cualquiera podría guardar adjuntos
+ * arbitrarios que ningún host valida. `validatePost` tolera; el backend usa
+ * ESTO en la puerta de entrada.
+ */
+export function hasUnknownAttachments(attachments: PostAttachment[] | null | undefined): boolean {
+  return (attachments ?? []).some(a => !isKnownAttachment(a));
+}
+
+/**
+ * Dominio legible de un enlace, para pintarlo SIN visitar la URL.
+ *
+ * Que el servidor no salga a buscar la página es justamente lo que evita la
+ * familia de agujeros SSRF (pedir por nosotros a una IP interna o al endpoint
+ * de metadatos de la nube). Devuelve `null` si no es un enlace http/https
+ * válido — y ojo, eso incluye `javascript:` y `data:`, que puestos en un href
+ * son XSS directo.
+ */
+export function linkDomain(url: string | null | undefined): string | null {
+  try {
+    const u = new URL(String(url ?? ''));
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
+    return u.hostname.replace(/^www\./, '') || null;
+  } catch {
+    return null;
+  }
+}
+
+/** Valida UN adjunto según su variante. Un `kind` desconocido no genera issue. */
+function validateAttachment(a: PostAttachment | null | undefined, i: number): CommunityIssue[] {
+  const out: CommunityIssue[] = [];
+  const at = `attachments[${i}]`;
+  if (!a || typeof (a as any).kind !== 'string') {
+    out.push({ field: at, message: 'Adjunto sin tipo (kind).' });
+    return out;
+  }
+  // Tolerancia hacia adelante: un `kind` que no conocemos NO invalida el post.
+  // Sin esto, el día que se añada `card-ref` un cliente viejo daría por corrupta
+  // la publicación entera en vez de mostrar el resto.
+  if (!isKnownAttachment(a)) return out;
+
+  switch (a.kind) {
+    case 'image':
+      if (typeof a.key !== 'string' || a.key.trim() === '')
+        out.push({ field: `${at}.key`, message: 'Adjunto sin referencia de imagen (key).' });
+      break;
+
+    case 'file': {
+      if (typeof a.key !== 'string' || a.key.trim() === '')
+        out.push({ field: `${at}.key`, message: 'Adjunto sin referencia de fichero (key).' });
+      if (!COMMUNITY_LIMITS.file.mimes.includes(a.mime))
+        out.push({ field: `${at}.mime`, message: 'Solo se admiten ficheros PDF.' });
+      if (typeof a.size !== 'number' || !Number.isFinite(a.size) || a.size <= 0)
+        out.push({ field: `${at}.size`, message: 'Falta el tamaño del fichero.' });
+      else if (a.size > COMMUNITY_LIMITS.file.maxBytes)
+        out.push({
+          field: `${at}.size`,
+          message: `El fichero no puede superar ${Math.round(COMMUNITY_LIMITS.file.maxBytes / (1024 * 1024))} MB.`,
+        });
+      break;
+    }
+
+    case 'album-ref':
+      if (typeof a.albumId !== 'string' || a.albumId.trim() === '')
+        out.push({ field: `${at}.albumId`, message: 'La referencia necesita el álbum.' });
+      break;
+
+    case 'link':
+      // Se valida la FORMA aquí; que el destino exista no se comprueba a
+      // propósito (implicaría que el servidor visite la URL).
+      if (linkDomain(a.url) === null)
+        out.push({ field: `${at}.url`, message: 'El enlace debe ser una URL http o https válida.' });
+      break;
+  }
+  return out;
+}
+
 /**
  * Valida un post (publicación o edición). Un post necesita **cuerpo O al menos un
  * adjunto** (no puede estar vacío). Valida referencias de autor/canal, longitud del
- * cuerpo, adjuntos (key + tipo `image`) y reacciones (emoji del set, sin duplicar).
+ * cuerpo, cada adjunto según su variante y las reacciones (emoji del set, sin duplicar).
  */
 export function validatePost(input: Partial<Post> | null | undefined): CommunityValidationResult {
   const issues: CommunityIssue[] = [];
@@ -245,13 +392,8 @@ export function validatePost(input: Partial<Post> | null | undefined): Community
   if (body.length > COMMUNITY_LIMITS.postBody.max)
     issues.push({ field: 'body', message: `El texto no puede superar ${COMMUNITY_LIMITS.postBody.max} caracteres.` });
   if (attachments.length > COMMUNITY_LIMITS.postAttachments.max)
-    issues.push({ field: 'attachments', message: `Máximo ${COMMUNITY_LIMITS.postAttachments.max} imágenes por post.` });
-  attachments.forEach((a, i) => {
-    if (!a || typeof a.key !== 'string' || a.key.trim() === '')
-      issues.push({ field: `attachments[${i}].key`, message: 'Adjunto sin referencia de imagen (key).' });
-    if (a && a.kind !== 'image')
-      issues.push({ field: `attachments[${i}].kind`, message: `Tipo de adjunto no soportado: ${String(a?.kind)}.` });
-  });
+    issues.push({ field: 'attachments', message: `Máximo ${COMMUNITY_LIMITS.postAttachments.max} adjuntos por post.` });
+  attachments.forEach((a, i) => issues.push(...validateAttachment(a, i)));
   if (Array.isArray(p.reactions)) {
     const seen = new Set<string>();
     p.reactions.forEach((r, i) => {
