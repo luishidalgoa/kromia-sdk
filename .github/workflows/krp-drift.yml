@@ -49,6 +49,15 @@ on:
       - 'contracts/**'
   workflow_dispatch: {}  # ejecución manual para testear (AC de KRO-64)
 
+# ── Coste (repo PRIVADO: los minutos se facturan) ────────────────────────────
+# GitHub factura por JOB y redondea cada uno AL MINUTO. Con tres jobs en
+# paralelo de ~15-40 s, cada push costaba 3 minutos aunque el reloj marcara 43
+# segundos. Y sin `concurrency`, empujar tres commits seguidos eran 9 minutos de
+# los que 6 sobraban: solo importa el veredicto del último.
+concurrency:
+  group: krp-drift-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
