@@ -61,16 +61,37 @@ concurrency:
 permissions:
   contents: read
 
+
 jobs:
-  # ── Capa 2: paridad por COMPORTAMIENTO ──────────────────────────────────────
-  corpus-parity:
-    name: Corpus Dart (paridad de comportamiento)
+  # Las TRES capas en un solo job, a propósito. GitHub factura por job y
+  # redondea cada uno al minuto: tres jobs de 15-40 s costaban 3 minutos por
+  # push; uno de ~60 s cuesta 1. Con el reloj por debajo del minuto en ambos
+  # casos, la paralelización no compraba nada que mereciera pagar el triple.
+  #
+  # Cada capa lleva `if: !cancelled()` para que un fallo en una NO oculte las
+  # demás: se sigue viendo el veredicto de las tres en una sola pasada, que es
+  # lo que daban los jobs separados. `!cancelled()` y no `always()` porque con
+  # `cancel-in-progress` una ronda cancelada debe parar de verdad, no seguir
+  # gastando minutos.
+  drift:
+    name: Paridad TS↔Dart (versión · corpus · API)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # historia completa para el changeset de contracts/
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: '3.12.0'
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          # setup-node v5 auto-detecta el gestor (packageManager: pnpm) y activa
+          # su caché; pnpm NO está en el runner y el job fallaba con "Unable to
+          # locate executable file: pnpm". Aquí solo se corre un .mjs sin deps.
+          package-manager-cache: false
+
+      # ── Capa 2: paridad por COMPORTAMIENTO ────────────────────────────────
       - name: dart pub get
         working-directory: packages/core_dart
         run: dart pub get
@@ -78,17 +99,17 @@ jobs:
         working-directory: packages/core_dart
         run: dart test
 
-  # ── Capa 1: drift por NÚMERO DE VERSIÓN ─────────────────────────────────────
-  version-drift:
-    name: Drift de versión TS↔Dart
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0  # historia completa para el changeset de contracts/
+      # ── Capa 3: paridad de SUPERFICIE DE API (KRO-118) ────────────────────
+      - name: Comprobar paridad de superficie de API
+        if: ${{ !cancelled() }}
+        # Modo WARN por defecto (no bloquea main mientras Flutter se pone al día).
+        # Para gate duro: env KRP_PARITY_STRICT=1.
+        run: node packages/core/scripts/check-api-parity.mjs
 
+      # ── Capa 1: drift por NÚMERO DE VERSIÓN ───────────────────────────────
       - name: Leer versiones TS y Dart
         id: versions
+        if: ${{ !cancelled() }}
         run: |
           set -euo pipefail
           TS_PKG="packages/core/package.json"
@@ -116,7 +137,7 @@ jobs:
           echo "dormant=false" >> "$GITHUB_OUTPUT"
 
       - name: Comparar y clasificar el drift
-        if: steps.versions.outputs.dormant == 'false'
+        if: ${{ !cancelled() && steps.versions.outputs.dormant == 'false' }}
         id: classify
         run: |
           set -euo pipefail
@@ -139,7 +160,7 @@ jobs:
           echo "Drift kind: $KIND (TS=$TS, Dart=$DART)"
 
       - name: Construir changeset de contracts/
-        if: steps.classify.outputs.kind == 'major'
+        if: ${{ !cancelled() && steps.classify.outputs.kind == 'major' }}
         id: changeset
         run: |
           set -euo pipefail
@@ -157,7 +178,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Abrir issue Jira en drift MAJOR (idempotente)
-        if: steps.classify.outputs.kind == 'major'
+        if: ${{ !cancelled() && steps.classify.outputs.kind == 'major' }}
         env:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
@@ -231,7 +252,7 @@ jobs:
           echo "::notice::$KEY movida a Drift Sync."
 
       - name: Veredicto
-        if: steps.versions.outputs.dormant == 'false'
+        if: ${{ !cancelled() && steps.versions.outputs.dormant == 'false' }}
         run: |
           set -euo pipefail
           KIND="${{ steps.classify.outputs.kind }}"
@@ -248,22 +269,3 @@ jobs:
               echo "::error::Drift MAJOR (TS=$TS, Dart=$DART). El mirror Dart debe alinearse antes de publicar. Issue de drift abierta (si los secrets de Jira están configurados)."
               exit 1 ;;
           esac
-
-  # ── Capa 3: paridad de SUPERFICIE DE API (KRO-118) ──────────────────────────
-  api-parity:
-    name: Paridad de API TS↔Dart (capacidades additive sin espejar)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: '24'
-          # setup-node v5 auto-detecta el gestor (packageManager: pnpm) y activa
-          # su caché; pnpm NO está en el runner y el job fallaba con "Unable to
-          # locate executable file: pnpm". Este job solo corre un .mjs sin deps,
-          # así que no necesita caché de dependencias.
-          package-manager-cache: false
-      - name: Comprobar paridad de superficie de API
-        # Modo WARN por defecto (no bloquea main mientras Flutter se pone al día).
-        # Para gate duro: env KRP_PARITY_STRICT=1.
-        run: node packages/core/scripts/check-api-parity.mjs
