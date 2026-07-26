@@ -104,6 +104,17 @@ sealed class PostAttachment {
         return PostAlbumRefAttachment(albumId: json['albumId']?.toString() ?? '');
       case 'link':
         return PostLinkAttachment(url: json['url']?.toString() ?? '');
+      case 'location':
+        // OJO (aviso de backend): que el `kind` esté permitido NO basta — los
+        // CAMPOS tienen que leerse uno a uno. En su Mongoose, `location` pasaba
+        // la validación y el subesquema descartaba label/address/lat/lng EN
+        // SILENCIO: la tarjeta se guardaba vacía sin un solo error.
+        return PostLocationAttachment(
+          label: json['label']?.toString() ?? '',
+          address: json['address']?.toString(),
+          lat: (json['lat'] as num?)?.toDouble(),
+          lng: (json['lng'] as num?)?.toDouble(),
+        );
       default:
         return null; // kind desconocido → se ignora, no rompe el muro
     }
@@ -155,7 +166,59 @@ class PostLinkAttachment extends PostAttachment {
   }
 }
 
-const List<String> attachmentKinds = ['image', 'file', 'album-ref', 'link'];
+/// Ubicación de un evento o tienda. `label` es lo ÚNICO obligatorio: "la tienda
+/// de Paco" ubica más que unas coordenadas sueltas.
+class PostLocationAttachment extends PostAttachment {
+  final String label;
+  final String? address;
+
+  /// Coordenadas: van JUNTAS o ninguna (media coordenada no ubica nada, y el
+  /// host no sabría si ofrecer abrir el mapa). El backend rechaza el par a
+  /// medias; aquí se comprueba igual antes de usarlas.
+  final double? lat;
+  final double? lng;
+
+  const PostLocationAttachment({
+    required this.label,
+    this.address,
+    this.lat,
+    this.lng,
+  });
+
+  bool get hasCoords => lat != null && lng != null && lat!.isFinite && lng!.isFinite;
+}
+
+const List<String> attachmentKinds = [
+  'image',
+  'file',
+  'album-ref',
+  'link',
+  'location',
+];
+
+/// Enlace para ABRIR la ubicación, espejo de `mapLinkFor`.
+///
+/// Con coordenadas devuelve un `geo:` — en el móvil eso hace que el sistema
+/// ofrezca LA APP DE MAPAS QUE EL USUARIO TENGA, en vez de imponerle una. Sin
+/// coordenadas, una búsqueda web por nombre y dirección. `null` si no hay nada
+/// que abrir, para no pintar un enlace muerto.
+///
+/// Vive en el SDK a propósito: si cada host montara la URL, el mismo sitio
+/// abriría en puntos distintos.
+String? mapLinkFor(PostLocationAttachment? a) {
+  if (a == null) return null;
+  if (a.hasCoords) {
+    final etiqueta = a.label.trim();
+    final q = etiqueta.isEmpty ? '' : '?q=${Uri.encodeComponent(etiqueta)}';
+    return 'geo:${a.lat},${a.lng}$q';
+  }
+  final texto = [a.label, a.address]
+      .map((v) => v?.trim())
+      .where((v) => v != null && v.isNotEmpty)
+      .join(', ');
+  if (texto.isEmpty) return null;
+  return 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(texto)}';
+}
 
 // ── Post + reacciones ────────────────────────────────────────────────────────
 

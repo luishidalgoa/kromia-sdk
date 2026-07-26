@@ -21,6 +21,44 @@ void main() {
           isA<PostLinkAttachment>());
     });
 
+    test('location: se leen TODOS los campos, no solo el kind', () {
+      // Aviso de backend: allí el `kind` pasaba la validación y el subesquema
+      // descartaba label/address/lat/lng en silencio → tarjeta vacía sin error.
+      final a = PostAttachment.fromJson({
+        'kind': 'location',
+        'label': 'La tienda de Paco',
+        'address': 'Calle Mayor 1',
+        'lat': 40.4,
+        'lng': -3.7,
+      });
+      expect(a, isA<PostLocationAttachment>());
+      final loc = a! as PostLocationAttachment;
+      expect(loc.label, 'La tienda de Paco');
+      expect(loc.address, 'Calle Mayor 1');
+      expect(loc.hasCoords, isTrue);
+    });
+
+    test('location sin coordenadas → sigue siendo válida (label manda)', () {
+      final loc = PostAttachment.fromJson({'kind': 'location', 'label': 'Casa'})!
+          as PostLocationAttachment;
+      expect(loc.hasCoords, isFalse);
+    });
+
+    test('mapLinkFor: geo con coordenadas, búsqueda sin ellas, null si nada', () {
+      // `geo:` deja que el sistema ofrezca la app de mapas del usuario.
+      expect(
+        mapLinkFor(const PostLocationAttachment(label: 'Paco', lat: 40.4, lng: -3.7)),
+        'geo:40.4,-3.7?q=Paco',
+      );
+      expect(
+        mapLinkFor(const PostLocationAttachment(label: 'Paco', address: 'Mayor 1')),
+        contains('Paco%2C%20Mayor%201'),
+      );
+      // Sin nada que abrir → null, para no pintar un enlace muerto.
+      expect(mapLinkFor(const PostLocationAttachment(label: '  ')), isNull);
+      expect(mapLinkFor(null), isNull);
+    });
+
     test('kind DESCONOCIDO se ignora (leer tolera; no rompe el muro)', () {
       expect(PostAttachment.fromJson({'kind': 'video', 'key': 'k'}), isNull);
     });
