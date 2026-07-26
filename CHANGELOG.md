@@ -18,6 +18,13 @@ paridad de otro chat → se resumen como nota, no se listan uno a uno.
 
 ## [Unreleased]
 
+### Added
+- `validateAttachmentUpload(kind, mime, size)` y `matchesMagicBytes(mime, head)` — las dos mitades de autorizar una subida de adjunto: una cree lo que declara el cliente (para no subir 60 MB y tirarlos), la otra comprueba el contenido real (sin ella, «solo PDF» es una sugerencia). Viven aquí porque basta con que **un** host sea más permisivo para que el objeto acabe en el bucket (KRO-272)
+- `COMMUNITY_LIMITS.image` — tope propio de las imágenes (10 MB), muy por debajo del de los ficheros (KRO-272)
+- Convención de keys de los medios de comunidad: `COMMUNITY_MEDIA_PREFIX`, `isCommunityMediaKey`, `channelIdFromCommunityKey`, `communityMediaKey`. El `channelId` va dentro de la ruta para que el permiso de lectura se resuelva sin buscar a qué publicación pertenece el objeto. **`community` queda reservado** como namespace de primer nivel del bucket (KRO-272)
+
+Nada de esto toca un registry: el `protocolVersion` no se mueve.
+
 _Cambios DATA / render-only (NO bumpean el `protocolVersion`)._
 
 ### Added
