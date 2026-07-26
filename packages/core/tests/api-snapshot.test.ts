@@ -417,6 +417,8 @@ const EXPECTED_EXPORTS = [
   'MAGIC_BYTES_NEEDED',
   'matchesMagicBytes',
   'validateAttachmentUpload',
+  // KRO-274 — ubicación como adjunto
+  'mapLinkFor',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {

@@ -80,7 +80,8 @@ export type PostAttachment =
   | PostImageAttachment
   | PostFileAttachment
   | PostAlbumRefAttachment
-  | PostLinkAttachment;
+  | PostLinkAttachment
+  | PostLocationAttachment;
 
 /** Imagen subida por el publisher; se sirve por el proxy de medios. */
 export interface PostImageAttachment {
@@ -113,8 +114,35 @@ export interface PostLinkAttachment {
   url:  string;                    // http/https únicamente
 }
 
+/**
+ * Un SITIO: dónde queda la comunidad, dónde está la tienda (KRO-274).
+ *
+ * NO lleva mapa. El host pinta una tarjeta y, al tocarla, abre la app de mapas
+ * del dispositivo. Es deliberado: embeber tiles obliga a elegir proveedor y
+ * clave, cuesta por render, y —lo que más pesa— haría que cada visita al muro
+ * le contase a un tercero qué ubicación se está mirando. En un canal privado eso
+ * es filtrar información a alguien que no pinta nada.
+ *
+ * Poner el mapa después NO rompe nada: el dato ya está y solo cambia el render.
+ * Al revés no — el proveedor se quedaría para siempre.
+ *
+ * `label` es lo ÚNICO obligatorio: «la tienda de Paco» dice más que unas
+ * coordenadas, y sin nombre la tarjeta no tendría qué mostrar. Las coordenadas
+ * son opcionales porque muchas veces solo se sabe el nombre y la dirección.
+ */
+export interface PostLocationAttachment {
+  kind:     'location';
+  /** Nombre del sitio, tal y como lo escribe el publisher. */
+  label:    string;
+  /** Dirección postal, si se sabe. */
+  address?: string;
+  /** Coordenadas, si se saben. Van juntas o no van: media coordenada no ubica nada. */
+  lat?:     number;
+  lng?:     number;
+}
+
 /** Los `kind` que este SDK sabe validar. Uno fuera de esta lista se IGNORA, no invalida. */
-export const ATTACHMENT_KINDS = ['image', 'file', 'album-ref', 'link'] as const;
+export const ATTACHMENT_KINDS = ['image', 'file', 'album-ref', 'link', 'location'] as const;
 export type PostAttachmentKind = typeof ATTACHMENT_KINDS[number];
 
 /** Reacción agregada a un post: un emoji + quiénes reaccionaron. */
@@ -239,6 +267,8 @@ export const COMMUNITY_LIMITS = {
     maxBytes: 10 * 1024 * 1024,          // 10 MB
     mimes:    ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as readonly string[],
   },
+  /** Ubicación (KRO-274). Topes de texto: una tarjeta, no una descripción. */
+  location: { labelMax: 80, addressMax: 200 },
 } as const;
 
 /** Motivo por el que una subida no se autoriza, o `null` si es aceptable. */
@@ -385,6 +415,35 @@ export function validateChannel(input: Partial<Channel> | null | undefined): Com
 }
 
 /** ¿Es un `kind` de adjunto que este SDK sabe validar y pintar? */
+/**
+ * A dónde lleva tocar una ubicación (KRO-274).
+ *
+ * Devuelve una URL `geo:` cuando hay coordenadas y una búsqueda de Google Maps
+ * cuando solo hay nombre o dirección.
+ *
+ * Vive en el SDK y no en cada host por lo de siempre: si Studio y la app lo
+ * construyeran cada uno, un mismo sitio abriría en puntos distintos. Y el
+ * esquema `geo:` es el que hace que el móvil ofrezca **la app de mapas que el
+ * usuario tenga**, en vez de imponerle una.
+ *
+ * Devuelve `null` si no hay nada que abrir — el host entonces pinta la tarjeta
+ * sin enlace, en vez de un enlace que no lleva a ningún sitio.
+ */
+export function mapLinkFor(a: PostLocationAttachment | null | undefined): string | null {
+  if (!a) return null;
+  const tieneCoords = typeof a.lat === 'number' && typeof a.lng === 'number'
+    && Number.isFinite(a.lat) && Number.isFinite(a.lng);
+  if (tieneCoords) {
+    // El `q=` con la etiqueta hace que la chincheta salga con nombre, no como
+    // unas coordenadas sueltas que no dicen nada.
+    const etiqueta = a.label?.trim();
+    return `geo:${a.lat},${a.lng}${etiqueta ? `?q=${encodeURIComponent(etiqueta)}` : ''}`;
+  }
+  const texto = [a.label, a.address].map(v => v?.trim()).filter(Boolean).join(', ');
+  if (!texto) return null;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(texto)}`;
+}
+
 export function isKnownAttachment(a: PostAttachment | null | undefined): boolean {
   return !!a && (ATTACHMENT_KINDS as readonly string[]).includes((a as any).kind);
 }
@@ -474,6 +533,30 @@ function validateAttachment(a: PostAttachment | null | undefined, i: number): Co
       if (linkDomain(a.url) === null)
         out.push({ field: `${at}.url`, message: 'El enlace debe ser una URL http o https válida.' });
       break;
+
+    case 'location': {
+      if (typeof a.label !== 'string' || a.label.trim() === '')
+        out.push({ field: `${at}.label`, message: 'La ubicación necesita un nombre.' });
+      else if (a.label.length > COMMUNITY_LIMITS.location.labelMax)
+        out.push({ field: `${at}.label`, message: `El nombre del sitio no puede superar ${COMMUNITY_LIMITS.location.labelMax} caracteres.` });
+
+      if (a.address !== undefined && a.address.length > COMMUNITY_LIMITS.location.addressMax)
+        out.push({ field: `${at}.address`, message: `La dirección no puede superar ${COMMUNITY_LIMITS.location.addressMax} caracteres.` });
+
+      // Las coordenadas van JUNTAS o no van: media coordenada no ubica nada, y
+      // un host que reciba solo `lat` no sabría si abrir el mapa o no.
+      const tieneLat = a.lat !== undefined;
+      const tieneLng = a.lng !== undefined;
+      if (tieneLat !== tieneLng) {
+        out.push({ field: `${at}.lat`, message: 'Las coordenadas van juntas: latitud y longitud, o ninguna.' });
+      } else if (tieneLat) {
+        if (!Number.isFinite(a.lat) || a.lat! < -90 || a.lat! > 90)
+          out.push({ field: `${at}.lat`, message: 'La latitud debe estar entre -90 y 90.' });
+        if (!Number.isFinite(a.lng) || a.lng! < -180 || a.lng! > 180)
+          out.push({ field: `${at}.lng`, message: 'La longitud debe estar entre -180 y 180.' });
+      }
+      break;
+    }
   }
   return out;
 }

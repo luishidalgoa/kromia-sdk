@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  mapLinkFor,
   validateAttachmentUpload,
   matchesMagicBytes,
   MAGIC_BYTES,
@@ -343,5 +344,76 @@ describe('KRO-272 · comprobar el contenido REAL (magic bytes)', () => {
     const masLarga = Math.max(...Object.values(MAGIC_BYTES).map(f => f.length));
     expect(MAGIC_BYTES_NEEDED).toBeGreaterThanOrEqual(masLarga);
     expect(MAGIC_BYTES_NEEDED).toBeGreaterThanOrEqual(12);   // WebP mira hasta el byte 11
+  });
+});
+
+/**
+ * KRO-274 — la ubicación como adjunto.
+ *
+ * Lo que se fija: que un sitio sin nombre no pase (la tarjeta no tendría qué
+ * mostrar), que media coordenada se rechace (no ubica nada y el host no sabría
+ * si abrir el mapa), y que el enlace lo construya el SDK — si lo hiciera cada
+ * host, el mismo sitio abriría en puntos distintos según desde dónde lo toques.
+ */
+describe('KRO-274 · ubicación', () => {
+  const sitio = (extra: any = {}) => ({ kind: 'location' as const, label: 'Tienda de Paco', ...extra });
+  const post = (attachments: any[]) =>
+    validatePost({ channelId: 'c', authorId: 'a', body: 'Quedada', attachments });
+
+  it('un sitio con solo nombre es válido: no siempre se saben las coordenadas', () => {
+    expect(post([sitio()]).valid).toBe(true);
+  });
+
+  it('con dirección y coordenadas también', () => {
+    expect(post([sitio({ address: 'C/ Mayor 1, Córdoba', lat: 37.88, lng: -4.78 })]).valid).toBe(true);
+  });
+
+  it('sin nombre NO vale, aunque haya coordenadas', () => {
+    const r = post([sitio({ label: '  ', lat: 37.88, lng: -4.78 })]);
+    expect(r.valid).toBe(false);
+    expect(r.issues[0].message).toMatch(/nombre/i);
+  });
+
+  it('media coordenada se rechaza: no ubica nada', () => {
+    expect(post([sitio({ lat: 37.88 })]).valid).toBe(false);
+    expect(post([sitio({ lng: -4.78 })]).valid).toBe(false);
+  });
+
+  it('coordenadas fuera de rango se rechazan', () => {
+    expect(post([sitio({ lat: 91, lng: 0 })]).valid).toBe(false);
+    expect(post([sitio({ lat: 0, lng: 181 })]).valid).toBe(false);
+  });
+
+  it('el nombre y la dirección tienen tope: es una tarjeta, no una descripción', () => {
+    expect(post([sitio({ label: 'x'.repeat(COMMUNITY_LIMITS.location.labelMax + 1) })]).valid).toBe(false);
+    expect(post([sitio({ address: 'x'.repeat(COMMUNITY_LIMITS.location.addressMax + 1) })]).valid).toBe(false);
+  });
+
+  describe('a dónde lleva al tocarlo', () => {
+    it('con coordenadas usa geo:, que deja elegir la app de mapas del usuario', () => {
+      const url = mapLinkFor(sitio({ lat: 37.88, lng: -4.78 }));
+      expect(url).toMatch(/^geo:37\.88,-4\.78/);
+      // La chincheta sale con nombre, no como unas coordenadas sueltas.
+      expect(url).toContain(encodeURIComponent('Tienda de Paco'));
+    });
+
+    it('sin coordenadas, busca por nombre y dirección', () => {
+      const url = mapLinkFor(sitio({ address: 'C/ Mayor 1' }));
+      expect(url).toContain('google.com/maps');
+      expect(url).toContain(encodeURIComponent('Tienda de Paco, C/ Mayor 1'));
+    });
+
+    it('sin nada que abrir devuelve null, para que el host no pinte un enlace muerto', () => {
+      expect(mapLinkFor({ kind: 'location', label: '   ' } as any)).toBeNull();
+      expect(mapLinkFor(null)).toBeNull();
+    });
+  });
+
+  it('una app vieja IGNORA la ubicación en vez de romperse', () => {
+    // La tolerancia hacia adelante es lo que permite añadir esto sin esperar a
+    // que todo el mundo actualice.
+    const conDesconocido = [{ kind: 'location', label: 'X' }, { kind: 'lo-que-venga' }] as any[];
+    expect(knownAttachments(conDesconocido)).toHaveLength(1);
+    expect(validatePost({ channelId: 'c', authorId: 'a', body: 'x', attachments: conDesconocido }).valid).toBe(true);
   });
 });
