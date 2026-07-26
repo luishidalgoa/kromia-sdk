@@ -76,6 +76,11 @@ jobs:
   drift:
     name: Paridad TS↔Dart (versión · corpus · API)
     runs-on: ubuntu-latest
+    # Corre en ~60 s. El tope es holgado, pero acota el desastre: sin
+    # `timeout-minutes` el límite por defecto son 360, y un job colgado
+    # —una descarga que no responde, un test esperando— se comería 360
+    # minutos facturados de una sentada.
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
         with:

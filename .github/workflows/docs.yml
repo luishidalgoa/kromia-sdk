@@ -34,6 +34,9 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Publica en ~30 s. Igual que el drift: el tope existe para que un
+    # cuelgue no se lleve las 6 horas del límite por defecto.
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v5
