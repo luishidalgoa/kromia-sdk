@@ -198,26 +198,29 @@ const List<String> attachmentKinds = [
 
 /// Enlace para ABRIR la ubicación, espejo de `mapLinkFor`.
 ///
-/// Con coordenadas devuelve un `geo:` — en el móvil eso hace que el sistema
-/// ofrezca LA APP DE MAPAS QUE EL USUARIO TENGA, en vez de imponerle una. Sin
-/// coordenadas, una búsqueda web por nombre y dirección. `null` si no hay nada
-/// que abrir, para no pintar un enlace muerto.
+/// SIEMPRE `https://`, un único camino para las tres plataformas. El intento
+/// anterior devolvía `geo:` con coordenadas —para que el sistema ofreciera la
+/// app de mapas del usuario—, pero `geo:` es un esquema de ANDROID: en iOS no
+/// hay ninguna app registrada, así que al pulsar NO PASABA NADA (QA en iPhone).
+/// Lo irónico es que el caso con MENOS información —solo texto, sin
+/// coordenadas— sí funcionaba, porque ese ya usaba `https`.
 ///
-/// Vive en el SDK a propósito: si cada host montara la URL, el mismo sitio
-/// abriría en puntos distintos.
+/// Con coordenadas se busca por `lat,lng` y NO por el nombre: la chincheta cae
+/// en el punto exacto, mientras que buscar "La tienda de Paco" puede acabar en
+/// otra ciudad. Se pierde poder elegir otra app de mapas y a cambio el enlace
+/// funciona de verdad — que era lo que se prometía y no se cumplía.
+///
+/// `null` si no hay nada que abrir, para no pintar un enlace muerto.
 String? mapLinkFor(PostLocationAttachment? a) {
   if (a == null) return null;
-  if (a.hasCoords) {
-    final etiqueta = a.label.trim();
-    final q = etiqueta.isEmpty ? '' : '?q=${Uri.encodeComponent(etiqueta)}';
-    return 'geo:${a.lat},${a.lng}$q';
-  }
-  final texto = [a.label, a.address]
-      .map((v) => v?.trim())
-      .where((v) => v != null && v.isNotEmpty)
-      .join(', ');
-  if (texto.isEmpty) return null;
-  return 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(texto)}';
+  final consulta = a.hasCoords
+      ? '${a.lat},${a.lng}'
+      : [a.label, a.address]
+          .map((v) => v?.trim())
+          .where((v) => v != null && v.isNotEmpty)
+          .join(', ');
+  if (consulta.isEmpty) return null;
+  return 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(consulta)}';
 }
 
 // ── Post + reacciones ────────────────────────────────────────────────────────

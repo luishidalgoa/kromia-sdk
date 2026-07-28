@@ -44,11 +44,12 @@ void main() {
       expect(loc.hasCoords, isFalse);
     });
 
-    test('mapLinkFor: geo con coordenadas, búsqueda sin ellas, null si nada', () {
-      // `geo:` deja que el sistema ofrezca la app de mapas del usuario.
+    test('mapLinkFor: SIEMPRE https (el `geo:` no abría nada en iOS)', () {
+      // Con coordenadas se busca por lat,lng y NO por el nombre: la chincheta
+      // cae en el punto exacto en vez de en otro sitio que se llame igual.
       expect(
         mapLinkFor(const PostLocationAttachment(label: 'Paco', lat: 40.4, lng: -3.7)),
-        'geo:40.4,-3.7?q=Paco',
+        'https://www.google.com/maps/search/?api=1&query=40.4%2C-3.7',
       );
       expect(
         mapLinkFor(const PostLocationAttachment(label: 'Paco', address: 'Mayor 1')),
