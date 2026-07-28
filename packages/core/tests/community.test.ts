@@ -390,11 +390,26 @@ describe('KRO-274 · ubicación', () => {
   });
 
   describe('a dónde lleva al tocarlo', () => {
-    it('con coordenadas usa geo:, que deja elegir la app de mapas del usuario', () => {
+    it('con coordenadas apunta al punto exacto, no al nombre', () => {
       const url = mapLinkFor(sitio({ lat: 37.88, lng: -4.78 }));
-      expect(url).toMatch(/^geo:37\.88,-4\.78/);
-      // La chincheta sale con nombre, no como unas coordenadas sueltas.
-      expect(url).toContain(encodeURIComponent('Tienda de Paco'));
+      expect(url).toContain(encodeURIComponent('37.88,-4.78'));
+      // A propósito NO se busca por el nombre teniendo coordenadas: buscar
+      // "Tienda de Paco" puede dejar la chincheta en otra ciudad.
+      expect(url).not.toContain(encodeURIComponent('Tienda de Paco'));
+    });
+
+    it('el enlace SIEMPRE es https, se abra donde se abra', () => {
+      // Esto es lo que se rompió en KRO-274: con coordenadas se devolvía un
+      // `geo:`, que solo existe en Android — en iOS y en la web de escritorio
+      // no hay quien lo abra y al pulsar no pasaba nada. El caso con menos
+      // información (solo texto) ya funcionaba; el bueno, no.
+      for (const u of [
+        mapLinkFor(sitio({ lat: 37.88, lng: -4.78 })),
+        mapLinkFor(sitio({ address: 'C/ Mayor 1' })),
+        mapLinkFor(sitio({})),
+      ]) {
+        expect(u).toMatch(/^https:\/\//);
+      }
     });
 
     it('sin coordenadas, busca por nombre y dirección', () => {

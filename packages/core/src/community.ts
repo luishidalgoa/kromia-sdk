@@ -418,13 +418,26 @@ export function validateChannel(input: Partial<Channel> | null | undefined): Com
 /**
  * A dónde lleva tocar una ubicación (KRO-274).
  *
- * Devuelve una URL `geo:` cuando hay coordenadas y una búsqueda de Google Maps
- * cuando solo hay nombre o dirección.
+ * SIEMPRE `https://`. Antes, con coordenadas, se devolvía un `geo:` con la idea
+ * de que el móvil ofreciera la app de mapas que cada uno tuviera — pero `geo:`
+ * es un esquema de **Android**. En iOS no hay ninguna app registrada para él,
+ * así que el enlace no tiene a dónde ir y **al pulsar no pasa nada**; en la web
+ * de escritorio, igual. Es decir: justo con coordenadas, que es cuando mejor se
+ * sabe dónde está el sitio, era cuando el enlace estaba muerto en dos de las
+ * tres plataformas.
+ *
+ * Un `https://` de Google Maps abre en las tres: en el móvil el sistema lo
+ * reconoce como enlace de la app y la abre si está instalada, y si no cae al
+ * navegador. Se pierde el poder elegir otra app de mapas, y a cambio el enlace
+ * funciona siempre — que era lo que se estaba prometiendo y no se cumplía.
+ *
+ * Con coordenadas se busca por `lat,lng` y NO por el nombre: la chincheta cae en
+ * el punto exacto. Poniendo el nombre, Google buscaría ese texto y podía acabar
+ * en otra ciudad. Sin coordenadas no hay más remedio que buscar por texto, y
+ * entonces encontrarlo depende de que el sitio exista para Google.
  *
  * Vive en el SDK y no en cada host por lo de siempre: si Studio y la app lo
- * construyeran cada uno, un mismo sitio abriría en puntos distintos. Y el
- * esquema `geo:` es el que hace que el móvil ofrezca **la app de mapas que el
- * usuario tenga**, en vez de imponerle una.
+ * construyeran cada uno, un mismo sitio abriría en puntos distintos.
  *
  * Devuelve `null` si no hay nada que abrir — el host entonces pinta la tarjeta
  * sin enlace, en vez de un enlace que no lleva a ningún sitio.
@@ -433,15 +446,11 @@ export function mapLinkFor(a: PostLocationAttachment | null | undefined): string
   if (!a) return null;
   const tieneCoords = typeof a.lat === 'number' && typeof a.lng === 'number'
     && Number.isFinite(a.lat) && Number.isFinite(a.lng);
-  if (tieneCoords) {
-    // El `q=` con la etiqueta hace que la chincheta salga con nombre, no como
-    // unas coordenadas sueltas que no dicen nada.
-    const etiqueta = a.label?.trim();
-    return `geo:${a.lat},${a.lng}${etiqueta ? `?q=${encodeURIComponent(etiqueta)}` : ''}`;
-  }
-  const texto = [a.label, a.address].map(v => v?.trim()).filter(Boolean).join(', ');
-  if (!texto) return null;
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(texto)}`;
+  const consulta = tieneCoords
+    ? `${a.lat},${a.lng}`
+    : [a.label, a.address].map(v => v?.trim()).filter(Boolean).join(', ');
+  if (!consulta) return null;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(consulta)}`;
 }
 
 export function isKnownAttachment(a: PostAttachment | null | undefined): boolean {
