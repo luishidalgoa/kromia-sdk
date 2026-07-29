@@ -182,6 +182,41 @@ void main() {
       );
     });
 
+    test('el nombre del autor viene ANIDADO bajo information', () {
+      // Es como lo puebla el backend. Mirando solo `username` suelto, el nombre
+      // salía nulo y la app pintaba un guion y un avatar «?».
+      final p = Post.fromJson(const {
+        '_id': 'r1',
+        'channelId': 'c1',
+        'publisherId': 'p1',
+        'authorId': {
+          '_id': 'u1',
+          'information': {
+            'username': 'luishidalgoa',
+            'displayName': 'Luis',
+            'avatarUrl': 'https://x/y.png',
+          },
+        },
+        'body': 'Hola',
+      });
+      expect(p.authorId, 'u1');
+      expect(p.authorName, 'Luis'); // el visible manda sobre el usuario
+      expect(p.authorAvatarUrl, 'https://x/y.png');
+    });
+
+    test('sin displayName cae al username, y sin nada queda nulo', () {
+      Post conAutor(Map<String, dynamic> info) => Post.fromJson({
+            '_id': 'r1',
+            'channelId': 'c1',
+            'publisherId': 'p1',
+            'authorId': {'_id': 'u1', 'information': info},
+            'body': 'Hola',
+          });
+      expect(conAutor(const {'username': 'luis'}).authorName, 'luis');
+      expect(conAutor(const {}).authorName, isNull);
+      expect(conAutor(const {'username': '   '}).authorName, isNull);
+    });
+
     test('la publicación trae su padre y si está cerrada', () {
       final p = Post.fromJson(const {
         '_id': 'r1',

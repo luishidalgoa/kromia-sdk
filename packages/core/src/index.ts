@@ -612,7 +612,7 @@ export type { Favorite, FavoriteCardRef } from './favorite';
 // KRO-265 / Epic KRO-209 — comunidad del publisher: canales + posts. DATA social (no bumpea KRP).
 export { COMMUNITY_MEDIA_PREFIX, RESERVED_MEDIA_NAMESPACES, isCommunityMediaKey, channelIdFromCommunityKey, communityMediaKey } from './media-keys';
 export { mapLinkFor, validateAttachmentUpload, MAGIC_BYTES, MAGIC_BYTES_NEEDED, matchesMagicBytes } from './community';
-export { POST_REACTION_EMOJIS, CHANNEL_KINDS, CHANNEL_VISIBILITIES, COMMUNITY_LIMITS, isValidReactionEmoji, reactionCount, hasReacted, channelSlugify, isDeleted, isEdited, reactionsAllowed, notifiesFollowers, canPinAnother, validateChannel, validatePost, isReply, replyBlock, validateReply, type ReplyBlock, ATTACHMENT_KINDS, isKnownAttachment, knownAttachments, hasUnknownAttachments, linkDomain } from './community';
+export { POST_REACTION_EMOJIS, CHANNEL_KINDS, CHANNEL_VISIBILITIES, COMMUNITY_LIMITS, isValidReactionEmoji, reactionCount, hasReacted, channelSlugify, isDeleted, isEdited, reactionsAllowed, notifiesFollowers, canSeeCommunity, canPinAnother, validateChannel, validatePost, isReply, replyBlock, validateReply, type ReplyBlock, ATTACHMENT_KINDS, isKnownAttachment, knownAttachments, hasUnknownAttachments, linkDomain } from './community';
 export type { UploadRejection, PostLocationAttachment } from './community';
 
 // KRO-277 (Epic KRO-276) — quedadas: eventos de comunidad con inscripción.

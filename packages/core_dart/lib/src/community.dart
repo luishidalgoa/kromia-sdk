@@ -273,6 +273,9 @@ class Post {
   /// Autor poblado por el backend (nombre visible), si viene.
   final String? authorName;
 
+  /// Foto del autor, si el servidor la puebla. `null` → iniciales.
+  final String? authorAvatarUrl;
+
   const Post({
     required this.id,
     required this.channelId,
@@ -288,6 +291,7 @@ class Post {
     this.parentId,
     this.repliesClosed,
     this.authorName,
+    this.authorAvatarUrl,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -313,9 +317,13 @@ class Post {
       deletedAt: json['deletedAt']?.toString(),
       parentId: json['parentId']?.toString(),
       repliesClosed: json['repliesClosed'] as bool?,
+      // El backend PUEBLA el autor y su nombre viene anidado bajo
+      // `information` (username / displayName). Mirando solo las claves sueltas
+      // el nombre salía nulo y la app pintaba un guion y un avatar «?».
       authorName: author is Map
-          ? (author['username'] ?? author['name'])?.toString()
+          ? _nombreDeAutor(author)
           : json['authorName']?.toString(),
+      authorAvatarUrl: author is Map ? _avatarDeAutor(author) : null,
     );
   }
 }
@@ -416,6 +424,22 @@ CommunityValidationResult validateReply({
         'attachments', 'Las respuestas todavía no admiten adjuntos.'));
   }
   return CommunityValidationResult(issues.isEmpty, issues);
+}
+
+/// Nombre del autor poblado. El backend lo manda bajo `information`, pero se
+/// aceptan también las claves sueltas por si otra ruta lo devuelve plano.
+String? _nombreDeAutor(Map author) {
+  final info = author['information'];
+  final anidado = info is Map ? (info['displayName'] ?? info['username']) : null;
+  final suelto = author['displayName'] ?? author['username'] ?? author['name'];
+  final v = (anidado ?? suelto)?.toString().trim();
+  return (v == null || v.isEmpty) ? null : v;
+}
+
+String? _avatarDeAutor(Map author) {
+  final info = author['information'];
+  final v = (info is Map ? info['avatarUrl'] : author['avatarUrl'])?.toString();
+  return (v == null || v.isEmpty) ? null : v;
 }
 
 /// KRO-282 — ¿este post es una RESPUESTA a otro?

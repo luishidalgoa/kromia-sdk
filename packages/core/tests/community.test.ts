@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  canSeeCommunity,
   isReply,
   replyBlock,
   validateReply,
@@ -424,6 +425,22 @@ describe('KRO-274 · ubicación', () => {
     it('sin nada que abrir devuelve null, para que el host no pinte un enlace muerto', () => {
       expect(mapLinkFor({ kind: 'location', label: '   ' } as any)).toBeNull();
       expect(mapLinkFor(null)).toBeNull();
+    });
+  });
+
+  describe('acceso a la comunidad (KRO-282: se retira la visibilidad por canal)', () => {
+    it('o eres del equipo o sigues al publisher; no hay tercera vía', () => {
+      expect(canSeeCommunity({ isTeam: true })).toBe(true);
+      expect(canSeeCommunity({ isFollower: true })).toBe(true);
+      expect(canSeeCommunity({ isTeam: false, isFollower: false })).toBe(false);
+    });
+
+    it('sin sesión no se ve nada — ya no hay canales públicos', () => {
+      // Antes, un canal `public` lo leía cualquiera sin cuenta. Se retiró: la
+      // comunidad es de quien te sigue, y seguir exige estar identificado.
+      expect(canSeeCommunity(null)).toBe(false);
+      expect(canSeeCommunity(undefined)).toBe(false);
+      expect(canSeeCommunity({})).toBe(false);
     });
   });
 

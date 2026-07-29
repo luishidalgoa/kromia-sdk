@@ -390,6 +390,8 @@ const EXPECTED_EXPORTS = [
   'COMMUNITY_LIMITS',
   'POST_REACTION_EMOJIS',
   'canPinAnother',
+  // KRO-282 — regla unica de acceso a comunidad (sustituye a la visibilidad por canal)
+  'canSeeCommunity',
   'channelSlugify',
   'hasReacted',
   'isDeleted',
