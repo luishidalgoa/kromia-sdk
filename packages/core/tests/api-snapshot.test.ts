@@ -419,6 +419,22 @@ const EXPECTED_EXPORTS = [
   'validateAttachmentUpload',
   // KRO-274 — ubicación como adjunto
   'mapLinkFor',
+  // KRO-277 (Epic KRO-276) — quedadas: modelo, límites y helpers puros. Los
+  // helpers los comparten backend y app: `withinCheckinRadius` decide en el
+  // servidor y pinta el botón en el móvil, así que tienen que ser LOS MISMOS.
+  'MEETUP_STATUSES',
+  'RSVP_STATUSES',
+  'CHECKIN_METHODS',
+  'MEETUP_LIMITS',
+  'meetupIsOpen',
+  'checkinWindow',
+  'checkinIsOpen',
+  'distanceMeters',
+  'withinCheckinRadius',
+  'spotsLeft',
+  'isFull',
+  'validateMeetup',
+  'isValidRsvpStatus',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
