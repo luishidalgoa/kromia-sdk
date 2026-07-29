@@ -153,8 +153,32 @@ export function mediaCapability(
 
   // 1 · Zona privada (avatares, etc.) — antes del override de admin.
   if (p.startsWith(PRIVATE_PREFIX)) {
-    if (action === 'list') return false; // nunca listable, para nadie
-    if (p.startsWith(`${AVATAR_PREFIX}${ctx.username}.`)) {
+    // NUNCA listable, para nadie. Eso es lo que hace «privada» a la carpeta: que
+    // no se pueda recorrer ni usar para descubrir qué usuarios existen.
+    if (action === 'list') return false;
+
+    // KRO-288 — LEER un avatar concreto lo puede cualquiera identificado.
+    //
+    // Antes leer estaba limitado al dueño, y era un error de bulto: el avatar es
+    // lo más PÚBLICO que tiene una persona aquí. Sale junto a su nombre en el
+    // ranking del álbum, en descubrir creadores, en los seguidores, en los
+    // asistentes de una quedada y en el autor de cada publicación y respuesta.
+    // Con la regla vieja, cada usuario veía su propia cara y la de nadie más:
+    // todo lo demás caía a iniciales por un 403.
+    //
+    // La confusión estaba en haber cumplido «que no se fisgue la carpeta»
+    // prohibiendo LEER, cuando lo que hacía falta era prohibir LISTAR. Para leer
+    // hay que saber el nombre exacto, y ese ya se conoce: viene en la publicación
+    // o en el asistente que estás mirando.
+    if (p.startsWith(AVATAR_PREFIX)) {
+      if (action === 'read') return ctx.username !== '';
+      // ESCRIBIR y BORRAR siguen siendo solo del dueño: que tu cara la vea
+      // cualquiera no significa que cualquiera pueda cambiarla.
+      return p.startsWith(`${AVATAR_PREFIX}${ctx.username}.`);
+    }
+
+    // Cualquier otra cosa bajo `__private/` sigue siendo solo del dueño.
+    if (p.startsWith(`${PRIVATE_PREFIX}${ctx.username}/`)) {
       return action === 'read' || action === 'write' || action === 'delete';
     }
     return false;

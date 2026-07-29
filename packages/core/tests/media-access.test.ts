@@ -44,10 +44,31 @@ describe('zona privada (avatares) — antes que admin', () => {
     expect(mediaCapability(u, `${AVATAR_PREFIX}ana.webp`, 'delete')).toBe(true);
   });
 
-  it('nadie accede al avatar de OTRO (ni admin)', () => {
-    expect(mediaCapability(ctx({ username: 'ana' }), `${AVATAR_PREFIX}bob.webp`, 'read')).toBe(false);
-    expect(mediaCapability(ctx({ roles: ['admin'] }), `${AVATAR_PREFIX}bob.webp`, 'read')).toBe(false);
+  it('LEER el avatar de otro SÍ se puede: es lo más público que tiene (KRO-288)', () => {
+    // La regla vieja lo negaba, y con ella cada usuario veía su propia cara y la
+    // de nadie más: el avatar sale junto al nombre en el ranking, en los
+    // asistentes de una quedada y en el autor de cada publicación, así que todo
+    // eso caía a iniciales por un 403.
+    expect(mediaCapability(ctx({ username: 'ana' }), `${AVATAR_PREFIX}bob.webp`, 'read')).toBe(true);
+    expect(mediaCapability(ctx({ roles: ['admin'] }), `${AVATAR_PREFIX}bob.webp`, 'read')).toBe(true);
+  });
+
+  it('pero ESCRIBIR o BORRAR el de otro no, ni siendo admin', () => {
+    // Que tu cara la vea cualquiera no significa que cualquiera pueda cambiarla.
+    expect(mediaCapability(ctx({ username: 'ana' }), `${AVATAR_PREFIX}bob.webp`, 'write')).toBe(false);
+    expect(mediaCapability(ctx({ username: 'ana' }), `${AVATAR_PREFIX}bob.webp`, 'delete')).toBe(false);
     expect(mediaCapability(ctx({ roles: ['admin'] }), `${AVATAR_PREFIX}bob.webp`, 'delete')).toBe(false);
+  });
+
+  it('un ANÓNIMO no lee ningún avatar', () => {
+    // Leer exige estar identificado: si no, la carpeta sería un directorio
+    // abierto de caras para quien probase nombres.
+    expect(mediaCapability(ctx({ username: '' }), `${AVATAR_PREFIX}bob.webp`, 'read')).toBe(false);
+  });
+
+  it('la carpeta sigue sin poder LISTARSE, y eso es lo que la hace privada', () => {
+    expect(mediaCapability(ctx({ username: 'ana' }), AVATAR_PREFIX, 'list')).toBe(false);
+    expect(mediaCapability(ctx({ roles: ['admin'] }), AVATAR_PREFIX, 'list')).toBe(false);
   });
 });
 
