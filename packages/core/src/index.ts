@@ -617,7 +617,8 @@ export type { UploadRejection, PostLocationAttachment } from './community';
 
 // KRO-277 (Epic KRO-276) — quedadas: eventos de comunidad con inscripción.
 export { MEETUP_STATUSES, RSVP_STATUSES, CHECKIN_METHODS, MEETUP_LIMITS, meetupIsOpen, checkinWindow, checkinIsOpen, distanceMeters, withinCheckinRadius, spotsLeft, isFull, validateMeetup, isValidRsvpStatus } from './meetup';
-export type { Meetup, MeetupPlace, MeetupRsvp, MeetupCheckin, MeetupStatus, RsvpStatus, CheckinMethod } from './meetup';
+export { validateMeetupUpdate } from './meetup';
+export type { Meetup, MeetupPlace, MeetupRsvp, MeetupCheckin, MeetupUpdate, MeetupStatus, RsvpStatus, CheckinMethod } from './meetup';
 export type { Channel, ChannelKind, ChannelVisibility, PostAttachment, PostAttachmentKind, PostImageAttachment, PostFileAttachment, PostAlbumRefAttachment, PostLinkAttachment, PostReaction, Post, PostReactionEmoji, CommunityIssue, CommunityValidationResult } from './community';
 
 // KRO-16 — QR firmado de carta física: contrato + verificación pública (ECDSA P-256).

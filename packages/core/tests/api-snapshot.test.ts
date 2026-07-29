@@ -435,6 +435,8 @@ const EXPECTED_EXPORTS = [
   'isFull',
   'validateMeetup',
   'isValidRsvpStatus',
+  // KRO-283 — comunicado de una quedada.
+  'validateMeetupUpdate',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {

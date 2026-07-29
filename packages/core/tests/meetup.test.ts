@@ -6,7 +6,7 @@ import { describe, it, expect } from 'vitest';
 import {
   validateMeetup, meetupIsOpen, checkinWindow, checkinIsOpen,
   withinCheckinRadius, distanceMeters, spotsLeft, isFull,
-  MEETUP_LIMITS, isValidRsvpStatus,
+  MEETUP_LIMITS, isValidRsvpStatus, validateMeetupUpdate,
   type Meetup,
 } from '../src/meetup';
 
@@ -147,4 +147,19 @@ describe('estados de inscripción', () => {
     expect(isValidRsvpStatus('quizas')).toBe(false);
     expect(isValidRsvpStatus(undefined)).toBe(false);
   });
+});
+
+describe('comunicado de una quedada (KRO-283)', () => {
+    it('no admite uno vacío', () => {
+        // Un comunicado vacío avisaría a todos los inscritos de nada.
+        expect(validateMeetupUpdate('').valid).toBe(false);
+        expect(validateMeetupUpdate('   ').valid).toBe(false);
+        expect(validateMeetupUpdate(null).valid).toBe(false);
+    });
+
+    it('respeta el tope: es un aviso, no un artículo', () => {
+        expect(validateMeetupUpdate('Cambiamos a la mesa del fondo.').valid).toBe(true);
+        expect(validateMeetupUpdate('x'.repeat(MEETUP_LIMITS.update.max)).valid).toBe(true);
+        expect(validateMeetupUpdate('x'.repeat(MEETUP_LIMITS.update.max + 1)).valid).toBe(false);
+    });
 });

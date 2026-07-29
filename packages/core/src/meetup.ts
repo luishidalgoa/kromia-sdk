@@ -58,6 +58,8 @@ export const MEETUP_LIMITS = {
   placeLabel:   { max: 80 },
   placeAddress: { max: 200 },
   capacity:     { min: 1, max: 10_000 },
+  /** Cuerpo de un comunicado (KRO-283). Es un aviso, no un artículo. */
+  update:       { max: 1000 },
   /** Radio de fichaje, en METROS. */
   checkinRadiusMeters: 500,
   /**
@@ -130,6 +132,33 @@ export interface MeetupCheckin {
   userId:   string;
   method:   CheckinMethod;
   at:       string;                // ISO
+}
+
+/**
+ * KRO-283 — un COMUNICADO de la quedada: «hemos cambiado de sitio», «traed
+ * fundas», «se ha ampliado el aforo».
+ *
+ * No es lo mismo que el aviso que se manda al cambiar la hora. Un **aviso**
+ * llega, se lee y desaparece; un **comunicado se queda publicado**. La
+ * diferencia importa en el caso real: quien se apunta el jueves a una quedada
+ * que cambió de sitio el martes no se entera con un aviso —ese mensaje ya
+ * pasó— pero sí lo lee al abrir la quedada.
+ *
+ * Una quedada necesita los dos: el aviso empuja, el comunicado permanece.
+ *
+ * Lo escribe SOLO quien organiza. Por eso no abre la superficie de escritura ni
+ * arrastra la moderación que sí exigirán los hilos (KRO-282): si esos llegan,
+ * un comunicado pasa a ser un caso particular suyo en vez de un mecanismo
+ * paralelo.
+ */
+export interface MeetupUpdate {
+  id:        string;
+  meetupId:  string;
+  /** Quién lo escribió — siempre alguien del equipo del publisher. */
+  authorId:  string;
+  body:      string;
+  createdAt: string;              // ISO
+  deletedAt?: string;
 }
 
 // ── Helpers puros ────────────────────────────────────────────────────────────
@@ -309,4 +338,24 @@ export function validateMeetup(m: Partial<Meetup> | null | undefined): Community
 /** ¿Es un estado de inscripción de los que admite el contrato? */
 export function isValidRsvpStatus(v: unknown): v is RsvpStatus {
   return typeof v === 'string' && (RSVP_STATUSES as readonly string[]).includes(v);
+}
+
+/**
+ * Valida un comunicado. Poco que comprobar, pero se comprueba en el SDK igual
+ * que todo lo demás: si Studio y el backend decidieran cada uno qué cuerpo vale,
+ * acabarían discrepando en el tope y el usuario vería un error al enviar algo
+ * que la pantalla le dejó escribir.
+ */
+export function validateMeetupUpdate(body: string | null | undefined): CommunityValidationResult {
+  const texto = (body ?? '').trim();
+  if (!texto) {
+    return { valid: false, issues: [{ field: 'body', message: 'El comunicado no puede estar vacío.' }] };
+  }
+  if (texto.length > MEETUP_LIMITS.update.max) {
+    return {
+      valid: false,
+      issues: [{ field: 'body', message: `El comunicado no puede superar ${MEETUP_LIMITS.update.max} caracteres.` }],
+    };
+  }
+  return { valid: true, issues: [] };
 }
