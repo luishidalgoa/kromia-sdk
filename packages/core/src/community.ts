@@ -53,6 +53,18 @@ export interface Channel {
    */
   notifyFollowers?: boolean;
   /**
+   * KRO-282 — ¿se puede RESPONDER en este canal?
+   *
+   * **Ausente = NO**, al revés que los dos interruptores de arriba. No es un
+   * descuido: esos dos describen comportamiento que los canales YA tenían, así
+   * que ausente = true es retro-compatibilidad. Responder es una capacidad
+   * NUEVA y, sobre todo, es la primera que deja escribir a alguien que no sea
+   * el publisher. Encenderla sola en todos los canales existentes convertiría
+   * cada muro del sistema en superficie de escritura sin que su dueño lo haya
+   * decidido — y quien tiene que asumir esa moderación es él.
+   */
+  repliesEnabled?: boolean;
+  /**
    * Soft-delete (tombstone): si presente, el canal está ELIMINADO (oculto).
    * Borrarlo arrastra sus posts — el backend los da por eliminados en cascada
    * (mismo criterio que la cascada de borrado de álbum). Se conserva el registro.
@@ -158,6 +170,22 @@ export interface Post {
   publisherId:  string;            // denormalizado (queries por publisher)
   authorId:     string;            // quién publicó (autorizado por grant)
   body:         string;            // markdown
+  /**
+   * KRO-282 — si está, este post es una RESPUESTA a `parentId`. Ausente = post
+   * de primer nivel.
+   *
+   * **Un solo nivel**: el padre nunca puede ser a su vez una respuesta. Los
+   * árboles anidados son un producto en sí mismo y se leen fatal en móvil, que
+   * es donde vive el coleccionista. Lo impone `validateReply` y lo comprueba el
+   * servidor, que es quien conoce al padre.
+   */
+  parentId?:    string;
+  /**
+   * KRO-282 — hilo CERRADO: se conservan las respuestas y se leen, pero no se
+   * admiten nuevas. Es propiedad del POST (esta conversación en concreto se ha
+   * ido de las manos), distinta del interruptor del canal.
+   */
+  repliesClosed?: boolean;
   attachments?: PostAttachment[];
   reactions?:   PostReaction[];
   pinned?:      boolean;
@@ -227,6 +255,70 @@ export function reactionsAllowed(channel: Pick<Channel, 'reactionsEnabled'> | nu
   return channel?.reactionsEnabled !== false;
 }
 
+/** KRO-282 — ¿este post es una respuesta a otro? */
+export function isReply(post: Pick<Post, 'parentId'> | null | undefined): boolean {
+  return typeof post?.parentId === 'string' && post.parentId.trim() !== '';
+}
+
+/**
+ * KRO-282 — por qué NO se puede responder aquí, o `null` si se puede.
+ *
+ * Devuelve el MOTIVO en vez de un booleano porque los hosts tienen que decirlo:
+ * un botón que no está y no explica por qué se lee como una avería. Cubre solo
+ * lo que se deduce del canal y del post; que el usuario siga al publisher lo
+ * decide el SERVIDOR, que es quien tiene ese dato.
+ */
+export type ReplyBlock = 'channel-off' | 'thread-closed' | 'parent-deleted' | 'nested';
+
+export function replyBlock(
+  channel: Pick<Channel, 'repliesEnabled' | 'archived'> | null | undefined,
+  parent:  Pick<Post, 'parentId' | 'repliesClosed' | 'deletedAt'> | null | undefined,
+): ReplyBlock | null {
+  // Un canal archivado no admite escritura de ningún tipo; se trata como
+  // «apagado» y no como un caso propio: para quien responde el efecto es el
+  // mismo y un motivo más solo añade un texto que explicar.
+  if (channel?.repliesEnabled !== true || channel?.archived === true) return 'channel-off';
+  if (!parent) return 'parent-deleted';
+  if (parent.deletedAt) return 'parent-deleted';
+  if (isReply(parent)) return 'nested';
+  if (parent.repliesClosed === true) return 'thread-closed';
+  return null;
+}
+
+/**
+ * KRO-282 — forma de una RESPUESTA. Aparte de `validatePost` porque las reglas
+ * son distintas: cuerpo obligatorio (no existe la respuesta solo-adjunto), tope
+ * más corto, y **sin adjuntos**.
+ *
+ * Lo de los adjuntos es deliberado y no es una limitación técnica —la unión por
+ * `kind` ya existe y saldría gratis—: permitir que cualquiera suba una imagen a
+ * un muro ajeno es exactamente lo que obliga a moderar en serio, y eso no se
+ * improvisa. Se abre cuando haya con qué sostenerlo.
+ */
+export function validateReply(
+  input: Partial<Post> | null | undefined,
+): CommunityValidationResult {
+  const issues: CommunityIssue[] = [];
+  const p = input ?? {};
+  if (typeof p.channelId !== 'string' || p.channelId.trim() === '')
+    issues.push({ field: 'channelId', message: 'La respuesta necesita un canal.' });
+  if (typeof p.authorId !== 'string' || p.authorId.trim() === '')
+    issues.push({ field: 'authorId', message: 'La respuesta necesita un autor.' });
+  if (typeof p.parentId !== 'string' || p.parentId.trim() === '')
+    issues.push({ field: 'parentId', message: 'La respuesta necesita la publicación a la que responde.' });
+
+  const body = typeof p.body === 'string' ? p.body.trim() : '';
+  if (body === '')
+    issues.push({ field: 'body', message: 'La respuesta no puede estar vacía.' });
+  if (body.length > COMMUNITY_LIMITS.replyBody.max)
+    issues.push({ field: 'body', message: `La respuesta no puede superar ${COMMUNITY_LIMITS.replyBody.max} caracteres.` });
+
+  if (Array.isArray(p.attachments) && p.attachments.length > 0)
+    issues.push({ field: 'attachments', message: 'Las respuestas todavía no admiten adjuntos.' });
+
+  return { valid: issues.length === 0, issues };
+}
+
 /** ¿Publicar en este canal avisa a los seguidores? Ausente = SÍ (retro-compat). */
 export function notifiesFollowers(channel: Pick<Channel, 'notifyFollowers'> | null | undefined): boolean {
   return channel?.notifyFollowers !== false;
@@ -241,6 +333,13 @@ export const COMMUNITY_LIMITS = {
   channelDescription: { max: 280 },
   postBody:           { max: 2000 },
   postAttachments:    { max: 10 },
+  /**
+   * KRO-282 — el cuerpo de una RESPUESTA. Más corto que el de un post a
+   * propósito: un post es un anuncio y una respuesta es un comentario. Además,
+   * el tope corto es moderación barata — cuanto más largo se permite, más
+   * rentable sale usar el hilo como tablón propio.
+   */
+  replyBody:          { max: 1000 },
   /**
    * Cuántas publicaciones pueden estar fijadas a la vez en un canal. Fijar es un
    * recurso ESCASO a propósito: si todo está fijado, nada destaca. El host debe

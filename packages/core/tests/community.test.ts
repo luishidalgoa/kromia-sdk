@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import {
+  isReply,
+  replyBlock,
+  validateReply,
   mapLinkFor,
   validateAttachmentUpload,
   matchesMagicBytes,
@@ -421,6 +424,67 @@ describe('KRO-274 · ubicación', () => {
     it('sin nada que abrir devuelve null, para que el host no pinte un enlace muerto', () => {
       expect(mapLinkFor({ kind: 'location', label: '   ' } as any)).toBeNull();
       expect(mapLinkFor(null)).toBeNull();
+    });
+  });
+
+  describe('hilos (KRO-282)', () => {
+    const canal = { repliesEnabled: true } as any;
+    const padre = { id: 'p1', body: 'hola' } as any;
+
+    it('un post con parentId es una respuesta; sin él, no', () => {
+      expect(isReply({ parentId: 'p1' } as any)).toBe(true);
+      expect(isReply(padre)).toBe(false);
+      // Un parentId en blanco NO cuenta: si contase, un cliente que mande
+      // cadena vacía crearía respuestas huérfanas sin padre al que colgar.
+      expect(isReply({ parentId: '   ' } as any)).toBe(false);
+    });
+
+    it('el canal viene APAGADO por defecto — responder se activa a propósito', () => {
+      // Al revés que reacciones y avisos, donde ausente = sí. Aquí ausente = no,
+      // porque encenderlo solo abriría a escritura todos los muros existentes.
+      expect(replyBlock({} as any, padre)).toBe('channel-off');
+      expect(replyBlock({ repliesEnabled: false } as any, padre)).toBe('channel-off');
+      expect(replyBlock(canal, padre)).toBeNull();
+    });
+
+    it('un canal archivado no admite respuestas aunque estén encendidas', () => {
+      expect(replyBlock({ repliesEnabled: true, archived: true } as any, padre)).toBe('channel-off');
+    });
+
+    it('no se responde a un hilo cerrado, ni a un post borrado, ni a una respuesta', () => {
+      expect(replyBlock(canal, { ...padre, repliesClosed: true })).toBe('thread-closed');
+      expect(replyBlock(canal, { ...padre, deletedAt: '2026-01-01T00:00:00Z' })).toBe('parent-deleted');
+      expect(replyBlock(canal, null)).toBe('parent-deleted');
+      // Un solo nivel: responder a una respuesta abriría el árbol anidado.
+      expect(replyBlock(canal, { ...padre, parentId: 'otro' })).toBe('nested');
+    });
+
+    it('el hilo cerrado se comprueba DESPUÉS del borrado', () => {
+      // Si el padre está borrado, ese es el motivo que hay que contar; decir
+      // «hilo cerrado» de algo que ya no existe manda a mirar el sitio erróneo.
+      const borradoYcerrado = { ...padre, deletedAt: '2026-01-01T00:00:00Z', repliesClosed: true };
+      expect(replyBlock(canal, borradoYcerrado)).toBe('parent-deleted');
+    });
+
+    it('la respuesta exige cuerpo, padre y canal', () => {
+      expect(validateReply({ channelId: 'c', authorId: 'a', parentId: 'p', body: 'ok' }).valid).toBe(true);
+      expect(validateReply({ channelId: 'c', authorId: 'a', parentId: 'p', body: '   ' }).valid).toBe(false);
+      expect(validateReply({ channelId: 'c', authorId: 'a', body: 'ok' }).valid).toBe(false);
+      expect(validateReply(null).valid).toBe(false);
+    });
+
+    it('la respuesta es más corta que un post, y no admite adjuntos', () => {
+      const largo = 'x'.repeat(COMMUNITY_LIMITS.replyBody.max + 1);
+      expect(validateReply({ channelId: 'c', authorId: 'a', parentId: 'p', body: largo }).valid).toBe(false);
+      // El mismo texto SÍ cabría en un post: son topes distintos a propósito.
+      expect(COMMUNITY_LIMITS.replyBody.max).toBeLessThan(COMMUNITY_LIMITS.postBody.max);
+
+      const conAdjunto = validateReply({
+        channelId: 'c', authorId: 'a', parentId: 'p', body: 'toma foto',
+        attachments: [{ kind: 'link', url: 'https://x.com' }],
+      } as any);
+      expect(conAdjunto.valid).toBe(false);
+      expect(conAdjunto.issues[0].field).toBe('attachments');
     });
   });
 

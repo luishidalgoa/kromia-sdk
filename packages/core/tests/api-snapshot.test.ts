@@ -400,6 +400,10 @@ const EXPECTED_EXPORTS = [
   'reactionsAllowed',
   'validateChannel',
   'validatePost',
+  // KRO-282 — hilos: respuestas de un solo nivel dentro de una publicación
+  'isReply',
+  'replyBlock',
+  'validateReply',
   // KRO-272 — adjuntos como unión discriminada (imagen | fichero | álbum | enlace)
   'ATTACHMENT_KINDS',
   'hasUnknownAttachments',
