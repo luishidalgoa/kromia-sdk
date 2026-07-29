@@ -37,6 +37,16 @@ class Channel {
   /// ¿Publicar avisa a los seguidores? Ausente = SÍ. Ver [notifiesFollowers].
   final bool? notifyFollowers;
 
+  /// KRO-282 — ¿se puede RESPONDER en este canal?
+  ///
+  /// **Ausente = NO**, al revés que los dos interruptores de arriba. No es un
+  /// descuido: esos describen comportamiento que los canales YA tenían, así que
+  /// ausente = true es retro-compatibilidad. Responder es una capacidad NUEVA y,
+  /// sobre todo, la primera que deja escribir a alguien que no sea el publisher.
+  /// Encenderla sola convertiría cada muro existente en superficie de escritura
+  /// sin que su dueño lo haya decidido — y la moderación la asume él.
+  final bool? repliesEnabled;
+
   /// Soft-delete (tombstone).
   final String? deletedAt;
 
@@ -55,6 +65,7 @@ class Channel {
     this.archived = false,
     this.reactionsEnabled,
     this.notifyFollowers,
+    this.repliesEnabled,
     this.deletedAt,
     this.postCount,
   });
@@ -71,6 +82,7 @@ class Channel {
         archived: json['archived'] == true,
         reactionsEnabled: json['reactionsEnabled'] as bool?,
         notifyFollowers: json['notifyFollowers'] as bool?,
+        repliesEnabled: json['repliesEnabled'] as bool?,
         deletedAt: json['deletedAt']?.toString(),
         postCount: (json['postCount'] as num?)?.toInt(),
       );
@@ -249,6 +261,13 @@ class Post {
   final bool pinned;
   final String createdAt;
   final String? editedAt;
+  /// KRO-282 — si está, este post es una RESPUESTA a `parentId`. Ausente = post
+  /// normal. **Un solo nivel**: el padre no puede ser a su vez una respuesta.
+  final String? parentId;
+
+  /// KRO-282 — hilo cerrado: no admite respuestas nuevas.
+  final bool? repliesClosed;
+
   final String? deletedAt;
 
   /// Autor poblado por el backend (nombre visible), si viene.
@@ -266,6 +285,8 @@ class Post {
     this.createdAt = '',
     this.editedAt,
     this.deletedAt,
+    this.parentId,
+    this.repliesClosed,
     this.authorName,
   });
 
@@ -290,6 +311,8 @@ class Post {
       createdAt: json['createdAt']?.toString() ?? '',
       editedAt: json['editedAt']?.toString(),
       deletedAt: json['deletedAt']?.toString(),
+      parentId: json['parentId']?.toString(),
+      repliesClosed: json['repliesClosed'] as bool?,
       authorName: author is Map
           ? (author['username'] ?? author['name'])?.toString()
           : json['authorName']?.toString(),
@@ -333,6 +356,115 @@ bool reactionsAllowed(Channel? channel) => channel?.reactionsEnabled != false;
 /// ¿Publicar en este canal avisa a los seguidores? Ausente = SÍ.
 bool notifiesFollowers(Channel? channel) => channel?.notifyFollowers != false;
 
+/// Un problema concreto encontrado al validar.
+///
+/// Vive aquí y no en `meetup.dart` porque en el TS es de `community` y de él
+/// dependen los dos módulos. `MeetupIssue` es un alias suyo.
+class CommunityIssue {
+  final String field;
+  final String message;
+  const CommunityIssue(this.field, this.message);
+
+  @override
+  String toString() => '$field: $message';
+}
+
+/// Resultado de una validación de contrato.
+class CommunityValidationResult {
+  final bool valid;
+  final List<CommunityIssue> issues;
+  const CommunityValidationResult(this.valid, this.issues);
+}
+
+/// KRO-282 — forma de una RESPUESTA.
+///
+/// Aparte de la validación de una publicación porque las reglas son distintas:
+/// cuerpo obligatorio (no existe la respuesta solo-adjunto), tope más corto y
+/// **sin adjuntos**.
+///
+/// Lo de los adjuntos es deliberado y NO es una limitación técnica: permitir que
+/// cualquiera suba una imagen a un muro ajeno es justo lo que obliga a moderar
+/// en serio, y eso no se improvisa.
+CommunityValidationResult validateReply({
+  String? channelId,
+  String? authorId,
+  String? parentId,
+  String? body,
+  List<PostAttachment>? attachments,
+}) {
+  final issues = <CommunityIssue>[];
+  if ((channelId ?? '').trim().isEmpty) {
+    issues.add(const CommunityIssue('channelId', 'La respuesta necesita un canal.'));
+  }
+  if ((authorId ?? '').trim().isEmpty) {
+    issues.add(const CommunityIssue('authorId', 'La respuesta necesita un autor.'));
+  }
+  if ((parentId ?? '').trim().isEmpty) {
+    issues.add(const CommunityIssue(
+        'parentId', 'La respuesta necesita la publicación a la que responde.'));
+  }
+  final texto = (body ?? '').trim();
+  if (texto.isEmpty) {
+    issues.add(const CommunityIssue('body', 'La respuesta no puede estar vacía.'));
+  }
+  if (texto.length > communityLimits.replyBody.max) {
+    issues.add(CommunityIssue('body',
+        'La respuesta no puede superar ${communityLimits.replyBody.max} caracteres.'));
+  }
+  if (attachments != null && attachments.isNotEmpty) {
+    issues.add(const CommunityIssue(
+        'attachments', 'Las respuestas todavía no admiten adjuntos.'));
+  }
+  return CommunityValidationResult(issues.isEmpty, issues);
+}
+
+/// KRO-282 — ¿este post es una RESPUESTA a otro?
+bool isReply(Post? post) =>
+    post?.parentId != null && post!.parentId!.trim().isNotEmpty;
+
+/// Por qué NO se puede responder, o `null` si se puede.
+enum ReplyBlock {
+  /// El canal no admite respuestas (o está archivado).
+  channelOff,
+
+  /// El hilo está cerrado.
+  threadClosed,
+
+  /// La publicación a la que se responde ya no está.
+  parentDeleted,
+
+  /// Se está intentando responder a una respuesta. Solo hay UN nivel.
+  nested,
+}
+
+/// KRO-282 — el MOTIVO por el que no se puede responder aquí, o `null`.
+///
+/// Devuelve el motivo y no un booleano porque los hosts tienen que decirlo: un
+/// botón que no está y no explica por qué se lee como una avería.
+///
+/// Cubre solo lo que se deduce del canal y del post. Que el usuario SIGA al
+/// publisher —requisito para responder, aunque el canal se pueda leer sin
+/// seguirlo— lo decide el SERVIDOR, que es quien tiene ese dato.
+///
+/// OJO al pasar los objetos: espera la forma del CONTRATO. Si se le pasa el
+/// documento crudo de la base (donde `parentId` puede no ser una cadena),
+/// [isReply] diría que no y se podría responder a una respuesta.
+ReplyBlock? replyBlock(Channel? channel, Post? parent) {
+  // Un canal archivado no admite escritura de ningún tipo; se trata como
+  // «apagado» y no como un caso propio: para quien responde el efecto es el
+  // mismo, y un motivo más solo añade un texto que explicar.
+  //
+  // `repliesEnabled != true` — NO `!= false` como los otros interruptores:
+  // ausente significa NO.
+  if (channel?.repliesEnabled != true || channel?.archived == true) {
+    return ReplyBlock.channelOff;
+  }
+  if (parent == null || parent.deletedAt != null) return ReplyBlock.parentDeleted;
+  if (isReply(parent)) return ReplyBlock.nested;
+  if (parent.repliesClosed == true) return ReplyBlock.threadClosed;
+  return null;
+}
+
 /// Límites de contrato. Fuente ÚNICA — no re-declarar en los hosts.
 const ({
   ({int min, int max}) channelName,
@@ -340,10 +472,14 @@ const ({
   ({int max}) postAttachments,
   ({int maxBytes, List<String> mimes}) file,
   ({int max}) pinnedPerChannel,
+  ({int max}) replyBody,
 }) communityLimits = (
   channelName: (min: 1, max: 60),
   postBody: (max: 2000),
   postAttachments: (max: 10),
   file: (maxBytes: 60 * 1024 * 1024, mimes: ['application/pdf']),
   pinnedPerChannel: (max: 3),
+  /// KRO-282 — tope de una respuesta. Más corto que el de una publicación: son
+  /// dos cosas distintas.
+  replyBody: (max: 1000),
 );

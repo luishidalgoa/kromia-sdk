@@ -16,6 +16,8 @@ library;
 
 import 'dart:math' as math;
 
+import 'community.dart';
+
 // ── Vocabulario ──────────────────────────────────────────────────────────────
 
 /// Estado de la quedada. `cancelled` se conserva: hay gente apuntada que avisar.
@@ -423,22 +425,11 @@ bool isValidRsvpStatus(Object? v) => v is String && rsvpStatuses.contains(v);
 
 // ── Validación ───────────────────────────────────────────────────────────────
 
-/// Un problema concreto encontrado al validar.
-class MeetupIssue {
-  final String field;
-  final String message;
-  const MeetupIssue(this.field, this.message);
-
-  @override
-  String toString() => '$field: $message';
-}
-
-/// Resultado de [validateMeetup].
-class MeetupValidationResult {
-  final bool valid;
-  final List<MeetupIssue> issues;
-  const MeetupValidationResult(this.valid, this.issues);
-}
+/// Los tipos de validación son los de `community`, igual que en el TS (donde
+/// este módulo los importa de allí). Se mantienen los nombres como ALIAS para
+/// no romper a quien ya los usa.
+typedef MeetupIssue = CommunityIssue;
+typedef MeetupValidationResult = CommunityValidationResult;
 
 /// Valida la FORMA de una quedada. Misma función para los tres hosts: la
 /// interfaz no debería poder construir algo que la puerta de entrada rechaza.

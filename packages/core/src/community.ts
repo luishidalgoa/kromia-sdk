@@ -20,13 +20,36 @@ export const CHANNEL_KINDS = ['announcements', 'discussion', 'events'] as const;
 export type ChannelKind = typeof CHANNEL_KINDS[number];
 
 /**
- * Quién puede VER el canal:
- * - `public`     → cualquiera (incluso sin sesión).
- * - `collectors` → quien posee ≥ 1 carta de algún álbum del publisher.
- * - `followers`  → solo seguidores del publisher (`PublisherFollow`, KRO-210).
+ * @deprecated Decisión del user (2026-07-29): **la comunidad es de quien te
+ * sigue, y punto**. Ya no se elige visibilidad — a un canal se entra siguiendo
+ * al publisher, y `canSeeCommunity` es la única regla.
+ *
+ * De las tres opciones, `collectors` nunca llegó a hacer nada distinto de
+ * `followers` (la interfaz prometía «solo quien tenga cromos de este publisher»
+ * y en realidad bastaba con seguir), y `public` abría el muro a cualquiera con
+ * cuenta. Una regla clara vale más que tres, una de ellas mintiendo.
+ *
+ * El valor **se conserva en los datos** a propósito, en vez de borrarlo del
+ * contrato: eliminarlo obligaría a un bump de protocolo y a que la app re-espeje
+ * el modelo, todo para no ganar nada visible. Ningún host debe leerlo ya para
+ * decidir accesos; lo ignoran el backend, Studio y la app.
  */
 export const CHANNEL_VISIBILITIES = ['public', 'collectors', 'followers'] as const;
 export type ChannelVisibility = typeof CHANNEL_VISIBILITIES[number];
+
+/**
+ * ¿Puede esta persona ver la comunidad de un publisher?
+ *
+ * Regla ÚNICA desde que se retiró la visibilidad por canal: o formas parte del
+ * equipo del publisher, o le sigues. Vive en el contrato para que backend,
+ * Studio y la app no puedan discrepar — y para que el día que se quiera abrir
+ * algo al público haya un solo sitio que tocar.
+ */
+export function canSeeCommunity(
+  viewer: { isTeam?: boolean; isFollower?: boolean } | null | undefined,
+): boolean {
+  return viewer?.isTeam === true || viewer?.isFollower === true;
+}
 
 /** Un canal de comunidad de un publisher. */
 export interface Channel {
