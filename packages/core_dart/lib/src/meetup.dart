@@ -50,6 +50,7 @@ const ({
   ({int max}) placeLabel,
   ({int max}) placeAddress,
   ({int min, int max}) capacity,
+  ({int max}) update,
   int checkinRadiusMeters,
   int checkinOpensBeforeMs,
 }) meetupLimits = (
@@ -60,6 +61,7 @@ const ({
   placeLabel: (max: 80),
   placeAddress: (max: 200),
   capacity: (min: 1, max: 10000),
+  update: (max: 1000),
   /// Radio de fichaje, en METROS.
   checkinRadiusMeters: 500,
   /// La ventana de fichaje abre esto ANTES del inicio y cierra al terminar.
@@ -226,6 +228,51 @@ class MeetupRsvp {
   bool get isWaitlisted => waitlistPosition != null;
 }
 
+/// KRO-283 — COMUNICADO de una quedada.
+///
+/// No es lo mismo que el aviso que se manda al cambiar la hora. Un **aviso**
+/// llega, se lee y desaparece; un **comunicado se queda publicado**. La
+/// diferencia importa en el caso real: quien se apunta el jueves a una quedada
+/// que cambió de sitio el martes no se entera con un aviso —ese mensaje ya
+/// pasó— pero sí lo lee al abrir la quedada.
+///
+/// Lo escribe SOLO quien organiza, así que no abre superficie de escritura ni
+/// arrastra moderación.
+class MeetupUpdate {
+  final String id;
+  final String meetupId;
+
+  /// Quién lo escribió — siempre alguien del equipo del publisher.
+  final String authorId;
+  final String body;
+
+  /// ISO.
+  final String createdAt;
+
+  /// Soft-delete. **El listado del servidor YA filtra los retirados**, así que
+  /// en la app esto viene siempre nulo; se modela para no divergir del contrato
+  /// y por si algún día se expone el historial completo.
+  final String? deletedAt;
+
+  const MeetupUpdate({
+    required this.id,
+    required this.meetupId,
+    required this.authorId,
+    required this.body,
+    required this.createdAt,
+    this.deletedAt,
+  });
+
+  factory MeetupUpdate.fromJson(Map<String, dynamic> json) => MeetupUpdate(
+        id: (json['_id'] ?? json['id'])?.toString() ?? '',
+        meetupId: json['meetupId']?.toString() ?? '',
+        authorId: json['authorId']?.toString() ?? '',
+        body: json['body']?.toString() ?? '',
+        createdAt: json['createdAt']?.toString() ?? '',
+        deletedAt: json['deletedAt']?.toString(),
+      );
+}
+
 class MeetupCheckin {
   final String meetupId;
   final String userId;
@@ -347,6 +394,28 @@ int? spotsLeft(Meetup? m, int going) {
 bool isFull(Meetup? m, int going) {
   final libres = spotsLeft(m, going);
   return libres != null && libres == 0;
+}
+
+/// Valida un comunicado. Vacío no vale (un comunicado sin texto no comunica) y
+/// hay tope de longitud.
+MeetupValidationResult validateMeetupUpdate(String? body) {
+  final texto = (body ?? '').trim();
+  if (texto.isEmpty) {
+    return const MeetupValidationResult(
+      false,
+      [MeetupIssue('body', 'El comunicado no puede estar vacío.')],
+    );
+  }
+  if (texto.length > meetupLimits.update.max) {
+    return MeetupValidationResult(
+      false,
+      [
+        MeetupIssue('body',
+            'El comunicado no puede superar ${meetupLimits.update.max} caracteres.')
+      ],
+    );
+  }
+  return const MeetupValidationResult(true, []);
 }
 
 /// ¿Es un estado de inscripción de los que admite el contrato?

@@ -217,6 +217,45 @@ void main() {
     });
   });
 
+  group('comunicados (KRO-283)', () {
+    test('vacío no vale: un comunicado sin texto no comunica', () {
+      expect(validateMeetupUpdate(null).valid, isFalse);
+      expect(validateMeetupUpdate('   ').valid, isFalse);
+    });
+
+    test('con texto vale, y hay tope', () {
+      expect(validateMeetupUpdate('Cambiamos de sitio: nos vemos en la plaza.').valid,
+          isTrue);
+      expect(validateMeetupUpdate('x' * meetupLimits.update.max).valid, isTrue);
+      expect(validateMeetupUpdate('x' * (meetupLimits.update.max + 1)).valid,
+          isFalse);
+    });
+
+    test('el tope es el del CONTRATO, no el de la descripción', () {
+      // Hoy los dos valen 1000, pero son campos distintos con vidas distintas:
+      // lo que se fija es que el comunicado use el SUYO. Si mañana el TS cambia
+      // uno de los dos, este test cae y el espejo se entera.
+      expect(meetupLimits.update.max, 1000);
+      expect(validateMeetupUpdate('x' * 1000).valid, isTrue);
+      expect(validateMeetupUpdate('x' * 1001).valid, isFalse);
+    });
+
+    test('se parsea sin lanzar, aunque falten campos', () {
+      final c = MeetupUpdate.fromJson(const {
+        '_id': 'u1',
+        'meetupId': 'm1',
+        'authorId': 'p1',
+        'body': 'Nos movemos al quiosco',
+        'createdAt': '2026-02-13T09:00:00.000Z',
+      });
+      expect(c.id, 'u1');
+      expect(c.body, 'Nos movemos al quiosco');
+      // El listado del servidor ya filtra los retirados: aquí llega nulo.
+      expect(c.deletedAt, isNull);
+      expect(MeetupUpdate.fromJson(const {}).body, isEmpty);
+    });
+  });
+
   group('parseo defensivo', () {
     test('un JSON incompleto no revienta la pantalla', () {
       final m = Meetup.fromJson(const {'_id': 'm9'});
