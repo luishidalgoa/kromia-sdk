@@ -66,7 +66,7 @@ export interface AlbumCreatorRef {
   ref?: string;
   /** Lo justo para pintar la referencia sin una segunda petición. */
   displayName?: string;
-  logoUrl?: string | null;
+  logoUrl: string | null;
 }
 
 // ── Color de la banda ────────────────────────────────────────────────────────
@@ -199,7 +199,20 @@ export interface ProfileAlbumGroup {
   albums: ProfileAlbum[];
 }
 
-/** El perfil tal y como lo devuelve el servidor: lo escrito + lo calculado. */
+/**
+ * El perfil tal y como lo SIRVE el servidor: lo escrito + lo calculado + lo
+ * resuelto al leer.
+ *
+ * **Los campos que el endpoint garantiza NO son opcionales**, y eso es
+ * deliberado: este tipo es el contrato del cable, y un `?` de más significa que
+ * el host tiene que defenderse de una ausencia que nunca ocurre — o peor, que el
+ * servidor puede dejar de mandarlo sin que nada se queje. Que fueran opcionales
+ * es como `logoUrl`, `isBare` y `albumGroups` llegaron a existir tres semanas
+ * fuera del contrato (KRO-301).
+ *
+ * Para construir un perfil a medias —un formulario, un borrador— está
+ * `PublisherProfileEditable`, que es lo que se escribe.
+ */
 export interface PublisherProfile extends PublisherProfileEditable, PublisherProfileComputed {
   publisherId: string;
   slug: string;
@@ -217,7 +230,7 @@ export interface PublisherProfile extends PublisherProfileEditable, PublisherPro
    * sobre lo que de verdad va a servir —que no es siempre lo guardado: un perfil
    * en privado sale sin descripción—, así que el host la lee, no la recalcula.
    */
-  isBare?: boolean;
+  isBare: boolean;
   /**
    * KRO-295 — **esta respuesta viene REDACTADA porque esa persona eligió no
    * mostrarse.** No dice «cuál es su ajuste», dice «lo que estás leyendo está
@@ -232,18 +245,18 @@ export interface PublisherProfile extends PublisherProfileEditable, PublisherPro
    *
    * Un publisher no tiene ajuste de privacidad: ahí es siempre `false`.
    */
-  isPrivate?: boolean;
+  isPrivate: boolean;
   /** Su catálogo, agrupado y ordenado. Ver `ProfileAlbumGroup`. */
-  albumGroups?: ProfileAlbumGroup[];
+  albumGroups: ProfileAlbumGroup[];
   /**
    * KRO-295 — de qué está hecho esto. Un `creator` trae la misma forma con los
    * campos derivados y `canManage: false`; el host no cambia de pantalla.
    */
-  kind?: ProfileKind;
+  kind: ProfileKind;
   /** ¿Sigue el que mira a este publisher? Decide el escaparate frente al interior. */
-  isFollowing?: boolean;
+  isFollowing: boolean;
   /** ¿Puede el que mira EDITAR este perfil? (`profile:manage` o dueño). */
-  canManage?: boolean;
+  canManage: boolean;
 }
 
 // ── Validación ───────────────────────────────────────────────────────────────
