@@ -12,10 +12,13 @@ import {
   allRecipes, getRecipeManifest,
   allComponents, getComponentDef,
   allFieldTypes, getFieldType,
+  allBehaviors, getBehavior, getBehaviorsByType,
+  allVisualEffects, getVisualEffect, EFFECT_FACTORY_PRESETS,
   SLOT_ACCEPT_KIND_META,
   layoutTemplatesFor, applyLayoutTemplate,
   buildAutoListComposition, buildAutoDetailComposition,
-  validateComposition,
+  validateComposition, validateTagStyles,
+  validateAlbumData, validateRaritySource,
 } from '@kromia/core';
 import type { RecipeId, ViewComposition, FieldDefLike } from '@kromia/core';
 
@@ -53,21 +56,58 @@ export function createKromiaMcpServer(): McpServer {
     Object.entries(SLOT_ACCEPT_KIND_META).map(([id, m]) => ({ id, label: m.label, description: m.description })),
   ));
 
+  server.registerTool('list_behaviors', {
+    title: 'Listar behaviors',
+    description:
+      'Lista los BEHAVIORS: lo que le da SIGNIFICADO a un campo por encima de su tipo (rating, iso_date, markdown, card_index_list…). Importa porque el behavior decide en qué SLOT puede entrar el campo, así que elegirlo bien es lo que hace que auto_compose acierte. Son los mismos `behavior` que piden `auto_compose` y `validate_composition` en sus fields/fieldDefs. `forType` filtra por tipo base.',
+    inputSchema: {
+      forType: z.string().optional().describe('Filtra por tipo base: text, number, image, enum…'),
+    },
+  }, async ({ forType }) => json(
+    (forType ? getBehaviorsByType(forType as never) : allBehaviors()).map((b: any) => ({
+      id: b.id, displayName: b.displayName, description: b.description,
+      applicableTypes: b.applicableTypes, renderAsSlotKind: b.renderAsSlotKind,
+    })),
+  ));
+
+  server.registerTool('list_effects', {
+    title: 'Listar efectos visuales',
+    description:
+      'Lista los efectos visuales que se aplican a una carta según el VALOR de una tag (iridescent_foil, crown_badge, glow_border…): id, nombre, capa y cuántos parámetros tiene. Índice ligero: pide la ficha completa con describe(category:"visual-effect", id) antes de configurar ninguno. Los efectos son el OTRO eje del diseño, aparte del layout — viven en albumSchema.tagStyles y se validan con validate_tag_styles.',
+  }, async () => json(
+    (allVisualEffects() as any[]).map(e => ({
+      id: e.id, displayName: e.displayName, description: e.description,
+      layer: e.layer, paramCount: (e.config ?? []).length,
+      hasPresets: Boolean((EFFECT_FACTORY_PRESETS as any)?.[e.id]),
+    })),
+  ));
+
   server.registerTool('list_templates', {
     title: 'Listar plantillas de layout',
     description:
       'Lista las plantillas de layout disponibles para una receta (id, nombre, descripción). Elegir + ajustar una plantilla existente da mejor resultado que diseñar el árbol desde cero.',
     inputSchema: { recipeId: z.string().describe('id de la receta, p.ej. "compact_card"') },
-  }, async ({ recipeId }) => json(
-    layoutTemplatesFor(recipeId as RecipeId).map(t => ({ id: t.id, name: t.name, description: t.description })),
-  ));
+  }, async ({ recipeId }) => {
+    // Un `[]` significaba dos cosas distintas: «esta receta no tiene plantillas»
+    // y «esta receta no existe». El agente leía la primera y se ponía a construir
+    // el árbol de layout a mano, que es justo lo que las plantillas evitan.
+    if (!getRecipeManifest(recipeId as RecipeId)) {
+      return {
+        content: [{ type: 'text' as const, text: `No existe la receta "${recipeId}". Válidas: ${allRecipes().map(r => `${r.id} (${r.kind})`).join(', ')}` }],
+        isError: true,
+      };
+    }
+    return json(
+      layoutTemplatesFor(recipeId as RecipeId).map(t => ({ id: t.id, name: t.name, description: t.description })),
+    );
+  });
 
   server.registerTool('describe', {
     title: 'Describir un elemento del modelo',
     description:
-      'Devuelve la definición COMPLETA (incluida su doc: cuándo usar, slots, ejemplos) de un elemento del modelo: una receta, un componente, un tipo de campo o un slot-kind.',
+      'Devuelve la definición COMPLETA (incluida su doc: cuándo usar, slots, ejemplos) de un elemento del modelo: receta, componente, tipo de campo, slot-kind, behavior o efecto visual. Para `visual-effect` devuelve TODOS sus parámetros con tipo, opciones cerradas, min/max y default, más sus presets de fábrica si los tiene. MIRA SIEMPRE el `visibleWhen` de cada parámetro: uno cuya condición no se cumple es INERTE — el editor lo oculta y el validador lo da por bueno igualmente, así que se puede tener una config valid:true a medio aplicar sin enterarse. En `iridescent_foil`, 21 de sus 31 parámetros dependen de otro.',
     inputSchema: {
-      category: z.enum(['recipe', 'component', 'field-type', 'slot-kind']),
+      category: z.enum(['recipe', 'component', 'field-type', 'slot-kind', 'behavior', 'visual-effect']),
       id:       z.string(),
     },
   }, async ({ category, id }) => {
@@ -77,9 +117,32 @@ export function createKromiaMcpServer(): McpServer {
       case 'component':  item = getComponentDef(id as never); break;
       case 'field-type': item = getFieldType(id as never); break;
       case 'slot-kind':  item = (SLOT_ACCEPT_KIND_META as Record<string, unknown>)[id]; break;
+      case 'behavior':   item = getBehavior(id as never); break;
+      case 'visual-effect': {
+        const efecto = getVisualEffect(id as never);
+        // Los presets son configuraciones válidas ya cocinadas: para «que las
+        // legendarias brillen» son mejor punto de partida que rellenar 31
+        // parámetros, el mismo papel que una plantilla frente al árbol a mano.
+        // Solo `iridescent_foil` tiene, así que el campo va opcional.
+        if (efecto) item = { ...efecto, presets: (EFFECT_FACTORY_PRESETS as any)?.[id] };
+        break;
+      }
     }
     if (!item) {
-      return { content: [{ type: 'text' as const, text: `No existe ${category} con id "${id}".` }], isError: true };
+      // El error dice QUÉ ids valen: sin eso el agente solo sabe que falló, y su
+      // siguiente intento es otra adivinanza.
+      const validos: Record<string, string[]> = {
+        'recipe':        allRecipes().map(r => r.id),
+        'component':     (allComponents() as any[]).map(c => c.id),
+        'field-type':    (allFieldTypes() as any[]).map(f => f.id),
+        'slot-kind':     Object.keys(SLOT_ACCEPT_KIND_META),
+        'behavior':      (allBehaviors() as any[]).map(b => b.id),
+        'visual-effect': (allVisualEffects() as any[]).map(e => e.id),
+      };
+      return {
+        content: [{ type: 'text' as const, text: `No existe ${category} con id "${id}". Válidos: ${(validos[category] ?? []).join(', ')}` }],
+        isError: true,
+      };
     }
     return json(item);
   });
@@ -101,6 +164,44 @@ export function createKromiaMcpServer(): McpServer {
       // fieldDefs llega como JSON libre desde la tool; el validador comprueba su forma.
       (fieldDefs ? { fieldDefs } : {}) as Parameters<typeof validateComposition>[1],
     ),
+  ));
+
+  server.registerTool('validate_tag_styles', {
+    title: 'Validar los efectos por valor de tag',
+    description:
+      'Valida un TagStyle[] (valor de una tag → efecto visual + su config) contra el catálogo real. Es el MISMO bucle corrector que validate_composition pero para el otro eje del diseño: devuelve {valid, issues:[{index,path,level,message}]}; corrige por el `path` y repite. Comprueba que el efecto existe, que cada parámetro está en el catálogo, que los enum caen dentro de sus options y los números dentro de su rango, y que no falta ninguno obligatorio. DOS COSAS QUE NO HACE: (1) no comprueba `visibleWhen`, así que un parámetro inerte pasa como válido — mira la ficha del efecto con describe; (2) combinar efectos DISTINTOS sobre el mismo valor es INTENCIONADO y se apilan, el aviso de duplicado solo salta con el MISMO efecto repetido.',
+    inputSchema: {
+      tagStyles: z.array(z.object({ value: z.union([z.string(), z.number()]), effect: z.string() }).passthrough())
+        .describe('[{value, effect, config?, fieldKey?, customLayers?}]'),
+    },
+  }, async ({ tagStyles }) => json(validateTagStyles(tagStyles as never)));
+
+  // ── El DATO, no solo la vista ──────────────────────────────────────────
+  server.registerTool('validate_album_data', {
+    title: 'Validar las cartas de un álbum',
+    description:
+      'Valida las CARTAS y los datos de sección contra el esquema: tipo, reglas del behavior, obligatorios, valores de enum y referencias entre secciones. Es la otra mitad del contrato — las demás tools validan cómo se VE el álbum, esta valida lo que CONTIENE. Úsala antes de entregar un lote de cartas: una composición puede estar valid:true y las 200 cartas llevar el año como texto. Devuelve {ok, errors:[{scope,itemIndex,fieldKey,rule,message}]}, donde itemIndex y fieldKey señalan la carta y el campo exactos. OJO: `sections` y `sectionsData` son OBLIGATORIOS aunque el álbum no tenga secciones — pasa {} en los dos.',
+    inputSchema: {
+      cardFields:   z.array(z.any()).describe('Campos de la carta [{key,type,behavior?,options?,required?}]'),
+      cards:        z.array(z.record(z.any())).describe('Las cartas a validar'),
+      sections:     z.record(z.any()).describe('Definición de las secciones (pasa {} si no hay)'),
+      sectionsData: z.record(z.array(z.record(z.any()))).describe('Datos por sección (pasa {} si no hay)'),
+    },
+  }, async ({ cardFields, cards, sections, sectionsData }) => json(
+    validateAlbumData({ cardFields, cards, sections, sectionsData } as never),
+  ));
+
+  server.registerTool('validate_rarity_source', {
+    title: 'Validar la fuente de rareza',
+    description:
+      'Valida de qué campo sale la RAREZA y con qué reparto. La rareza es lo que convierte una lista de cartas en un coleccionable: gobierna qué cartas llevan efecto y cómo se componen los sobres, así que conviene fijarla al diseñar el esquema y no después. Comprueba que el campo existe y es elegible (pide behavior rating/enum/ordinal_enum), que los buckets están bien formados, y devuelve los pesos ya NORMALIZADOS — que es el reparto real que va a ocurrir cuando los pesos no suman 100.',
+    inputSchema: {
+      raritySource: z.object({ fieldKey: z.string() }).passthrough()
+        .describe('{fieldKey, buckets:[{label?,value?,range?,weight?}]}'),
+      fieldDefs: z.array(z.any()).describe('Campos de la carta, para comprobar que el field existe y es elegible'),
+    },
+  }, async ({ raritySource, fieldDefs }) => json(
+    validateRaritySource(raritySource as never, fieldDefs as never),
   ));
 
   // ── Construcción (F2) ──────────────────────────────────────────────────

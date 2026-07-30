@@ -15,6 +15,18 @@ en Desktop/Code) diseñe álbumes: explora el catálogo, propone una composició
   - `list_recipes` · `list_components` · `list_field_types` · `list_slot_kinds`
   - `list_templates` (por receta) · `describe` (definición completa de un elemento)
   - `validate_composition` (el bucle corrector)
+- **F5 ✅ (2026-07-30)** — las otras superficies del modelo, que el MCP no veía.
+  El servidor se cerró el 2026-07-04 y desde entonces el grueso de lo shippeado
+  fueron EFECTOS (el KRP pasó de 5.1 a 5.9): un agente no podía ni nombrarlos.
+  - `list_behaviors` — los 27 behaviors. `auto_compose` y `validate_composition`
+    PEDÍAN `behavior` en sus campos y ninguna tool decía cuáles existen.
+  - `list_effects` + `describe(category:'visual-effect')` — los 7 efectos y sus
+    parámetros reales (`iridescent_foil` tiene **31**), con sus presets de fábrica.
+  - `validate_tag_styles` — el mismo bucle corrector, para el eje de los efectos.
+  - `validate_album_data` — valida las CARTAS, no solo cómo se ven.
+  - `validate_rarity_source` — la rareza, que es lo que gobierna efectos y sobres.
+  - `describe` y `list_templates` ahora dicen **qué ids son válidos** al fallar:
+    un `[]` mudo hacía que el agente creyera que la receta no tenía plantillas.
 - **F2 ✅** — construcción (también pura):
   - `auto_compose` — fields → ViewComposition sensata (heurística del SDK) + validación.
   - `apply_template` — aplica una plantilla de layout a una composición (elegir+ajustar > diseñar desde cero) + validación.
