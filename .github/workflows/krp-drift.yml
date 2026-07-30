@@ -97,9 +97,12 @@ jobs:
           sdk: '3.12.0'
       # pnpm hace falta desde KRO-299 para correr los tests del TS canónico.
       # Va ANTES de setup-node para que su caché de pnpm encuentre el binario.
+      #
+      # SIN `version:` a propósito: la acción la lee del `packageManager` del
+      # package.json, y declararla en los dos sitios es un ERROR duro («Multiple
+      # versions of pnpm specified»), no un aviso. Mejor así — una sola fuente,
+      # y la que además usa corepack en local.
       - uses: pnpm/action-setup@v4
-        with:
-          version: 11.1.3
       - uses: actions/setup-node@v5
         with:
           node-version: '24'
