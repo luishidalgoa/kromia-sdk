@@ -612,6 +612,22 @@ export type { Favorite, FavoriteCardRef } from './favorite';
 // KRO-265 / Epic KRO-209 — comunidad del publisher: canales + posts. DATA social (no bumpea KRP).
 export { COMMUNITY_MEDIA_PREFIX, RESERVED_MEDIA_NAMESPACES, isCommunityMediaKey, channelIdFromCommunityKey, communityMediaKey } from './media-keys';
 export { mapLinkFor, validateAttachmentUpload, MAGIC_BYTES, MAGIC_BYTES_NEEDED, matchesMagicBytes } from './community';
+// ── Perfil público del publisher — KRO-285 ──────────────────────────────
+export {
+  PROFILE_BAND_COLORS,
+  BAND_COLOR_VALUES,
+  DEFAULT_BAND_COLOR,
+  PROFILE_LIMITS,
+  isBandColor,
+  validatePublisherProfile,
+  profileIsBare,
+  type ProfileBandColor,
+  type PublisherProfile,
+  type PublisherProfileEditable,
+  type PublisherProfileComputed,
+  type ProfileValidationResult,
+} from './publisher-profile';
+
 export { POST_REACTION_EMOJIS, CHANNEL_KINDS, CHANNEL_VISIBILITIES, COMMUNITY_LIMITS, isValidReactionEmoji, reactionCount, hasReacted, channelSlugify, isDeleted, isEdited, reactionsAllowed, notifiesFollowers, canSeeCommunity, canPinAnother, validateChannel, validatePost, isReply, replyBlock, validateReply, type ReplyBlock, ATTACHMENT_KINDS, isKnownAttachment, knownAttachments, hasUnknownAttachments, linkDomain } from './community';
 export type { UploadRejection, PostLocationAttachment } from './community';
 

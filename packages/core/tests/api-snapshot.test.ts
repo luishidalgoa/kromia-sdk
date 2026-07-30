@@ -392,6 +392,14 @@ const EXPECTED_EXPORTS = [
   'canPinAnother',
   // KRO-282 — regla unica de acceso a comunidad (sustituye a la visibilidad por canal)
   'canSeeCommunity',
+  // KRO-285 — perfil público del publisher
+  'PROFILE_BAND_COLORS',
+  'BAND_COLOR_VALUES',
+  'DEFAULT_BAND_COLOR',
+  'PROFILE_LIMITS',
+  'isBandColor',
+  'validatePublisherProfile',
+  'profileIsBare',
   'channelSlugify',
   'hasReacted',
   'isDeleted',
