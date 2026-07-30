@@ -161,10 +161,65 @@ export interface PublisherProfileComputed {
   lastPostAt?: string;           // ISO
 }
 
+/**
+ * Una edición concreta dentro del catálogo del perfil.
+ *
+ * `owned` es el distintivo «lo coleccionas» del diseño: lo resuelve el servidor
+ * contra quien mira, porque el host no tiene con qué saberlo sin otra petición.
+ */
+export interface ProfileAlbumEdition {
+  _id: string;
+  edition: string;
+  albumType?: string;
+  cover?: string | null;
+  slug?: string | null;
+  owned: boolean;
+}
+
+/**
+ * Una obra y sus entregas. **Un álbum NO es una edición**: por eso las ediciones
+ * cuelgan del nombre en vez de ser filas sueltas, y por eso `albumsCount` y
+ * `editionsCount` son cifras distintas.
+ */
+export interface ProfileAlbum {
+  name: string;
+  editions: ProfileAlbumEdition[];
+}
+
+/**
+ * El catálogo agrupado por categoría, **ya ordenado por el servidor** para que
+ * todos los hosts enseñen la misma lista.
+ *
+ * `category: null` es el grupo de los que no tienen categoría, y va al FINAL: un
+ * álbum publicado que no se ve porque nadie le puso etiqueta es peor que una
+ * categoría fea.
+ */
+export interface ProfileAlbumGroup {
+  category: string | null;
+  albums: ProfileAlbum[];
+}
+
 /** El perfil tal y como lo devuelve el servidor: lo escrito + lo calculado. */
 export interface PublisherProfile extends PublisherProfileEditable, PublisherProfileComputed {
   publisherId: string;
   slug: string;
+  /**
+   * La URL con la que se PINTA el logo, ya resuelta por el servidor.
+   *
+   * Va aparte de `logoKey` y no es redundante: `logoKey` es lo que se GUARDA y
+   * `logoUrl` lo que se MUESTRA. Además cae al avatar del dueño cuando el
+   * publisher no tiene logo propio, así que un host que construyera la URL a
+   * partir de la key dejaría sin cara justo a quien no ha elegido ninguna.
+   */
+  logoUrl?: string | null;
+  /**
+   * Señal de perfil a medio hacer. La calcula el servidor con `profileIsBare`
+   * sobre lo que de verdad va a servir —que no es siempre lo guardado: un perfil
+   * en privado sale sin descripción—, así que el host la lee, no la recalcula.
+   */
+  isBare?: boolean;
+  /** Su catálogo, agrupado y ordenado. Ver `ProfileAlbumGroup`. */
+  albumGroups?: ProfileAlbumGroup[];
   /**
    * KRO-295 — de qué está hecho esto. Un `creator` trae la misma forma con los
    * campos derivados y `canManage: false`; el host no cambia de pantalla.
