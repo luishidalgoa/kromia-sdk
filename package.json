@@ -7,7 +7,9 @@
   "scripts": {
     "gen": "pnpm --filter @kromia/core gen",
     "test": "pnpm --filter @kromia/core test",
-    "build": "pnpm -r build"
+    "build": "pnpm -r build",
+    "hooks:install": "git config core.hooksPath .githooks",
+    "prepare": "git config core.hooksPath .githooks || true"
   },
   "devDependencies": {
     "typescript": "^5.6.0",
