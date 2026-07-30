@@ -7,3 +7,10 @@ dist/
 # MkDocs build output (KRO-87 V3)
 site/
 .mkdocs_cache/
+
+# Variables de entorno (nunca commitear)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
