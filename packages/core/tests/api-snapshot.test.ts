@@ -400,6 +400,8 @@ const EXPECTED_EXPORTS = [
   'isBandColor',
   'validatePublisherProfile',
   'profileIsBare',
+  // KRO-295 — quién hay detrás del perfil (publisher / persona / nadie)
+  'PROFILE_KINDS',
   'channelSlugify',
   'hasReacted',
   'isDeleted',

@@ -25,6 +25,50 @@
  * permite explícitamente: todos los editables salvo el nombre son opcionales.
  */
 
+// ── Quién hay detrás ─────────────────────────────────────────────────────────
+
+/**
+ * KRO-295 — de qué está hecho el perfil que se está mirando.
+ *
+ * Es una **discriminante, no un tipo distinto**: los tres comparten forma para
+ * que el host pinte UNA sola pantalla. Lo que cambia no es el diseño, es de
+ * dónde sale el dato y quién manda:
+ *
+ * - `publisher` — una organización. El perfil se ESCRIBE (con `profile:manage`).
+ * - `creator` — una persona a título personal, sin publisher. El perfil se
+ *   DERIVA de lo que ya se sabe de ella; no hay nada que configurar, así que
+ *   `canManage` es siempre `false` y la banda es siempre la neutra.
+ * - `unknown` — ya no hay nadie detrás: la cuenta se dio de baja y el álbum
+ *   quedó huérfano (KRO-267). **No es un error**, y el host no debe pintarlo
+ *   como tal: el álbum existe y quien llegó siguió un enlace que funcionaba.
+ *
+ * Sin esta marca el host tendría que adivinar a qué endpoint llamar ANTES de
+ * saber qué está mirando, que es justo lo que no sabe al llegar desde un enlace.
+ */
+export const PROFILE_KINDS = ['publisher', 'creator', 'unknown'] as const;
+export type ProfileKind = typeof PROFILE_KINDS[number];
+
+/**
+ * A quién apunta un álbum. Lo resuelve el SERVIDOR y el host solo lo sigue.
+ *
+ * Existe porque el álbum es el punto de entrada al perfil, y hasta ahora no
+ * llevaba encima nada con lo que enlazar: solo ids crudos. Con esto, la
+ * referencia dentro del álbum se pinta con una sola petición y sin que el host
+ * decida nada.
+ */
+export interface AlbumCreatorRef {
+  kind: ProfileKind;
+  /**
+   * Con qué pedir el perfil completo. **Ausente si `kind` es `unknown`**: no
+   * hay perfil que pedir, y mandar al host a una petición que va a fallar es
+   * peor que decirle desde el principio que no hay nadie.
+   */
+  ref?: string;
+  /** Lo justo para pintar la referencia sin una segunda petición. */
+  displayName?: string;
+  logoUrl?: string | null;
+}
+
 // ── Color de la banda ────────────────────────────────────────────────────────
 
 /**
@@ -121,6 +165,11 @@ export interface PublisherProfileComputed {
 export interface PublisherProfile extends PublisherProfileEditable, PublisherProfileComputed {
   publisherId: string;
   slug: string;
+  /**
+   * KRO-295 — de qué está hecho esto. Un `creator` trae la misma forma con los
+   * campos derivados y `canManage: false`; el host no cambia de pantalla.
+   */
+  kind?: ProfileKind;
   /** ¿Sigue el que mira a este publisher? Decide el escaparate frente al interior. */
   isFollowing?: boolean;
   /** ¿Puede el que mira EDITAR este perfil? (`profile:manage` o dueño). */
