@@ -41,6 +41,7 @@ export 'src/tag_styles.dart';
 export 'src/card_layers.dart';
 export 'src/community.dart';
 export 'src/meetup.dart';
+export 'src/publisher_profile.dart';
 export 'src/rarity.dart';
 export 'src/media_path.dart';
 export 'src/layout_node.dart';
