@@ -106,6 +106,34 @@ void main() {
       expect(bandOf(p.bandColor).bg, bandColorValues['neutral']!.bg);
     });
 
+    test('lo PRIVADO lo dice el servidor, porque no se puede deducir', () {
+      // Un perfil privado y uno vacío llegan IGUAL: con el nombre de cuenta y
+      // sin descripción. Sin esta señal, la app le diría «ha preferido no dar su
+      // nombre» a quien simplemente no ha rellenado el suyo.
+      final privado = PublisherProfile.fromJson(const {
+        'publisherId': 'u2', 'slug': 'mvidal', 'displayName': 'mvidal',
+        'kind': 'creator', 'isPrivate': true,
+      });
+      final vacio = PublisherProfile.fromJson(const {
+        'publisherId': 'u3', 'slug': 'ana', 'displayName': 'ana',
+        'kind': 'creator',
+      });
+      expect(privado.description, vacio.description); // los dos, nulos
+      expect(privado.isPrivate, isTrue);
+      expect(vacio.isPrivate, isFalse);
+    });
+
+    test('el dueño se ve a sí mismo SIN recortar', () {
+      // `isPrivate` dice «esta respuesta viene recortada», no «cuál es su
+      // ajuste»: a su dueño le llega en false y con todo.
+      final p = PublisherProfile.fromJson(const {
+        'publisherId': 'u2', 'slug': 'mvidal', 'displayName': 'María Vidal',
+        'kind': 'creator', 'isPrivate': false, 'description': 'Colecciono desde 2018.',
+      });
+      expect(p.isPrivate, isFalse);
+      expect(p.description, isNotNull);
+    });
+
     test('un perfil privado llega sin descripción y NO está roto', () {
       // El servidor degrada el nombre al username y esconde la bio, pero el
       // catálogo sigue llegando: se oculta la persona, no su obra.

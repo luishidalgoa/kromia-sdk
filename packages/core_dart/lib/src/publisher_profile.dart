@@ -267,6 +267,20 @@ class PublisherProfile {
   final bool isFollowing;
   final bool canManage;
 
+  /// **Esta respuesta viene RECORTADA porque esa persona eligió no mostrarse.**
+  ///
+  /// No dice «cuál es su ajuste», dice «lo que estás leyendo está recortado»:
+  /// quien se mira a sí mismo, o un admin, lo recibe en `false` y con los datos
+  /// completos — pintarle «ha preferido no dar su nombre» a su propio dueño
+  /// sonaría raro. Un publisher no tiene ajuste de privacidad: ahí siempre
+  /// `false`.
+  ///
+  /// Existe porque sin él la app **no puede distinguir** un perfil privado de
+  /// uno simplemente vacío: los dos llegan con el nombre de cuenta y sin
+  /// descripción. Deducirlo sería decirle a alguien «ha preferido no dar su
+  /// nombre» solo porque no ha rellenado su perfil.
+  final bool isPrivate;
+
   /// Perfil a medio hacer. La calcula el SERVIDOR sobre lo que de verdad va a
   /// servir —que no es siempre lo guardado: un perfil en privado sale sin
   /// descripción—, así que se lee, no se recalcula.
@@ -293,6 +307,7 @@ class PublisherProfile {
     this.kind,
     this.isFollowing = false,
     this.canManage = false,
+    this.isPrivate = false,
     this.isBare = false,
     this.albumGroups = const [],
   });
@@ -318,6 +333,7 @@ class PublisherProfile {
         kind: _texto(json['kind']),
         isFollowing: json['isFollowing'] == true,
         canManage: json['canManage'] == true,
+        isPrivate: json['isPrivate'] == true,
         isBare: json['isBare'] == true,
         albumGroups: [
           for (final g in (json['albumGroups'] as List? ?? const []))
