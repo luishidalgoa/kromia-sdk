@@ -59,9 +59,10 @@ export function createKromiaMcpServer(): McpServer {
   server.registerTool('list_behaviors', {
     title: 'Listar behaviors',
     description:
-      'Lista los BEHAVIORS: lo que le da SIGNIFICADO a un campo por encima de su tipo (rating, iso_date, markdown, card_index_list…). Importa porque el behavior decide en qué SLOT puede entrar el campo, así que elegirlo bien es lo que hace que auto_compose acierte. Son los mismos `behavior` que piden `auto_compose` y `validate_composition` en sus fields/fieldDefs. `forType` filtra por tipo base.',
+      'Lista los BEHAVIORS: lo que le da SIGNIFICADO a un campo por encima de su tipo (rating, iso_date, markdown, card_index_list…). Importa porque el behavior decide en qué SLOT puede entrar el campo, así que elegirlo bien es lo que hace que auto_compose acierte. Son los mismos `behavior` que piden `auto_compose` y `validate_composition` en sus fields/fieldDefs. `forType` filtra por tipo base — y OJO, los tipos base son solo estos siete: text, textarea, number, select, array<string>, array<number>, array<image>. «enum» NO es un tipo base, es un behavior (el de las opciones predefinidas), así que filtrar por él devuelve vacío.',
     inputSchema: {
-      forType: z.string().optional().describe('Filtra por tipo base: text, number, image, enum…'),
+      forType: z.string().optional()
+        .describe('Tipo base: text | textarea | number | select | array<string> | array<number> | array<image>'),
     },
   }, async ({ forType }) => json(
     (forType ? getBehaviorsByType(forType as never) : allBehaviors()).map((b: any) => ({
@@ -217,20 +218,51 @@ export function createKromiaMcpServer(): McpServer {
   const withValidation = (composition: ViewComposition) =>
     json({ composition, validation: validateComposition(composition) });
 
+  /**
+   * Los campos que la heurística NO colocó en ningún slot.
+   *
+   * Sin esto, `auto_compose` devuelve `valid:true` habiendo tirado campos por el
+   * camino, y el agente da por buena una composición a la que le falta justo el
+   * que le importaba. Pasó en el dogfooding: de cinco campos colocó tres, y uno
+   * de los descartados era la RAREZA, que es la que gobierna los efectos.
+   *
+   * No es un error —una vista de lista no tiene sitio para todo, y eso está
+   * bien—, pero tiene que salir en la respuesta para que se pueda decidir.
+   */
+  function camposFuera(comp: ViewComposition, fields: FieldDefLike[]): string[] {
+    const colocados = new Set<string>();
+    for (const slot of Object.values((comp.slots ?? {}) as Record<string, { fields?: string[] }>)) {
+      for (const k of slot?.fields ?? []) colocados.add(k);
+    }
+    return fields.map(f => f.key).filter(k => !colocados.has(k));
+  }
+
   server.registerTool('auto_compose', {
     title: 'Autogenerar una composición',
     description:
-      'Genera una ViewComposition SENSATA a partir de los campos de la sección (heurística del SDK: mapea imagen/título/subtítulo/badge/stats a los slots correctos). `kind`: list o detail. Devuelve {composition, validation}. Es el mejor punto de partida — luego ajústala con apply_template o a mano y re-valida.',
+      'Genera una ViewComposition SENSATA a partir de los campos de la sección (heurística del SDK: mapea imagen/título/subtítulo/badge/stats a los slots correctos). `kind`: list o detail. Es el mejor punto de partida — luego ajústala con apply_template o a mano y re-valida. Devuelve {composition, validation, sinColocar}. MIRA SIEMPRE `sinColocar`: la heurística coloca los campos que caben en la receta elegida y DESCARTA el resto, y aun así la validación sale valid:true — porque una composición sin un campo es perfectamente válida. Si el campo que te importaba aparece ahí, la composición no sirve para lo que querías por mucho que valide.',
     inputSchema: {
       kind:     z.enum(['list', 'detail']),
       fields:   z.array(fieldShape).describe('Campos de la sección [{key,type,behavior?,label?,options?}]'),
       recipeId: z.string().optional().describe('Solo detail: receta destino (p.ej. "editorial"). Default hero_protagonico.'),
     },
-  }, async ({ kind, fields, recipeId }) => withValidation(
-    kind === 'list'
-      ? buildAutoListComposition(fields as FieldDefLike[])
-      : buildAutoDetailComposition(fields as FieldDefLike[], recipeId as RecipeId | undefined),
-  ));
+  }, async ({ kind, fields, recipeId }) => {
+    const campos = fields as FieldDefLike[];
+    const composition = kind === 'list'
+      ? buildAutoListComposition(campos)
+      : buildAutoDetailComposition(campos, recipeId as RecipeId | undefined);
+    const sinColocar = camposFuera(composition, campos);
+    return json({
+      composition,
+      validation: validateComposition(composition),
+      // Los campos que la heurística no colocó. NO es un error: una vista de
+      // lista no tiene sitio para todo. Pero hay que verlo para decidir.
+      sinColocar,
+      ...(sinColocar.length
+        ? { nota: `La heurística no colocó ${sinColocar.length} campo(s): ${sinColocar.join(', ')}. Si alguno importa, muévelo a un slot a mano o usa una receta con más sitio (mira list_recipes / apply_template) y vuelve a validar.` }
+        : {}),
+    });
+  });
 
   server.registerTool('apply_template', {
     title: 'Aplicar una plantilla de layout',
