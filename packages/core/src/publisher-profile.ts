@@ -218,6 +218,21 @@ export interface PublisherProfile extends PublisherProfileEditable, PublisherPro
    * en privado sale sin descripción—, así que el host la lee, no la recalcula.
    */
   isBare?: boolean;
+  /**
+   * KRO-295 — **esta respuesta viene REDACTADA porque esa persona eligió no
+   * mostrarse.** No dice «cuál es su ajuste», dice «lo que estás leyendo está
+   * recortado»: quien se mira a sí mismo, o un admin, lo recibe en `false` y con
+   * los datos completos.
+   *
+   * Existe porque sin él el host **no puede distinguir** un perfil privado de
+   * uno simplemente vacío: los dos llegan con el nombre de cuenta y sin
+   * descripción. Deducirlo por heurística sería decirle a alguien «ha preferido
+   * no dar su nombre» solo porque no ha rellenado su perfil — afirmar de una
+   * persona algo que puede ser falso.
+   *
+   * Un publisher no tiene ajuste de privacidad: ahí es siempre `false`.
+   */
+  isPrivate?: boolean;
   /** Su catálogo, agrupado y ordenado. Ver `ProfileAlbumGroup`. */
   albumGroups?: ProfileAlbumGroup[];
   /**
