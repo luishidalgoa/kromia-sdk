@@ -56,6 +56,33 @@ limpiamente.
   memory de tipo `feedback` o `project`. NO duplicar info derivable del
   código.
 
+### Tras el push: comprobar el CI
+
+Un push puede disparar un workflow, y **un CI en rojo pasa desapercibido** — el
+push devuelve 0 igualmente y nadie se entera hasta días después.
+
+- [ ] Comprobar si el repo tiene workflows con trigger `push`:
+      `ls .github/workflows/` y mirar su `on:`.
+- [ ] Si los hay, tras el push: `gh run list --limit 3`.
+- [ ] Si sale `failure`, **mirar la causa antes de seguir**: `gh run view <id>`.
+      Distinguir tres cosas que se ven igual desde fuera:
+      - **El job no arranca** (dura 1-5 s, sin pasos): problema de cuenta —
+        facturación, límite de gasto. No es el código.
+      - **Falla el checkout**: casi siempre el token del submódulo privado
+        (`SDK_SUBMODULE_TOKEN`), caducado o sin permiso.
+      - **Falla un paso real**: eso sí es tuyo.
+- [ ] Si el fallo NO es del código, **decirlo explícitamente al user** — es suyo
+      resolverlo, y mientras tanto los pushes van sin red.
+
+**Qué dispara qué hoy** (2026-07-30):
+
+| Repo | Workflow | Trigger |
+|---|---|---|
+| `kromia-sdk` | `krp-drift.yml` (paridad TS↔Dart) · `docs.yml` | **push** |
+| `Kromia_NodeJS` | `api-map-drift.yml` | **push** a `main`, filtrado por paths |
+| `kromia-studio` | — | *(no tiene workflows)* |
+| `kromia-mobile` | `ios-build.yml` | solo manual (`workflow_dispatch`) |
+
 ### Cross-repo (cuando el cambio toca varios)
 
 - [ ] Si modificaste KRP: bump tag en `kromia-sdk`
@@ -79,7 +106,11 @@ limpiamente.
 - **Follow-ups en TODOs**: si encontraste cosas pendientes durante la
   ejecución, NO las dejes como `// TODO` en código. Crea issue Jira o
   usa `spawn_task`.
+- **Dar el push por bueno porque no dio error**: el push local puede salir
+  perfecto y el CI caerse tres segundos después. Si el repo tiene workflows de
+  `push`, el trabajo no está cerrado hasta haberlos mirado.
 
 ## Last verified
 
-2026-05-27 — setup inicial del repo.
+2026-07-30 — se añade la comprobación del CI tras el push (el CI del SDK y
+el del backend llevaban días en rojo sin que nadie lo mirara).
