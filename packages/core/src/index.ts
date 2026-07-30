@@ -610,6 +610,10 @@ export { favoriteKey } from './favorite';
 export type { Favorite, FavoriteCardRef } from './favorite';
 
 // KRO-265 / Epic KRO-209 — comunidad del publisher: canales + posts. DATA social (no bumpea KRP).
+// KRO-302 — cómo se DIRECCIONA un objeto del bucket (key <-> URL). Estaba
+// escrito tres veces con tres criterios distintos; ahora vive aquí.
+export { objectUrl, objectKey, type BucketLocation } from './media-address';
+
 export { COMMUNITY_MEDIA_PREFIX, RESERVED_MEDIA_NAMESPACES, isCommunityMediaKey, channelIdFromCommunityKey, communityMediaKey } from './media-keys';
 export { mapLinkFor, validateAttachmentUpload, MAGIC_BYTES, MAGIC_BYTES_NEEDED, matchesMagicBytes } from './community';
 // ── Perfil público del publisher — KRO-285 ──────────────────────────────

@@ -402,6 +402,9 @@ const EXPECTED_EXPORTS = [
   'profileIsBare',
   // KRO-295 — quién hay detrás del perfil (publisher / persona / nadie)
   'PROFILE_KINDS',
+  // KRO-302 — la conversión key <-> URL del bucket, antes duplicada en 3 hosts
+  'objectUrl',
+  'objectKey',
   'channelSlugify',
   'hasReacted',
   'isDeleted',
