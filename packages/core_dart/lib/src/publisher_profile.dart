@@ -148,6 +148,80 @@ const profileLimits = ProfileLimits(
   city: _Limite(max: 60),
 );
 
+// ── El catálogo ──────────────────────────────────────────────────────────────
+
+/// Una edición concreta dentro del catálogo del perfil.
+///
+/// `owned` es el distintivo «lo coleccionas» del diseño: lo resuelve el SERVIDOR
+/// contra quien mira, porque el host no tiene con qué saberlo sin otra petición.
+class ProfileAlbumEdition {
+  final String id;
+  final String edition;
+  final String? albumType;
+  final String? cover;
+  final String? slug;
+  final bool owned;
+
+  const ProfileAlbumEdition({
+    required this.id,
+    required this.edition,
+    this.albumType,
+    this.cover,
+    this.slug,
+    this.owned = false,
+  });
+
+  factory ProfileAlbumEdition.fromJson(Map<String, dynamic> json) =>
+      ProfileAlbumEdition(
+        id: (json['_id'] ?? json['id'] ?? '').toString(),
+        edition: json['edition']?.toString() ?? '',
+        albumType: _texto(json['albumType']),
+        cover: _texto(json['cover']),
+        slug: _texto(json['slug']),
+        owned: json['owned'] == true,
+      );
+}
+
+/// Una obra y sus entregas. **Un álbum NO es una edición**: por eso las ediciones
+/// cuelgan del nombre en vez de ser filas sueltas, y por eso `albumsCount` y
+/// `editionsCount` son cifras distintas.
+class ProfileAlbum {
+  final String name;
+  final List<ProfileAlbumEdition> editions;
+
+  const ProfileAlbum({required this.name, this.editions = const []});
+
+  factory ProfileAlbum.fromJson(Map<String, dynamic> json) => ProfileAlbum(
+        name: json['name']?.toString() ?? '',
+        editions: [
+          for (final e in (json['editions'] as List? ?? const []))
+            if (e is Map) ProfileAlbumEdition.fromJson(e.cast<String, dynamic>()),
+        ],
+      );
+}
+
+/// El catálogo agrupado por categoría, **ya ordenado por el servidor** para que
+/// todos los hosts enseñen la misma lista.
+///
+/// `category: null` es el grupo de los que no tienen categoría, y va al FINAL: un
+/// álbum publicado que no se ve porque nadie le puso etiqueta es peor que una
+/// categoría fea.
+class ProfileAlbumGroup {
+  final String? category;
+  final List<ProfileAlbum> albums;
+
+  const ProfileAlbumGroup({this.category, this.albums = const []});
+
+  factory ProfileAlbumGroup.fromJson(Map<String, dynamic> json) =>
+      ProfileAlbumGroup(
+        category: _texto(json['category']),
+        albums: [
+          for (final a in (json['albums'] as List? ?? const []))
+            if (a is Map) ProfileAlbum.fromJson(a.cast<String, dynamic>()),
+        ],
+      );
+}
+
 // ── El tipo ──────────────────────────────────────────────────────────────────
 
 /// El perfil tal y como lo devuelve el servidor: lo escrito + lo calculado.
@@ -165,8 +239,12 @@ class PublisherProfile {
   /// su proxy: el bucket es privado y su URL cruda da 403.
   final String? logoKey;
 
-  /// La URL ya resuelta por el servidor, cuando la manda. Si el publisher no
-  /// tiene logo propio, cae al avatar de su dueño.
+  /// La URL con la que se PINTA el logo, ya resuelta por el servidor.
+  ///
+  /// No es redundante con `logoKey`: la key es lo que se GUARDA y esta lo que se
+  /// MUESTRA. Además cae al avatar del dueño cuando el publisher no tiene logo
+  /// propio, así que construirla a partir de la key dejaría sin cara justo a
+  /// quien no ha elegido ninguna.
   final String? logoUrl;
   final String? bandColor;
   final String? tagline;
@@ -189,6 +267,14 @@ class PublisherProfile {
   final bool isFollowing;
   final bool canManage;
 
+  /// Perfil a medio hacer. La calcula el SERVIDOR sobre lo que de verdad va a
+  /// servir —que no es siempre lo guardado: un perfil en privado sale sin
+  /// descripción—, así que se lee, no se recalcula.
+  final bool isBare;
+
+  /// Su catálogo, agrupado y ordenado. Ver [ProfileAlbumGroup].
+  final List<ProfileAlbumGroup> albumGroups;
+
   const PublisherProfile({
     required this.publisherId,
     required this.slug,
@@ -207,6 +293,8 @@ class PublisherProfile {
     this.kind,
     this.isFollowing = false,
     this.canManage = false,
+    this.isBare = false,
+    this.albumGroups = const [],
   });
 
   /// Una persona a título personal: no hay comunidad a la que unirse.
@@ -230,6 +318,11 @@ class PublisherProfile {
         kind: _texto(json['kind']),
         isFollowing: json['isFollowing'] == true,
         canManage: json['canManage'] == true,
+        isBare: json['isBare'] == true,
+        albumGroups: [
+          for (final g in (json['albumGroups'] as List? ?? const []))
+            if (g is Map) ProfileAlbumGroup.fromJson(g.cast<String, dynamic>()),
+        ],
       );
 }
 

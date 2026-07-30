@@ -121,6 +121,85 @@ void main() {
     });
   });
 
+  group('el catálogo', () {
+    final json = {
+      'publisherId': 'p1',
+      'slug': 'fe',
+      'displayName': 'Forjabrasa',
+      'albumsCount': 2,
+      'editionsCount': 3,
+      'albumGroups': [
+        {
+          'category': 'Bestiario',
+          'albums': [
+            {
+              'name': 'Reino de Cinabrio',
+              'editions': [
+                {'_id': 'e1', 'edition': 'Primera', 'owned': true},
+                {'_id': 'e2', 'edition': 'Segunda', 'owned': false},
+              ],
+            },
+          ],
+        },
+        {
+          'category': null,
+          'albums': [
+            {
+              'name': 'Sin clasificar',
+              'editions': [
+                {'_id': 'e3', 'edition': 'Unica'},
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    test('llega agrupado categoria -> album -> ediciones', () {
+      final p = PublisherProfile.fromJson(json);
+      expect(p.albumGroups, hasLength(2));
+      expect(p.albumGroups.first.category, 'Bestiario');
+      expect(p.albumGroups.first.albums.single.editions, hasLength(2));
+    });
+
+    test('el distintivo «lo coleccionas» viene por EDICION, no por album', () {
+      // Un album es una obra y sus ediciones son entregas: se puede tener una y
+      // no la otra, asi que `owned` cuelga de la edicion.
+      final ediciones =
+          PublisherProfile.fromJson(json).albumGroups.first.albums.single.editions;
+      expect(ediciones[0].owned, isTrue);
+      expect(ediciones[1].owned, isFalse);
+    });
+
+    test('el grupo SIN categoria llega con null y NO se pierde', () {
+      // Un album publicado que no se ve porque nadie le puso etiqueta es peor
+      // que una categoria fea. El orden lo pone el servidor: va al final.
+      final grupos = PublisherProfile.fromJson(json).albumGroups;
+      expect(grupos.last.category, isNull);
+      expect(grupos.last.albums, hasLength(1));
+    });
+
+    test('sin catalogo la lista es VACIA, no nula', () {
+      final p = PublisherProfile.fromJson(
+          const {'publisherId': 'p1', 'slug': 'fe', 'displayName': 'F'});
+      expect(p.albumGroups, isEmpty);
+      expect(p.isBare, isFalse);
+    });
+
+    test('isBare lo dice el SERVIDOR, no se recalcula', () {
+      // Se calcula sobre lo que de verdad va a servir: un perfil en privado sale
+      // sin descripcion, y recalcularlo en el cliente daria otra respuesta.
+      final p = PublisherProfile.fromJson(const {
+        'publisherId': 'p1',
+        'slug': 'fe',
+        'displayName': 'F',
+        'tagline': 'Cromos de bestiario',
+        'isBare': true,
+      });
+      expect(p.isBare, isTrue);
+    });
+  });
+
   group('validación', () {
     test('el nombre es obligatorio y tiene tope', () {
       expect(validatePublisherProfile(displayName: 'Forjabrasa').valid, isTrue);

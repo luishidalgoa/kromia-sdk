@@ -41,14 +41,46 @@ Flujo del agente: `auto_compose` (o `apply_template`) → `validate_composition`
 ```bash
 pnpm --filter @kromia/mcp start   # = tsx src/index.ts
 ```
-Config de un cliente MCP (p.ej. Claude Desktop `claude_desktop_config.json`):
+
+### Enchufarlo a Claude — configuración verificada (2026-07-30)
+
+Se apunta al `tsx` **local del paquete** y no a uno global: así no depende de que
+haya un `tsx` en el PATH y usa la misma versión con la que corren los tests.
+
+**Claude Code** — ya está en `kromia-studio/.mcp.json`, así que cualquier sesión
+abierta en ese repo lo ofrece (pide permiso la primera vez). Para tenerlo en
+TODAS las sesiones:
+```bash
+claude mcp add kromia --scope user -- "C:\Users\luish\Downloads\kromia-sdk\packages\mcp\node_modules\.bin\tsx.CMD" "C:\Users\luish\Downloads\kromia-sdk\packages\mcp\src\index.ts"
+```
+
+**Claude Desktop** — en `%APPDATA%\Claude\claude_desktop_config.json`, y reiniciar:
 ```json
 {
   "mcpServers": {
-    "kromia": { "command": "tsx", "args": ["<ruta>/kromia-sdk/packages/mcp/src/index.ts"] }
+    "kromia": {
+      "command": "C:\\Users\\luish\\Downloads\\kromia-sdk\\packages\\mcp\\node_modules\\.bin\\tsx.CMD",
+      "args": ["C:\\Users\\luish\\Downloads\\kromia-sdk\\packages\\mcp\\src\\index.ts"]
+    }
   }
 }
 ```
+
+### Comprobar que arranca sin cliente
+
+```bash
+cd packages/mcp
+printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"p","version":"1"}}}' '{"jsonrpc":"2.0","method":"notifications/initialized"}' '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' | ./node_modules/.bin/tsx src/index.ts
+```
+Tiene que contestar el `initialize` y la lista de tools. Si contesta el
+`initialize` pero no `tools/list`, el problema es del servidor; si no contesta
+nada, es la ruta del comando.
+
+> **Sin credenciales el MCP es de SOLO LECTURA y no puede romper nada**: todo lo
+> de catálogo, construcción y validación envuelve `@kromia/core` y no toca el
+> backend. `apply_composition` sin `KROMIA_TOKEN` se queda en dry-run y lo dice.
+> Las claves NO van en `.mcp.json` ni en este README — se ponen en el entorno
+> desde donde se lanza el cliente.
 
 ## Tests
 ```bash
