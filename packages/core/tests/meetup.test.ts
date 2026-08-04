@@ -78,18 +78,27 @@ describe('cuándo se puede uno apuntar', () => {
 });
 
 describe('la ventana de fichaje', () => {
-  it('abre una hora antes y cierra al terminar', () => {
+  // La quedada de prueba empieza a las 18:00 y termina a las 21:00.
+  it('abre CINCO MINUTOS antes y cierra al terminar', () => {
     const v = checkinWindow(quedada())!;
-    expect(v.opensAt).toBe('2026-08-01T17:00:00.000Z');
+    expect(v.opensAt).toBe('2026-08-01T17:55:00.000Z');
     expect(v.closesAt).toBe('2026-08-01T21:00:00.000Z');
   });
 
   it('fuera de la ventana no se ficha', () => {
     const q = quedada();
-    expect(checkinIsOpen(q, '2026-08-01T16:59:00.000Z')).toBe(false);  // aún no
-    expect(checkinIsOpen(q, '2026-08-01T17:00:00.000Z')).toBe(true);   // justo al abrir
+    expect(checkinIsOpen(q, '2026-08-01T17:54:00.000Z')).toBe(false);  // aún no
+    expect(checkinIsOpen(q, '2026-08-01T17:55:00.000Z')).toBe(true);   // justo al abrir
     expect(checkinIsOpen(q, '2026-08-01T20:59:00.000Z')).toBe(true);
     expect(checkinIsOpen(q, '2026-08-01T21:00:01.000Z')).toBe(false);  // ya terminó
+  });
+
+  it('llegar PRONTO no basta: una hora antes ya no se ficha', () => {
+    // Fija el cambio de criterio, y su coste. Antes esto era `true`: la ventana
+    // se abría una hora antes para que quien llegaba pronto no se topara con un
+    // botón muerto. Ahora fichar quiere decir «he acudido», y para eso tiene que
+    // estar pegado al inicio. Si alguien vuelve a abrirla, este test lo dirá.
+    expect(checkinIsOpen(quedada(), '2026-08-01T17:00:00.000Z')).toBe(false);
   });
 });
 
