@@ -617,7 +617,27 @@ export function slotDebugAttrs(
   const labels = slot.fields.map(f => f.def?.label ?? f.key);
   const keysRaw = slot.fields.map(f => f.key).join(',');
   attrs['data-slot-fields'] = keysRaw;
-  attrs.title = `Slot: ${slotId} — campos: ${labels.join(', ')}`;
+
+  // KRO-317 — el tooltip dice también el TIPO y el BEHAVIOR de cada campo.
+  //
+  // Se añade tras una caza de varias horas en la que el markdown salía literal
+  // y una fecha `iso_date` sin formatear: dos síntomas cuya única causa común es
+  // que el `behavior` no llegue al render. Todas las capas —base, API, editor,
+  // recetas— lo conservaban al leerlas, y aun así en pantalla no estaba.
+  //
+  // El tooltip YA resolvía el `label` desde el `def`, así que demostraba que el
+  // `def` llegaba… pero no decía nada de sus otros campos. Con esto, saber si un
+  // behavior se está perdiendo pasa de ser una tarde de bisección a un hover.
+  //
+  // `(sin behavior)` explícito y no vacío: un hueco se lee como «no lo sé», y lo
+  // que hace falta distinguir es justamente «no tiene» de «no ha llegado».
+  const detalle = slot.fields.map(f => {
+    const t = f.def?.type ?? '?';
+    const b = f.def?.behavior ?? '(sin behavior)';
+    return `${f.def?.label ?? f.key} [${t} · ${b}]`;
+  });
+  attrs['data-slot-behaviors'] = slot.fields.map(f => f.def?.behavior ?? '-').join(',');
+  attrs.title = `Slot: ${slotId} — campos: ${labels.join(', ')}\n${detalle.join('\n')}`;
   return attrs;
 }
 
