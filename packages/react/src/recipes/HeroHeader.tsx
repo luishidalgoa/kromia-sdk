@@ -25,6 +25,7 @@ import {
   appearancePaddingClass, appearanceTextClasses, appearanceTruncateClass, slotDebugAttrs,
   type FieldDefLike,
 } from '../recipe-utils';
+import { firstImageUrl } from '@kromia/core';
 import type { ViewComposition } from '@kromia/core';
 
 export interface HeroHeaderProps {
@@ -44,8 +45,11 @@ export function HeroHeader({ composition, item, fieldDefs, className, hiddenSlot
   const title    = resolveSlot(composition, 'title',    fieldDefs, item);
   const subtitle = resolveSlot(composition, 'subtitle', fieldDefs, item);
 
-  const bannerUrl  = banner?.fields[0]?.value as string | undefined;
-  const avatarUrl  = avatar?.fields[0]?.value as string | undefined;
+  // KRO-314 — el valor puede ser `image` o `array<image>`; el `as string` de
+  // antes lo AFIRMABA y un array acababa coaccionado a
+  // «/api/images/a.svg,/api/images/b.svg,…» dentro del `src`.
+  const bannerUrl  = firstImageUrl(banner?.fields[0]?.value);
+  const avatarUrl  = firstImageUrl(avatar?.fields[0]?.value);
   const titleField = title?.fields[0];
   const titleText  = String(titleField?.value ?? '');
 

@@ -35,6 +35,7 @@ import {
 // KRO-217 — el slideshow DELEGA en ImageGallery (apariencia-aware) en vez de
 // duplicar el carrusel: honra objectFit/efectos/shape + añade zoom y dots.
 import { ImageGallery } from './ImageGallery';
+import { imageUrls } from '@kromia/core';
 import type { ViewComposition } from '@kromia/core';
 
 export interface MomentoRecipeProps {
@@ -57,7 +58,7 @@ export function MomentoRecipe({
   const titleField    = title?.fields[0];
   const subtitleField = subtitle?.fields[0];
   const bodyField     = body?.fields[0];
-  const slideshowUrls = slideshow?.fields[0]?.value as string[] | undefined;
+  const slideshowUrls = imageUrls(slideshow?.fields[0]?.value);
 
   // Fecha formateada con el formatter por behavior — iso_date → "14/07/1789",
   // year → "1789".

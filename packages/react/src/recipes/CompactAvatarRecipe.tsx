@@ -23,6 +23,7 @@ import {
   slotDebugAttrs, extractAccentSettings, AccentFrame, slotImageTransform,
   type FieldDefLike,
 } from '../recipe-utils';
+import { firstImageUrl } from '@kromia/core';
 import type { ViewComposition } from '@kromia/core';
 
 export interface CompactAvatarRecipeProps {
@@ -45,7 +46,7 @@ export function CompactAvatarRecipe({
 
   // avatar y title son required en el manifest pero defendemos contra data
   // mal compuesta: si no hay datos, renderizamos placeholder en su lugar.
-  const avatarUrl   = avatar?.fields[0]?.value as string | undefined;
+  const avatarUrl   = firstImageUrl(avatar?.fields[0]?.value);
   const titleField  = title?.fields[0];
   const metaField   = meta?.fields[0];
 

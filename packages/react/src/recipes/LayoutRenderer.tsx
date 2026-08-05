@@ -33,6 +33,7 @@ import {
 import {
   migrateSlotsToLayout, paletteClass, resolveFieldColor, gridColumnsTemplate, gridRowsTemplate,
   classifyField, clampPlaceToGrid, getRecipeManifest, computeHiddenHeroRoles,
+  firstImageUrl, imageCount,
   type LayoutNode, type LayoutContainerNode, type LayoutComponentNode, type LayoutGap, type LayoutAlign,
   type LayoutJustify, type GridPlacement, type ContainerSurface, type SurfaceBorder, type ViewComposition,
   type CardFormat,
@@ -345,10 +346,14 @@ export function SlotContent({ slot, composition, item, fieldDefs, cardFormat, re
   // Imagen: caja honrando appearance (shape/aspect/size). `array<image>` → 1ª url.
   if (isImageField(first?.def)) {
     const raw = first?.value;
-    const url = Array.isArray(raw) ? (raw[0] as string | undefined) : (raw as string | undefined);
+    // KRO-314 — la misma normalización que el resto de recetas, desde el SDK.
+    // Aquí ya se hacía bien a mano; unificarlo evita que la próxima copia sea la
+    // que se olvide del array (que es justo lo que pasó en los banners).
+    const url = firstImageUrl(raw);
     // KRO-155 — si el slot es un `array<image>` con más de una url, el chip "+N"
     // del ThumbBox avisa de que hay más (no se pierden en silencio tras la 1ª).
-    const count = Array.isArray(raw) ? raw.length : undefined;
+    // `undefined` cuando no es una lista: un `image` suelto no lleva chip.
+    const count = Array.isArray(raw) ? imageCount(raw) : undefined;
     // KRO-133 — banner/cover a ancho completo: si la apariencia fija un aspect
     // pero NO un `size`, la imagen ocupa todo el ancho (tarjeta destacada,
     // cartel, hero…). Con `size` explícito se respeta el tamaño fijo (thumb).

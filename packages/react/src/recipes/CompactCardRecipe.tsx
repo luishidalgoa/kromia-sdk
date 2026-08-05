@@ -23,6 +23,7 @@ import {
   slotDebugAttrs, extractAccentSettings, AccentFrame, slotImageTransform,
   type FieldDefLike,
 } from '../recipe-utils';
+import { firstImageUrl } from '@kromia/core';
 import type { ViewComposition } from '@kromia/core';
 
 export interface CompactCardRecipeProps {
@@ -41,7 +42,7 @@ export function CompactCardRecipe({
   const subtitle = resolveSlot(composition, 'subtitle', fieldDefs, item);
   const badge    = resolveSlot(composition, 'badge',    fieldDefs, item);
 
-  const thumbUrl   = thumb?.fields[0]?.value as string | undefined;
+  const thumbUrl   = firstImageUrl(thumb?.fields[0]?.value);
   const titleField = title?.fields[0];
   const badgeField = badge?.fields[0];
 

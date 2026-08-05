@@ -259,6 +259,9 @@ export {
 // la lógica que precede al render.
 export type { FieldDefLike, AccentSettings } from './types';
 export { formatScalar } from './format-scalar';
+// KRO-314 — un valor de campo-imagen puede ser uno o varios; esto lo normaliza
+// antes de pintarlo, en vez de afirmarlo con un `as string` que miente.
+export { imageUrls, firstImageUrl, imageCount } from './image-value';
 export { buildAutoDetailComposition, buildAutoListComposition } from './auto-detail';
 export { isSchemaOutdated } from './schema-version';
 export { extractAccentSettings } from './extract-accent';

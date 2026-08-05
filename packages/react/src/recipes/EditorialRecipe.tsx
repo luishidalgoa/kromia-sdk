@@ -37,6 +37,7 @@ import {
 // duplicar el grid manual: honra objectFit/efectos/shape, muestra «+N» si hay
 // más de 6 (antes recortaba en silencio) y añade zoom.
 import { ImageGallery } from './ImageGallery';
+import { firstImageUrl, imageUrls } from '@kromia/core';
 import type { ViewComposition } from '@kromia/core';
 
 export interface EditorialRecipeProps {
@@ -55,10 +56,12 @@ export function EditorialRecipe({
   const body     = resolveSlot(composition, 'body',    fieldDefs, item);
   const gallery  = resolveSlot(composition, 'gallery', fieldDefs, item);
 
-  const coverUrl    = cover?.fields[0]?.value as string | undefined;
+  // KRO-314 — ver HeroHeader: colapsa a la primera en vez de afirmar un string.
+  const coverUrl    = firstImageUrl(cover?.fields[0]?.value);
   const titleField  = title?.fields[0];
   const bodyField   = body?.fields[0];
-  const galleryUrls = gallery?.fields[0]?.value as string[] | undefined;
+  // KRO-314 — y al revés: una galería con UNA sola imagen tampoco es un array.
+  const galleryUrls = imageUrls(gallery?.fields[0]?.value);
 
   // KRO-69 follow-up — accent color via AccentFrame (default 'top').
   const accent = extractAccentSettings(composition, item, fieldDefs, 'top');

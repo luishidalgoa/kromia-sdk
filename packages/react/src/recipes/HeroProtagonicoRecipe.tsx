@@ -48,6 +48,7 @@ import { HeroHeader } from './HeroHeader';
 import { StatsRow } from './StatsRow';
 import { ImageGallery } from './ImageGallery';
 import { DEFAULT_CARD_FORMAT, type CardFormat } from '@kromia/core';
+import { imageUrls } from '@kromia/core';
 import type { ViewComposition } from '@kromia/core';
 
 export interface HeroProtagonicoRecipeProps {
@@ -85,7 +86,7 @@ export function HeroProtagonicoRecipe({
 
   const titleText    = String(title?.fields[0]?.value ?? '');
   const bodyField    = body?.fields[0];
-  const galleryUrls  = gallery?.fields[0]?.value as string[] | undefined;
+  const galleryUrls  = imageUrls(gallery?.fields[0]?.value);
   const relatedRefs  = related?.fields[0]?.value as Array<string | number> | undefined;
 
   // KRO-54 follow-up²: orden de los body blocks (stats/body/gallery/related)
