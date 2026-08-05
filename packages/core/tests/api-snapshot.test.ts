@@ -456,6 +456,12 @@ const EXPECTED_EXPORTS = [
   'isValidRsvpStatus',
   // KRO-283 — comunicado de una quedada.
   'validateMeetupUpdate',
+  // KRO-314 — normalizar el valor de un campo-imagen (uno o varios) antes de
+  // pintarlo. Existen porque los renderers lo AFIRMABAN con un `as string` y un
+  // `array<image>` acababa coaccionado a «url1,url2,url3» dentro del `src`.
+  'imageUrls',
+  'firstImageUrl',
+  'imageCount',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
