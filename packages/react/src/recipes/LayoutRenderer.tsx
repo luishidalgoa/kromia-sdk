@@ -361,7 +361,16 @@ export function SlotContent({ slot, composition, item, fieldDefs, cardFormat, re
     const fill = !!ap?.aspect && ap.aspect !== 'free' && !ap.size;
     return (
       <div className={appearancePaddingClass(ap)} {...slotDebugAttrs(slot, resolved)}>
-        <ThumbBox url={url} alt={String(first?.value ?? '')} appearance={ap} fill={fill} count={count} imageTransform={slotImageTransform(resolved, item)} />
+        {/* KRO-314 — aquí estaba el MISMO fallo una línea más allá: `String(value)`
+            sobre un array escupía las urls pegadas con comas, y eso es lo que oía
+            quien navega con lector de pantalla.
+            Se deja VACÍO y no con la url. El valor de un campo-imagen ES su ruta,
+            así que lo que había nunca fue una descripción: era el nombre del
+            fichero recitado en voz alta. Un `alt=""` marca la imagen como
+            decorativa —que es la verdad: no tenemos texto que la describa— y el
+            lector la salta en vez de deletrearla. El día que el modelo tenga un
+            campo de descripción para el slot, ese es el que va aquí. */}
+        <ThumbBox url={url} alt="" appearance={ap} fill={fill} count={count} imageTransform={slotImageTransform(resolved, item)} />
       </div>
     );
   }
