@@ -362,9 +362,11 @@ Widget _heroHeader(RenderCtx ctx, LayoutComponentNode node) {
     // Null-safe: el slot puede no estar en el mapa (stripeado por hiddenSlots).
     final comp = ctx.slots[sid];
     if (comp == null || comp.fields.isEmpty) return null;
-    final v = ctx.item[comp.fields.first];
-    final s = v is List ? (v.isNotEmpty ? v.first?.toString() : null) : v?.toString();
-    return (s != null && s.isNotEmpty) ? s : null;
+    // KRO-314 — por el helper del SDK y no a mano: la decisión de qué hacer con
+    // un `array<image>` en un slot de UNA imagen es del contrato, y repetirla en
+    // cada sitio es exactamente cómo el lado TS acabó con nueve copias (y con el
+    // fallo en nueve sitios).
+    return firstImageUrl(ctx.item[comp.fields.first]);
   }
 
   final title = slotText('title');

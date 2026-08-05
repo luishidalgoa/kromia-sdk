@@ -86,10 +86,14 @@ Widget? slotContent(RenderCtx ctx, String slotId) {
 
   // Imagen (array<image> → 1ª url + chip "+N").
   if (_isImage(first?.def)) {
+    // KRO-314 — por el helper del SDK, no a mano.
     final raw = first?.value;
-    final url = raw is List ? (raw.isNotEmpty ? raw.first?.toString() : null) : raw?.toString();
-    if (url == null || url.isEmpty) return null;
-    return wrap(imageBox(ctx, url, ap, count: raw is List ? raw.length : null));
+    final url = firstImageUrl(raw);
+    if (url == null) return null;
+    // El chip cuenta las imágenes de VERDAD, no las entradas de la lista: con un
+    // hueco dentro decía «+2» y solo había dos. `null` cuando el valor no es
+    // lista, para que una imagen suelta no lleve chip.
+    return wrap(imageBox(ctx, url, ap, count: raw is List ? imageCount(raw) : null));
   }
 
   // Referencias → rejilla de mini-cartas. Honra refSize (ancho % de la carta en
