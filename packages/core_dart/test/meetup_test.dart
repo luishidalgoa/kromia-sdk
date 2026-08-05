@@ -146,18 +146,26 @@ void main() {
   });
 
   group('la ventana de fichaje', () {
-    test('abre una hora antes y cierra al terminar', () {
+    test('abre CINCO MINUTOS antes y cierra al terminar', () {
+      // Pegada al inicio a propósito: fichar es «he acudido», y con una hora de
+      // margen deja de significarlo.
       final v = checkinWindow(quedada())!;
-      expect(v.opensAt, '2026-08-01T17:00:00.000Z');
+      expect(v.opensAt, '2026-08-01T17:55:00.000Z');
       expect(v.closesAt, '2026-08-01T21:00:00.000Z');
     });
 
     test('fuera de la ventana no se ficha', () {
       final q = quedada();
-      expect(checkinIsOpen(q, now: t('2026-08-01T16:59:00.000Z')), isFalse); // aún no
-      expect(checkinIsOpen(q, now: t('2026-08-01T17:00:00.000Z')), isTrue); // al abrir
+      expect(checkinIsOpen(q, now: t('2026-08-01T17:54:00.000Z')), isFalse); // aún no
+      expect(checkinIsOpen(q, now: t('2026-08-01T17:55:00.000Z')), isTrue); // al abrir
       expect(checkinIsOpen(q, now: t('2026-08-01T20:59:00.000Z')), isTrue);
       expect(checkinIsOpen(q, now: t('2026-08-01T21:00:01.000Z')), isFalse); // terminó
+    });
+
+    test('una hora antes YA NO se ficha', () {
+      // La guarda del cambio: con la ventana vieja esto era `true`.
+      expect(checkinIsOpen(quedada(), now: t('2026-08-01T17:00:00.000Z')),
+          isFalse);
     });
   });
 

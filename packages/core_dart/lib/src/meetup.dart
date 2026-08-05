@@ -67,9 +67,20 @@ const ({
   /// Radio de fichaje, en METROS.
   checkinRadiusMeters: 500,
   /// La ventana de fichaje abre esto ANTES del inicio y cierra al terminar.
-  /// Una hora y no quince minutos porque la gente llega pronto, y un botón que
-  /// aún no funciona cuando ya estás dentro de la tienda se lee como avería.
-  checkinOpensBeforeMs: 60 * 60 * 1000,
+  ///
+  /// CINCO MINUTOS — decisión del user (2026-08-04), que revierte la hora que
+  /// había antes. Fichar es «he acudido», y con una hora de margen eso deja de
+  /// significarlo: alguien puede fichar desde la puerta y marcharse, o hacerlo
+  /// de paso una hora antes por otra cosa. Cuanto más pegada al inicio, más se
+  /// parece la marca a lo que dice ser.
+  ///
+  /// LA CONTRAPARTIDA, que estaba escrita aquí y conviene no perder: la gente
+  /// llega pronto, y un botón que aún no funciona cuando ya estás dentro del
+  /// sitio se lee como avería. Cinco minutos lo hacen frecuente, no raro. Se
+  /// asume a cambio de que el dato signifique algo — pero si empiezan a llegar
+  /// quejas de «no me deja fichar y ya estoy aquí», el motivo es este número, y
+  /// el mensaje que lo acompaña tiene que decir a qué hora se abre.
+  checkinOpensBeforeMs: 5 * 60 * 1000,
 );
 
 // ── Modelo ───────────────────────────────────────────────────────────────────
