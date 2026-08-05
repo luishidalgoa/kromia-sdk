@@ -46,6 +46,14 @@ on:
       - 'packages/core_dart/**'
       - 'contracts/**'
       - '.github/workflows/krp-drift.yml'
+      # Lo que gobierna CÓMO instala el job. Faltaban, y no es teórico: el
+      # arreglo de `allowBuilds` que dejó de romper el `pnpm install` se
+      # commiteó, se subió y NO disparó nada — el CI se quedó en rojo enseñando
+      # el veredicto de un commit anterior. Un cambio que puede tumbar el job
+      # tiene que poder dispararlo.
+      - 'package.json'
+      - 'pnpm-workspace.yaml'
+      - 'pnpm-lock.yaml'
   pull_request:
     paths:
       - 'packages/core/package.json'
@@ -54,6 +62,9 @@ on:
       - 'packages/core_dart/pubspec.yaml'
       - 'packages/core_dart/**'
       - 'contracts/**'
+      - 'package.json'
+      - 'pnpm-workspace.yaml'
+      - 'pnpm-lock.yaml'
   workflow_dispatch: {}  # ejecución manual para testear (AC de KRO-64)
 
 # ── Coste (repo PRIVADO: los minutos se facturan) ────────────────────────────
