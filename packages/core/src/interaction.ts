@@ -156,8 +156,21 @@ export function resolveDetailComposition(
   if (composition.targetRecipe) {
     const manifest = getRecipeManifest(composition.targetRecipe);
     if (manifest && manifest.kind === 'detail') {
+      // KRO-317 — la receta destino se le PASA al constructor.
+      //
+      // Antes se llamaba sin ella, así que la heurística legacy producía slots
+      // de `hero_protagonico` (`banner`, `avatar`, `subtitle`…) y acto seguido se
+      // les pegaba encima la etiqueta de OTRA receta. Editorial iba entonces a
+      // buscar su `cover` a una composición que no lo tenía → **portada vacía**,
+      // y lo mismo con el `slideshow` de momento.
+      //
+      // Studio arregló exactamente esto en su lado (KRO-131) y dejó el motivo
+      // escrito en `SectionAppPreview.tsx`; esta copia del SDK se quedó con la
+      // versión rota. Mismo fallo corregido en un sitio y olvidado en el de al
+      // lado — que es como se ven distintos el AppPreview y la app pintando la
+      // MISMA sección.
       return {
-        ...buildAutoDetailComposition(fieldDefs),
+        ...buildAutoDetailComposition(fieldDefs, composition.targetRecipe),
         recipe: composition.targetRecipe,
       };
     }
