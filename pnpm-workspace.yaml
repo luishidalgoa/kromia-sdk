@@ -1,2 +1,21 @@
 packages:
   - "packages/*"
+
+# Configuración pnpm (10+). Sustituye al antiguo campo "pnpm" del package.json.
+#
+# Lista explícita de paquetes a los que se permite ejecutar scripts post-install.
+# Por defecto pnpm los ignora TODOS (seguridad) y, desde la 11, un build ignorado
+# es un ERROR y no un aviso — de ahí que este bloque no hiciera falta mientras el
+# repo iba con pnpm 9 y sí al pasar a la 11.
+#
+# Mismo criterio que en Studio y en el backend: se decide uno a uno, y cada
+# entrada dice por qué.
+allowBuilds:
+  # `tsx` (el runner de `generate.ts`) y `vitest` compilan con esbuild, que
+  # necesita su binario nativo para arrancar. Sin este build no se regenera el
+  # contrato ni corren los tests del TypeScript canónico.
+  #
+  # OJO: el backend lo tiene en `false` a propósito, y no es una incoherencia —
+  # allí esbuild solo entra como sub-dependencia de `tsconfig-paths` y nadie lo
+  # ejecuta. Aquí es la herramienta; allí, un pasajero.
+  esbuild: true
