@@ -96,17 +96,24 @@ jobs:
         with:
           sdk: '3.12.0'
       # pnpm hace falta desde KRO-299 para correr los tests del TS canónico.
-      # Va ANTES de setup-node para que su caché de pnpm encuentre el binario.
       #
-      # SIN `version:` a propósito: la acción la lee del `packageManager` del
-      # package.json, y declararla en los dos sitios es un ERROR duro («Multiple
-      # versions of pnpm specified»), no un aviso. Mejor así — una sola fuente,
-      # y la que además usa corepack en local.
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v5
+      # `pnpm/setup` y no `pnpm/action-setup`: es la acción que los mantenedores
+      # señalan para **pnpm 11 y superior**, que es lo que usamos. La vieja no
+      # tenía salida — su v4 corre en `node20`, que GitHub ya marca obsoleto y
+      # avisa en cada run, y su v6 dejó de instalar pnpm 11. Además instala el
+      # runtime, así que `actions/setup-node` sobra.
+      #
+      # SIGUE sin `version:` a propósito: la lee del `packageManager` del
+      # package.json, una sola fuente y la misma que usa corepack en local.
+      - uses: pnpm/setup@v2
         with:
-          node-version: '24'
-          cache: pnpm
+          # `engines` dice >=24 <25. Esta acción NO lo lee (solo mira
+          # `devEngines.runtime`), así que va explícito o instalaría la LTS por
+          # defecto — que hoy coincide, pero dejaría de coincidir sola.
+          runtime: node@24
+          cache: true
+          # El `pnpm install` de abajo es explícito y con `--frozen-lockfile`.
+          install: false
 
       # ── Capa 0: los tests del TS CANÓNICO (KRO-299) ───────────────────────
       # Va primero porque es la fuente: si el TypeScript está roto, la paridad

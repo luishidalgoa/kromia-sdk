@@ -19,5 +19,5 @@
     "tsx": "^4.19.0",
     "vitest": "^2.1.0"
   },
-  "packageManager": "pnpm@9.0.0"
+  "packageManager": "pnpm@11.1.3"
 }

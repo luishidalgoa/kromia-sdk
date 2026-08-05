@@ -54,7 +54,8 @@ jobs:
           # ninguno: mkdocs-material se instala suelto en el paso siguiente. Con
           # la caché activada el job muere en el setup con «No file matched to
           # [**/requirements.txt or **/pyproject.toml]» — mismo tropiezo que tuvo
-          # el job de paridad con setup-node v5 y su caché de pnpm.
+          # en su día el job de paridad con la caché de pnpm de `setup-node`, que
+          # ya no usa (hoy va con `pnpm/setup`, que trae la suya).
 
       - name: Install MkDocs Material
         run: |
