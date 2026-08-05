@@ -1,0 +1,1302 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="El vocabulario del modelo Kromia — section, field, behavior, recipe, slot, view composition, appearance, action. Imprescindible antes de tocar el SDK o el editor.">
+      
+      
+        <meta name="author" content="Luis Hidalgo">
+      
+      
+        <link rel="canonical" href="https://luishidalgoa.github.io/kromia-sdk/02-concepts/">
+      
+      
+        <link rel="prev" href="../01-overview/">
+      
+      
+        <link rel="next" href="../03-quickstart/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Conceptos clave - Kromia SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#conceptos-clave" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href=".." title="Kromia SDK" class="md-header__button md-logo" aria-label="Kromia SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kromia SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Conceptos clave
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Compartir" aria-label="Compartir" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/luishidalgoa/kromia-sdk" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    luishidalgoa/kromia-sdk
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../01-overview/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Empezar aquí
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Repositorio
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Kromia SDK" class="md-nav__button md-logo" aria-label="Kromia SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kromia SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    luishidalgoa/kromia-sdk
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inicio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Empezar aquí
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Empezar aquí
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visión general
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conceptos clave
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conceptos clave
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Section
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-field" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Field
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Behavior
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-slot-kind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Slot kind
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-recipe-view-composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Recipe + View composition
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-appearance-por-slot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Appearance (por slot)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Action
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-accent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Accent
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-encajan-los-conceptos-un-ejemplo-end-to-end" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cómo encajan los conceptos: un ejemplo end-to-end
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#para-profundizar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Para profundizar
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repositorio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Section
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-field" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Field
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Behavior
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-slot-kind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Slot kind
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-recipe-view-composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Recipe + View composition
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-appearance-por-slot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Appearance (por slot)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Action
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-accent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Accent
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-encajan-los-conceptos-un-ejemplo-end-to-end" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cómo encajan los conceptos: un ejemplo end-to-end
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#para-profundizar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Para profundizar
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navegación" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href=".." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../01-overview/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Empezar aquí
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/luishidalgoa/kromia-sdk/edit/main/docs/02-concepts.md" title="Editar esta página" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="conceptos-clave">Conceptos clave<a class="headerlink" href="#conceptos-clave" title="Enlace permanente a esta sección">&para;</a></h1>
+<p>Antes de tocar código o leer un helper, asegúrate de tener interiorizados estos 8 conceptos. Sin ellos, los nombres de los exports del SDK suenan a abstracciones sin propósito.</p>
+<h2 id="1-section">1. Section<a class="headerlink" href="#1-section" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Una <strong>sección</strong> es una agrupación lógica de cartas con el mismo esquema. Un álbum tiene N secciones.</p>
+<p>Ejemplos del catálogo:</p>
+<ul>
+<li><em>Mundial 2026</em> → secciones: <code>equipos</code>, <code>jugadores</code>, <code>momentos</code>.</li>
+<li><em>Holy Cards</em> → secciones: <code>hermandades</code>, <code>pasos</code>, <code>imagenes</code>.</li>
+<li><em>Mitos griegos</em> → secciones: <code>dioses</code>, <code>heroes</code>, <code>criaturas</code>.</li>
+</ul>
+<p>Cada sección define:</p>
+<ul>
+<li>Sus <strong>fields</strong> (datos que cada carta tiene: nombre, foto, año, descripción…).</li>
+<li>Su <strong><code>primaryKey</code></strong> (qué field actúa de identificador único).</li>
+<li>Su <strong><code>viewComposition</code></strong> (cómo se renderizan las cartas en pantalla — ver sección 5).</li>
+</ul>
+<h2 id="2-field">2. Field<a class="headerlink" href="#2-field" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Un <strong>field</strong> es una columna del esquema de una sección. Cada carta tendrá un valor para ese field.</p>
+<p>Estructura mínima:</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kd">interface</span><span class="w"> </span><span class="nx">CardFieldDefinition</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nx">key</span><span class="o">:</span><span class="w">        </span><span class="kt">string</span><span class="p">;</span><span class="w">      </span><span class="c1">// &#39;nombre&#39;, &#39;foto&#39;, &#39;año_fundacion&#39;</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nx">label</span><span class="o">:</span><span class="w">      </span><span class="kt">string</span><span class="p">;</span><span class="w">      </span><span class="c1">// &#39;Nombre&#39;, &#39;Foto&#39;, &#39;Año de fundación&#39; (visible al publisher)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w">       </span><span class="nx">FieldType</span><span class="p">;</span><span class="w">   </span><span class="c1">// &#39;text&#39; | &#39;number&#39; | &#39;image&#39; | &#39;array&lt;image&gt;&#39; | &#39;select&#39; | &#39;cardRef&#39; | &#39;array&lt;sectionRef:KEY&gt;&#39;</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nx">required?</span><span class="o">:</span><span class="w">  </span><span class="kt">boolean</span><span class="p">;</span><span class="w">     </span><span class="c1">// ¿el publisher debe rellenarlo siempre? Default false</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nx">behavior?</span><span class="o">:</span><span class="w">  </span><span class="kt">string</span><span class="p">;</span><span class="w">      </span><span class="c1">// ¿tratamiento especial? Ver sección 3</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="nx">width</span><span class="o">?:</span><span class="w">     </span><span class="s1">&#39;xs&#39;</span><span class="o">|</span><span class="s1">&#39;sm&#39;</span><span class="o">|</span><span class="s1">&#39;md&#39;</span><span class="o">|</span><span class="s1">&#39;lg&#39;</span><span class="p">;</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Los <strong>types</strong> son cerrados (lista enumerable). Los <strong>behaviors</strong> son extensibles (cada uno añade reglas extra encima del type base).</p>
+<h2 id="3-behavior">3. Behavior<a class="headerlink" href="#3-behavior" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Un <strong>behavior</strong> es un tratamiento opcional encima de un field type. Refina cómo se valida, formatea o renderiza.</p>
+<table>
+<thead>
+<tr>
+<th>Field type</th>
+<th>Behaviors disponibles</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>number</code></td>
+<td><code>year</code> (4 dígitos, ≥ 1000), <code>rating</code> (0-5 estrellas), <code>percentage</code> (formato %), <code>currency</code> (formato moneda), <code>incremental</code> (auto-incremental por carta)</td>
+</tr>
+<tr>
+<td><code>text</code></td>
+<td><code>url</code> (validar http/s), <code>email</code>, <code>phone</code>, <code>color_hex</code> (#RRGGBB), <code>iso_date</code>, <code>markdown</code>, <code>enum</code>, <code>ordinal_enum</code></td>
+</tr>
+<tr>
+<td><code>array&lt;image&gt;</code></td>
+<td><code>gallery</code> (grid en detalle)</td>
+</tr>
+<tr>
+<td><code>text</code> (extendido)</td>
+<td><code>card_index_list</code> (CSV → array de refs)</td>
+</tr>
+</tbody>
+</table>
+<p>Sin behavior, el field se renderiza "tal cual" (default: scalar text).</p>
+<p><strong>Ejemplo práctico</strong>: un field <code>año_fundacion</code> tipo <code>number</code> con behavior <code>year</code>. Validación: el publisher no puede escribir <code>99</code> (queda rechazado por <code>&gt;= 1000</code>). Renderización: aparece como <code>1873</code> en la app, no como <code>1.873</code> (sin separador de miles, formato año).</p>
+<h2 id="4-slot-kind">4. Slot kind<a class="headerlink" href="#4-slot-kind" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Cuando renderizamos cartas, cada recipe expone <strong>slots</strong> (huecos a llenar). Cada slot tiene un <strong>kind</strong> que define qué fields acepta.</p>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Qué acepta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>text-short</code></td>
+<td>Una línea de texto sin formato (nombre, título corto, fecha)</td>
+</tr>
+<tr>
+<td><code>image-avatar</code></td>
+<td>Una imagen (foto, escudo, ícono). Renderer aplica shape + aspect ratio</td>
+</tr>
+<tr>
+<td><code>badge</code></td>
+<td>Etiqueta destacada (rareza, categoría, rating con estrellas)</td>
+</tr>
+<tr>
+<td><code>color</code></td>
+<td>Color asociado al ítem — alimenta el accent del card, raramente visible solo</td>
+</tr>
+<tr>
+<td><code>card-ref</code></td>
+<td>Array de referencias a otras cartas del álbum (jugadores de un equipo)</td>
+</tr>
+<tr>
+<td><code>section-ref</code></td>
+<td>Una sección entera del álbum (rara vez)</td>
+</tr>
+<tr>
+<td><code>any</code></td>
+<td>Cualquier field (para slots experimentales)</td>
+</tr>
+</tbody>
+</table>
+<p>Un slot del kind <code>image-avatar</code> rechazará un field type <code>number</code> — la matriz de compatibilidad vive en <code>@kromia/core/classify.ts</code>.</p>
+<h2 id="5-recipe-view-composition">5. Recipe + View composition<a class="headerlink" href="#5-recipe-view-composition" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Una <strong>recipe</strong> es un layout reutilizable. El catálogo V1 tiene 8:</p>
+<table>
+<thead>
+<tr>
+<th>Recipe</th>
+<th>Kind</th>
+<th>Cuándo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>compact_avatar</code></td>
+<td>list</td>
+<td>Foto circular + nombre + dato corto (lista densa)</td>
+</tr>
+<tr>
+<td><code>compact_card</code></td>
+<td>list</td>
+<td>Imagen cuadrada + título + badge (grid visual)</td>
+</tr>
+<tr>
+<td><code>hero_protagonico</code></td>
+<td>detail</td>
+<td>Banner + título grande + descripción + mini-cards anidadas</td>
+</tr>
+<tr>
+<td><code>row_text</code></td>
+<td>list</td>
+<td>Solo texto, sin imagen (tablas)</td>
+</tr>
+<tr>
+<td><code>editorial</code></td>
+<td>detail</td>
+<td>Card tipo blog post</td>
+</tr>
+<tr>
+<td><code>momento</code></td>
+<td>detail</td>
+<td>Tipo Instagram (foto cuadrada + caption)</td>
+</tr>
+<tr>
+<td><code>accordion_simple</code></td>
+<td>list</td>
+<td>Filas colapsables</td>
+</tr>
+<tr>
+<td><code>accordion_with_actions</code></td>
+<td>list</td>
+<td>Acordeón + CTAs</td>
+</tr>
+</tbody>
+</table>
+<p>Una <strong>view composition</strong> es la elección del publisher: qué recipe usar + qué field va a cada slot.</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">composition</span><span class="o">:</span><span class="w"> </span><span class="kt">ViewComposition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nx">recipe</span><span class="o">:</span><span class="w">        </span><span class="s1">&#39;compact_avatar&#39;</span><span class="p">,</span><span class="w">       </span><span class="c1">// ← elige la recipe</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nx">action</span><span class="o">:</span><span class="w">        </span><span class="s1">&#39;navigate_to_detail&#39;</span><span class="p">,</span><span class="w">   </span><span class="c1">// ← qué pasa al tocar la carta</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nx">targetRecipe</span><span class="o">:</span><span class="w">  </span><span class="s1">&#39;hero_protagonico&#39;</span><span class="p">,</span><span class="w">     </span><span class="c1">// ← receta de la vista detalle</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nx">slots</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nx">avatar</span><span class="o">:</span><span class="w">   </span><span class="p">{</span><span class="w"> </span><span class="nx">fields</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;foto&#39;</span><span class="p">]</span><span class="w"> </span><span class="p">},</span><span class="w">      </span><span class="c1">// ← `foto` (field) va al slot `avatar`</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">fields</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;nombre&#39;</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nx">subtitle</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">fields</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;posicion&#39;</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="nx">badge</span><span class="o">:</span><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">fields</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;rareza&#39;</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">};</span>
+</span></code></pre></div>
+<p>El editor de Studio renderiza dropdowns para que el publisher elija recipe + slots sin escribir JSON a mano.</p>
+<h2 id="6-appearance-por-slot">6. Appearance (por slot)<a class="headerlink" href="#6-appearance-por-slot" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Cada slot puede personalizar su aspecto via <code>appearance</code>. Propiedades cerradas (catálogos en <code>options.ts</code>):</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nx">appearance</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nx">shape</span><span class="o">:</span><span class="w">          </span><span class="s1">&#39;circle&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;square&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;rounded&#39;</span><span class="p">,</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nx">aspect</span><span class="o">:</span><span class="w">         </span><span class="s1">&#39;1:1&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;16:9&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;4:3&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;3:4&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;9:16&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;free&#39;</span><span class="p">,</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nx">align</span><span class="o">:</span><span class="w">          </span><span class="s1">&#39;left&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;center&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;right&#39;</span><span class="p">,</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nx">weight</span><span class="o">:</span><span class="w">         </span><span class="s1">&#39;regular&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;semibold&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;bold&#39;</span><span class="p">,</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="nx">size</span><span class="o">:</span><span class="w">           </span><span class="s1">&#39;sm&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;md&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;lg&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;xl&#39;</span><span class="p">,</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="nx">truncate</span><span class="o">:</span><span class="w">       </span><span class="s1">&#39;1&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;2&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;3&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="nx">paddingY</span><span class="o">:</span><span class="w">       </span><span class="s1">&#39;none&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;sm&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;md&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;lg&#39;</span><span class="p">,</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="nx">accentPosition</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;auto&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;top&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;left&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;right&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;bottom&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Y <strong>presets</strong> compuestos para un click:</p>
+<ul>
+<li><code>avatar</code> (circle 1:1)</li>
+<li><code>banner</code> (rounded 16:9)</li>
+<li><code>portrait</code> (rounded 3:4 — cromos verticales tipo Magic)</li>
+<li><code>story</code> (rounded 9:16 — móvil-first)</li>
+<li><code>polaroid</code> (rounded 4:3)</li>
+<li><code>square</code> (square 1:1)</li>
+</ul>
+<p>Cada recipe declara qué appearance props soporta cada slot (no todos los slots aceptan todas — un slot de texto no usa <code>shape</code>).</p>
+<h2 id="7-action">7. Action<a class="headerlink" href="#7-action" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Qué pasa cuando el coleccionista toca la carta o un slot:</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Comportamiento</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>none</code></td>
+<td>Informativo. Sin respuesta al toque</td>
+</tr>
+<tr>
+<td><code>navigate_to_detail</code></td>
+<td>Abre vista detalle (recipe definida en <code>targetRecipe</code>)</td>
+</tr>
+<tr>
+<td><code>modal</code></td>
+<td>Abre detalle como overlay sin perder contexto</td>
+</tr>
+<tr>
+<td><code>expand_inline</code></td>
+<td>Despliega contenido in-line (acordeón)</td>
+</tr>
+<tr>
+<td><code>external_link</code></td>
+<td>Abre URL externa (web, redes)</td>
+</tr>
+</tbody>
+</table>
+<p>Acciones se eligen a nivel de composition (toda la carta) o per-slot (la imagen abre detalle pero el badge no).</p>
+<h2 id="8-accent">8. Accent<a class="headerlink" href="#8-accent" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>El <strong>accent</strong> es la línea de color que rodea o subraya el card. Identifica visualmente cada carta por su color asociado (color del equipo, color de la hermandad).</p>
+<ul>
+<li>Origen: un field tipo <code>text</code> con behavior <code>color_hex</code> asignado a un slot <code>color</code>.</li>
+<li>Posición: configurable per slot (<code>accentPosition</code>).</li>
+<li>Default: <code>auto</code> — la recipe decide la posición típica (arriba para cards, izquierda para accordion).</li>
+</ul>
+<hr />
+<h2 id="como-encajan-los-conceptos-un-ejemplo-end-to-end">Cómo encajan los conceptos: un ejemplo end-to-end<a class="headerlink" href="#como-encajan-los-conceptos-un-ejemplo-end-to-end" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Imagina que un publisher quiere modelar la sección <strong>Equipos</strong> del Mundial 2026.</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// 1. Section</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kd">const</span><span class="w"> </span><span class="nx">equipos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nx">displayName</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Equipos&#39;</span><span class="p">,</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nx">primaryKey</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;nombre&#39;</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nx">fields</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;nombre&#39;</span><span class="p">,</span><span class="w">     </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;text&#39;</span><span class="p">,</span><span class="w">   </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Nombre&#39;</span><span class="p">,</span><span class="w">     </span><span class="nx">required</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;escudo&#39;</span><span class="p">,</span><span class="w">     </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;image&#39;</span><span class="p">,</span><span class="w">  </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Escudo&#39;</span><span class="p">,</span><span class="w">     </span><span class="nx">required</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;color&#39;</span><span class="p">,</span><span class="w">      </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;text&#39;</span><span class="p">,</span><span class="w">   </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Color&#39;</span><span class="p">,</span><span class="w">      </span><span class="nx">behavior</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;color_hex&#39;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;fundacion&#39;</span><span class="p">,</span><span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;number&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Fundación&#39;</span><span class="p">,</span><span class="w">  </span><span class="nx">behavior</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;year&#39;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;jugadores&#39;</span><span class="p">,</span><span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;array&lt;sectionRef:jugadores&gt;&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">label</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Plantilla&#39;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">  </span><span class="nx">viewComposition</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">    </span><span class="nx">recipe</span><span class="o">:</span><span class="w">       </span><span class="s1">&#39;compact_avatar&#39;</span><span class="p">,</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">    </span><span class="nx">action</span><span class="o">:</span><span class="w">       </span><span class="s1">&#39;navigate_to_detail&#39;</span><span class="p">,</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">    </span><span class="nx">targetRecipe</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;hero_protagonico&#39;</span><span class="p">,</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">    </span><span class="nx">slots</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">      </span><span class="nx">avatar</span><span class="o">:</span><span class="w">   </span><span class="p">{</span><span class="w"> </span><span class="nx">fields</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;escudo&#39;</span><span class="p">],</span><span class="w">     </span><span class="nx">appearance</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">shape</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;square&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">aspect</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1:1&#39;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">      </span><span class="nx">title</span><span class="o">:</span><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">fields</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;nombre&#39;</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">      </span><span class="nx">subtitle</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">fields</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;fundacion&#39;</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">      </span><span class="nx">color</span><span class="o">:</span><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">fields</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="p">};</span>
+</span></code></pre></div>
+<p>Resultado:</p>
+<ul>
+<li>En la lista de equipos: cada equipo se ve como una fila con escudo cuadrado a la izquierda, nombre en negrita, año de fundación debajo. Una línea de color (el color del equipo) acentúa cada card.</li>
+<li>Al tocar un equipo: se abre la vista detalle (<code>hero_protagonico</code>) con el escudo grande, la plantilla de jugadores debajo en grid.</li>
+</ul>
+<p>Todos los datos están validados por el SDK antes de salir del editor o entrar al backend.</p>
+<h2 id="para-profundizar">Para profundizar<a class="headerlink" href="#para-profundizar" title="Enlace permanente a esta sección">&para;</a></h2>
+<ul>
+<li><strong>Quiero montar un cliente con esto</strong> → <a href="/docs/03-quickstart">Quick start</a>.</li>
+<li><strong>Quiero añadir un behavior nuevo</strong> → <code>kromia-sdk/playbooks/add-behavior.md</code>.</li>
+<li><strong>Quiero añadir una recipe nueva</strong> → <code>kromia-sdk/playbooks/add-recipe.md</code>.</li>
+</ul>
+<hr />
+<p><em>Última actualización: 2026-05-29 (KRO-87).</em></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Pie" >
+        
+          
+          <a href="../01-overview/" class="md-footer__link md-footer__link--prev" aria-label="Anterior: Visión general">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Anterior
+              </span>
+              <div class="md-ellipsis">
+                Visión general
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../03-quickstart/" class="md-footer__link md-footer__link--next" aria-label="Siguiente: Quick start">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Siguiente
+              </span>
+              <div class="md-ellipsis">
+                Quick start
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Kromia — privado, uso interno.
+    </div>
+  
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/luishidalgoa/kromia-sdk" target="_blank" rel="noopener" title="SDK en GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.action.edit"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
