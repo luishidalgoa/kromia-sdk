@@ -28,6 +28,17 @@ final _prefijoProxy = RegExp(r'^api/images/');
 String _sinBarras(String s) =>
     s.replaceAll(RegExp(r'^/+'), '').replaceAll(RegExp(r'/+$'), '');
 
+/// La ruta DECODIFICADA de una URL.
+///
+/// `Uri.path` la devuelve escapada, y las rutas reales llevan tildes sin
+/// escapar (`.../HolyCards/Córdoba/...`). Sacar la key de ahí daba
+/// `C%C3%B3rdoba`, que el host volvía a escapar al construir el proxy —
+/// `C%25C3%25B3rdoba`— y el objeto dejaba de encontrarse. Un 404 sobre algo que
+/// existe, que es de los errores que más tiempo cuestan.
+/// `pathSegments` YA viene decodificado: volver a decodificarlo revienta con
+/// «Illegal percent encoding» en cuanto hay un `%` legítimo en un nombre.
+String _rutaLegible(Uri u) => u.pathSegments.join('/');
+
 /// La URL con la que se descarga un objeto, a partir de su key.
 ///
 /// `null` si no se sabe dónde vive el bucket: **mejor no dar URL que dar una
@@ -74,8 +85,8 @@ String? objectKey(String? source, {String? publicUrl, String? bucket}) {
   if (base.isNotEmpty) {
     final baseUri = Uri.tryParse(base) ?? u;
     if (u.host != baseUri.host) return null; // otro host: no es nuestro
-    final raiz = _sinBarras(baseUri.path);
-    var path = _sinBarras(u.path);
+    final raiz = _sinBarras(_rutaLegible(baseUri));
+    var path = _sinBarras(_rutaLegible(u));
     if (raiz.isNotEmpty && path.startsWith('$raiz/')) {
       path = path.substring(raiz.length + 1);
     }
@@ -84,7 +95,7 @@ String? objectKey(String? source, {String? publicUrl, String? bucket}) {
   }
 
   // Sin base: heurística. El primer segmento es el bucket.
-  final seg = _sinBarras(u.path).split('/').where((e) => e.isNotEmpty).toList();
+  final seg = _sinBarras(_rutaLegible(u)).split('/').where((e) => e.isNotEmpty).toList();
   if (seg.length < 2) return null;
   if (b.isNotEmpty && seg.first != b) return null;
   return seg.skip(1).join('/');

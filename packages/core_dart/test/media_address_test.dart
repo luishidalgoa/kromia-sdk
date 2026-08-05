@@ -109,6 +109,18 @@ void main() {
       expect(objectKey('https://otro.host/solo'), isNull);
     });
 
+    test('una tilde SIN escapar en la ruta no se pierde ni se escapa', () {
+      // Ruta real de producción. `Uri.path` la devuelve escapada, y sacar la key
+      // de ahí daba `C%C3%B3rdoba` — que el host volvía a escapar al construir
+      // su proxy y acababa en un 404 sobre un objeto que existe.
+      expect(
+        objectKey(
+            'https://s3.viejo.net/kromia/luishidalgoa/HolyCards/Córdoba/1.webp',
+            bucket: bucket),
+        'luishidalgoa/HolyCards/Córdoba/1.webp',
+      );
+    });
+
     test('si se dice el bucket, una URL de OTRO bucket no cuela', () {
       expect(objectKey('https://otro.host/ajeno/a/b.png', bucket: bucket), isNull);
     });
