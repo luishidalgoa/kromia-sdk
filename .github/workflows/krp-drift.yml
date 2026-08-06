@@ -153,7 +153,13 @@ jobs:
       - name: Instalar dependencias
         run: pnpm install --frozen-lockfile
       - name: Tests del TypeScript canónico (@kromia/core)
-        run: pnpm exec vitest run packages/core/tests
+        # `--filter` y no una ruta: así vitest arranca DENTRO del paquete y no
+        # puede irse a buscar la config hacia arriba. En el CI el repo se clona
+        # suelto y daba igual, pero en un checkout donde el SDK sea submódulo
+        # —como en Studio— cogía la config del repo padre y reventaba con un
+        # error de ESM ajeno a nuestro código. Misma forma que el pre-push y que
+        # los dos pasos de `@kromia/react`: una sola manera de invocarlo.
+        run: pnpm --filter @kromia/core exec vitest run
 
       # ── Capa 0b: @kromia/react (KRO-316) ──────────────────────────────────
       # El paquete de renderers no lo miraba NADIE. Studio lo compila de rebote

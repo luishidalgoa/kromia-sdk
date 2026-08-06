@@ -50,7 +50,16 @@ gris '── pre-push del SDK ────────────────�
 
 # ── Lo que corre el CI (krp-drift) ──────────────────────────────────────────
 if toca '^packages/core/(src|scripts|package\.json)|^packages/core_dart/|^contracts/'; then
-    paso 'tests del core (TS)'      npx vitest run packages/core/tests
+    # `--filter` y no `npx vitest run packages/core/tests`: cuando el SDK está
+    # como SUBMÓDULO dentro de otro repo —que es como vive en Studio—, vitest
+    # busca su config hacia ARRIBA, se sale del submódulo y coge la del repo
+    # padre. Eso reventaba con un error de ESM que no tiene nada que ver con
+    # nuestro código, y el push se cancelaba con los tests en verde.
+    #
+    # Un rojo falso es peor que no tener el check: es lo que empuja a saltarse
+    # el hook con `--no-verify`, y así fue justo como se subió un commit del SDK
+    # realmente roto que tuvo que cazar el chat de Mobile.
+    paso 'tests del core (TS)'      pnpm --filter @kromia/core exec vitest run
     paso 'paridad de API TS↔Dart'   node packages/core/scripts/check-api-parity.mjs
 
     if command -v dart >/dev/null 2>&1; then
