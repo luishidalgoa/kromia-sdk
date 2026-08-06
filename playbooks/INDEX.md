@@ -18,6 +18,7 @@
 | Añadir o modificar un **efecto** visual (iridiscente, custom foil, holográfico) o su render + espejarlo en Studio/Mobile | [mirror-effect.md](mirror-effect.md) |
 | Subir `protocolVersion` del KRP o de cualquier contract | [bump-protocol.md](bump-protocol.md) |
 | Versionar una app (Studio/backend/Flutter) o actualizar su **CHANGELOG** | [versioning.md](versioning.md) |
+| Mover algo a **producción**, o cambiar un dominio / IP / host ya en uso | [go-to-prod.md](go-to-prod.md) |
 | Empezar una feature/bug/mejora nueva (planificación, Jira, branch) | [start-feature.md](start-feature.md) |
 | Cerrar una tarea (cierre Jira, memoria, commits, follow-ups) | [ship-task.md](ship-task.md) |
 | Añadir o modificar un **playbook** | [add-playbook.md](add-playbook.md) |
