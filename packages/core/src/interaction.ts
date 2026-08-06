@@ -130,7 +130,15 @@ export function resolveDetailComposition(
   // 1. Cadena multi-salto (KRO-94).
   if (composition.targetComposition) {
     const hop = composition.targetComposition;
-    const autoSlots = buildAutoDetailComposition(fieldDefs).slots;
+    // KRO-317 (2ª parte) — los slots sintetizados son PARA la receta del salto.
+    // Sin pasarla, `buildAutoDetailComposition` los construía para la receta por
+    // defecto (`hero_protagonico`) y se los encajábamos a otra distinta: los
+    // slots que esa receta no tiene se quedan huérfanos y los que sí tiene se
+    // quedan vacíos. Es el mismo fallo que se arregló abajo, en la rama de
+    // `targetRecipe`, y que en el detalle de sección se veía como una portada en
+    // blanco. Sobrevivía aquí porque esta rama es la multi-salto (KRO-94) y se
+    // arregló solo la otra.
+    const autoSlots = buildAutoDetailComposition(fieldDefs, hop.recipe).slots;
     const slots = hop.slots && Object.keys(hop.slots).length > 0
       ? hop.slots
       : autoSlots;

@@ -79,4 +79,53 @@ describe('KRO-317 · el texto largo acaba en el slot equivocado', () => {
         expect(Object.keys(detalle.slots)).not.toContain('banner');
         expect(Object.keys(detalle.slots)).not.toContain('avatar');
     });
+
+    /**
+     * KRO-317 (2ª parte) — el MISMO fallo sobrevivía en la rama de al lado.
+     *
+     * `resolveDetailComposition` tiene dos caminos: el salto multi-hop
+     * (`targetComposition`, KRO-94) y el simple (`targetRecipe`). Se arregló el
+     * segundo y el primero se quedó como estaba, sintetizando los slots sin
+     * decirle para qué receta son — o sea, los del hero por defecto encajados en
+     * la receta del salto.
+     *
+     * Se descubre solo cuando el salto **no trae slots propios**: si los trae, se
+     * usan tal cual y el fallo no se ve. Por eso pasó desapercibido.
+     */
+    it('el salto multi-hop SIN slots propios también respeta su receta', () => {
+        const lista: any = {
+            recipe: 'compact_card',
+            action: 'navigate_to_detail',
+            slots: {},
+            targetComposition: { recipe: 'editorial', action: 'none', slots: {} },
+        };
+        const detalle = resolveDetailComposition(lista, REINOS);
+
+        expect(detalle.recipe).toBe('editorial');
+        expect(Object.keys(detalle.slots)).toContain('cover');
+        expect(detalle.slots.cover?.fields).toEqual(['estandarte']);
+        expect(detalle.slots.body?.fields).toEqual(['descripcion']);
+        expect(Object.keys(detalle.slots)).not.toContain('banner');
+        expect(Object.keys(detalle.slots)).not.toContain('avatar');
+    });
+
+    /**
+     * Control: si el salto SÍ trae slots, mandan los suyos y no se sintetiza
+     * nada. Sin esto, el test de arriba podría pasar por el motivo equivocado.
+     */
+    it('si el salto trae slots propios, se respetan tal cual', () => {
+        const lista: any = {
+            recipe: 'compact_card',
+            action: 'navigate_to_detail',
+            slots: {},
+            targetComposition: {
+                recipe: 'editorial',
+                action: 'none',
+                slots: { title: { fields: ['color'] } },
+            },
+        };
+        const detalle = resolveDetailComposition(lista, REINOS);
+        expect(detalle.slots.title?.fields).toEqual(['color']);
+        expect(Object.keys(detalle.slots)).toEqual(['title']);
+    });
 });
