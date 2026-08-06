@@ -8,6 +8,11 @@
 #      dependen los tres hosts, sin nadie mirándolo. Aquí dentro va
 #      contract-drift.test.ts, que caza un cambio de registry sin regenerar el
 #      .json — lo único que garantiza que el contrato commiteado es el real.
+#   0b. react (KRO-316) : tipos + tests de @kromia/react, el paquete de
+#      renderers. Estuvo sin cubrir por NINGÚN CI hasta el 2026-08-06 — se
+#      compilaba solo de rebote cuando alguien empujaba Studio, o sea que el
+#      fallo aparecía en el host y no donde se había escrito. Es el mismo agujero
+#      que la capa 0 vino a tapar para el core, un paquete más allá.
 #   1. version-drift : compara packages/core/package.json#version (TS, productor)
 #      contra packages/core_dart/pubspec.yaml#version (Dart, mirror). Si el TS
 #      adelanta un MAJOR -> abre issue Jira (label drift, status Drift Sync) y
@@ -44,6 +49,11 @@ on:
       - 'packages/core/scripts/**'    # KRO-118: el propio detector de paridad
       - 'packages/core_dart/pubspec.yaml'
       - 'packages/core_dart/**'
+      # KRO-316 — `@kromia/react` no lo cubría NINGÚN CI. Es el paquete de
+      # renderers que consume Studio y que el chat de Mobile espeja en Dart, y
+      # solo se compilaba de rebote cuando alguien empujaba Studio. Un cambio
+      # aquí podía subirse roto y no enterarse nadie hasta la siguiente pantalla.
+      - 'packages/react/**'
       - 'contracts/**'
       - '.github/workflows/krp-drift.yml'
       # Lo que gobierna CÓMO instala el job. Faltaban, y no es teórico: el
@@ -61,6 +71,7 @@ on:
       - 'packages/core/scripts/**'
       - 'packages/core_dart/pubspec.yaml'
       - 'packages/core_dart/**'
+      - 'packages/react/**'          # KRO-316
       - 'contracts/**'
       - 'package.json'
       - 'pnpm-workspace.yaml'
@@ -143,6 +154,26 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Tests del TypeScript canónico (@kromia/core)
         run: pnpm exec vitest run packages/core/tests
+
+      # ── Capa 0b: @kromia/react (KRO-316) ──────────────────────────────────
+      # El paquete de renderers no lo miraba NADIE. Studio lo compila de rebote
+      # cuando alguien empuja Studio, y ese rebote llega tarde y por el repo
+      # equivocado: el fallo se ve en el host, no donde se escribió.
+      #
+      # Van los dos pasos porque cubren cosas distintas: `tsc --noEmit` caza que
+      # el renderer deje de casar con el contrato de `@kromia/core` (el caso
+      # típico, porque van en el mismo commit), y los tests cazan que el editor
+      # exponga una propiedad de apariencia que el render ignora — la red de
+      # regresión que ya existía y que tampoco corría en ningún CI.
+      #
+      # `!cancelled()` como las demás capas: un fallo aquí no puede ocultar el
+      # veredicto de paridad, que es para lo que existe este workflow.
+      - name: Tipos de @kromia/react
+        if: ${{ !cancelled() }}
+        run: pnpm --filter @kromia/react exec tsc --noEmit
+      - name: Tests de @kromia/react
+        if: ${{ !cancelled() }}
+        run: pnpm --filter @kromia/react exec vitest run
 
       # ── Capa 2: paridad por COMPORTAMIENTO ────────────────────────────────
       - name: dart pub get
