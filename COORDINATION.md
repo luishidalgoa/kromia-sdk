@@ -35,15 +35,24 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
    otro chat como turno *"From {título}"* con enlace de vuelta; **pide confirmación
    al user**. Para pasar trabajo, pedir un cambio de contrato o avisar de un hallazgo.
 
-   **Las TRES sesiones (al 2026-07-12)** — si un id falla, reconfírmalo con `list_sessions`:
+   **Las DOS sesiones (al 2026-08-11)** — si un id falla, reconfírmalo con `list_sessions`:
 
    | Chat | `session_id` | cwd |
    |---|---|---|
-   | **Kromia Brain** (Studio: editor web + backend + SDK no-efectos) | `local_13e92463-5a04-40c8-b4bb-e182142b2f94` | `Downloads/kromia-studio` |
-   | **Efectos Kromia** (especialista en efectos, incl. espejo Dart de efectos) | `local_bbf3e3ef-b2c1-401d-abc4-9ca388229fd0` | `Downloads/kromia-studio` |
-   | **Kromia mobile** (Flutter: `core_dart` no-efectos + app + render) | `local_a987e3aa-6bba-47b2-b9b6-e34cb9b1c7ae` | `Downloads/kromia-mobile` |
+   | **Kromia Brain** (Studio: editor web + backend + SDK, **efectos incluidos**) | `local_13e92463-5a04-40c8-b4bb-e182142b2f94` | `Downloads/kromia-studio` |
+   | **Kromia mobile** (Flutter: `core_dart` + app + su render) | `local_a987e3aa-6bba-47b2-b9b6-e34cb9b1c7ae` | `Downloads/kromia-mobile` |
 
-   ⚠️ Ids MUERTOS que no debes usar: `local_18daf528-…` (Flutter viejo, lanzado desde
+   ⚠️ **El chat de Efectos SE DISUELVE (decisión del user, 2026-08-11).** Llevaba sin
+   actividad desde el 24 de julio y su terreno se quedó sin dueño: durante ese tiempo
+   el sistema de efectos no lo mantuvo nadie, y se notó — el caso de Zapdos en blanco
+   estuvo un día abierto sin quien lo cogiera. **Todo lo de efectos pasa a Kromia
+   Brain**: `visual-effects.ts`, `foil-recipe.ts`, `custom-foil-recipe.ts`,
+   `border-svg.ts`, `effect-resolve.ts` y su render en Studio. El espejo Dart de los
+   efectos lo lleva Mobile, como el resto de `core_dart`.
+
+   Id retirado: `local_bbf3e3ef-…` (Efectos). No escribir ahí.
+
+   ⚠️ Otros ids MUERTOS: `local_18daf528-…` (Flutter viejo, lanzado desde
    `Downloads/GameHub` — carpeta borrada). **Una sesión archivada o con su cwd borrado
    hace que `send_message` rebote**; en ese caso deja el handoff en la *Cola* de abajo.
 2. **Durable — spec en `kromia-sdk/docs/<tema>.md`**: para cualquier cosa no trivial,
