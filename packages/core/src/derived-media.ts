@@ -1,5 +1,5 @@
 /**
- * KRO-331 — la clave de un DERIVADO de imagen (miniatura o rasterizado).
+ * KRO-335 — la clave de un DERIVADO de imagen (miniatura o rasterizado).
  *
  * Vive en el SDK y no en cada host por un motivo concreto: **Studio y el backend
  * sirven las dos el mismo `/api/images`**, cada uno con su implementación. Studio

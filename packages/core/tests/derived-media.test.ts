@@ -5,7 +5,7 @@ import {
 } from '../src/derived-media';
 
 /**
- * KRO-331 — la clave de un derivado de imagen, con UNA sola definición.
+ * KRO-335 — la clave de un derivado de imagen, con UNA sola definición.
  *
  * Estas funciones vivían en el backend y Studio resolvía lo mismo por su cuenta
  * con otro criterio (ancho libre y sin cachear). Es el patrón que ya costó
@@ -15,7 +15,7 @@ import {
  * Aquí el precio de divergir es peor que una imagen rota: sería **caché
  * partida**, cada host generando su propio derivado del mismo objeto.
  */
-describe('KRO-331 · ancho del derivado', () => {
+describe('KRO-335 · ancho del derivado', () => {
     it('sin ancho no hay derivado: se sirve el original', () => {
         expect(snapDerivedWidth(undefined)).toBeNull();
         expect(snapDerivedWidth('')).toBeNull();
@@ -51,7 +51,7 @@ describe('KRO-331 · ancho del derivado', () => {
     });
 });
 
-describe('KRO-331 · la caché no puede quedarse vieja', () => {
+describe('KRO-335 · la caché no puede quedarse vieja', () => {
     const KEY = 'kromia/demo-bestiario/testing/original/zapdos-art-mid-v3.webp';
 
     it('si el ORIGINAL cambia, la clave del derivado cambia', () => {
