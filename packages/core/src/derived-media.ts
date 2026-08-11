@@ -95,3 +95,23 @@ export function derivedMediaKey(key: string, etag: string, width: number, ext: s
 export function isDerivedMediaKey(key: string): boolean {
   return key.startsWith(DERIVED_PREFIX);
 }
+
+/**
+ * ¿Este objeto se puede REDIMENSIONAR, o hay que servirlo tal cual?
+ *
+ * No todo lo que es una imagen admite un `?w=`:
+ *
+ * - **SVG**: es vectorial y ya escala solo. Rasterizarlo para «achicarlo» da un
+ *   resultado BORROSO y, medido en nuestro propio bucket, un derivado **19-45×
+ *   MÁS GRANDE** que el original (13,7 KB de SVG → 261 KB de PNG a 1024 px). Se
+ *   paga bucket y ancho de banda por empeorar la imagen.
+ * - **GIF**: redimensionarlo con la ruta normal se come la animación.
+ *
+ * Vive aquí, y no en cada host, por lo de siempre: el backend la tenía escrita a
+ * mano y Studio no la tenía en absoluto, así que Studio SÍ metía los SVG por
+ * sharp. Es la misma forma de divergencia que costó KRO-338 — una regla escrita
+ * en los hosts acaba estando en un host y no en el otro.
+ */
+export function isResizableImage(key: string): boolean {
+  return /\.(webp|png|jpe?g|avif|tiff?)$/i.test(key);
+}

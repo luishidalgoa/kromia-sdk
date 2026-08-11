@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
     DERIVED_WIDTHS, DERIVED_PREFIX,
-    snapDerivedWidth, derivedMediaKey, isDerivedMediaKey,
+    snapDerivedWidth, derivedMediaKey, isDerivedMediaKey, isResizableImage,
 } from '../src/derived-media';
 
 /**
@@ -102,5 +102,39 @@ describe('KRO-335 · la caché no puede quedarse vieja', () => {
     it('la forma de la clave está fijada, no es un detalle interno', () => {
         expect(derivedMediaKey('a/b/c.webp', 'deadbeef', 240, 'webp'))
             .toBe('__raster/v3/deadbeef/240/a/b/c.webp.webp');
+    });
+});
+
+/**
+ * KRO-343 — no todo lo que es una imagen admite un `?w=`.
+ *
+ * El backend tenía esta regla escrita a mano y Studio no la tenía en absoluto, así
+ * que Studio metía los SVG por sharp: iconos borrosos, y derivados MÁS GRANDES que
+ * el original ocupando bucket. Medido: 13,7 KB de SVG dan 261 KB de PNG a 1024 px.
+ */
+describe('KRO-343 · qué se puede redimensionar y qué se sirve tal cual', () => {
+    it('los bitmaps sí', () => {
+        for (const k of ['a/b.webp', 'a/b.png', 'a/b.jpg', 'a/b.jpeg', 'a/b.avif', 'a/b.tif', 'a/b.tiff']) {
+            expect(isResizableImage(k)).toBe(true);
+        }
+    });
+
+    /** Vectorial: escala solo, y rasterizarlo lo empeora Y lo engorda. */
+    it('el SVG NO — es la regresión concreta que esto arregla', () => {
+        expect(isResizableImage('kromia/demo/original/zapdos-art-front.svg')).toBe(false);
+    });
+
+    /** Redimensionar un GIF por la ruta normal se come la animación. */
+    it('el GIF tampoco', () => {
+        expect(isResizableImage('a/b.gif')).toBe(false);
+    });
+
+    it('no se deja engañar por la extensión en medio de la ruta', () => {
+        expect(isResizableImage('a/foto.png/notas.txt')).toBe(false);
+    });
+
+    it('la mayúscula da igual (el bucket preserva el case)', () => {
+        expect(isResizableImage('a/B.PNG')).toBe(true);
+        expect(isResizableImage('a/B.SVG')).toBe(false);
     });
 });

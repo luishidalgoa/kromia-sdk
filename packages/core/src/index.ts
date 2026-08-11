@@ -269,7 +269,7 @@ export { imageUrls, firstImageUrl, imageCount } from './image-value';
 // objeto, pagando y ocupando el doble.
 export {
   DERIVED_PREFIX, DERIVED_CACHE_VERSION, DERIVED_WIDTHS,
-  snapDerivedWidth, derivedMediaKey, isDerivedMediaKey,
+  snapDerivedWidth, derivedMediaKey, isDerivedMediaKey, isResizableImage,
 } from './derived-media';
 export { buildAutoDetailComposition, buildAutoListComposition } from './auto-detail';
 export { isSchemaOutdated } from './schema-version';

@@ -469,6 +469,7 @@ const EXPECTED_EXPORTS = [
   'snapDerivedWidth',
   'derivedMediaKey',
   'isDerivedMediaKey',
+  'isResizableImage',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
