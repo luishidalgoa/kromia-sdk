@@ -22,6 +22,8 @@
 // ── Acciones ─────────────────────────────────────────────────────────────────
 
 /** Acción sobre un objeto/prefijo del bucket. */
+import { isDerivedMediaKey } from './derived-media';
+
 export type MediaAction = 'read' | 'write' | 'list' | 'delete';
 
 // ── Zona privada (avatares) ──────────────────────────────────────────────────
@@ -150,6 +152,23 @@ export function mediaCapability(
   opts?: MediaCapabilityOpts,
 ): boolean {
   const p = norm(path);
+
+  // 0 · Namespace INTERNO de derivados (`__raster/…`) — nadie, nunca, ninguna
+  //     acción. Ni siquiera admin, igual que `list` en la zona privada.
+  //
+  // KRO-338 — no es una precaución teórica: pasó. Los derivados llevan el prefijo
+  // del álbum EN MEDIO de la clave, así que ningún host consigue resolver a qué
+  // álbum pertenecen; el resolvedor devuelve «sin álbum» y ambos hosts traducían
+  // eso a **público**. Resultado: la miniatura de un álbum privado se servía a
+  // cualquiera que supiera su URL, saltándose la verja entera.
+  //
+  // El backend tenía un guard explícito y Studio no, porque el guard se escribió
+  // en el host en vez de aquí. Poniéndolo en la AUTORIDAD, un host que se olvide
+  // de comprobarlo falla cerrado en vez de abrir un agujero.
+  //
+  // Estos objetos los escribe y lee el propio servicio con su credencial, que no
+  // pasa por aquí; para todo lo demás no existen.
+  if (isDerivedMediaKey(p)) return false;
 
   // 1 · Zona privada (avatares, etc.) — antes del override de admin.
   if (p.startsWith(PRIVATE_PREFIX)) {

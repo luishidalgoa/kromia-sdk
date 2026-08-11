@@ -17,6 +17,9 @@ paridad de otro chat → se resumen como nota, no se listan uno a uno.
 > Versiones `< 2.2.2` fuera de registro (previas a esta política).
 
 ## [Unreleased]
+### Security
+- `mediaCapability` deniega el namespace interno de derivados (`__raster/`) para **toda** acción y **todo el mundo**, admin incluido, y lo hace ANTES del override de admin — igual que `list` en la zona privada. La regla estaba escrita en los hosts, así que estaba en uno y no en el otro: el backend tenía su guard y Studio no, y por ahí se servían las miniaturas de los álbumes privados. En la autoridad, un host que se olvide de comprobarlo falla **cerrado**. Los dos hosts dejan además de reimplementar la regla de `__private/` y le preguntan a `mediaCapability`, que ya la aplicaba desde KRO-288 (KRO-338)
+
 
 ### Added
 - `validateAttachmentUpload(kind, mime, size)` y `matchesMagicBytes(mime, head)` — las dos mitades de autorizar una subida de adjunto: una cree lo que declara el cliente (para no subir 60 MB y tirarlos), la otra comprueba el contenido real (sin ella, «solo PDF» es una sugerencia). Viven aquí porque basta con que **un** host sea más permisivo para que el objeto acabe en el bucket (KRO-272)

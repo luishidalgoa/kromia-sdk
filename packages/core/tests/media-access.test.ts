@@ -190,3 +190,46 @@ describe('helpers de zona privada', () => {
     expect(avatarObjectPath('ana', '')).toBe('__private/avatars/ana.jpg');
   });
 });
+
+/**
+ * KRO-338 — el namespace interno de derivados no es de nadie.
+ *
+ * Esto no es defensa en profundidad decorativa: el agujero existió. La clave de
+ * un derivado lleva el prefijo del álbum EN MEDIO, así que no resuelve a ningún
+ * álbum, y «sin álbum» significaba público en los dos hosts → la miniatura de un
+ * álbum privado se servía a cualquiera con la URL.
+ *
+ * El guard estaba escrito en un host y no en el otro. Aquí no puede pasar: quien
+ * se olvide de comprobarlo falla CERRADO.
+ */
+describe('KRO-338 · el namespace de derivados (`__raster/`) es intocable', () => {
+    const derivado = '__raster/v3/deadbeef00112233/480/ana/liga-2025/original/1.webp.webp';
+
+    it('ni el dueño del álbum del que salió puede tocarlo', () => {
+        const ana: MediaContext = { username: 'ana', roles: ['publisher'], grants: [] };
+        for (const accion of ['read', 'write', 'list', 'delete'] as const) {
+            expect(mediaCapability(ana, derivado, accion)).toBe(false);
+        }
+    });
+
+    it('ni admin — como `list` en la zona privada, va ANTES del override', () => {
+        const admin: MediaContext = { username: 'root', roles: ['admin'], grants: [] };
+        for (const accion of ['read', 'write', 'list', 'delete'] as const) {
+            expect(mediaCapability(admin, derivado, accion)).toBe(false);
+        }
+    });
+
+    /**
+     * La regresión concreta: el derivado de un álbum PRIVADO. Sin esta rama, el
+     * host pregunta por la visibilidad, no resuelve álbum, asume público y sirve.
+     */
+    it('el derivado de un álbum privado no se lee ni informando que es público', () => {
+        const anon: MediaContext = { username: '', roles: [], grants: [] };
+        expect(mediaCapability(anon, derivado, 'read', { albumVisibility: 'public' })).toBe(false);
+    });
+
+    it('el ORIGINAL sigue comportándose como siempre (no se ha cerrado de más)', () => {
+        const anon: MediaContext = { username: '', roles: [], grants: [] };
+        expect(mediaCapability(anon, 'ana/liga-2025/original/1.webp', 'read', { albumVisibility: 'public' })).toBe(true);
+    });
+});
