@@ -17,6 +17,8 @@ paridad de otro chat → se resumen como nota, no se listan uno a uno.
 > Versiones `< 2.2.2` fuera de registro (previas a esta política).
 
 ## [Unreleased]
+### Added
+- `isResizableImage(key)` — qué objetos admiten un `?w=` y cuáles se sirven tal cual. El SVG queda fuera (es vectorial, ya escala solo, y rasterizarlo da un derivado 19-45× MÁS grande que el original) y el GIF también (se le come la animación). El backend la tenía escrita a mano y Studio no la tenía en absoluto, así que Studio metía los SVG por sharp: misma forma de divergencia que KRO-338 (KRO-343)
 ### Security
 - `mediaCapability` deniega el namespace interno de derivados (`__raster/`) para **toda** acción y **todo el mundo**, admin incluido, y lo hace ANTES del override de admin — igual que `list` en la zona privada. La regla estaba escrita en los hosts, así que estaba en uno y no en el otro: el backend tenía su guard y Studio no, y por ahí se servían las miniaturas de los álbumes privados. En la autoridad, un host que se olvide de comprobarlo falla **cerrado**. Los dos hosts dejan además de reimplementar la regla de `__private/` y le preguntan a `mediaCapability`, que ya la aplicaba desde KRO-288 (KRO-338)
 
