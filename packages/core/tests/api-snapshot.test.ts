@@ -462,6 +462,13 @@ const EXPECTED_EXPORTS = [
   'imageUrls',
   'firstImageUrl',
   'imageCount',
+  // KRO-331 — clave de los derivados de imagen (miniaturas / rasterizados)
+  'DERIVED_PREFIX',
+  'DERIVED_CACHE_VERSION',
+  'DERIVED_WIDTHS',
+  'snapDerivedWidth',
+  'derivedMediaKey',
+  'isDerivedMediaKey',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {

@@ -262,6 +262,15 @@ export { formatScalar } from './format-scalar';
 // KRO-314 — un valor de campo-imagen puede ser uno o varios; esto lo normaliza
 // antes de pintarlo, en vez de afirmarlo con un `as string` que miente.
 export { imageUrls, firstImageUrl, imageCount } from './image-value';
+// KRO-331 — clave de los DERIVADOS de imagen (miniaturas / rasterizados).
+// Aquí y no en cada host: Studio y el backend sirven los dos `/api/images` y
+// tenían criterios distintos para el mismo `?w=`. Divergir aquí no rompe una
+// imagen, PARTE la caché: cada uno generaría su propio derivado del mismo
+// objeto, pagando y ocupando el doble.
+export {
+  DERIVED_PREFIX, DERIVED_CACHE_VERSION, DERIVED_WIDTHS,
+  snapDerivedWidth, derivedMediaKey, isDerivedMediaKey,
+} from './derived-media';
 export { buildAutoDetailComposition, buildAutoListComposition } from './auto-detail';
 export { isSchemaOutdated } from './schema-version';
 export { extractAccentSettings } from './extract-accent';
