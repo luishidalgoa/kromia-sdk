@@ -1,0 +1,2208 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación del SDK polyglot de Kromia — modelo de coleccionables, recipes y validadores compartidos cross-plataforma.">
+      
+      
+        <meta name="author" content="Luis Hidalgo">
+      
+      
+        <link rel="canonical" href="https://luishidalgoa.github.io/kromia-sdk/kro198-detail-composition-flutter/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>HANDOFF · KRO-198 — Paridad Flutter: hiddenSlots + CardSchema.detailComposition (Drift Sync) - Kromia SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#handoff-kro-198-paridad-flutter-hiddenslots-cardschemadetailcomposition-drift-sync" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href=".." title="Kromia SDK" class="md-header__button md-logo" aria-label="Kromia SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kromia SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              HANDOFF · KRO-198 — Paridad Flutter: hiddenSlots + CardSchema.detailComposition (Drift Sync)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Compartir" aria-label="Compartir" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/luishidalgoa/kromia-sdk" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    luishidalgoa/kromia-sdk
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../01-overview/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Empezar aquí
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Repositorio
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Kromia SDK" class="md-nav__button md-logo" aria-label="Kromia SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kromia SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    luishidalgoa/kromia-sdk
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inicio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Empezar aquí
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Empezar aquí
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visión general
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conceptos clave
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repositorio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0-modelo-de-autoria-basado-en-campos-actualizacion-2026-06-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. Modelo de autoría: BASADO EN CAMPOS (actualización 2026-06-22)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-renderer-dart-anadir-hiddenslots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Renderer Dart — añadir hiddenSlots
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-consumir-cardschemadetailcomposition-en-el-detalle-de-carta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Consumir CardSchema.detailComposition en el detalle de carta
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-regla-solo-datos-resumen-normativo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Regla "solo datos" (resumen normativo)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-drift-contrato" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Drift / contrato
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-checklist-de-aceptacion-flutter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Checklist de aceptación Flutter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-layoutrenderer-arbol-layout-hiddenslots-computehiddenheroroles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. LayoutRenderer (árbol layout) — hiddenSlots + computeHiddenHeroRoles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-render-por-behavior-del-valor-de-un-slot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Render por behavior del valor de un slot
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Render por behavior del valor de un slot">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-slotcompositioncomposabledisplay-nuevo-8e8e700" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 — SlotComposition.composableDisplay (NUEVO, 8e8e700)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-follow-ups-conocidos-no-bloquean" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Follow-ups conocidos (NO bloquean)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-cambios-2026-06-22-mas-render-que-espejar-kro-198-cont" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Cambios 2026-06-22 — más render que espejar (KRO-198 cont.)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Cambios 2026-06-22 — más render que espejar (KRO-198 cont.)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-slotcompositionconditionalstyle-estilo-por-valor-5bebd85" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 — SlotComposition.conditionalStyle (estilo por valor) · 5bebd85
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-chipstablastats-temables-a99f11d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 — chips/tabla/stats TEMABLES · a99f11d
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-paridad-del-badge-a99f11d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 — Paridad del BADGE · a99f11d
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#104-el-contenedor-raiz-del-detalle-llena-la-pantalla-f00d55d-19e7ce2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.4 — El contenedor raíz del DETALLE llena la pantalla · f00d55d + 19e7ce2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#105-solo-edicion-studio-el-renderer-dart-no-necesita-nada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.5 — SOLO-EDICIÓN (Studio): el renderer Dart NO necesita nada
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-cambios-2026-06-22-cont-decoracion-esquinas-acabado-de-imagen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Cambios 2026-06-22 (cont.) — decoración: esquinas + acabado de imagen
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Cambios 2026-06-22 (cont.) — decoración: esquinas + acabado de imagen">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-el-wrapper-raiz-sigue-el-radius-del-surface-b5ecf71" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 — El WRAPPER raíz sigue el radius del surface · b5ecf71
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-la-caja-de-imagen-toma-appearancebgcolor-74e36ce" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 — La caja de IMAGEN toma appearance.bgColor · 74e36ce
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#113-containersurfacecornerradii-radio-por-esquina-c4219cb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.3 — ContainerSurface.cornerRadii (radio POR ESQUINA) · c4219cb
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-cambios-2026-06-22-cont-esquinas-uniformes-fondo-de-pantalla" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Cambios 2026-06-22 (cont.) — esquinas uniformes + fondo de pantalla
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Cambios 2026-06-22 (cont.) — esquinas uniformes + fondo de pantalla">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-la-raya-de-acento-ya-no-aplana-las-esquinas-5ac8e7f" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.1 — La raya de acento ya NO aplana las esquinas · 5ac8e7f
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122-fondo-de-pantalla-derivado-del-papel-screenbghex-163f011" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.2 — Fondo de PANTALLA derivado del papel: screenBgHex · 163f011
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-cambios-2026-06-22-cont-padding-por-lado-separador-de-lista" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Cambios 2026-06-22 (cont.) — padding por lado + separador de lista
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="13. Cambios 2026-06-22 (cont.) — padding por lado + separador de lista">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#131-relleno-por-lado-containersurfacepaddingsides-slotappearancepaddingsides" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.1 — Relleno POR LADO · ContainerSurface.paddingSides + SlotAppearance.paddingSides
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#132-separador-de-lista-opcional-off-por-defecto-viewcompositionliststyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.2 — Separador de lista OPCIONAL + OFF por defecto · ViewComposition.listStyle
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-cambios-2026-06-22-cont-acento-capa-del-strip-slot-de-color-como-acento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Cambios 2026-06-22 (cont.) — acento: capa del strip + slot de color como acento
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="14. Cambios 2026-06-22 (cont.) — acento: capa del strip + slot de color como acento">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#141-la-raya-de-acento-se-pinta-en-la-capa-del-fondo-del-raiz-no-la-tapa-el-acabado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14.1 — La raya de acento se pinta EN LA CAPA DEL FONDO DEL RAÍZ (no la tapa el acabado)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#142-el-slot-cuyo-color_hex-alimenta-el-acento-no-se-pinta-como-celda" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14.2 — El slot cuyo color_hex ALIMENTA el acento NO se pinta como celda
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-cambios-2026-06-23-fondo-de-pantalla-desacoplado-del-fondo-de-la-card" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Cambios 2026-06-23 — fondo de PANTALLA desacoplado del fondo de la card
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="15. Cambios 2026-06-23 — fondo de PANTALLA desacoplado del fondo de la card">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#151-containersurfacescreenbgcolor-independiente-de-bgcolor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15.1 — ContainerSurface.screenBgColor (independiente de bgColor)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-cambios-2026-06-23-apariencia-por-field-en-slots-composable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. Cambios 2026-06-23 — apariencia POR-FIELD en slots composable
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="16. Cambios 2026-06-23 — apariencia POR-FIELD en slots composable">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#161-slotcompositionfieldappearances" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16.1 — SlotComposition.fieldAppearances
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#162-merge-por-entrada-en-el-render-composableslot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16.2 — Merge por entrada en el render (ComposableSlot)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#163-editor-studio-ya-hecho-informativo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16.3 — Editor (Studio, ya hecho — informativo)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-cambios-2026-06-23-el-detalle-deja-de-forzar-oculto-studio-only-sin-trabajo-flutter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. Cambios 2026-06-23 — el detalle deja de FORZAR "Oculto" (Studio-only, sin trabajo Flutter)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#18-cambios-2026-06-23-statsrow-honra-apariencia-mini-cartas-sin-arte-plano" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18. Cambios 2026-06-23 — StatsRow honra apariencia + mini-cartas sin arte plano
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="18. Cambios 2026-06-23 — StatsRow honra apariencia + mini-cartas sin arte plano">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#181-el-componente-stats_row-ahora-honra-appearance-fieldappearances" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.1 — El componente stats_row ahora honra appearance + fieldAppearances
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#182-mini-cartas-card-ref-de-cartas-solo-con-capas-3d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.2 — Mini-cartas (card-ref) de cartas SOLO con capas 3D
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#19-cambios-2026-06-23-displaybadge-en-stats-el-detalle-rellena-el-panel-con-el-acabado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19. Cambios 2026-06-23 — display:'badge' en stats + el detalle rellena el panel con el acabado
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="19. Cambios 2026-06-23 — display:&#39;badge&#39; en stats + el detalle rellena el panel con el acabado">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#191-statsrow-honra-appearancedisplay-badge-commit-922137e-paridad-core_dart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19.1 — StatsRow honra appearance.display === 'badge' (commit 922137e, paridad core_dart)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#192-el-panel-del-detalle-de-carta-se-tine-con-el-acabado-studio-only-nota-app-flutter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19.2 — El PANEL del detalle de carta se tiñe con el acabado (Studio-only; nota app Flutter)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#20-cambios-2026-06-23-containersurfacetextcolor-color-de-texto-global-del-contenedor-cascada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20. Cambios 2026-06-23 — ContainerSurface.textColor: color de texto GLOBAL del contenedor (cascada)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="20. Cambios 2026-06-23 — ContainerSurface.textColor: color de texto GLOBAL del contenedor (cascada)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#201-containersurfacetextcolor-string-cascada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20.1 — ContainerSurface.textColor?: string + cascada
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#202-applythemepreset-lo-setea-global-antes-era-por-slot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20.2 — applyThemePreset lo setea GLOBAL (antes era por-slot)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#203-editor-detalle-studio-ya-hecho" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20.3 — Editor + detalle (Studio, ya hecho)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#21-cambios-2026-06-23-blanco-y-negro-en-la-paleta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        21. Cambios 2026-06-23 — blanco y negro en la paleta
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22-cambios-2026-06-23-color-por-chip-en-composable-auto-align-del-badge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        22. Cambios 2026-06-23 — color por-chip en composable 'auto' + align del badge
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="22. Cambios 2026-06-23 — color por-chip en composable &#39;auto&#39; + align del badge">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#221-fieldappearances-color-por-chip-tambien-en-composabledisplayauto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        22.1 — fieldAppearances (color por-chip) también en composableDisplay='auto'
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#222-el-align-de-un-displaybadge-va-en-el-contenedor-no-en-la-pastilla" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        22.2 — El align de un display:'badge' va en el contenedor, no en la pastilla
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#23-cambios-2026-06-23-insertar-cualquier-campo-como-slot-generico-labelforfield" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        23. Cambios 2026-06-23 — insertar cualquier campo como slot genérico + labelForField
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="23. Cambios 2026-06-23 — insertar cualquier campo como slot genérico + labelForField">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#231-labelforfield-sdk-metaui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        23.1 — labelForField (SDK, meta/UI)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#232-campos-del-album-en-el-editor-studio-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        23.2 — "Campos del álbum" en el editor (Studio-only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#24-cambios-2026-06-23-apariencia-por-chip-completa-en-todas-las-ramas-slot-campo-exento-de-validacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        24. Cambios 2026-06-23 — apariencia por-chip COMPLETA en todas las ramas + slot-campo exento de validación
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="24. Cambios 2026-06-23 — apariencia por-chip COMPLETA en todas las ramas + slot-campo exento de validación">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#241-fieldappearances-por-chip-completa-no-solo-color-en-composableslot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        24.1 — fieldAppearances por-chip COMPLETA (no solo color) en ComposableSlot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#242-validateslot-exime-al-slot-campo-del-chequeo-de-rol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        24.2 — validateSlot exime al slot-CAMPO del chequeo de rol
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#243-editor-campos-del-album-agrupado-por-tipo-studio-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        24.3 — Editor "Campos del álbum" agrupado por tipo (Studio-only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#25-cambios-2026-06-24-estilo-de-la-franja-de-acento-accentstyle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        25. Cambios 2026-06-24 — ESTILO de la franja de acento (accentStyle)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="25. Cambios 2026-06-24 — ESTILO de la franja de acento (accentStyle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#251-el-dato" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        25.1 — el dato
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#252-la-matematica-del-render-buildaccentborderstyle-recipe-utilstsx531-570" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        25.2 — la matemática del render (buildAccentBorderStyle, recipe-utils.tsx:531-570)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#253-recto-vs-curvo-lo-decide-el-host-no-el-box-shadow-layoutrenderertsx919-921" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        25.3 — RECTO vs CURVO lo decide el HOST, no el box-shadow (LayoutRenderer.tsx:919-921)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#26-cambios-2026-06-24-disposicion-de-chips-rejilla-2d-chipgrid-ancho-chipwidth-display-por-chip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        26. Cambios 2026-06-24 — disposición de chips: rejilla 2D (chipGrid) + ancho (chipWidth) + display por-chip
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="26. Cambios 2026-06-24 — disposición de chips: rejilla 2D (chipGrid) + ancho (chipWidth) + display por-chip">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#261-chipgrid-2d-chipplacementsfieldkey" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        26.1 — chipGrid 2D + chipPlacements[fieldKey]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#262-chipwidth-fill-content-separa-ancho-de-align" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        26.2 — chipWidth: 'fill' | 'content' (separa ANCHO de align)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#263-display-textbadge-por-chip-composabledisplay-explicito-builder-unico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        26.3 — display text/badge por-chip + composableDisplay explícito + builder único
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/luishidalgoa/kromia-sdk/edit/main/docs/kro198-detail-composition-flutter.md" title="Editar esta página" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="handoff-kro-198-paridad-flutter-hiddenslots-cardschemadetailcomposition-drift-sync">HANDOFF · KRO-198 — Paridad Flutter: <code>hiddenSlots</code> + <code>CardSchema.detailComposition</code> (Drift Sync)<a class="headerlink" href="#handoff-kro-198-paridad-flutter-hiddenslots-cardschemadetailcomposition-drift-sync" title="Enlace permanente a esta sección">&para;</a></h1>
+<p><strong>Para:</strong> chat Flutter (<code>core_dart</code> + <code>kromia_flutter</code>)
+<strong>De:</strong> chat SDK-TS / Studio
+<strong>Tipo:</strong> Drift Sync · <strong>render-only</strong> (NO bumpea <code>PROTOCOL_VERSION</code>, contract-drift debe quedar VERDE)
+<strong>Fuente canónica TS:</strong> <code>packages/react/src/recipes/RecipeRenderer.tsx</code> + <code>HeroHeader.tsx</code></p>
+<hr />
+<h2 id="tldr">TL;DR<a class="headerlink" href="#tldr" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Ya shipeado en TS:
+1. <code>RecipeRenderer</code> acepta <code>hiddenSlots?: string[]</code> → (a) <strong>strip</strong> de esos slot ids de <code>composition.slots</code> antes de despachar y (b) <strong>reenvío</strong> del array a <code>HeroProtagonicoRecipe → HeroHeader</code>, que con esos ids <strong>no pinta ni el slot ni su placeholder</strong> (banner degradado / avatar con inicial).
+2. <code>CardSchema.detailComposition</code> (<code>ViewComposition</code> opcional, <strong>render-only</strong>, validada con <code>validateComposition</code> contra <code>cardFields</code>) ya persiste en backend.
+3. En Studio, el panel "Detalles" del modo focus renderiza esa composición con <code>hiddenSlots = [slots de imagen del recipe] + 'title'</code> → panel "solo datos" (la imagen ya es la HoloCard 3D, el título ya está en la cabecera de la hoja).
+4. <strong>NUEVO (5410852)</strong> — el detalle se construye en el <strong>lienzo</strong> (árbol <code>layout</code>). Para que siga siendo "solo datos" con layout-tree, <code>LayoutRenderer</code> también acepta <code>hiddenSlots</code> y oculta los roles del <code>hero_header</code> cuyo slotId esté en la lista. La decisión vive en core: <strong><code>computeHiddenHeroRoles(roles, nodeHidden, nodeSlots, hiddenSlots)</code></strong> (pura) → ver §7.
+5. <strong>NUEVO (53808fb)</strong> — render por <strong>behavior</strong> completo: currency/measurement con <code>behaviorConfig</code>, <code>html</code> seguro (<code>parseInlineHtml</code>, allowlist), code/url/email/phone/tags/url_list/email_list → ver §8.
+6. <strong>NUEVO 2026-06-22 (§10)</strong> — 4 puntos de render más (todos meta, render-only): <code>conditionalStyle</code> (estilo por valor, integrar en <code>resolveSlot</code>), chips/tabla/stats <strong>temables</strong>, paridad del <strong>badge</strong> (opacity/shadow + color dinámico), y el contenedor raíz del <strong>detalle llena la pantalla</strong>. Acabados (THEME_PRESETS) y contraste = <strong>solo-edición, Flutter los ignora</strong>.
+7. <strong>NUEVO 2026-06-22 (§11)</strong> — decoración: el <strong>wrapper raíz</strong> sigue el radius del surface (4 esquinas), la <strong>caja de imagen</strong> toma <code>appearance.bgColor</code>, y nuevo <code>ContainerSurface.cornerRadii</code> (radio por esquina, render-only).
+8. <strong>NUEVO 2026-06-22 (§12)</strong> — la <strong>raya de acento ya no aplana</strong> las esquinas de su lado (se curva con el radius → 4 esquinas uniformes), y nuevo <code>screenBgHex(bgColor)</code>: la <strong>pantalla</strong> (lista/detalle) toma el acabado un punto más oscuro que las cartas → éstas resaltan por elevación.
+9. <strong>NUEVO 2026-06-22 (§13)</strong> — <strong>relleno POR LADO</strong> (<code>ContainerSurface.paddingSides</code> + <code>SlotAppearance.paddingSides</code> → <code>EdgeInsets.only</code>, prevalece sobre el padding uniforme), y <strong>separador de lista opcional</strong> (<code>ViewComposition.listStyle.separator</code>, <code>Divider</code> entre items solo si true; <strong>OFF por defecto</strong>, cambia el aspecto de las listas existentes).
+10. <strong>NUEVO 2026-06-22 (§14)</strong> — acento en BLOQUES: la raya se pinta en la <strong>capa del fondo del root</strong> (no la tapa el acabado), y el <strong>slot cuyo <code>color_hex</code> alimenta el acento NO se pinta como celda</strong> (<code>extractAccentSettings</code> expone <code>colorFieldKey</code>; suprimir esa hoja).
+11. <strong>NUEVO 2026-06-23 (§15)</strong> — <strong>fondo de PANTALLA desacoplado</strong>: nuevo <code>ContainerSurface.screenBgColor</code>; la pantalla = <code>screenBgHex(screenBgColor ?? bgColor)</code> (fallback); el acabado setea ambos → editar el fondo de la card ya no mueve la pantalla.</p>
+<p>Flutter debe replicar <strong>exactamente</strong> esta semántica en su renderer Dart.</p>
+<hr />
+<h2 id="0-modelo-de-autoria-basado-en-campos-actualizacion-2026-06-22">0. Modelo de autoría: <strong>BASADO EN CAMPOS</strong> (actualización 2026-06-22)<a class="headerlink" href="#0-modelo-de-autoria-basado-en-campos-actualizacion-2026-06-22" title="Enlace permanente a esta sección">&para;</a></h2>
+<blockquote>
+<p><strong>Lee esto primero.</strong> El detalle evolucionó de "elegir una receta con roles
+abstractos" a un modelo <strong>basado en campos</strong>. Esto <strong>NO cambia el trabajo de
+Flutter</strong> (sigues renderizando <code>detailComposition.layout</code> + <code>slots</code> con
+<code>hiddenSlots</code>), pero sí cambia <strong>qué SON los slots</strong> — para que no te confunda
+ver ids que no son <code>banner</code>/<code>avatar</code>/<code>title</code> sino claves de campo.</p>
+</blockquote>
+<p>Qué cambió en la autoría (Studio, canónico):</p>
+<ul>
+<li><strong>Un slot por CAMPO, no por rol.</strong> El <code>slot.id</code> de una <code>detailComposition</code> es la
+  <strong>clave de un campo</strong> de la carta (<code>numero</code>, <code>nombre</code>, <code>arte</code>, <code>descubierta</code>…),
+  no un rol de receta. <code>slot.fields = [esa misma clave]</code>.</li>
+<li><strong>Receta portadora <code>detail_profile</code>.</strong> La composición declara <code>recipe:
+  'detail_profile'</code> solo para pasar la validación del SDK; el render usa el árbol
+  <strong><code>layout</code></strong>, no los roles de esa receta. Slots con id de campo que no están en
+  el manifest de <code>detail_profile</code> son <strong>WARN, no ERROR</strong> en <code>validateComposition</code>
+  (backend solo bloquea errores) → la composición valida igual.</li>
+<li><strong>Plantillas = pilas de campos.</strong> Las plantillas pre-diseñadas (Lista,
+  Destacado, Reportaje, Efeméride) las construye Studio clasificando los campos por
+  tipo y arreglándolos en un <code>layout</code> (título destacado, fila de stats, cuerpo…).
+  Son <strong>layouts de campos ya armados</strong>, no recetas con roles. Flutter <strong>no</strong> las
+  conoce ni las necesita — solo consume el <code>detailComposition</code> resultante.</li>
+<li><strong><code>hero_header</code> casi nunca aparece</strong> en una <code>detailComposition</code> por campos (las
+  plantillas son grids planos de campos). El gating de §7 (<code>computeHiddenHeroRoles</code>)
+  sigue siendo <strong>obligatorio espejarlo</strong> por robustez: el publisher <em>puede</em> insertar
+  un componente hero a mano vía INSERTAR, y si lo hace debe ocultarse igual.</li>
+</ul>
+<p>Implicación para <code>hiddenSlots</code> (§2/§3): el conjunto a ocultar son las <strong>claves de
+campo de tipo imagen</strong> (<code>arte</code>, …) <strong>+ la clave del campo título</strong> (el <code>text</code>/PK
+que actúa de nombre), no roles. Studio lo deriva con <code>detailHiddenSlots(recipe)</code> en
+<code>detail-slots.ts</code> (ver referencias al final). El mecanismo de ocultado es idéntico
+al descrito abajo.</p>
+<p><strong>Resumen normativo:</strong> el contrato de render Flutter es el MISMO; solo cambia la
+naturaleza de los ids de slot (claves de campo). Renderiza <code>layout</code> + <code>slots</code>,
+aplica <code>hiddenSlots</code>, formatea por behavior. No hay nada nuevo que persistir.</p>
+<hr />
+<h2 id="1-renderer-dart-anadir-hiddenslots">1. Renderer Dart — añadir <code>hiddenSlots</code><a class="headerlink" href="#1-renderer-dart-anadir-hiddenslots" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Añadir un parámetro opcional <code>List&lt;String&gt; hiddenSlots = const []</code> al entry-point del renderer (equivalente Dart de <code>RecipeRenderer</code>).</p>
+<p><strong>Regla A — strip ANTES de despachar (todas las recetas):</strong>
+Si <code>hiddenSlots</code> no está vacío, filtra <code>composition.slots</code> quitando las entradas cuyo id esté en <code>hiddenSlots</code>, y despacha con esa composición filtrada.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>final filtered = hiddenSlots.isEmpty
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    ? composition
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    : composition.copyWith(
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        slots: { for (final e in composition.slots.entries)
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                   if (!hiddenSlots.contains(e.key)) e.key: e.value },
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>      );
+</span></code></pre></div>
+<ul>
+<li>Recetas como <code>editorial</code> / <code>momento</code> (y las block-native vía <code>LayoutRenderer</code>/<code>recipeToComposition</code>) <strong>omiten su imagen al faltar el slot, sin placeholder</strong> → para ellas el strip basta.</li>
+<li><strong>Importante (paridad de referencia):</strong> sin <code>hiddenSlots</code> (ausente/vacío) debe devolverse <strong>la misma composición sin clonar</strong> → cero cambio de comportamiento. No reconstruyas el mapa siempre.</li>
+</ul>
+<p><strong>Regla B — reenvío a la cabecera de imagen (<code>hero_protagonico</code>):</strong>
+<code>hero_protagonico</code> cae a un <strong>banner degradado</strong> y a un <strong>avatar con la inicial del título</strong> cuando no hay slot. Por eso el strip NO basta: hay que <strong>reenviar <code>hiddenSlots</code></strong> a <code>HeroProtagonicoRecipe → HeroHeader</code> para que tampoco pinte esos placeholders.</p>
+<p>Semántica exacta de <code>HeroHeader</code> (a replicar en el <code>HeroHeader</code> Dart):
+- <code>isHidden(id) = hiddenSlots.contains(id)</code>.
+- <code>banner</code> oculto → no pinta ni la imagen ni el <code>GradientBanner</code> fallback <strong>y</strong> se omite el solape (<code>-mt-12</code>): sin banner no hay nada que solapar.
+- <code>avatar</code> oculto → no pinta el avatar (ni el círculo con inicial del título).
+- <code>subtitle</code> oculto → no pinta el subtítulo.
+- <code>title</code>: la cabecera lo gobierna por <code>hiddenSlots</code> igual que el resto <strong>pero</strong> en Studio el panel de detalle lo oculta vía el strip de <code>slots</code> (no hace falta caso especial en el header; con el slot fuera del mapa, <code>resolveSlot('title')</code> no resuelve).</p>
+<blockquote>
+<p>Pasa <code>composition</code> <strong>filtrada</strong> a las recetas Y además <code>hiddenSlots</code> a las que tienen cabecera de imagen (hero). Las que solo leen <code>slots</code> (editorial/momento/compact/row/accordion) reciben únicamente la composición filtrada.</p>
+</blockquote>
+<hr />
+<h2 id="2-consumir-cardschemadetailcomposition-en-el-detalle-de-carta">2. Consumir <code>CardSchema.detailComposition</code> en el detalle de carta<a class="headerlink" href="#2-consumir-cardschemadetailcomposition-en-el-detalle-de-carta" title="Enlace permanente a esta sección">&para;</a></h2>
+<ul>
+<li><code>CardSchema.detailComposition</code> es un <code>ViewComposition</code> <strong>opcional</strong> y <strong>render-only</strong> (no afecta a la edición ni al contrato de datos). Ya viene en el payload del schema desde backend.</li>
+<li>Validación: backend ya la valida con <code>validateComposition</code> contra <code>cardFields</code>. Flutter <strong>no</strong> revalida estructura; solo la renderiza si está presente. Si es <code>null</code>/ausente → no renderizar panel de detalle de datos (sin fallback inventado).</li>
+<li>En la pantalla de <strong>detalle de carta</strong> (la HoloCard 3D abierta), renderiza <code>detailComposition</code> con el renderer Dart pasándole:</li>
+</ul>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>hiddenSlots = [ ...&lt;ids de slots de imagen del recipe&gt;, 'title' ]
+</span></code></pre></div>
+<p>donde, en el modelo <strong>basado en campos</strong> (§0), "slots a ocultar" = las <strong>claves de los campos de tipo imagen</strong> (<code>type: image</code> / <code>array&lt;image&gt;</code>) <strong>+</strong> la <strong>clave del campo título</strong> (el campo de texto que actúa de nombre de la carta). Deriva ese conjunto igual que hace Studio (<code>detailHiddenSlots(recipe)</code> en <code>src/components/album/recipes/detail-slots.ts</code>); <strong>no lo hardcodees</strong> a <code>'banner'</code>/<code>'avatar'</code>/<code>'title'</code>: dependen de la estructura de la carta, no de la receta.</p>
+<p>Racional: la imagen ya la muestra la HoloCard 3D y el título ya está en la cabecera de la hoja de detalle → el panel debe ser <strong>"solo datos"</strong>, sin duplicar imagen ni título.</p>
+<hr />
+<h2 id="3-regla-solo-datos-resumen-normativo">3. Regla "solo datos" (resumen normativo)<a class="headerlink" href="#3-regla-solo-datos-resumen-normativo" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>En el panel/sheet de detalle de carta:
+- Oculta SIEMPRE: todos los slots de imagen del recipe <strong>+</strong> <code>'title'</code>.
+- El resto de slots (campos de texto/escalares/related) se renderizan normal.
+- Ningún placeholder de imagen debe aparecer (ni banner degradado, ni avatar-inicial): por eso el reenvío de <code>hiddenSlots</code> a la cabecera es obligatorio, no opcional.</p>
+<hr />
+<h2 id="4-drift-contrato">4. Drift / contrato<a class="headerlink" href="#4-drift-contrato" title="Enlace permanente a esta sección">&para;</a></h2>
+<ul>
+<li><strong>NO</strong> se añade ni cambia ningún campo del KRP serializado: <code>hiddenSlots</code> es un parámetro <strong>de render del host</strong>, no se persiste en la <code>ViewComposition</code>. <code>detailComposition</code> ya estaba contemplado en el schema TS y persiste igual.</li>
+<li>Por tanto: <strong>NO bumpear <code>PROTOCOL_VERSION</code></strong>, y el test de <strong>contract-drift debe permanecer VERDE</strong> tras estos cambios en Dart.</li>
+<li>Paridad esperada: dado el mismo <code>ViewComposition</code> + <code>item</code> + <code>fieldDefs</code> + el mismo <code>hiddenSlots</code>, el árbol renderizado (qué slots aparecen y la ausencia de placeholders en la cabecera) debe coincidir 1:1 con la salida TS.</li>
+</ul>
+<hr />
+<h2 id="5-checklist-de-aceptacion-flutter">5. Checklist de aceptación Flutter<a class="headerlink" href="#5-checklist-de-aceptacion-flutter" title="Enlace permanente a esta sección">&para;</a></h2>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Renderer Dart acepta <code>hiddenSlots</code> (default vacío) y hace strip de <code>slots</code> antes de despachar.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>hiddenSlots</code> vacío/ausente ⇒ misma composición (sin reconstruir el mapa), comportamiento idéntico al actual.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>HeroHeader</code> Dart respeta <code>isHidden</code> para <code>banner</code> (incl. quitar el solape <code>-mt-12</code>), <code>avatar</code>, <code>subtitle</code>; sin pintar placeholders.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Detalle de carta consume <code>CardSchema.detailComposition</code> (si existe) con <code>hiddenSlots = [slots de imagen del recipe] + 'title'</code>.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>detailComposition</code> ausente ⇒ no se renderiza panel de datos (sin fallback).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>PROTOCOL_VERSION</code> sin tocar; contract-drift verde.</li>
+</ul>
+<hr />
+<h2 id="7-layoutrenderer-arbol-layout-hiddenslots-computehiddenheroroles">7. LayoutRenderer (árbol <code>layout</code>) — <code>hiddenSlots</code> + <code>computeHiddenHeroRoles</code><a class="headerlink" href="#7-layoutrenderer-arbol-layout-hiddenslots-computehiddenheroroles" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>El detalle de carta se diseña en el <strong>lienzo</strong> → la composición trae un árbol <code>layout</code>
+y se renderiza por el motor genérico (<code>LayoutRenderer</code>), no por el componente de receta.
+El strip de <code>slots</code> (§1.A) ya hace que las hojas-slot ocultas resuelvan a nada. <strong>Pero</strong>
+el componente prefab <code>hero_header</code> reconstruye sus slots desde <code>node.slots</code> (mapeo
+rol→slotId) y, si falta el slot, pinta el placeholder degradado → hay que cruzarlo con
+los <code>hiddenSlots</code> globales.</p>
+<p>Regla canónica (core, <strong>pura, ya en TS — espejar en Dart</strong>):</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>// computeHiddenHeroRoles(roles, nodeHidden, nodeSlots, hiddenSlots) -&gt; List&lt;String&gt;
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>// Un rol se oculta si: lo marcó el publisher (nodeHidden) O su slotId
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>// (nodeSlots[role]) está en los hiddenSlots globales.
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>Set&lt;String&gt; out = { ...(nodeHidden ?? []) };
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>for (final role in roles) {                 // roles = [banner, avatar, title, subtitle]
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>  final sid = nodeSlots?[role];
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>  if (sid != null &amp;&amp; hiddenSlots.contains(sid)) out.add(role);
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>}
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>return out.toList();
+</span></code></pre></div>
+<p>En el <code>LayoutRenderer</code> Dart, al pintar un <code>hero_header</code>:
+- <code>hiddenRoles = computeHiddenHeroRoles([banner,avatar,title,subtitle], node.hidden, node.slots, hiddenSlots)</code>.
+- NO añadir a <code>heroSlots</code> los roles en <code>hiddenRoles</code>.
+- Pasar <code>hiddenRoles</code> como <code>hiddenSlots</code> del <code>HeroHeader</code> (para que tampoco pinte placeholder).
+- <code>RecipeRenderer</code> Dart debe <strong>reenviar <code>hiddenSlots</code> al <code>LayoutRenderer</code></strong> (ruta layout + default), igual que en TS.</p>
+<hr />
+<h2 id="8-render-por-behavior-del-valor-de-un-slot">8. Render por <strong>behavior</strong> del valor de un slot<a class="headerlink" href="#8-render-por-behavior-del-valor-de-un-slot" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Cierra los behaviors que caían a texto plano. <strong>Formateo</strong> en core (espejar en <code>core_dart</code>),
+<strong>presentación</strong> en cada cliente.</p>
+<p><strong>core (<code>format-scalar</code> + <code>html-inline</code>):</strong>
+- <code>currency</code> (number): símbolo por <code>behaviorConfig.currency</code> (ISO: EUR/USD/GBP/JPY/…; JPY/KRW sin decimales; código desconocido → se usa el propio código). Símbolo SIEMPRE tras el número (es-ES). Default EUR.
+- <code>measurement</code> (number): unidad por <code>behaviorConfig.unit</code> (<code>"12.5 cm"</code>); sin unidad → número plano.
+- <code>parseInlineHtml(html)</code> (behavior <code>html</code>): tokeniza un <strong>allowlist</strong> (b/strong, i/em, code, a[href], br, p/li) a los MISMOS <code>MarkdownToken</code> que markdown. <strong>Seguro por construcción</strong>: href sanitizado (solo http/https/mailto/tel), entidades decodificadas como texto, tags fuera de la allowlist eliminados, <code>&lt;script&gt;</code>/<code>onerror</code> fuera. <strong>NUNCA</strong> innerHTML/DOMPurify. Dart: replicar el allowlist + render por tokens (<code>TextSpan</code>).</p>
+<p><strong>presentación (cada cliente):</strong>
+- <code>code</code>: monoespaciado con fondo sutil.
+- <code>url</code>/<code>email</code>/<code>phone</code>: enlace navegable con href saneado (<code>url</code> sin esquema → <code>https://</code>; <code>email</code>→<code>mailto:</code>; <code>phone</code>→<code>tel:</code>).
+- <code>tags</code> (array): chips.
+- <code>url_list</code>/<code>email_list</code> (array): un enlace navegable por elemento (NO el JSON crudo del array).
+- markdown: links <strong>inertes</strong> (no navegables) en el preview; html: links <strong>clicables</strong>.</p>
+<h3 id="81-slotcompositioncomposabledisplay-nuevo-8e8e700">8.1 — <code>SlotComposition.composableDisplay</code> (NUEVO, <code>8e8e700</code>)<a class="headerlink" href="#81-slotcompositioncomposabledisplay-nuevo-8e8e700" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Variante de RENDER de un slot COMPOSABLE (cómo se disponen sus varios fields/
+valores), elegible por el publisher. <strong>Meta de composición</strong> (como
+orientation/separator) → NO entra al contrato KRP, NO bumpea PROTOCOL_VERSION.
+Catálogo es-ES en <code>OPTIONS_COMPOSABLE_DISPLAY</code> (core/options.ts). <strong>Espejar el
+campo en <code>core_dart</code> + las 5 ramas en el ComposableSlot de Flutter:</strong></p>
+<ul>
+<li><code>'auto'</code> (default, y compositions históricas sin el campo): comportamiento
+  histórico por behavior — tags→chips, url_list/email_list→enlaces, resto = join
+  por <code>separator</code> respetando <code>orientation</code>. <strong>Backward-compatible: cero drift.</strong></li>
+<li><code>'inline'</code>: todos los valores en una línea, unidos por <code>separator</code>.</li>
+<li><code>'list'</code>: un valor por línea (apilados).</li>
+<li><code>'chips'</code>: cada valor como pastilla/badge.</li>
+<li><code>'table'</code>: filas etiqueta–valor (usa la etiqueta de cada field;
+  array-de-un-field sin etiquetas → cae a <code>list</code>).</li>
+<li><code>'stats'</code> (<strong>NUEVO <code>da0007f</code></strong>): fila de estadísticas — cada field = VALOR
+  grande (números tabulares) + ETIQUETA debajo en mayúsculas, en columnas iguales
+  con borde superior/inferior. Replica el componente <code>stats_row</code>. Sin etiquetas
+  (array-de-un-field) → cae a <code>chips</code>. <strong>Importante:</strong> al <em>descomponer</em> el
+  componente <code>stats_row</code> en bloques, Studio auto-setea <code>composableDisplay:'stats'</code>
+  en el slot resultante para no perder el estilo.</li>
+</ul>
+<blockquote>
+<p><strong>Colores TEMABLES (NUEVO <code>a99f11d</code>):</strong> en <code>chips</code>, <code>table</code> y <code>stats</code> el color de
+cada pastilla/valor/etiqueta se deriva ahora de la appearance del slot
+(<code>paletteClass(bgColor,'bg')</code>/<code>textColor</code> con fallback muted), NO hardcodeado. En
+chips el fondo va EN las pastillas (wrapper a transparente). Espéjalo: tus
+chips/tabla/stats deben tomar el color de la appearance.</p>
+</blockquote>
+<p>Ref TS: <code>packages/react/src/recipe-utils.tsx</code> <code>ComposableSlot</code> (rama
+<code>display !== 'auto'</code>) + <code>resolveSlot</code> (<code>composableDisplay: sc.composableDisplay ??
+'auto'</code>). Validación: <code>validate.ts</code> (junto a <code>orientation</code>).</p>
+<hr />
+<h2 id="9-follow-ups-conocidos-no-bloquean">9. Follow-ups conocidos (NO bloquean)<a class="headerlink" href="#9-follow-ups-conocidos-no-bloquean" title="Enlace permanente a esta sección">&para;</a></h2>
+<ul>
+<li><del>Layout-tree explícito → reenviar hiddenSlots al LayoutRenderer</del> <strong>RESUELTO</strong> (§7, <code>5410852</code>).</li>
+<li><strong>Editor de lienzo (canvas DnD)</strong>: en Studio el publisher elige una plantilla
+  <strong>basada en campos</strong> (un bloque por campo, sembrada como <code>layout</code>) y la edita en el
+  <code>LayoutEditor</code> — incluida la apariencia por campo (tipografía/color/recorte…). En el
+  detalle se ocultan los controles que vuelven al modelo por-roles ("Plantillas",
+  "Volver a la receta"). Flutter es <strong>renderer puro</strong>: consume el <code>detailComposition</code>
+  resultante (con su <code>layout</code> + <code>slots</code> + <code>appearance</code>) — no necesita editor.</li>
+<li><code>&lt;u&gt;</code> (underline) en <code>html</code>: no soportado en V1 (su contenido cae a texto).</li>
+</ul>
+<hr />
+<h2 id="10-cambios-2026-06-22-mas-render-que-espejar-kro-198-cont">10. Cambios 2026-06-22 — más render que espejar (KRO-198 cont.)<a class="headerlink" href="#10-cambios-2026-06-22-mas-render-que-espejar-kro-198-cont" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Cuatro puntos de RENDER nuevos (todos <strong>meta / render-only</strong>, NO bumpean
+<code>PROTOCOL_VERSION</code>; contract-drift VERDE). Commits SDK: <code>a99f11d</code>, <code>581ff9d</code>,
+<code>5bebd85</code>, <code>f00d55d</code>. <strong>Antes de tocar el detalle: el detalle se construye con el
+MISMO motor que las SECCIONES</strong> (misma <code>SlotComposition</code> + <code>LayoutRenderer</code> +
+recetas + <code>resolveSlot</code>). Investiga cómo tienes montado el render de SECCIONES en
+<code>core_dart</code> y reutilízalo — no es un sistema nuevo.</p>
+<h3 id="101-slotcompositionconditionalstyle-estilo-por-valor-5bebd85">10.1 — <code>SlotComposition.conditionalStyle</code> (estilo por valor) · <code>5bebd85</code><a class="headerlink" href="#101-slotcompositionconditionalstyle-estilo-por-valor-5bebd85" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>NUEVO campo opcional en <code>SlotComposition</code>. Modelo:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ConditionalStyle { fieldKey: String, cases: List&lt;ConditionalStyleCase&gt; }
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>ConditionalStyleCase { op?: String, value?: String, appearance?: SlotAppearance }
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>// op ∈ eq|neq|contains|gt|gte|lt|lte|truthy|falsy  (default 'eq')
+</span></code></pre></div>
+<p>Semántica: "la apariencia del slot cambia según el valor de un campo del dato"
+(color por rareza, rojo si stock 0…). El <strong>PRIMER caso que matchea gana</strong>; su
+<code>appearance</code> se <strong>MERGE-a sobre la base</strong> (<code>slot.appearance</code>). Sin match / sin
+item → base intacta. Comparación de texto case-insensitive + trim; gt/gte/lt/lte
+numéricas; truthy/falsy ignoran <code>value</code>.</p>
+<p>Espejo TS puro en <code>packages/core/src/conditional-style.ts</code>:
+<code>matchConditionalCase(case, raw)</code> + <code>resolveConditionalAppearance(cond, base, item)</code>.
+<strong>Punto de integración: <code>resolveSlot</code></strong> (donde resuelves la appearance efectiva del
+slot) — TS hace <code>appearance: resolveConditionalAppearance(sc.conditionalStyle,
+sc.appearance, item)</code> y TODOS los renders (SlotContent/LayoutRenderer,
+ComposableSlot, recetas) heredan. Hazlo en el mismo sitio en Dart → un solo cambio.
+Validación estructural en <code>validate.ts</code> (ops + appearance de cada caso).</p>
+<h3 id="102-chipstablastats-temables-a99f11d">10.2 — chips/tabla/stats TEMABLES · <code>a99f11d</code><a class="headerlink" href="#102-chipstablastats-temables-a99f11d" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Ver el blockquote de §8.1: deriva el color de los elementos internos de la
+appearance del slot, no fijo. (Antes hardcodeaban <code>text-muted-foreground</code>/<code>bg-muted</code>).</p>
+<h3 id="103-paridad-del-badge-a99f11d">10.3 — Paridad del BADGE · <code>a99f11d</code><a class="headerlink" href="#103-paridad-del-badge-a99f11d" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Un slot mostrado como badge (<code>appearance.display == 'badge'</code>) debe honrar
+<strong>opacity/shadow</strong> (effect classes) <strong>+ color DINÁMICO</strong> (color_hex por campo →
+estilo inline), igual que el render del motor de bloques (<code>SlotContent</code>). En TS lo
+arreglé en <code>CompactCardRecipe</code> (su pill no recibía esas clases). Revisa tu receta
+lista equivalente en Dart: el badge debe pasar las mismas clases/estilo que el
+contenido de un slot badge del LayoutRenderer.</p>
+<h3 id="104-el-contenedor-raiz-del-detalle-llena-la-pantalla-f00d55d-19e7ce2">10.4 — El contenedor raíz del DETALLE llena la pantalla · <code>f00d55d</code> + <code>19e7ce2</code><a class="headerlink" href="#104-el-contenedor-raiz-del-detalle-llena-la-pantalla-f00d55d-19e7ce2" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Un detalle es <strong>pantalla completa</strong>: su contenedor raíz debe <strong>estirarse a la
+altura disponible</strong>, no quedar a altura-contenido dejando un hueco vacío bajo el
+fondo/decoración. En TS (<code>LayoutRenderer</code>): cuando <code>kind == 'detail'</code>, el wrapper es
+<code>flex flex-col min-h-full</code> y el contenedor RAÍZ recibe <code>grow shrink-0</code>
+(= <code>flex: 1 0 auto</code>: crece para llenar, <strong>nunca encoge bajo su contenido</strong> → texto
+largo scrollea). El host (pantalla) ya da la altura definida. En Flutter: el body
+del Scaffold del detalle debe dar altura completa y la composición raíz llenarla
+(<code>Expanded</code>/<code>double.infinity</code> + el fondo/decoración cubre todo). Solo aplica a
+<code>kind == 'detail'</code>; las listas no cambian.</p>
+<p><strong>Importante — empacar arriba (<code>19e7ce2</code>):</strong> al llenar, la raíz (grid) recibe
+también <code>content-start</code> (<code>align-content: start</code>). En CSS grid, <code>align-content:
+normal</code> se comporta como <strong>stretch</strong> → sin esto, las filas <code>auto</code> se ESTIRAN al
+tener un box alto y el contenido queda con huecos enormes. Con start, las filas
+quedan a altura-contenido <strong>empacadas ARRIBA</strong> y el sobrante (fondo) llena ABAJO.
+En Flutter: al expandir el contenedor de detalle, <strong>alinea los hijos al inicio</strong>
+(<code>MainAxisAlignment.start</code> / no <code>spaceBetween</code>/<code>stretch</code> de las filas), o tendrás
+el mismo bug de huecos. (El host además puede ir <strong>a sangre</strong> bajo una barra de
+nav flotante translúcida — eso es decisión de pantalla de cada cliente, no del
+motor: Studio quita el <code>padding-bottom</code> reservado en el detalle.)</p>
+<h3 id="105-solo-edicion-studio-el-renderer-dart-no-necesita-nada">10.5 — SOLO-EDICIÓN (Studio): el renderer Dart NO necesita nada<a class="headerlink" href="#105-solo-edicion-studio-el-renderer-dart-no-necesita-nada" title="Enlace permanente a esta sección">&para;</a></h3>
+<ul>
+<li><strong>Acabados / <code>THEME_PRESETS</code></strong> (<code>581ff9d</code>): <code>applyThemePreset(composition, id)</code>
+  transforma la composición <strong>en EDICIÓN</strong> → produce <code>appearance</code>/<code>surface</code>
+  NORMAL (recolor coordinado y legible). El renderer solo ve el resultado, que ya
+  pinta. Como el editor de layout vive solo en Studio (Flutter = renderer puro),
+  <strong>no hay mirror necesario</strong>. Si algún día Flutter edita, espejaría el catálogo.</li>
+<li><strong>Contraste WCAG</strong> (<code>paletteContrastRatio</code>/<code>contrastLevel</code> + aviso) y
+  <strong>validación de <code>textShadow</code>/<code>display</code>/<code>textTransform</code></strong>: a11y y validación del
+  EDITOR. El render no cambia (Flutter ya pinta <code>textShadow</code>).</li>
+</ul>
+<hr />
+<h2 id="11-cambios-2026-06-22-cont-decoracion-esquinas-acabado-de-imagen">11. Cambios 2026-06-22 (cont.) — decoración: esquinas + acabado de imagen<a class="headerlink" href="#11-cambios-2026-06-22-cont-decoracion-esquinas-acabado-de-imagen" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Tres puntos de RENDER más (meta/render-only, NO bumpean PROTOCOL_VERSION;
+<code>cornerRadii</code> NO entra en <code>ALL_SURFACE_PROPS</code>). Commits SDK: <code>b5ecf71</code>, <code>74e36ce</code>,
+<code>c4219cb</code>.</p>
+<h3 id="111-el-wrapper-raiz-sigue-el-radius-del-surface-b5ecf71">11.1 — El WRAPPER raíz sigue el radius del surface · <code>b5ecf71</code><a class="headerlink" href="#111-el-wrapper-raiz-sigue-el-radius-del-surface-b5ecf71" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>El <code>surface.radius</code> se aplicaba al grid interno, pero el contenedor que RECORTA
+(overflow-hidden, cuyas esquinas se ven) era siempre <code>rounded-lg</code>. Como el
+AccentFrame solo aplana el lado del acento, el opuesto se quedaba redondo →
+'Rectas'/none no llegaba a esas esquinas. Ahora el wrapper raíz toma
+<code>radiusClasses(root.surface)</code> (respeta radiusCorners/cornerRadii) en las 4
+esquinas; sin surface-radius, el default. <strong>En Flutter: aplica el radius del
+surface al ClipRRect/Container raíz que recorta, no solo al hijo interno.</strong></p>
+<h3 id="112-la-caja-de-imagen-toma-appearancebgcolor-74e36ce">11.2 — La caja de IMAGEN toma <code>appearance.bgColor</code> · <code>74e36ce</code><a class="headerlink" href="#112-la-caja-de-imagen-toma-appearancebgcolor-74e36ce" title="Enlace permanente a esta sección">&para;</a></h3>
+<p><code>ThumbBox</code> (caja de imagen/placeholder) usaba <code>bg-muted</code> fijo → con un acabado
+oscuro dejaba un cuadro claro. Ahora el fondo de la caja sigue
+<code>appearance.bgColor</code> si está fijado (fallback bg-muted). <strong>Flutter: la caja de
+imagen usa el bgColor del slot como fondo del placeholder.</strong> (<code>applyThemePreset</code>
+fija ese bgColor al papel en los slots de imagen, pero eso es EDIT-only Studio —
+Flutter solo ve el resultado.)</p>
+<h3 id="113-containersurfacecornerradii-radio-por-esquina-c4219cb">11.3 — <code>ContainerSurface.cornerRadii</code> (radio POR ESQUINA) · <code>c4219cb</code><a class="headerlink" href="#113-containersurfacecornerradii-radio-por-esquina-c4219cb" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>NUEVO campo opcional <code>cornerRadii?: { tl?, tr?, bl?, br?: 'none'|'sm'|'md'|'lg'|
+'xl'|'full' }</code>. Cada esquina su propio tamaño; PREVALECE sobre <code>radius</code>/
+<code>radiusCorners</code>; esquinas ausentes = 'none'. <strong>Render-only meta</strong> (NO en
+<code>ALL_SURFACE_PROPS</code> → contract-drift verde, sin bump). Espeja el campo en
+<code>ContainerSurface</code> de <code>core_dart</code> y aplícalo per-corner en el ClipRRect
+(<code>BorderRadius.only(topLeft, topRight, bottomLeft, bottomRight)</code>). Ref:
+<code>LayoutRenderer.radiusClasses</code> (rama <code>cornerRadii</code> con precedencia).</p>
+<hr />
+<h2 id="12-cambios-2026-06-22-cont-esquinas-uniformes-fondo-de-pantalla">12. Cambios 2026-06-22 (cont.) — esquinas uniformes + fondo de pantalla<a class="headerlink" href="#12-cambios-2026-06-22-cont-esquinas-uniformes-fondo-de-pantalla" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Dos puntos de RENDER más (meta/render-only, NO bumpean PROTOCOL_VERSION). Commits
+SDK: <code>5ac8e7f</code> (esquinas), <code>163f011</code> (screenBgHex).</p>
+<h3 id="121-la-raya-de-acento-ya-no-aplana-las-esquinas-5ac8e7f">12.1 — La raya de acento ya NO aplana las esquinas · <code>5ac8e7f</code><a class="headerlink" href="#121-la-raya-de-acento-ya-no-aplana-las-esquinas-5ac8e7f" title="Enlace permanente a esta sección">&para;</a></h3>
+<p><code>buildAccentBorderStyle</code> forzaba <code>borderRadius: 0</code> en las dos esquinas del lado del
+acento ("ticket con cinta") → con el wrapper ya redondeado (§11.1) el lado del
+acento (p.ej. top) quedaba RECTO y el opuesto (bottom) REDONDO = esquinas
+asimétricas que el publisher percibía como bug. Ahora <code>buildAccentBorderStyle</code> solo
+aplica el <code>box-shadow inset</code> de la raya (que se CURVA con el radius del wrapper) y
+NO toca el border-radius → las 4 esquinas siguen el radius uniformemente.
+<strong>En Flutter: la raya/borde de acento NO debe aplanar la esquina de su lado; píntala
+como una franja que sigue el ClipRRect (inset), no como un borde recto que corta el
+redondeo.</strong> Ref: <code>recipe-utils.buildAccentBorderStyle</code> (4 ramas top/bottom/left/right,
+ya sin overrides de <code>border*Radius</code>).</p>
+<h3 id="122-fondo-de-pantalla-derivado-del-papel-screenbghex-163f011">12.2 — Fondo de PANTALLA derivado del papel: <code>screenBgHex</code> · <code>163f011</code><a class="headerlink" href="#122-fondo-de-pantalla-derivado-del-papel-screenbghex-163f011" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>NUEVO helper <code>screenBgHex(bgColor): string|null</code> en <code>packages/core/src/palette.ts</code>.
+El acabado teñía las CARTAS pero la PANTALLA (lista de sección / detalle) seguía con
+el fondo de app → un álbum oscuro dejaba las cartas oscuras sobre un fondo crema.
+Ahora la pantalla toma el color del acabado pero un punto MÁS OSCURO que el papel de
+las cartas (mezcla el papel 18% hacia negro) → las cartas RESALTAN por elevación.
+<code>screenBgHex</code> devuelve <code>null</code> para tokens de tema (la pantalla conserva el fondo de
+app). Es <strong>pura, render-only, fuera del contrato</strong> (no en el <code>.json</code>).
+<strong>En Flutter: el fondo de la pantalla que aloja la lista de una sección (y el detalle)
+= <code>screenBgHex(composition.layout.surface.bgColor)</code>; si null, fondo de app. La carta
+conserva su <code>surface.bgColor</code> pleno → contraste de elevación idéntico al preview de
+Studio.</strong> Mismo factor (0.82) para que el resultado coincida pixel a pixel.
+Studio lo aplica en <code>SectionAppPreview</code> (body del <code>PhoneFrame</code>) y en el backdrop del
+lienzo de <code>LayoutEditor</code>; Flutter lo aplica en el Scaffold/host de la pantalla real.</p>
+<hr />
+<h2 id="13-cambios-2026-06-22-cont-padding-por-lado-separador-de-lista">13. Cambios 2026-06-22 (cont.) — padding por lado + separador de lista<a class="headerlink" href="#13-cambios-2026-06-22-cont-padding-por-lado-separador-de-lista" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Dos puntos de RENDER más (meta/render-only, NO bumpean PROTOCOL_VERSION; NO entran en
+<code>ALL_SURFACE_PROPS</code>/<code>ALL_APPEARANCE_PROPS</code>). Commit SDK: <code>64c0b9d</code>.</p>
+<h3 id="131-relleno-por-lado-containersurfacepaddingsides-slotappearancepaddingsides">13.1 — Relleno POR LADO · <code>ContainerSurface.paddingSides</code> + <code>SlotAppearance.paddingSides</code><a class="headerlink" href="#131-relleno-por-lado-containersurfacepaddingsides-slotappearancepaddingsides" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>NUEVOS campos opcionales (render-only, espejan <code>cornerRadii</code>):
+- <code>ContainerSurface.paddingSides?: { top?, right?, bottom?, left?: 'none'|'xs'|'sm'|'md'|'lg'|'xl' }</code>
+  — si presente PREVALECE sobre <code>padding</code>; lados ausentes = 'none'. Mapeo px (espeja
+  <code>p-0/p-1/p-2/p-3/p-5/p-8</code>): <strong>none=0, xs=4, sm=8, md=12, lg=20, xl=32</strong>.
+- <code>SlotAppearance.paddingSides?: { top?, right?, bottom?, left?: 'none'|'sm'|'md'|'lg' }</code>
+  — prevalece sobre <code>paddingY</code> (que es solo vertical). Mapeo px (espeja <code>py-0/1/2/4</code>):
+  <strong>none=0, sm=4, md=8, lg=16</strong>.
+<strong>En Flutter: <code>EdgeInsets.only(top/right/bottom/left)</code> con esos px por lado cuando
+<code>paddingSides</code> existe; si no, el padding uniforme actual.</strong> Validado en <code>validateSurface</code>
+(bloque <code>paddingSides</code> espeja el de <code>cornerRadii</code>). Ref render: <code>LayoutRenderer</code>
+<code>PADDING_BY_SIDE</code> + <code>paddingClasses</code>; slot: <code>recipe-utils</code> <code>SLOT_PADDING_BY_SIDE</code> +
+<code>appearancePaddingClass</code>.</p>
+<h3 id="132-separador-de-lista-opcional-off-por-defecto-viewcompositionliststyle">13.2 — Separador de lista OPCIONAL + OFF por defecto · <code>ViewComposition.listStyle</code><a class="headerlink" href="#132-separador-de-lista-opcional-off-por-defecto-viewcompositionliststyle" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>NUEVO <code>ViewComposition.listStyle?: { separator?: boolean }</code> (render-only). Antes la lista
+de una sección SIEMPRE pintaba una línea entre items (un <code>divide-y</code> cableado + un <code>border-b</code>
+propio de <code>row_text</code>). Ahora: el <code>border-b</code> de <code>RowTextRecipe</code> se quitó (se centraliza) y la
+línea solo se pinta si <code>listStyle.separator === true</code>. <strong>Ausente/false = SIN línea (default
+nuevo).</strong> <strong>En Flutter: el host de la lista (la pantalla de sección) usa <code>Divider</code> entre items
+SOLO si <code>composition.listStyle?.separator == true</code>; por defecto sin separador</strong> (<code>SizedBox</code>/
+nada). ⚠️ Cambia el aspecto por defecto de las listas existentes (pierden la línea hasta que el
+publisher la active) — es intencional. Es decisión de PANTALLA (no del motor de bloques, que
+opera dentro de un item).</p>
+<blockquote>
+<p><strong>C (acento en bloques) NO necesita nada en Flutter</strong>: solo se expuso el control de
+<code>accentPosition</code> (ya contrato, ya respetado por el renderer) en el editor de bloques de Studio.</p>
+</blockquote>
+<hr />
+<h2 id="14-cambios-2026-06-22-cont-acento-capa-del-strip-slot-de-color-como-acento">14. Cambios 2026-06-22 (cont.) — acento: capa del strip + slot de color como acento<a class="headerlink" href="#14-cambios-2026-06-22-cont-acento-capa-del-strip-slot-de-color-como-acento" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Dos puntos de RENDER (meta/render-only, NO bumpean). Commit SDK: <code>649aaf0</code>. SOLO afecta
+al modo BLOQUES (<code>LayoutRenderer</code>); las recetas recipe-mode mantienen su <code>AccentFrame</code>.</p>
+<h3 id="141-la-raya-de-acento-se-pinta-en-la-capa-del-fondo-del-raiz-no-la-tapa-el-acabado">14.1 — La raya de acento se pinta EN LA CAPA DEL FONDO DEL RAÍZ (no la tapa el acabado)<a class="headerlink" href="#141-la-raya-de-acento-se-pinta-en-la-capa-del-fondo-del-raiz-no-la-tapa-el-acabado" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Antes el <code>box-shadow inset</code> del acento vivía en un wrapper EXTERNO y el <code>bgColor</code> del
+contenedor raíz (acabado) lo PINTABA ENCIMA (paint order: el inset del padre queda debajo
+del fondo del hijo) → al aplicar un acabado, la raya desaparecía. Ahora el inset se aplica
+AL PROPIO DIV del contenedor raíz (el que tiene el <code>bgColor</code>): se pinta sobre su propio
+fondo y las celdas hijas (con padding/gap) no lo tapan; se curva con el radius del raíz
+(invariante §12.1). <strong>En Flutter: pinta el acento en la MISMA capa que el fondo del root
+(p.ej. <code>foregroundDecoration</code>/<code>Border</code> del Container raíz, o un <code>Stack</code> clipado por el
+<code>ClipRRect</code> del root), NO en un wrapper externo — si no, el fondo del acabado lo tapa.</strong>
+Ref: <code>LayoutRenderer</code> (<code>extraStyle</code> al <code>LayoutNodeView</code> del root; ya no hay <code>AccentFrame</code>).</p>
+<h3 id="142-el-slot-cuyo-color_hex-alimenta-el-acento-no-se-pinta-como-celda">14.2 — El slot cuyo <code>color_hex</code> ALIMENTA el acento NO se pinta como celda<a class="headerlink" href="#142-el-slot-cuyo-color_hex-alimenta-el-acento-no-se-pinta-como-celda" title="Enlace permanente a esta sección">&para;</a></h3>
+<p><code>extractAccentSettings</code> ahora devuelve <code>colorFieldKey</code> (en <code>AccentSettings</code>). Cuando el
+acento está activo (<code>position != 'none'</code>), el host deriva el conjunto de slots cuyo <code>fields</code>
+incluye ese <code>colorFieldKey</code> y NO los renderiza como celda (su color YA es la raya; antes se
+veía swatch + raya duplicados). <strong>En Flutter: con el acento activo, suprime la hoja/celda del
+slot cuyo campo es <code>accent.colorFieldKey</code> (su color ya es el strip).</strong> Ref: <code>LayoutRenderer</code>
+(<code>accentSlots</code> en <code>NodeCtx</code>; <code>SlotLeaf</code> devuelve null). Studio espeja lo mismo en su lienzo.</p>
+<hr />
+<h2 id="15-cambios-2026-06-23-fondo-de-pantalla-desacoplado-del-fondo-de-la-card">15. Cambios 2026-06-23 — fondo de PANTALLA desacoplado del fondo de la card<a class="headerlink" href="#15-cambios-2026-06-23-fondo-de-pantalla-desacoplado-del-fondo-de-la-card" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Un punto de RENDER más (meta/render-only, NO bumpea). Commit SDK: <code>95917cb</code>.</p>
+<h3 id="151-containersurfacescreenbgcolor-independiente-de-bgcolor">15.1 — <code>ContainerSurface.screenBgColor</code> (independiente de <code>bgColor</code>)<a class="headerlink" href="#151-containersurfacescreenbgcolor-independiente-de-bgcolor" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Hasta ahora <code>layout.surface.bgColor</code> cumplía DOS roles: fondo de la CARD Y semilla del fondo
+de PANTALLA (<code>screenBgHex(bgColor)</code>). Editar el fondo de la card movía AMBOS. NUEVO campo
+<code>ContainerSurface.screenBgColor?: string</code> (id de paleta, render-only, fuera del contrato KRP
+como <code>cornerRadii</code>/<code>paddingSides</code>): es el fondo de la PANTALLA que aloja la card, independiente
+de <code>bgColor</code>.
+- <strong>La pantalla se deriva</strong> = <code>screenBgHex(surface.screenBgColor ?? surface.bgColor)</code> — MISMO
+  helper, MISMO factor (0.82), con FALLBACK a <code>bgColor</code> para no romper composiciones ya guardadas.
+- <strong><code>applyThemePreset</code> setea AMBOS</strong> (<code>bgColor</code> + <code>screenBgColor</code> = <code>paperBg</code>) → un acabado sigue
+  tiñendo la pantalla (cartas resaltan); editar solo <code>bgColor</code> (Decoración→Fondo) ya no la mueve.
+<strong>En Flutter: el fondo de la pantalla (Scaffold/host de la lista y del detalle) =
+<code>screenBgHex(surface.screenBgColor ?? surface.bgColor)</code> — añade el campo a <code>ContainerSurface</code> de
+<code>core_dart</code> y aplica el mismo fallback; <code>applyThemePreset</code> (si la app edita) escribe ambos.</strong> Los
+3 puntos de derivación hoy son Studio-only (SectionAppPreview lista/detalle + backdrop del lienzo);
+el render real de Flutter debe leer <code>screenBgColor</code> del surface persistido para pintar la pantalla.</p>
+<hr />
+<h2 id="16-cambios-2026-06-23-apariencia-por-field-en-slots-composable">16. Cambios 2026-06-23 — apariencia POR-FIELD en slots composable<a class="headerlink" href="#16-cambios-2026-06-23-apariencia-por-field-en-slots-composable" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Commit SDK: <code>40c8816</code> (en <code>main</code>). Meta de composición (como <code>composableDisplay</code>/
+<code>conditionalStyle</code>) → <strong>NO</strong> entra al contrato KRP, NO bumpea PROTOCOL_VERSION
+(contract-drift verde). <strong>Requiere paridad en <code>core_dart</code> (Drift Sync).</strong></p>
+<h3 id="161-slotcompositionfieldappearances">16.1 — <code>SlotComposition.fieldAppearances</code><a class="headerlink" href="#161-slotcompositionfieldappearances" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Nuevo campo opcional: <code>fieldAppearances?: Record&lt;string /* field key */, SlotAppearance&gt;</code>.
+Permite que CADA field de un slot composable lleve su propia apariencia (color de texto/
+fondo, etc.) ENCIMA de la base del slot (<code>appearance</code>). Caso de uso: una <code>stats_row</code>
+("Estadísticas") con una estadística en dorado y otra en rojo.</p>
+<h3 id="162-merge-por-entrada-en-el-render-composableslot">16.2 — Merge por entrada en el render (<code>ComposableSlot</code>)<a class="headerlink" href="#162-merge-por-entrada-en-el-render-composableslot" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>En <code>recipe-utils.tsx</code>, rama <code>display !== 'auto'</code> (chips/list/table/stats/inline): las
+entradas ahora conservan su <code>key</code>, y el color efectivo de cada una es
+<code>{ ...slot.appearance, ...fieldAppearances[key] }</code> (base ← override del field). Sin entrada
+por-field → base (backward-compatible: sin <code>fieldAppearances</code> el render es idéntico). El
+caso "array de un solo field" no tiene key por-elemento → usa la base. <code>resolveSlot</code> ya
+propaga <code>fieldAppearances</code> en <code>ResolvedSlot</code>.</p>
+<p><strong>En Flutter (<code>core_dart</code> + render):</strong>
+1. Añade <code>fieldAppearances: Map&lt;String, SlotAppearance&gt;?</code> a <code>SlotComposition</code>.
+2. En el render del composable (equivalente a <code>ComposableSlot</code>), resuelve el estilo de cada
+   field como <code>base.merge(fieldAppearances?[key])</code> y aplícalo POR field (no una sola vez para
+   todo el slot). Mismo orden de precedencia: base ← field.
+3. Cascada con <code>conditionalStyle</code>: base(condicional-resuelto) ← fieldAppearances.</p>
+<h3 id="163-editor-studio-ya-hecho-informativo">16.3 — Editor (Studio, ya hecho — informativo)<a class="headerlink" href="#163-editor-studio-ya-hecho-informativo" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>En <code>ViewCompositionEditor</code>, clicar el chip de un field en el slot composable lo selecciona y
+abre un <code>AppearanceEditor</code> anclado a <code>fieldAppearances[key]</code>. La app Flutter no edita layout →
+no necesita esto.</p>
+<hr />
+<h2 id="17-cambios-2026-06-23-el-detalle-deja-de-forzar-oculto-studio-only-sin-trabajo-flutter">17. Cambios 2026-06-23 — el detalle deja de FORZAR "Oculto" (Studio-only, sin trabajo Flutter)<a class="headerlink" href="#17-cambios-2026-06-23-el-detalle-deja-de-forzar-oculto-studio-only-sin-trabajo-flutter" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Commit Studio: <code>99042a2</code>. Solo cambia el SEEDING de qué nodos van al <code>layout</code>; <strong>Flutter
+renderiza el layout tal cual → sin cambios de código</strong>. Awareness:
+- Las plantillas de detalle ya NO colocan <code>title</code> ni la imagen en el <code>layout</code> por defecto
+  (quedan en <code>slots</code> → insertables). Se eliminó el <code>hiddenSlots</code> forzado del editor y del
+  render del modo focus (WYSIWYG: lo colocado se renderiza). El detalle de carta ya no mete
+  <code>'title'</code> en <code>hiddenSlots</code>.
+- Se <strong>borró <code>detail-slots.ts</code></strong> (<code>detailHiddenSlots</code>/<code>imageSlotIds</code>) en Studio → la
+  referencia de abajo a ese archivo queda OBSOLETA. <code>computeHiddenHeroRoles</code>/<code>hiddenSlots</code> del
+  SDK siguen intactos (capacidad genérica; ya no la alimenta el detalle de carta).</p>
+<hr />
+<h2 id="18-cambios-2026-06-23-statsrow-honra-apariencia-mini-cartas-sin-arte-plano">18. Cambios 2026-06-23 — StatsRow honra apariencia + mini-cartas sin arte plano<a class="headerlink" href="#18-cambios-2026-06-23-statsrow-honra-apariencia-mini-cartas-sin-arte-plano" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Commit SDK: <code>505d3b4</code> (en <code>main</code>). Dos arreglos de RENDER (meta, NO bumpea). <strong>Ambos requieren paridad en <code>core_dart</code>/<code>kromia_flutter</code> (Drift Sync).</strong></p>
+<h3 id="181-el-componente-stats_row-ahora-honra-appearance-fieldappearances">18.1 — El componente <code>stats_row</code> ahora honra <code>appearance</code> + <code>fieldAppearances</code><a class="headerlink" href="#181-el-componente-stats_row-ahora-honra-appearance-fieldappearances" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Bug: la fila de estadísticas la pinta el COMPONENTE prefab <code>stats_row</code> → <code>StatsRow</code>,
+que <strong>ignoraba toda apariencia</strong> (colores <code>text-foreground</code>/<code>text-muted-foreground</code> a
+fuego). <code>LayoutRenderer</code> solo le pasaba <code>resolved.fields</code>. Por eso ni la apariencia
+base del slot ni la por-field (§16) surtían efecto, y el acabado/tema "ganaba".
+- <code>LayoutRenderer</code> (case <code>stats_row</code>) ahora pasa <code>appearance={resolved.appearance}</code> +
+  <code>fieldAppearances={resolved.fieldAppearances}</code> a <code>StatsRow</code>.
+- <code>StatsRow</code> aplica la apariencia base en el wrapper + la apariencia EFECTIVA por
+  estadística (base ← <code>fieldAppearances[key]</code>, vía <code>mergeFieldAppearance</code>) en cada
+  VALOR: <strong>no solo color</strong> sino TODO — tipografía (<code>appearanceTextClasses</code>), FONDO
+  (<code>bgColor</code>→pill), RECORTE (<code>appearanceTruncateClass</code> + default truncate), CAJA
+  (<code>appearancePaddingClass</code>) y efecto (<code>appearanceEffectClasses</code>). La ETIQUETA solo
+  sigue el color (mantiene su identidad de caption). Mismos helpers que la rama 'stats'
+  de <code>ComposableSlot</code> (anti-drift). <code>StatsRowField</code> gana <code>key?</code>. (Commit del refinamiento
+  completo: <code>e44e303</code>; el inicial <code>505d3b4</code> solo aplicaba color.)</p>
+<p><strong>En Flutter:</strong> el render del componente stats_row (equivalente a <code>StatsRow</code>) debe
+recibir y aplicar <code>appearance</code> + <code>fieldAppearances</code> por estadística con
+<code>base.merge(fieldAppearances?[key])</code>, y aplicar la apariencia COMPLETA (tipografía,
+color, fondo, recorte/maxLines, relleno) en el valor — no solo el color. Hoy en
+<code>core_dart</code> ese componente probablemente tiene el estilo fijo → mismo bug; replica el
+fix. (El gate <code>display!=='auto'</code> de §16 NO aplica aquí: el componente nunca pasa por
+ComposableSlot.)</p>
+<h3 id="182-mini-cartas-card-ref-de-cartas-solo-con-capas-3d">18.2 — Mini-cartas (card-ref) de cartas SOLO con capas 3D<a class="headerlink" href="#182-mini-cartas-card-ref-de-cartas-solo-con-capas-3d" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Una carta referenciada sin arte plano (p.ej. "Ignis", solo composición de capas 3D
+KRO-130) salía como placeholder con número en la mini-carta. <code>CardRefResolver</code> ahora
+admite <code>layers?: { url: string }[]</code>; cuando no hay <code>imageUrl</code>, <code>MiniCardRefs</code> (RefGallery)
+APILA esas capas (<code>absolute inset object-cover</code>, back→front = el arte en reposo). Studio
+rellena <code>layers</code> desde <code>getCardDepthLayers(row)</code> cuando el row no tiene campo imagen con valor.</p>
+<p><strong>En Flutter:</strong> el resolver de refs (equivalente a <code>makeCardRefResolver</code>) debe, si la
+carta no tiene imagen plana, devolver las capas (<code>getCardDepthLayers</code>), y la mini-carta
+apilarlas (Stack de Images back→front) como fallback del <code>imageUrl</code> — mismo criterio que
+el hero/HoloCard al componer capas, pero en miniatura y estática (sin tilt).</p>
+<hr />
+<h2 id="19-cambios-2026-06-23-displaybadge-en-stats-el-detalle-rellena-el-panel-con-el-acabado">19. Cambios 2026-06-23 — <code>display:'badge'</code> en stats + el detalle rellena el panel con el acabado<a class="headerlink" href="#19-cambios-2026-06-23-displaybadge-en-stats-el-detalle-rellena-el-panel-con-el-acabado" title="Enlace permanente a esta sección">&para;</a></h2>
+<h3 id="191-statsrow-honra-appearancedisplay-badge-commit-922137e-paridad-core_dart">19.1 — StatsRow honra <code>appearance.display === 'badge'</code> (commit <code>922137e</code>, paridad core_dart)<a class="headerlink" href="#191-statsrow-honra-appearancedisplay-badge-commit-922137e-paridad-core_dart" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Refinamiento de §18.1: una estadística con <code>appearance.display === 'badge'</code> (Color →
+"Mostrar como: Badge", por field o base) ahora pinta el VALOR como <strong>pastilla</strong>
+(<code>rounded-full</code> + fondo + color/tipografía) en vez de cifra grande. En <code>StatsRow</code> y en
+la rama 'stats' de <code>ComposableSlot</code>. <strong>En Flutter:</strong> el render de stats debe ramificar en
+<code>display=='badge'</code> igual que ya hace el slot normal (LayoutRenderer §badge). (Nota: la
+opción "Mayús" es NO-OP en valores numéricos — no hay nada que mayusculizar; la etiqueta
+ya va en mayúsculas. No es bug.)</p>
+<h3 id="192-el-panel-del-detalle-de-carta-se-tine-con-el-acabado-studio-only-nota-app-flutter">19.2 — El PANEL del detalle de carta se tiñe con el acabado (Studio-only; nota app Flutter)<a class="headerlink" href="#192-el-panel-del-detalle-de-carta-se-tine-con-el-acabado-studio-only-nota-app-flutter" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Commit Studio: <code>99a6e76</code>. El panel <code>DetailsSheet</code> (CardFocusOverlay) era <code>bg-card</code> (blanco)
+con la composición teñida dentro → dejaba huecos blancos arriba/abajo. Ahora, si la
+composición de detalle lleva un acabado (su <code>surface.bgColor</code> es un tono de paleta), el
+PANEL ENTERO toma ese color (<code>paletteHex(surface.bgColor)</code>) y la cabecera usa el <code>textColor</code>
+coordinado del acabado (cualquiera de sus slots; pasa AA). <strong>No es SDK</strong> (chrome de la UI).
+<strong>En la app Flutter:</strong> el panel/Scaffold que aloja el detalle de la carta debería pintarse
+con el mismo <code>paletteHex(surface.bgColor)</code> del acabado (y texto de cabecera con su <code>textColor</code>)
+para no dejar huecos del color de fondo de la app. Equivale al criterio de <code>screenBgHex</code>
+(§12/§15) pero SIN oscurecer: aquí el panel iguala el papel para fundirse con la composición.</p>
+<hr />
+<h2 id="20-cambios-2026-06-23-containersurfacetextcolor-color-de-texto-global-del-contenedor-cascada">20. Cambios 2026-06-23 — <code>ContainerSurface.textColor</code>: color de texto GLOBAL del contenedor (cascada)<a class="headerlink" href="#20-cambios-2026-06-23-containersurfacetextcolor-color-de-texto-global-del-contenedor-cascada" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Commit SDK: <code>c0becc2</code> (en <code>main</code>). Meta render-only (NO contrato KRP — no está en
+<code>ALL_SURFACE_PROPS</code>, como <code>screenBgColor</code>/<code>cornerRadii</code>). <strong>Requiere paridad core_dart.</strong></p>
+<h3 id="201-containersurfacetextcolor-string-cascada">20.1 — <code>ContainerSurface.textColor?: string</code> + cascada<a class="headerlink" href="#201-containersurfacetextcolor-string-cascada" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Nuevo campo (id de paleta). <code>surfaceClasses</code> lo aplica como <strong>color de texto base</strong> del
+contenedor (<code>paletteClass(s.textColor,'text')</code> en el div del contenedor) → por <strong>herencia
+CSS</strong> lo adoptan TODOS los slots descendientes SIN color propio; un slot que fija su
+<code>appearance.textColor</code> lo sobreescribe en su elemento. Da un "color de texto global" sin
+recolorear slot a slot.</p>
+<h3 id="202-applythemepreset-lo-setea-global-antes-era-por-slot">20.2 — <code>applyThemePreset</code> lo setea GLOBAL (antes era por-slot)<a class="headerlink" href="#202-applythemepreset-lo-setea-global-antes-era-por-slot" title="Enlace permanente a esta sección">&para;</a></h3>
+<p><code>applyThemePreset</code> ya <strong>no</strong> pone <code>theme.textColor</code> en cada slot; lo pone UNA vez en
+<code>layout.surface.textColor</code>. Los slots lo heredan por cascada; los badges conservan su
+<code>accent</code> (que sí va por-slot). Resultado visual idéntico, pero ahora es un punto editable
+y overridable. (La FUENTE <code>theme.font</code> sigue por-slot.)</p>
+<p><strong>En Flutter (<code>core_dart</code> + render):</strong>
+1. Añade <code>textColor</code> a <code>ContainerSurface</code> de <code>core_dart</code>.
+2. El render del contenedor debe aplicar <code>surface.textColor</code> como color de texto por
+   DEFECTO del subárbol (DefaultTextStyle/Theme heredado), de modo que un slot sin color
+   propio lo herede y uno con <code>appearance.textColor</code> lo sobreescriba.
+3. <code>applyThemePreset</code> (si la app edita): setear <code>surface.textColor = theme.textColor</code>
+   (global), NO por-slot. Tests de themes (TS) actualizados al nuevo modelo.</p>
+<h3 id="203-editor-detalle-studio-ya-hecho">20.3 — Editor + detalle (Studio, ya hecho)<a class="headerlink" href="#203-editor-detalle-studio-ya-hecho" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Studio expone "Color de texto" en Decoración → Fondo del raíz (<code>set({textColor})</code>,
+commit <code>85a81e9</code>), y la cabecera del detalle (CardFocusOverlay) usa <code>surface.textColor</code>
+(con fallback legacy a un slot). El CTA "Ocultar detalles" se adapta a ese color.</p>
+<hr />
+<h2 id="21-cambios-2026-06-23-blanco-y-negro-en-la-paleta">21. Cambios 2026-06-23 — blanco y negro en la paleta<a class="headerlink" href="#21-cambios-2026-06-23-blanco-y-negro-en-la-paleta" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Commits SDK: <code>da3ffd1</code> + <code>ad542eb</code>. <code>PALETTE_NEUTRALS = ['white','black']</code> (grupo
+<code>'neutro'</code>, fijos — no adaptan a claro/oscuro), añadidos a <code>PALETTE</code> y a <code>PALETTE_HEX</code>
+(<code>#ffffff</code>/<code>#000000</code>). <code>paletteClass</code> los resuelve por el fallback <code>${role}-${id}</code> →
+<code>text-white</code>/<code>bg-white</code>/<code>text-black</code>/<code>bg-black</code> (Studio los fuerza en el bundle vía
+<code>@source inline</code>). NO toca el contrato (la paleta no se enumera en el KRP).</p>
+<p><strong>En Flutter:</strong> mapea los ids <code>'white'</code>/<code>'black'</code> a <code>Color(0xFFFFFFFF)</code>/<code>Color(0xFF000000)</code>
+en el equivalente de <code>PALETTE_HEX</code>/<code>paletteClass</code> de <code>core_dart</code>, y muéstralos en el
+picker si la app edita colores.</p>
+<hr />
+<h2 id="22-cambios-2026-06-23-color-por-chip-en-composable-auto-align-del-badge">22. Cambios 2026-06-23 — color por-chip en composable 'auto' + align del badge<a class="headerlink" href="#22-cambios-2026-06-23-color-por-chip-en-composable-auto-align-del-badge" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Commit SDK: <code>93d1f4a</code>. Dos fixes de render. <strong>Requieren paridad core_dart.</strong></p>
+<h3 id="221-fieldappearances-color-por-chip-tambien-en-composabledisplayauto">22.1 — <code>fieldAppearances</code> (color por-chip) también en <code>composableDisplay='auto'</code><a class="headerlink" href="#221-fieldappearances-color-por-chip-tambien-en-composabledisplayauto" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Bug: un slot composable multi-campo con disposición 'auto' (el default) renderizaba
+los valores desde <code>composeSlotValues().items</code> (<code>string[]</code> SIN key) → el color por-field
+(§16) no se podía aplicar (solo el color base). Ahora <code>ComposableSlot</code> construye
+<code>entries</code> (con <code>key</code>) + <code>colorFor</code> UNA vez (hoisted) y los branches 'auto'
+vertical/horizontal colorean cada valor por-chip (texto+fondo), igual que los
+displays explícitos. <code>entries.value[] === items[]</code> (mismo formatScalar/orden/filtro;
+los casos array y truncate se resuelven antes) → sin regresión del subtítulo unido.</p>
+<p><strong>En Flutter:</strong> el render del composable en modo 'auto' (multi-campo) debe conservar
+la <code>key</code> de cada campo y aplicar <code>base ← fieldAppearances[key]</code> por valor, no aplanar
+a una lista de strings sin key.</p>
+<h3 id="222-el-align-de-un-displaybadge-va-en-el-contenedor-no-en-la-pastilla">22.2 — El <code>align</code> de un <code>display:'badge'</code> va en el contenedor, no en la pastilla<a class="headerlink" href="#222-el-align-de-un-displaybadge-va-en-el-contenedor-no-en-la-pastilla" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Bug: el align (text-align) se aplicaba a la <code>BadgePill</code> (que es <code>inline-flex</code>), donde
+no la mueve → un badge no se podía centrar. Nuevo helper <code>appearanceAlignClass</code> aplicado
+al <code>&lt;div&gt;</code> BLOQUE exterior (LayoutRenderer rama badge) → <code>text-center/left/right</code> ahí SÍ
+alinea la pastilla inline; la pill conserva color/peso/size/efectos (con la appearance
+sin <code>align</code>). Cubre badge single y composable.</p>
+<p><strong>En Flutter:</strong> alinea el badge desde su CONTENEDOR (Align/Row mainAxisAlignment según
+<code>appearance.align</code>), no con un text-align sobre la propia pastilla.</p>
+<hr />
+<h2 id="23-cambios-2026-06-23-insertar-cualquier-campo-como-slot-generico-labelforfield">23. Cambios 2026-06-23 — insertar cualquier campo como slot genérico + <code>labelForField</code><a class="headerlink" href="#23-cambios-2026-06-23-insertar-cualquier-campo-como-slot-generico-labelforfield" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Commit SDK: <code>65297e2</code>. Studio: <code>490d54c</code>. <strong>Casi todo Studio-only (editor); el render NO cambia.</strong></p>
+<h3 id="231-labelforfield-sdk-metaui">23.1 — <code>labelForField</code> (SDK, meta/UI)<a class="headerlink" href="#231-labelforfield-sdk-metaui" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Nuevo helper <code>labelForField({type,behavior}) = getBehavior(behavior)?.displayName ??
+getFieldType(type)?.displayName ?? type</code>. Nombra un slot GENÉRICO por el behavior
+normalizado del campo (tags→"Etiquetas", iso_date→"Fecha", color_hex→"Color"…). No
+duplica catálogo; no toca el contrato. <strong>Paridad core_dart</strong>: solo si la app EDITA
+composiciones (nombrar slots-campo); el render no lo usa.</p>
+<h3 id="232-campos-del-album-en-el-editor-studio-only">23.2 — "Campos del álbum" en el editor (Studio-only)<a class="headerlink" href="#232-campos-del-album-en-el-editor-studio-only" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>El editor de bloques (LayoutEditor) ahora ofrece, además de los roles de la receta, un
+grupo "Campos del álbum" con CADA campo del schema no colocado, insertable como slot
+genérico (<code>fields:[key]</code>, sembrado al insertar). Esto rompe el techo de los ~5 roles del
+manifest: cualquier campo se puede colocar. <strong>NO afecta a Flutter</strong>: el motor de render
+(LayoutRenderer) ya pinta cualquier slot <code>fields:[key]</code>; esto es maquinaria del EDITOR
+(que vive solo en Studio). El detalle ya tenía un slot por campo (no cambia).</p>
+<hr />
+<h2 id="24-cambios-2026-06-23-apariencia-por-chip-completa-en-todas-las-ramas-slot-campo-exento-de-validacion">24. Cambios 2026-06-23 — apariencia por-chip COMPLETA en todas las ramas + slot-campo exento de validación<a class="headerlink" href="#24-cambios-2026-06-23-apariencia-por-chip-completa-en-todas-las-ramas-slot-campo-exento-de-validacion" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Commit SDK: <code>8c4e40e</code>. <strong>Requiere paridad core_dart.</strong></p>
+<h3 id="241-fieldappearances-por-chip-completa-no-solo-color-en-composableslot">24.1 — <code>fieldAppearances</code> por-chip COMPLETA (no solo color) en <code>ComposableSlot</code><a class="headerlink" href="#241-fieldappearances-por-chip-completa-no-solo-color-en-composableslot" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Antes solo el branch <code>stats</code> aplicaba la apariencia efectiva completa por entrada; el
+resto (chips/list/table/inline/auto/tags/url_list/array) solo el color. Ahora un único
+molde por entrada (<code>styleFor(key)</code>) aplica en TODAS las ramas: tipografía + color (base
+del slot ← <code>fieldAppearances[key]</code>), fondo, y RECORTE (<code>appearanceTruncateClass</code> +
+<code>truncateChars</code> cortando el string) + relleno + efecto DEL OVERRIDE del field (no de la
+base, para no regresar recetas shipeadas). Causa raíz adicional: las entries de un ARRAY
+se creaban SIN key → <code>fieldAppearances</code> nunca casaba; ahora llevan <code>key=f0.key</code> (el
+truncado/color por-chip aplica a cada tag).</p>
+<p><strong>En Flutter:</strong> el render del composable debe aplicar, POR ENTRADA, la apariencia efectiva
+(<code>base.merge(fieldAppearances?[key])</code>) COMPLETA — no solo color: tipografía, fondo, recorte
+(maxLines / corte por <code>truncateChars</code>), relleno, efecto. Y conservar la <code>key</code> del field en
+cada elemento de un array. (El corte por chars = <code>applyAppearanceTruncate</code>: <code>text.length&lt;=n</code>
+? text : <code>text.slice(0,n).trimEnd()+'…'</code>.)</p>
+<h3 id="242-validateslot-exime-al-slot-campo-del-chequeo-de-rol">24.2 — <code>validateSlot</code> exime al slot-CAMPO del chequeo de rol<a class="headerlink" href="#242-validateslot-exime-al-slot-campo-del-chequeo-de-rol" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Un slot-CAMPO (id = la clave de SU PROPIO field, <code>fields:[slotId]</code>) ya NO se valida contra
+el rol homónimo del manifest (su <code>accepts</code> real lo da <code>classifyField</code> del field). Sin esto,
+un campo cuya clave coincide con un id de rol con tipo incompatible (p.ej. un campo <code>title</code>
+numérico) bloqueaba el guardado. <strong>En Flutter:</strong> si <code>core_dart</code> valida, replica el mismo
+eximido (<code>fields.length===1 &amp;&amp; fields[0]===slotId</code> → saltar el chequeo de accepts del rol).</p>
+<h3 id="243-editor-campos-del-album-agrupado-por-tipo-studio-only">24.3 — Editor "Campos del álbum" agrupado por tipo (Studio-only)<a class="headerlink" href="#243-editor-campos-del-album-agrupado-por-tipo-studio-only" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>La paleta agrupa los campos por su KIND/tipo y nombra el slot por el NOMBRE del campo
+(el tipo va como grupo/hint). Sin trabajo Flutter (maquinaria del editor).</p>
+<hr />
+<h2 id="25-cambios-2026-06-24-estilo-de-la-franja-de-acento-accentstyle">25. Cambios 2026-06-24 — ESTILO de la franja de acento (<code>accentStyle</code>)<a class="headerlink" href="#25-cambios-2026-06-24-estilo-de-la-franja-de-acento-accentstyle" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Commits SDK: <code>e71f704</code> (bar/rounded/glow/gradient) + <code>ae06635</code> (ambient). <strong>Requiere paridad
+core_dart + flutter.</strong> DATA / render-only (validación literal inline en <code>validate.ts:641-651</code>,
+<strong>NO</strong> catálogo del contrato → NO bumpea <code>PROTOCOL_VERSION</code>; paridad por tipo, como <code>chipWidth</code>).
+Tracking: issue Drift Sync (acento).</p>
+<h3 id="251-el-dato">25.1 — el dato<a class="headerlink" href="#251-el-dato" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>NUEVO <code>accentStyle?: 'bar' | 'rounded' | 'glow' | 'gradient' | 'ambient'</code> en <code>ViewComposition</code>
+(y la interfaz de detalle) y en <code>AccentSettings</code> (<code>types.ts:432, 467-478</code>). <code>default = 'bar'</code>.
+<code>extractAccentSettings</code> lo copia tal cual al resultado: <code>style: composition?.accentStyle</code>
+(<code>extract-accent.ts:87</code>) — NO altera <code>color</code> ni <code>position</code>. (El color sigue saliendo del primer
+field <code>behavior:color_hex</code> válido, normalizado a <code>#RRGGBB[AA]</code>.)</p>
+<h3 id="252-la-matematica-del-render-buildaccentborderstyle-recipe-utilstsx531-570">25.2 — la matemática del render (<code>buildAccentBorderStyle</code>, <code>recipe-utils.tsx:531-570</code>)<a class="headerlink" href="#252-la-matematica-del-render-buildaccentborderstyle-recipe-utilstsx531-570" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Sea <code>w</code> = ancho (<strong>DETALLE <code>w=4</code></strong> <code>LayoutRenderer.tsx:931</code>; lista/compact <code>w=3</code>), <code>c</code> = <code>accent.color</code>.
+Si <code>accent</code> undefined o <code>position==='none'</code> → sin acento. Vector inset hacia DENTRO:
+<code>ox = position==='left'? w : position==='right'? -w : 0</code>; <code>oy = position==='top'? w : position==='bottom'? -w : 0</code>.
+<code>switch (style ?? 'bar')</code>:</p>
+<table>
+<thead>
+<tr>
+<th>style</th>
+<th>fórmula (CSS)</th>
+<th>equivalente Flutter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bar</code> / <code>rounded</code> / default</td>
+<td><code>box-shadow: inset {ox}px {oy}px 0 0 {c}</code> (banda sólida)</td>
+<td>banda de ancho <code>w</code> en el borde de la posición (<code>Border</code> por lado, o <code>Container</code> en <code>Stack</code>).</td>
+</tr>
+<tr>
+<td><code>glow</code></td>
+<td><code>inset {ox}px {oy}px 0 0 {c}, inset {ox}px {oy}px {w*4}px 0 {c}</code> (banda + halo blur=<code>w*4</code>, spread 0)</td>
+<td>banda sólida + segunda capa con <code>BoxShadow(blurRadius: w*4, spreadRadius: 0, color: c)</code> clipada hacia dentro.</td>
+</tr>
+<tr>
+<td><code>gradient</code></td>
+<td><code>inset {ox*2}px {oy*2}px {w*4}px {-round(w/2)}px {c}</code> (offset DOBLE, blur <code>w*4</code>, spread NEGATIVO)</td>
+<td><code>LinearGradient</code> de <code>c</code> (en el borde) → <code>transparent</code>, difuminado.</td>
+</tr>
+<tr>
+<td><code>ambient</code></td>
+<td><strong>NO</strong> box-shadow → <code>background-image: linear-gradient({dir}, {base}40, transparent 55%)</code>. <code>base = c.slice(0,7)</code> (#RRGGBB, descarta alpha). <code>dir = bottom?'to top' : left?'to right' : right?'to left' : 'to bottom'</code>. <code>{base}40</code> = alpha <code>0x40</code>.</td>
+<td><code>BoxDecoration(gradient: LinearGradient(begin/end según dir, colors:[c.withAlpha(0x40), Colors.transparent], stops:[0, 0.55]))</code>. Mapear <code>dir</code>→<code>begin/end</code> (p.ej. <code>to top</code> = begin bottomCenter / end topCenter).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="253-recto-vs-curvo-lo-decide-el-host-no-el-box-shadow-layoutrenderertsx919-921">25.3 — RECTO vs CURVO lo decide el HOST, no el box-shadow (<code>LayoutRenderer.tsx:919-921</code>)<a class="headerlink" href="#253-recto-vs-curvo-lo-decide-el-host-no-el-box-shadow-layoutrenderertsx919-921" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>El <code>inset</code> "se curva" con el <code>border-radius</code> del propio elemento. En pantalla de DETALLE el
+surface raíz pierde radius/border/background (fidelidad full-screen); <code>curvedAccent =
+(style==='rounded' &amp;&amp; position!=='none')</code> conserva el radius SOLO si <code>rounded</code>; bar/glow/gradient/
+ambient → <code>radius=undefined</code> (recto). El estilo se aplica como <code>extraStyle</code> al div del <strong>contenedor
+raíz</strong> (<code>:975</code>), no a un wrapper externo.</p>
+<p><strong>En Flutter:</strong> extiende <code>AccentSettings</code> con <code>style</code> (+ <code>colorFieldKey</code>); en <code>layout_renderer.dart</code>
+(<code>_AccentFrame</code> + el surface raíz, espejo de <code>surface.dart</code>): <code>ClipRRect</code>/radius SOLO cuando
+<code>style=='rounded' &amp;&amp; position!='none'</code>; bar=banda, glow=banda+<code>BoxShadow(blur w*4)</code>, gradient/ambient
+= <code>LinearGradient</code>. <strong>Riesgo de drift</strong>: si dibujas la banda en un Container que SIEMPRE conserva su
+radius, <code>bar</code> saldrá redondeado (fue el drift original de Studio, <code>87c7924</code>). Y <code>ambient</code> es gradient,
+NO borde — trátalo en rama aparte o saldrá una raya en vez de un lavado difuso.</p>
+<h2 id="26-cambios-2026-06-24-disposicion-de-chips-rejilla-2d-chipgrid-ancho-chipwidth-display-por-chip">26. Cambios 2026-06-24 — disposición de chips: rejilla 2D (<code>chipGrid</code>) + ancho (<code>chipWidth</code>) + display por-chip<a class="headerlink" href="#26-cambios-2026-06-24-disposicion-de-chips-rejilla-2d-chipgrid-ancho-chipwidth-display-por-chip" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Commits SDK: <code>19e92fc</code> (chipGrid/chipPlacements) · <code>d5571cd</code> (chipWidth) · <code>f58b5c7</code> (align→ancho/pos)
+· <code>cc1c9d0</code> (display text/badge por-chip) · <code>3927742</code> (composableDisplay explícito manda en slot de 1
+campo). <strong>Requiere paridad core_dart + flutter.</strong> DATA / render-only (meta de composición; NO bumpea).
+<strong>Prerequisito</strong>: §16/§18/§22/§24 (<code>fieldAppearances</code> por-field) — esta sección añade lo NUEVO encima.
+Tracking: issue Drift Sync (chips). DOS rutas de render deben dar idéntico resultado: <code>chips_row</code>
+componente (<code>LayoutRenderer.tsx:629-691</code>, ruta APP, fila entera = 1 slot multi-campo) y la rama <code>chips</code>
+de <code>ComposableSlot</code> (<code>recipe-utils.tsx:884-932</code>, ruta EDITOR, slots de 1 campo).</p>
+<h3 id="261-chipgrid-2d-chipplacementsfieldkey">26.1 — <code>chipGrid</code> 2D + <code>chipPlacements[fieldKey]</code><a class="headerlink" href="#261-chipgrid-2d-chipplacementsfieldkey" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>NUEVOS en <code>SlotComposition</code>: <code>chipGrid?: { columns: number; gap?: LayoutGap }</code> (<code>types.ts:150</code>) y
+<code>chipPlacements?: Record&lt;string, GridPlacement&gt;</code> (key = field key) (<code>types.ts:157</code>). <strong>Presente
+<code>chipGrid</code></strong> → los chips pasan de flex-wrap a CSS Grid; <strong>ausente</strong> → flex-wrap histórico (retro-compat,
+NO romper álbumes viejos). <code>chipPlacements</code> REUSA el MISMO <code>GridPlacement</code> que los bloques del
+contenedor (<code>colStart/colSpan/rowStart/rowSpan</code>, 1-based, span default 1, omitir start = auto-flow).
+- Wrapper: <code>inline-grid w-full</code> + gap por preset (none→0, xs→4, sm→8(default), md→12, lg→20 px). <code>inline-grid</code>
+  (no <code>grid</code>) = phrasing-safe dentro de <code>&lt;p&gt;</code> (Subtítulo); <code>w-full</code> reparte las columnas <code>1fr</code>.
+- Columnas: <code>grid-template-columns: repeat(max(1,columns), minmax(0,1fr))</code> (INLINE; columns es dinámico).
+- Colocación por chip: <code>col-start/col-span/row-start/row-span</code> 1-based; sin start = auto-flow.
+- Validación (<code>validate.ts:414-443</code>): columns entero 1–6; key no-field → warn; spans/starts entero ≥1.</p>
+<p><strong>En Flutter:</strong> añade <code>chipGrid</code> + <code>chipPlacements</code> a <code>SlotComposition</code> reusando tu <code>GridPlacement</code> de
+bloques; render con el mismo motor 2D que los nodos (<code>computeGrid</code>/<code>flutter_layout_grid</code>): N columnas
+iguales <code>1.fr</code>, gap por preset, colocación 1-based con auto-flow al omitir start. <code>chipGrid</code> ausente →
+wrap, no grid.</p>
+<h3 id="262-chipwidth-fill-content-separa-ancho-de-align">26.2 — <code>chipWidth: 'fill' | 'content'</code> (separa ANCHO de <code>align</code>)<a class="headerlink" href="#262-chipwidth-fill-content-separa-ancho-de-align" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>NUEVO <code>chipWidth?: 'fill' | 'content'</code> en <code>SlotAppearance</code> (<code>types.ts:333</code>, default <code>'fill'</code>). SOLO
+surte efecto con <code>chipGrid</code> (en flex-wrap se ignora). Dos ejes INDEPENDIENTES:
+- <code>'fill'</code> (default): el chip <strong>estira</strong> y llena la celda (grid-item, justify-self stretch implícito).
+  <code>align</code> mueve el TEXTO dentro de la pastilla (inline-flex) vía <code>chipJustifyContent</code> (<code>recipe-utils.tsx:204-211</code>):
+  left→<code>justify-start</code>, center→<code>justify-center</code>, right→<code>justify-end</code>.
+- <code>'content'</code>: el chip es <strong>content-fit</strong>; <code>align</code> POSICIONA el chip en la celda vía <code>chipJustifySelf</code>
+  (<code>recipe-utils.tsx:189-200</code>): left→<code>justify-self-start</code>, center→<code>justify-self-center</code>, right→<code>justify-self-end</code>.</p>
+<p>Aplicación idéntica en ambas rutas (<code>LayoutRenderer.tsx:661-666</code> / <code>recipe-utils.tsx:911-917</code>):
+<code>isContent = ap?.chipWidth==='content'</code>; <code>self = (grid &amp;&amp; isContent) ? chipJustifySelf(align) : undefined</code>;
+<code>justify = (grid &amp;&amp; !isContent) ? chipJustifyContent(align) : undefined</code>. <code>self</code> se aplica a pastilla Y
+texto plano; <code>justify</code> solo a la pastilla.</p>
+<p><strong>En Flutter</strong> (<code>appearance_styles.dart</code>): con <code>chipGrid</code>, <code>content</code> → la celda usa <code>Align(alignment)</code>
+(justify-self) según <code>align</code>; <code>fill</code> → el chip llena la celda y <code>align</code> → <code>mainAxisAlignment</code> del Row
+interno de la pastilla (justify-content).</p>
+<h3 id="263-display-textbadge-por-chip-composabledisplay-explicito-builder-unico">26.3 — display <code>text</code>/<code>badge</code> por-chip + <code>composableDisplay</code> explícito + builder único<a class="headerlink" href="#263-display-textbadge-por-chip-composabledisplay-explicito-builder-unico" title="Enlace permanente a esta sección">&para;</a></h3>
+<ul>
+<li><strong>display por-chip</strong> (<code>cc1c9d0</code>): la apariencia efectiva por chip = <code>mergeFieldAppearance(base,
+  fieldAppearances, fieldKey)</code> (shallow, override por-clave). <code>display==='text'</code> → TEXTO PLANO sin
+  pastilla; default/<code>'badge'</code> → pastilla (<code>inline-flex items-center rounded-full px-2 py-0.5 text-[0.8em]</code></li>
+<li>bg <code>paletteClass(bgColor)||'bg-muted'</code> + text <code>paletteClass(textColor)||'text-muted-foreground'</code>).
+  ANTES la rama <code>chips</code> pintaba SIEMPRE pastilla → drift ("lo muestra como badge y no es badge").</li>
+<li><strong>composableDisplay explícito</strong> (<code>3927742</code>): en <code>SlotContent</code> (<code>LayoutRenderer.tsx:393-398</code>)
+  <code>isComposable = fields.length&gt;1 || orientation==='vertical' || Array.isArray(first.value) ||
+  (composableDisplay != null &amp;&amp; composableDisplay !== 'auto')</code>. El último OR es el fix: un slot de UN
+  campo escalar con <code>composableDisplay</code> explícito → ComposableSlot (pill con su estilo por valor), NO
+  ScalarText (texto plano, sin pill/fieldAppearances/condicional).</li>
+</ul>
+<p><strong>En Flutter (GAP MAYOR):</strong> hoy <code>_badgeRow</code> (<code>component_content.dart:165-176</code>) usa la apariencia base
+para TODOS los chips e ignora display/align por-chip. Refactor a un <strong>builder de chip ÚNICO
+parametrizado por la apariencia efectiva por-field</strong>, invocado igual cuántos campos haya (1 ó N):
+<code>display=='text'</code> → <code>Text</code> plano; sino pastilla con bg/text efectivos. <strong>Riesgo INVERSO</strong>: en Dart hay
+UNA sola ruta — si implementas solo el caso multi-campo, perderás el caso 1-campo+<code>composableDisplay</code>
+explícito (fix <code>3927742</code>).</p>
+<hr />
+<p><strong>Referencias de lectura obligada (TS canónico):</strong>
+- <code>packages/react/src/recipes/RecipeRenderer.tsx</code> (props <code>hiddenSlots</code>, <code>filteredComposition</code>, reenvío a hero + LayoutRenderer).
+- <code>packages/react/src/recipes/LayoutRenderer.tsx</code> (caso <code>hero_header</code>, <code>computeHiddenHeroRoles</code>).
+- <code>packages/react/src/recipes/HeroHeader.tsx</code> (<code>isHidden</code>, gating banner/avatar/subtitle, <code>-mt-12</code> condicional).
+- <code>packages/core/src/layout.ts</code> (<code>computeHiddenHeroRoles</code>), <code>format-scalar.ts</code>, <code>html-inline.ts</code>.
+- <code>packages/react/src/recipe-utils.tsx</code> (<code>ScalarText</code>/<code>ComposableSlot</code>/<code>HtmlText</code>/<code>renderInlineToken</code>).
+- Studio: <code>src/components/album/recipes/detail-slots.ts</code> (<code>detailHiddenSlots</code>, <code>imageSlotIds</code> — fuente única de qué ocultar) · <code>CardFocusOverlay.tsx</code> (lo consume) · <code>detail-templates.ts</code> (plantillas basadas en campos) · <code>DetailCompositionEditor.tsx</code> (selector + lienzo del detalle).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Kromia — privado, uso interno.
+    </div>
+  
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/luishidalgoa/kromia-sdk" target="_blank" rel="noopener" title="SDK en GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.action.edit"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

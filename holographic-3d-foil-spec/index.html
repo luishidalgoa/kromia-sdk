@@ -1,0 +1,1542 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación del SDK polyglot de Kromia — modelo de coleccionables, recipes y validadores compartidos cross-plataforma.">
+      
+      
+        <meta name="author" content="Luis Hidalgo">
+      
+      
+        <link rel="canonical" href="https://luishidalgoa.github.io/kromia-sdk/holographic-3d-foil-spec/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Sistema holográfico 3D / foil / contornos — contrato cross-platform - Kromia SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sistema-holografico-3d-foil-contornos-contrato-cross-platform" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href=".." title="Kromia SDK" class="md-header__button md-logo" aria-label="Kromia SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kromia SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Sistema holográfico 3D / foil / contornos — contrato cross-platform
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Compartir" aria-label="Compartir" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/luishidalgoa/kromia-sdk" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    luishidalgoa/kromia-sdk
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../01-overview/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Empezar aquí
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Repositorio
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Kromia SDK" class="md-nav__button md-logo" aria-label="Kromia SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kromia SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    luishidalgoa/kromia-sdk
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inicio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Empezar aquí
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Empezar aquí
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visión general
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conceptos clave
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repositorio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-tldr-por-que-flutter-lo-esta-construyendo-mal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. TL;DR — por qué Flutter lo está construyendo mal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-el-dato-que-flutter-recibe-que-leer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. El dato que Flutter recibe (qué leer)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. El dato que Flutter recibe (qué leer)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-albumschematagstyles-efectos-por-valor-compartidos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 albumSchema.tagStyles[] — efectos por VALOR (compartidos)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-card__depthlayers-capas-de-profundidad-3d-per-carta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 card.__depthLayers[] — capas de profundidad 3D (per-carta)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-tipos-del-modelo-source-ts-coresrctypests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Tipos del modelo (source TS — core/src/types.ts)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-catalogo-de-6-efectos-capa-a-si-en-contrato" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Catálogo de 6 efectos (capa A — sí en contrato)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-foil-personalizado-effectlayer-render-mascara" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Foil personalizado (EffectLayer) — render + MÁSCARA
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Foil personalizado (EffectLayer) — render + MÁSCARA">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-la-capa-foil" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 La capa foil
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-la-mascara-interpretacion-blanconegro-lo-critico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 LA MÁSCARA — interpretación blanco/negro (lo crítico)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-modos-de-fusion-effectblendmode-blend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Modos de fusión (EffectBlendMode → blend)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-animacion-del-brillo-del-foil" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Animación del brillo del foil
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-resolucion-del-efecto-por-carta-rareza-tags-per-carta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Resolución del efecto por carta (rareza / tags / per-carta)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-capas-de-profundidad-3d-parallax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Capas de profundidad 3D + parallax
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Capas de profundidad 3D + parallax">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-constantes-verbatim-flutter-debe-usar-exactamente-estas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Constantes (verbatim — Flutter debe usar EXACTAMENTE estas)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-render-desplazamiento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Render / desplazamiento
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-validacion-espejar-validatecarddepthlayers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Validación (espejar validateCardDepthLayers)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-vincular-un-foil-a-una-capa-3d-vinculada-a-capa-3d-mediofrente" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Vincular un foil a una capa 3D ("VINCULADA A CAPA 3D · MEDIO/FRENTE")
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-render-del-tilt-3d-efectos-de-catalogo-constantes-para-paridad" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Render del tilt 3D + efectos de catálogo (constantes para paridad)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Render del tilt 3D + efectos de catálogo (constantes para paridad)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-holocard-tilt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 HoloCard (tilt)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-efectos-de-catalogo-constantes-verbatim-de-visualeffectlayerstsx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Efectos de catálogo (constantes verbatim de VisualEffectLayers.tsx)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-mascara-de-contornos-generacion-que-produce-y-como-interpretarla" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Máscara de CONTORNOS (generación) — qué produce y cómo interpretarla
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-trabajo-recomendado-en-el-nucleo-core_dart-para-cerrar-el-drift" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Trabajo recomendado en el núcleo core_dart (para cerrar el drift)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-indice-de-ficheros-verificado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Índice de ficheros (verificado)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/luishidalgoa/kromia-sdk/edit/main/docs/holographic-3d-foil-spec.md" title="Editar esta página" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="sistema-holografico-3d-foil-contornos-contrato-cross-platform">Sistema holográfico 3D / foil / contornos — contrato cross-platform<a class="headerlink" href="#sistema-holografico-3d-foil-contornos-contrato-cross-platform" title="Enlace permanente a esta sección">&para;</a></h1>
+<blockquote>
+<p><strong>Audiencia</strong>: el chat/equipo de <strong>kromia-flutter</strong> (núcleo <code>core_dart</code> + app).
+<strong>Autor</strong>: chat de Studio (SDK-TS + Studio + backend).
+<strong>Objetivo</strong>: que Flutter renderice los efectos <strong>idénticos</strong> a Studio, leyendo
+el <strong>mismo dato</strong> y los <strong>mismos constantes</strong>. Énfasis en la interpretación
+correcta de <strong>máscaras de contorno blanco/negro</strong>.</p>
+</blockquote>
+<p>Toda referencia de código apunta al repo <code>kromia-sdk</code> (SDK) o <code>kromia-studio</code>
+(Studio web). Las rutas y constantes de aquí están <strong>verificadas contra el
+source real</strong> (no inferidas).</p>
+<hr />
+<h2 id="0-tldr-por-que-flutter-lo-esta-construyendo-mal">0. TL;DR — por qué Flutter lo está construyendo mal<a class="headerlink" href="#0-tldr-por-que-flutter-lo-esta-construyendo-mal" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>El sistema de efectos está <strong>partido en tres capas</strong> y la causa del drift es que
+<strong>solo una</strong> de ellas está cubierta por el contrato versionado:</p>
+<table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Dónde vive</th>
+<th style="text-align: center;">¿En el <code>.json</code> del KRP?</th>
+<th style="text-align: center;">¿Espejada en <code>core_dart</code>?</th>
+<th style="text-align: center;">¿La ve el drift-test?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A. Catálogo</strong> de 6 efectos (<code>VisualEffectDefinition</code>)</td>
+<td><code>core/src/registries/visual-effects.ts</code></td>
+<td style="text-align: center;">✅ sí (<code>serializeVisualEffect</code>)</td>
+<td style="text-align: center;">✅ <code>visual_effects.dart</code></td>
+<td style="text-align: center;">✅ <strong>sí</strong></td>
+</tr>
+<tr>
+<td><strong>B. Modelo de DATO</strong> (foil, capas 3D, binding por rareza)</td>
+<td><code>core/src/types.ts</code> + <code>core/src/card-layers.ts</code></td>
+<td style="text-align: center;">❌ <strong>no</strong> (es data de álbum/carta)</td>
+<td style="text-align: center;">⚠️ <strong>parcial / falta</strong></td>
+<td style="text-align: center;">❌ <strong>no</strong></td>
+</tr>
+<tr>
+<td><strong>C. RENDER</strong> (tilt, máscara, blend, parallax, contornos)</td>
+<td><strong>solo <code>kromia-studio</code></strong></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">❌ <strong>nada</strong></td>
+<td style="text-align: center;">❌ no</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Conclusión (la sospecha del user, confirmada):</strong></p>
+<ol>
+<li>El <strong>catálogo</strong> (qué efectos existen y su espacio de config) sí está en el
+   contrato y el drift-sync lo vigila. Eso funciona bien.</li>
+<li>El <strong>modelo de dato del foil/3D</strong> (<code>EffectLayer</code>, <code>CardDepthLayer</code>,
+   <code>TagStyle.fieldKey</code>, <code>TagStyle.customLayers</code>, factores de parallax) está
+   definido en TypeScript en <code>@kromia/core</code> <strong>pero se excluye a propósito del
+   <code>.json</code></strong> (es data, no catálogo). Por eso <code>contract-drift.test.ts</code> <strong>nunca lo
+   compara</strong> → el drift-sync es <strong>ciego</strong> a esta capa.</li>
+<li>Peor aún: gran parte de esa capa <strong>no está espejada en <code>core_dart</code></strong>:</li>
+<li><code>tag_styles.dart</code> espeja <code>TagStyle</code> <strong>pero le faltan <code>fieldKey</code> (KRO-120) y
+     <code>customLayers</code> (KRO-122)</strong>.</li>
+<li><strong>No existe <code>card_layers.dart</code></strong> → <code>EffectLayer</code>, <code>EffectBlendMode</code>,
+     <code>CardDepthLayer</code>, <code>LayerDepth</code>, los factores de parallax, <code>getCardDepthLayers</code>,
+     <code>DEPTH_LAYERS_KEY</code>, <code>validateCardDepthLayers</code> <strong>no existen en Dart</strong>.</li>
+<li><strong>Todo el render</strong> (matemática del tilt, interpretación de la máscara por
+   luminancia, mapeo de blend modes, desplazamiento de parallax, generación de la
+   máscara de contornos) vive <strong>solo en Studio</strong> — ni siquiera en <code>@kromia/react</code>.
+   Flutter lo está reimplementando a ciegas, sin un contrato de referencia. <strong>Ese
+   es el origen real del "no lo está construyendo correctamente".</strong></li>
+</ol>
+<p><strong>Lo que hay que hacer en el núcleo Flutter</strong> (resumen, detalle en §10):
+- Espejar <code>card-layers.ts</code> → <code>card_layers.dart</code> (tipos + factores de parallax + helpers).
+- Añadir <code>fieldKey</code> + <code>customLayers</code> (+ <code>EffectLayer</code>/<code>EffectBlendMode</code>) a <code>tag_styles.dart</code>.
+- Espejar el resolver <code>resolveCardEffects</code> (efecto por rareza/tags/PK).
+- Implementar el render respetando los constantes de §4–§9 <strong>al pie de la letra</strong>.
+- (Opcional pero recomendado) extender el drift-test para cubrir esta capa B.</p>
+<hr />
+<h2 id="1-el-dato-que-flutter-recibe-que-leer">1. El dato que Flutter recibe (qué leer)<a class="headerlink" href="#1-el-dato-que-flutter-recibe-que-leer" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Hay <strong>dos</strong> sitios donde vive un efecto. Flutter debe leer <strong>ambos</strong>:</p>
+<h3 id="11-albumschematagstyles-efectos-por-valor-compartidos">1.1 <code>albumSchema.tagStyles[]</code> — efectos por VALOR (compartidos)<a class="headerlink" href="#11-albumschematagstyles-efectos-por-valor-compartidos" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Mapeo "valor de tag/rareza → efecto". No entra al <code>.json</code> (es data de álbum).</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>// albumSchema.tagStyles
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>[
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  // (a) Efecto de catálogo disparado por la RAREZA (ordinal_enum/enum/rating):
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  { "fieldKey": "rareza", "value": "legend", "effect": "holographic_effect",
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    "config": { "intensity": "high" } },
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  // (b) Efecto disparado por un campo con behavior `tags` (clásico, sin fieldKey):
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>  { "value": "Holográfica", "effect": "holographic_effect" },
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  // (c) FOIL PERSONALIZADO de toda la carta, "solo a esta carta":
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>  //     es un TagStyle anclado al PK del cardSchema (fieldKey=PK, value=PK de la carta)
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>  { "fieldKey": "numero", "value": "6", "effect": "custom_foil",
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    "customLayers": [ /* EffectLayer[] — ver §4 */ ] }
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>]
+</span></code></pre></div>
+<blockquote>
+<p><strong>Clave</strong>: el modal "Efecto de la carta N" (per-carta, "aplicado solo a esta
+carta") <strong>no usa un campo per-carta</strong>: escribe en el MISMO <code>tagStyles[]</code> del
+álbum con <code>{fieldKey: &lt;PK&gt;, value: &lt;valor PK de la carta&gt;}</code> (ver
+<code>kromia-studio/src/components/album/CardFoilDialog.tsx</code>). Flutter no necesita un
+almacén nuevo: con resolver bien <code>tagStyles</code> (§5) cubre catálogo, rareza, tags
+y per-carta a la vez.</p>
+</blockquote>
+<h3 id="12-card__depthlayers-capas-de-profundidad-3d-per-carta">1.2 <code>card.__depthLayers[]</code> — capas de profundidad 3D (per-carta)<a class="headerlink" href="#12-card__depthlayers-capas-de-profundidad-3d-per-carta" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>El arte 3D es único por carta → vive en el DATO de la carta bajo la clave
+reservada <code>__depthLayers</code> (<code>DEPTH_LAYERS_KEY</code>). No entra al <code>.json</code>.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>// card["__depthLayers"]  (orden lógico back→mid→front; el helper lo reordena)
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>[
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  { "url": "…/fondo.png",  "depth": "back" },
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  { "url": "…/sujeto.png", "depth": "mid",
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    "foil": { "kind":"foil", "textureUrl":"…/foil.png", "maskUrl":"…/mask.png",
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>              "blend":"color-dodge", "intensity":0.6 } },   // foil VINCULADO a esta capa 3D
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  { "url": "…/particulas.png", "depth": "front" }
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>]
+</span></code></pre></div>
+<p>Otras claves reservadas del dato de la carta (ya espejadas en
+<code>image_calibration.dart</code>): <code>__imageTransforms</code>, <code>__calibrationState</code>.</p>
+<hr />
+<h2 id="2-tipos-del-modelo-source-ts-coresrctypests">2. Tipos del modelo (source TS — <code>core/src/types.ts</code>)<a class="headerlink" href="#2-tipos-del-modelo-source-ts-coresrctypests" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Verbatim (líneas 579–693). <strong>Flutter debe espejar estos en Dart.</strong></p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// Foil importable (KRO-122) — render-agnóstico, NO entra al .json</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">EffectLayerKind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'foil'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'glitter'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'pattern'</span><span class="p">;</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">EffectBlendMode</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="s1">'color-dodge'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'overlay'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'screen'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'soft-light'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'hard-light'</span><span class="p">;</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">export</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nx">EffectLayer</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="nx">kind</span><span class="o">:</span><span class="w"> </span><span class="kt">EffectLayerKind</span><span class="p">;</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="nx">textureUrl</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">          </span><span class="c1">// lámina tornasolada / glitter / patrón</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="nx">maskUrl?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">            </span><span class="c1">// grises: BLANCO = brilla, NEGRO = no  ← crítico</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="nx">blend</span><span class="o">:</span><span class="w"> </span><span class="kt">EffectBlendMode</span><span class="p">;</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">  </span><span class="nx">intensity?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">          </span><span class="c1">// 0..1 (opacidad efectiva). default render 0.6</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span><span class="nx">motion?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">             </span><span class="c1">// 0..1 cuánto se desplaza con el tilt</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="p">}</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="k">export</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nx">CardEffect3D</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// pila de capas + profundidad (poco usado hoy)</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">  </span><span class="nx">layers</span><span class="o">:</span><span class="w"> </span><span class="kt">EffectLayer</span><span class="p">[];</span>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">  </span><span class="nx">depth?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">              </span><span class="c1">// 0..1</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="p">}</span>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="c1">// Capa de profundidad 3D (KRO-130) — per-carta, NO entra al .json</span>
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">LayerDepth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'back'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'mid'</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">'front'</span><span class="p">;</span>
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="k">export</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nx">CardDepthLayer</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">  </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">                 </span><span class="c1">// cutout PNG con transparencia</span>
+</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="w">  </span><span class="nx">depth</span><span class="o">:</span><span class="w"> </span><span class="kt">LayerDepth</span><span class="p">;</span>
+</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span class="w">  </span><span class="nx">foil?</span><span class="o">:</span><span class="w"> </span><span class="kt">EffectLayer</span><span class="p">;</span><span class="w">          </span><span class="c1">// foil propio de ESTA capa (opcional)</span>
+</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="p">}</span>
+</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>
+</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a><span class="c1">// Mapeo valor→efecto (KRO-30/120/122) — NO entra al .json</span>
+</span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a><span class="k">export</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nx">TagStyle</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a><span class="w">  </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">               </span><span class="c1">// valor EXACTO que dispara</span>
+</span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a><span class="w">  </span><span class="nx">effect</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">              </span><span class="c1">// id del catálogo, o 'custom_foil'</span>
+</span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a><span class="w">  </span><span class="nx">config?</span><span class="o">:</span><span class="w"> </span><span class="kt">Record</span><span class="o">&lt;</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kt">number</span><span class="o">&gt;</span><span class="p">;</span>
+</span><span id="__span-2-33"><a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a><span class="w">  </span><span class="nx">fieldKey?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">           </span><span class="c1">// KRO-120: ancla a un campo (incl. rareza). sin él = matchea campos `tags`</span>
+</span><span id="__span-2-34"><a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a><span class="w">  </span><span class="nx">customLayers?</span><span class="o">:</span><span class="w"> </span><span class="kt">EffectLayer</span><span class="p">[];</span><span class="c1">// KRO-122: si presente, render usa estas capas en vez del catálogo</span>
+</span><span id="__span-2-35"><a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a><span class="p">}</span>
+</span><span id="__span-2-36"><a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>
+</span><span id="__span-2-37"><a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a><span class="c1">// Fuente de rareza (KRO-28) — vive en cardSchema.raritySource. YA espejado (rarity.dart)</span>
+</span><span id="__span-2-38"><a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a><span class="k">export</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nx">RarityBucket</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">value?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"> </span><span class="nx">range</span><span class="o">?:</span><span class="w"> </span><span class="p">[</span><span class="kt">number</span><span class="p">,</span><span class="w"> </span><span class="kt">number</span><span class="p">];</span><span class="w"> </span><span class="nx">weight</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-2-39"><a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a><span class="k">export</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nx">RaritySource</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">fieldKey</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"> </span><span class="nx">buckets</span><span class="o">:</span><span class="w"> </span><span class="kt">RarityBucket</span><span class="p">[];</span><span class="w"> </span><span class="p">}</span>
+</span></code></pre></div>
+<p><strong>Estado en <code>core_dart</code></strong> (verificado):
+- <code>RaritySource</code>/<code>RarityBucket</code> → ✅ <code>rarity.dart</code>.
+- <code>TagStyle</code> → ⚠️ <code>tag_styles.dart</code> tiene <code>value</code>/<code>effect</code>/<code>config</code> pero <strong>NO</strong>
+  <code>fieldKey</code> ni <code>customLayers</code>. <strong>Hay que añadirlos.</strong>
+- <code>EffectLayer</code>/<code>EffectBlendMode</code>/<code>CardEffect3D</code>/<code>CardDepthLayer</code>/<code>LayerDepth</code> →
+  ❌ <strong>no existen en Dart</strong>. <strong>Hay que crearlos</strong> (sugerido: <code>card_layers.dart</code>).</p>
+<hr />
+<h2 id="3-catalogo-de-6-efectos-capa-a-si-en-contrato">3. Catálogo de 6 efectos (capa A — sí en contrato)<a class="headerlink" href="#3-catalogo-de-6-efectos-capa-a-si-en-contrato" title="Enlace permanente a esta sección">&para;</a></h2>
+<p><code>core/src/registries/visual-effects.ts</code> → serializado a
+<code>contracts/*.json</code> (<code>visualEffects[]</code>) → espejado en <code>visual_effects.dart</code>.
+Esto <strong>ya funciona</strong> en Flutter; aquí solo para referencia del render (§ render
+de cada uno en Studio: <code>VisualEffectLayers.tsx</code>).</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>layer</th>
+<th>config</th>
+<th>render (resumen Studio)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>holographic_effect</code></td>
+<td><code>overlay</code></td>
+<td><code>intensity</code> enum low/medium/high</td>
+<td>gradiente arcoíris 115°, <code>mix-blend:overlay</code>, opacidad 0.18/0.32/0.48</td>
+</tr>
+<tr>
+<td><code>crown_badge</code></td>
+<td><code>badge</code></td>
+<td><code>color</code>,<code>position</code>,<code>image_url?</code>,<code>padding_x/y</code></td>
+<td>corona/imagen en esquina</td>
+</tr>
+<tr>
+<td><code>vintage_filter</code></td>
+<td><code>filter</code></td>
+<td><code>strength</code> enum</td>
+<td>CSS <code>sepia()/grayscale()/contrast()</code> sobre la imagen</td>
+</tr>
+<tr>
+<td><code>glow_border</code></td>
+<td><code>border</code></td>
+<td><code>color</code> enum</td>
+<td>doble <code>box-shadow inset</code> + pulso de brillo</td>
+</tr>
+<tr>
+<td><code>frozen</code></td>
+<td><code>overlay</code></td>
+<td>—</td>
+<td>radial+linear azulado, <code>mix-blend:screen</code>, shimmer opacidad</td>
+</tr>
+<tr>
+<td><code>signed</code></td>
+<td><code>overlay</code></td>
+<td><code>signature_url?</code></td>
+<td>firma rotada -6° abajo-derecha (o glifo cursiva)</td>
+</tr>
+</tbody>
+</table>
+<p>Constantes de render exactas en §8.2 (por si Flutter quiere paridad fina).</p>
+<p><code>layer</code> orienta el orden de compositing del render:
+<code>filter</code> (sobre la imagen) → <code>overlay</code> (encima) → <code>border</code> (perímetro) →
+<code>badge</code> (esquina, lo más arriba).</p>
+<hr />
+<h2 id="4-foil-personalizado-effectlayer-render-mascara">4. Foil personalizado (<code>EffectLayer</code>) — render + MÁSCARA<a class="headerlink" href="#4-foil-personalizado-effectlayer-render-mascara" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Source de render: <code>kromia-studio/src/components/album/visual-effects/FoilLayer.tsx</code>.</p>
+<h3 id="41-la-capa-foil">4.1 La capa foil<a class="headerlink" href="#41-la-capa-foil" title="Enlace permanente a esta sección">&para;</a></h3>
+<ul>
+<li><code>textureUrl</code>: imagen de la lámina (tornasol/glitter/patrón). Se sirve <strong>por el
+  proxy</strong> <code>/api/images</code> (en Studio: <code>toThumbUrl</code>) — Flutter usa la URL servida.</li>
+<li><code>kind</code>:</li>
+<li><code>pattern</code> → textura <strong>en mosaico</strong> (<code>repeat</code>), tamaño <code>160% auto</code>.</li>
+<li><code>foil</code> / <code>glitter</code> → <strong>sin repetir</strong> (<code>no-repeat</code>), tamaño <code>250% 100%</code>
+    (sobredimensionada para que el "barrido" del brillo tenga recorrido).</li>
+<li><code>intensity</code> → <strong>opacidad</strong> de la capa (0..1, default <strong>0.6</strong>).</li>
+<li><code>blend</code> → modo de fusión (§4.3).</li>
+<li><code>motion</code> → cuánto se desplaza con el ángulo (0..1).</li>
+</ul>
+<h3 id="42-la-mascara-interpretacion-blanconegro-lo-critico">4.2 LA MÁSCARA — interpretación blanco/negro (lo crítico)<a class="headerlink" href="#42-la-mascara-interpretacion-blanconegro-lo-critico" title="Enlace permanente a esta sección">&para;</a></h3>
+<blockquote>
+<p><strong>Regla canónica</strong>: la máscara es una imagen en <strong>grises</strong> interpretada por
+<strong>LUMINANCIA</strong>, no por canal alfa.
+<strong>BLANCO (255) = el foil SE VE / brilla. NEGRO (0) = el foil NO se ve.
+Gris = parcial.</strong> Sin máscara = el foil cubre toda la carta.</p>
+</blockquote>
+<p>Studio lo consigue con CSS:
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// FoilLayer.tsx</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nx">WebkitMaskImage</span><span class="o">:</span><span class="w"> </span><span class="kt">mask</span><span class="p">,</span><span class="w"> </span><span class="nx">maskImage</span><span class="o">:</span><span class="w"> </span><span class="kt">mask</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nx">WebkitMaskSize</span><span class="o">:</span><span class="w"> </span><span class="s1">'cover'</span><span class="p">,</span><span class="w"> </span><span class="nx">maskSize</span><span class="o">:</span><span class="w"> </span><span class="s1">'cover'</span><span class="p">,</span><span class="w">          </span><span class="c1">// ← ALINEACIÓN (ver abajo)</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nx">WebkitMaskPosition</span><span class="o">:</span><span class="w"> </span><span class="s1">'center'</span><span class="p">,</span><span class="w"> </span><span class="nx">maskPosition</span><span class="o">:</span><span class="w"> </span><span class="s1">'center'</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="nx">WebkitMaskRepeat</span><span class="o">:</span><span class="w"> </span><span class="s1">'no-repeat'</span><span class="p">,</span><span class="w"> </span><span class="nx">maskRepeat</span><span class="o">:</span><span class="w"> </span><span class="s1">'no-repeat'</span><span class="p">,</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="nx">maskMode</span><span class="o">:</span><span class="w"> </span><span class="kt">mask</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">'luminance'</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kc">undefined</span><span class="p">,</span><span class="w">   </span><span class="c1">// ← interpreta GRISES como opacidad</span>
+</span></code></pre></div>
+<code>maskMode: 'luminance'</code> es la línea clave: una PNG en grises <strong>opaca</strong> (sin alfa)
+sin este modo se trataría como "todo visible". Con él, el valor de gris ES la
+opacidad.</p>
+<blockquote>
+<p><strong>⚠️ ALINEACIÓN del contorno (corregido 2026-06-20)</strong>: el <code>mask-size</code> DEBE
+espejar el <code>object-fit</code> con que se pinta la imagen/cutout que enmascara — en
+Kromia las imágenes van con <strong><code>object-cover</code> centrado</strong>, así que la máscara va
+con <strong><code>cover</code> + <code>center</code></strong>. La máscara se genera de ESA misma imagen (mismo
+aspect), de modo que <code>cover</code> la escala y recorta IGUAL → el contorno cae justo
+sobre los bordes del dibujo. <strong>Estirar la máscara a <code>100% 100%</code> (fill) la
+deforma</strong> cuando el aspect de la carta ≠ el de la imagen → el contorno queda
+<strong>desajustado</strong> (era el bug). En Flutter: usa el <strong>mismo <code>BoxFit</code> y alignment</strong>
+para la imagen y para la máscara (p.ej. ambos <code>BoxFit.cover</code>, <code>Alignment.center</code>).</p>
+</blockquote>
+<p><strong>Equivalente en Flutter</strong> (lo que tiene que hacer el render Dart):
+- La máscara llega como imagen en grises. <strong>Convertir luminancia → alfa</strong>:
+  <code>alpha = luminance / 255</code> (luminancia Rec.601: <code>0.299R + 0.587G + 0.114B</code>).
+- Aplicarla como máscara de la capa foil. Opciones:
+  - <code>ShaderMask</code> / <code>BlendMode.dstIn</code> con una versión de la máscara cuyo <strong>alfa =
+    luminancia</strong> (pre-procesar la máscara a alfa, o un shader que muestree
+    luminancia). <strong>No</strong> usar la máscara cruda como alfa (es opaca → no enmascara).
+  - O un <code>FragmentShader</code> que multiplique el foil por <code>maskLuminance</code>.
+- <strong>Pinta la máscara con el MISMO <code>BoxFit</code>/alignment que la imagen</strong> (<code>cover</code> +
+  <code>center</code>) o el contorno se desajusta (mismo bug que Studio tenía).
+- Resultado esperado: el tornasol <strong>solo brilla donde la máscara es clara</strong> y
+  <strong>sobre los bordes correctos</strong> del dibujo.</p>
+<h3 id="43-modos-de-fusion-effectblendmode-blend">4.3 Modos de fusión (<code>EffectBlendMode</code> → blend)<a class="headerlink" href="#43-modos-de-fusion-effectblendmode-blend" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>El valor almacenado es el <strong>técnico CSS</strong>; el label es solo presentación
+(<code>kromia-studio/.../effect-i18n.ts</code>). Mapeo CSS <code>mix-blend-mode</code> → Flutter
+<code>BlendMode</code> (Skia):</p>
+<table>
+<thead>
+<tr>
+<th><code>EffectBlendMode</code> (dato)</th>
+<th>label es-ES</th>
+<th>CSS mix-blend-mode</th>
+<th>Flutter <code>BlendMode</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>color-dodge</code></td>
+<td>Sobreexposición</td>
+<td><code>color-dodge</code></td>
+<td><code>BlendMode.colorDodge</code></td>
+</tr>
+<tr>
+<td><code>overlay</code></td>
+<td>Superposición</td>
+<td><code>overlay</code></td>
+<td><code>BlendMode.overlay</code></td>
+</tr>
+<tr>
+<td><code>screen</code></td>
+<td>Trama</td>
+<td><code>screen</code></td>
+<td><code>BlendMode.screen</code></td>
+</tr>
+<tr>
+<td><code>soft-light</code></td>
+<td>Luz suave</td>
+<td><code>soft-light</code></td>
+<td><code>BlendMode.softLight</code></td>
+</tr>
+<tr>
+<td><code>hard-light</code></td>
+<td>Luz fuerte</td>
+<td><code>hard-light</code></td>
+<td><code>BlendMode.hardLight</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="44-animacion-del-brillo-del-foil">4.4 Animación del brillo del foil<a class="headerlink" href="#44-animacion-del-brillo-del-foil" title="Enlace permanente a esta sección">&para;</a></h3>
+<ul>
+<li><strong>Modo grid</strong> (lista de cartas, sin foco): barrido automático
+  <code>background-position 0%→100%</code> ping-pong, duración <code>3.4 + index*0.5</code> s, fase
+  desincronizada por carta. (keyframe <code>kr-foil-shimmer</code>.)</li>
+<li><strong>Modo foco</strong> (carta en grande, con tilt): la posición del brillo <strong>sigue al
+  tilt</strong> vía variables <code>--holo-x</code>/<code>--holo-y</code> (0..1):
+  <code>backgroundPosition: calc(--holo-x*100%) calc(--holo-y*100%)</code>, transición 140ms.
+  → En Flutter: el offset de la textura foil = <code>(tiltX, tiltY)</code> normalizado.</li>
+</ul>
+<hr />
+<h2 id="5-resolucion-del-efecto-por-carta-rareza-tags-per-carta">5. Resolución del efecto por carta (rareza / tags / per-carta)<a class="headerlink" href="#5-resolucion-del-efecto-por-carta-rareza-tags-per-carta" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Source: <code>kromia-studio/src/components/album/visual-effects/effect-resolve.ts</code>
+(<code>resolveCardEffects</code>). <strong>Flutter debe espejar esta función pura.</strong> Algoritmo:</p>
+<ol>
+<li>Recolecta <code>tagValues</code> = valores de los campos del item con <code>behavior:'tags'</code>.</li>
+<li>Para cada <code>ts</code> en <code>tagStyles</code> (en orden = z-order que controla el publisher):</li>
+<li><strong>match</strong> =<ul>
+<li>si <code>ts.fieldKey</code>: el valor del campo <code>ts.fieldKey</code> del item == <code>ts.value</code>
+   (escalar o lista). → <strong>esta rama cubre "holográfico por <code>ordinal_enum</code>/
+   rareza"</strong> y el per-carta por PK.</li>
+<li>si no: <code>tagValues</code> contiene <code>ts.value</code> (tags clásicos standalone).</li>
+</ul>
+</li>
+<li>si no matchea → siguiente.</li>
+<li>si <code>ts.customLayers?.length &gt; 0</code> → <strong>foil personalizado</strong>: push
+     <code>{effect: ts.effect||'custom_foil', layer:'overlay', customLayers}</code> (dedup por
+     <code>custom:&lt;fieldKey&gt;:&lt;value&gt;</code>).</li>
+<li>si no → efecto de catálogo: <code>getVisualEffect(ts.effect)</code>, push
+     <code>{effect, layer: def.layer, config}</code> (dedup por <code>effect</code>).</li>
+<li>Devuelve la lista de efectos resueltos (varios → se combinan/apilan).</li>
+</ol>
+<p><strong>"Holográfico por <code>ordinal_enum</code>" = caso de <code>fieldKey</code></strong>: un <code>TagStyle</code> con
+<code>fieldKey</code> apuntando al campo de rareza (<code>rating</code>/<code>enum</code>/<code>ordinal_enum</code>) y <code>value</code>
+= el valor de rareza. NO hay un sistema separado de "efectos por rareza": es el
+mismo <code>tagStyles</code> resuelto por <code>fieldKey</code>. (Y <code>cardSchema.raritySource</code> —ya en
+<code>rarity.dart</code>— es la distribución de probabilidad de pulls, <strong>ortogonal</strong> al
+efecto visual.)</p>
+<hr />
+<h2 id="6-capas-de-profundidad-3d-parallax">6. Capas de profundidad 3D + parallax<a class="headerlink" href="#6-capas-de-profundidad-3d-parallax" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Source de lógica PURA (SDK): <code>core/src/card-layers.ts</code>.
+Source de render: <code>kromia-studio/.../DepthLayerStack.tsx</code>.</p>
+<h3 id="61-constantes-verbatim-flutter-debe-usar-exactamente-estas">6.1 Constantes (verbatim — Flutter debe usar EXACTAMENTE estas)<a class="headerlink" href="#61-constantes-verbatim-flutter-debe-usar-exactamente-estas" title="Enlace permanente a esta sección">&para;</a></h3>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">DEPTH_LAYERS_KEY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'__depthLayers'</span><span class="p">;</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">LAYER_DEPTH_ORDER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s1">'back'</span><span class="p">,</span><span class="w"> </span><span class="s1">'mid'</span><span class="p">,</span><span class="w"> </span><span class="s1">'front'</span><span class="p">];</span><span class="w"> </span><span class="c1">// orden de pintado fondo→frente</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="kd">const</span><span class="w"> </span><span class="nx">PARALLAX_FACTOR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">back</span><span class="o">:</span><span class="w"> </span><span class="kt">0.15</span><span class="p">,</span><span class="w"> </span><span class="nx">mid</span><span class="o">:</span><span class="w"> </span><span class="kt">0.45</span><span class="p">,</span><span class="w"> </span><span class="nx">front</span><span class="o">:</span><span class="w"> </span><span class="kt">1.0</span><span class="w"> </span><span class="p">};</span><span class="w"> </span><span class="c1">// 0..1</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">depthToParallaxFactor</span><span class="p">(</span><span class="nx">depth</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">PARALLAX_FACTOR</span><span class="p">[</span><span class="nx">depth</span><span class="p">]</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="mf">0.5</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="62-render-desplazamiento">6.2 Render / desplazamiento<a class="headerlink" href="#62-render-desplazamiento" title="Enlace permanente a esta sección">&para;</a></h3>
+<ul>
+<li>Las capas se pintan en orden <code>back→mid→front</code> (<code>getCardDepthLayers</code> filtra
+  malformadas y <strong>reordena</strong> por <code>LAYER_DEPTH_ORDER</code>); <code>z-index = índice</code>.</li>
+<li>Desplazamiento de cada capa con el ángulo de vista (<code>--holo-x/y</code> ∈ [0,1]):
+  <div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>amp = amplitudePx * depthToParallaxFactor(depth)
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>translate( (holo_x - 0.5) * amp ,  (holo_y - 0.5) * amp )   // ±amp/2 por eje
+</span></code></pre></div></li>
+<li><code>amplitudePx</code>: ~20px en modo foco; <strong>0 en grid</strong> (sin parallax en lista).</li>
+<li><code>overscan = amplitudePx &gt; 0 ? 1.06 : 1</code> → escala 6% cuando hay parallax, para
+    que los bordes transparentes no asomen al desplazar.</li>
+<li>transición <code>transform 120ms ease-out</code>.</li>
+<li>En <strong>Flutter</strong>: <code>holo_x/holo_y</code> salen del <strong>giroscopio</strong> (o arrastre). back se
+  mueve poco (0.15), mid medio (0.45), front mucho (1.0) → 3D real.</li>
+</ul>
+<h3 id="63-validacion-espejar-validatecarddepthlayers">6.3 Validación (espejar <code>validateCardDepthLayers</code>)<a class="headerlink" href="#63-validacion-espejar-validatecarddepthlayers" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Reglas: <code>url</code> no vacía; <code>depth</code> ∈ catálogo; si trae <code>foil</code>, su <code>textureUrl</code> no
+vacía. Lista vacía/ausente = válida (es opt-in).</p>
+<hr />
+<h2 id="7-vincular-un-foil-a-una-capa-3d-vinculada-a-capa-3d-mediofrente">7. Vincular un foil a una capa 3D ("VINCULADA A CAPA 3D · MEDIO/FRENTE")<a class="headerlink" href="#7-vincular-un-foil-a-una-capa-3d-vinculada-a-capa-3d-mediofrente" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Hay <strong>dos tipos</strong> de capa de foil en el modal "Efecto de la carta":</p>
+<table>
+<thead>
+<tr>
+<th>Tipo en UI</th>
+<th>Dónde se persiste</th>
+<th>Comportamiento de render</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>"Capa extra (toda la carta)"</strong></td>
+<td><code>TagStyle.customLayers[]</code> (album, por valor)</td>
+<td>foil <strong>fijo</strong> sobre toda la carta; <strong>no</strong> hace parallax</td>
+</tr>
+<tr>
+<td><strong>"Vinculada a capa 3D · medio/frente"</strong></td>
+<td><code>CardDepthLayer.foil</code> de esa capa (en <code>card.__depthLayers</code>)</td>
+<td>foil <strong>dentro</strong> de la capa 3D → <strong>se mueve CON el parallax</strong> de esa capa; aparece sobre la imagen de esa capa y bajo las capas más al frente</td>
+</tr>
+</tbody>
+</table>
+<p>Source: <code>depth-foil-edit.ts</code> (per-capa) vs <code>tag-styles-edit.ts</code> (toda la carta).
+En render (<code>DepthLayerStack.tsx</code>), el <code>FoilLayer</code> del <code>CardDepthLayer.foil</code> se
+pinta <strong>dentro del div con el transform de parallax de esa capa</strong> → hereda su
+desplazamiento. Un foil de capa "medio" brilla y se mueve a ritmo 0.45; uno de
+"frente" a 1.0.</p>
+<p><strong>Flutter</strong>: al componer cada <code>CardDepthLayer</code>, si tiene <code>foil</code>, renderizar el
+foil <strong>aplicando el mismo transform de parallax de la capa</strong> (no el de la carta
+entera). La máscara del foil se interpreta igual (§4.2).</p>
+<hr />
+<h2 id="8-render-del-tilt-3d-efectos-de-catalogo-constantes-para-paridad">8. Render del tilt 3D + efectos de catálogo (constantes para paridad)<a class="headerlink" href="#8-render-del-tilt-3d-efectos-de-catalogo-constantes-para-paridad" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Source: <code>kromia-studio/.../HoloCard.tsx</code> + <code>VisualEffectLayers.tsx</code> + <code>globals.css</code>.
+Estas no están en el SDK (capa C, Studio-only). Para paridad visual fina:</p>
+<h3 id="81-holocard-tilt">8.1 HoloCard (tilt)<a class="headerlink" href="#81-holocard-tilt" title="Enlace permanente a esta sección">&para;</a></h3>
+<ul>
+<li><code>perspective</code> ≈ 820px (foco ~720px); <code>maxTiltDeg</code> = <strong>12°</strong>.</li>
+<li>pointer/giroscopio normalizado <code>ex,ey ∈ [0,1]</code> →
+  <code>rotY = (ex-0.5)*2*maxTilt</code>, <code>rotX = -(ey-0.5)*2*maxTilt</code>.</li>
+<li>publica <code>--holo-x = ex</code>, <code>--holo-y = ey</code> (lo consumen foil §4.4 y parallax §6.2).</li>
+<li>transición: 80ms al seguir el cursor, 350ms al volver a plano.</li>
+<li><strong>Idle</strong> (sin cursor, opt-in): wobble elíptico
+  <code>x = 0.5 + sin(t*0.85)*0.34</code>, <code>y = 0.42 + cos(t*0.6)*0.22</code>.</li>
+<li><strong>Canto/grosor</strong>: <code>depthPx</code>=18 → N slices de 1px en <code>translateZ(-i)</code>, color
+  <code>hsl(36 30% L%)</code> con <code>L</code> de 90→46 (degradado kraft); dorso <code>hsl(34 20% 40%)</code>.</li>
+<li><strong>Bisel</strong>: <code>box-shadow inset 0 1px 1px rgba(255,255,255,.35), inset 0 -3px 6px rgba(0,0,0,.26)</code>.</li>
+<li><strong>Glare</strong>: radial blanco en <code>(ex,ey)</code>, <code>mix-blend:overlay</code>, opacidad 0.5
+  activo / 0.16 idle / 0 inactivo.</li>
+</ul>
+<h3 id="82-efectos-de-catalogo-constantes-verbatim-de-visualeffectlayerstsx">8.2 Efectos de catálogo (constantes verbatim de <code>VisualEffectLayers.tsx</code>)<a class="headerlink" href="#82-efectos-de-catalogo-constantes-verbatim-de-visualeffectlayerstsx" title="Enlace permanente a esta sección">&para;</a></h3>
+<ul>
+<li><strong>holográfico</strong>: <code>linear-gradient(115deg, transparent 10%, #ff00cc 30%, #00ffff 45%, #ffe100 60%, transparent 85%)</code>, <code>background-size:250% 100%</code>, <code>mix-blend:overlay</code>, opacidad por intensidad <strong>0.18 / 0.32 / 0.48</strong> (low/medium/high). Animado: <code>kr-holo-sweep</code> 0%→250% 3.4s alternate; foco: posición = <code>--holo-x</code>.</li>
+<li><strong>frozen</strong>: <code>radial-gradient(circle at 30% 20%, #e0f2ff66, transparent 60%), linear-gradient(160deg, #bae6fd44, #ffffff22)</code>, <code>mix-blend:screen</code>, shimmer opacidad 0.5↔0.95 (2.6s).</li>
+<li><strong>glow_border</strong>: <code>box-shadow inset 0 0 0 2px {color}, inset 0 0 13px 2px {color}cc</code>, pulso <code>brightness 1→1.35</code> (1.8s). Colores: gold <code>#f5c542</code>, silver <code>#cbd5e1</code>, bronze <code>#cd7f32</code>, blue <code>#3b82f6</code>, green <code>#22c55e</code>, red <code>#ef4444</code>, purple <code>#a855f7</code>.</li>
+<li><strong>vintage</strong>: filtro CSS — low <code>sepia(.4) saturate(.9)</code>; medium <code>sepia(.7) grayscale(.2) contrast(.95)</code>; high <code>sepia(1) grayscale(.35) contrast(.92) brightness(.96)</code>.</li>
+<li><strong>signed</strong>: imagen de firma <code>rotate(-6deg)</code> abajo-derecha (<code>bottom/right ~6px</code>, alto ~28px, <code>drop-shadow(0 1px 2px rgba(0,0,0,.5))</code>); fallback glifo cursiva <code>rotate(-8deg)</code>.</li>
+<li><strong>crown_badge</strong>: corona/imagen en esquina (<code>position</code> + <code>padding_x/y</code>).</li>
+<li><strong>reduced-motion</strong>: si <code>prefers-reduced-motion</code> → sin tilt, sin animaciones.</li>
+</ul>
+<hr />
+<h2 id="9-mascara-de-contornos-generacion-que-produce-y-como-interpretarla">9. Máscara de CONTORNOS (generación) — qué produce y cómo interpretarla<a class="headerlink" href="#9-mascara-de-contornos-generacion-que-produce-y-como-interpretarla" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Source: <code>kromia-studio/src/lib/contour-mask.ts</code> (<code>sobelContourMask</code>,
+<code>imageToContourMaskDataUrl</code>). Es <strong>Studio-only</strong> (se genera en el navegador con
+Canvas, sin IA) y el resultado se sube a MinIO y se referencia como
+<code>EffectLayer.maskUrl</code>.</p>
+<p><strong>Qué hace</strong> (para que Flutter sepa qué representa el píxel):
+1. Luminancia Rec.601 de la imagen (<code>0.299R + 0.587G + 0.114B</code>).
+2. Box blur opcional (default radio 1) para quitar grano.
+3. <strong>Sobel</strong> (KX/KY 3×3) → magnitud del gradiente = bordes.
+4. Normaliza a [0,1], aplica <code>gain</code> (default 1.6), <code>threshold</code> (default 0.06,
+   corta ruido a negro), opcional <code>invert</code>.
+5. Sale RGBA en grises: <strong>BLANCO = contorno (borde del dibujo) = donde brillará el
+   foil; NEGRO = interior/fondo plano = sin brillo.</strong></p>
+<p><strong>Implicación para Flutter</strong> (lo que el user recalca):
+- La máscara de contornos es un caso de la máscara genérica de §4.2 → se
+  interpreta <strong>igual</strong>: blanco brilla, negro no, por <strong>luminancia</strong>.
+- El foil enmascarado con contornos hace que el tornasol <strong>siga las líneas del
+  dibujo</strong> en vez de cubrir la carta plana. Flutter <strong>no</strong> genera la máscara
+  (eso es authoring de Studio); solo la <strong>consume</strong> desde <code>maskUrl</code>.
+- Si Flutter quisiera generar contornos en cliente (futuro), el algoritmo es
+  Sobel sobre luminancia con esos defaults — pero <strong>no es necesario</strong> para
+  renderizar; la máscara ya viene servida.</p>
+<hr />
+<h2 id="10-trabajo-recomendado-en-el-nucleo-core_dart-para-cerrar-el-drift">10. Trabajo recomendado en el núcleo <code>core_dart</code> (para cerrar el drift)<a class="headerlink" href="#10-trabajo-recomendado-en-el-nucleo-core_dart-para-cerrar-el-drift" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Orden sugerido (de mayor a menor impacto):</p>
+<ol>
+<li><strong><code>tag_styles.dart</code></strong>: añadir <code>fieldKey</code> y <code>customLayers</code> a <code>TagStyle</code> (+
+   <code>fromJson</code>). Sin esto, Flutter no resuelve efectos por rareza ni foil custom.</li>
+<li><strong>Nuevo <code>card_layers.dart</code></strong> (espejo de <code>card-layers.ts</code>):
+   <code>EffectLayer</code>, <code>EffectLayerKind</code>, <code>EffectBlendMode</code>, <code>CardEffect3D</code>,
+   <code>CardDepthLayer</code>, <code>LayerDepth</code>, <code>DEPTH_LAYERS_KEY</code>, <code>LAYER_DEPTH_ORDER</code>,
+   <code>PARALLAX_FACTOR</code>, <code>depthToParallaxFactor</code>, <code>getCardDepthLayers</code>,
+   <code>validateCardDepthLayers</code>. Con corpus de test 1:1 (como el resto de <code>core_dart</code>).</li>
+<li><strong>Resolver</strong> <code>resolveCardEffects</code> (espejo de <code>effect-resolve.ts</code>): pure, con
+   las mismas reglas de match/dedup de §5.</li>
+<li><strong>Render</strong> en la app respetando §4 (máscara por luminancia + blend), §6
+   (factores de parallax exactos + overscan + orden), §7 (foil vinculado hereda
+   parallax), §8 (tilt: maxTilt 12°, perspective ~820, glare, canto).</li>
+<li><strong>(Opcional) extender el drift-test</strong>: hoy <code>contract-drift.test.ts</code> solo
+   compara el <code>.json</code> (capa A). Para que esta capa B no vuelva a derivar, añadir
+   un test de paridad TS↔Dart de los <strong>constantes</strong> (<code>PARALLAX_FACTOR</code>,
+   <code>EffectBlendMode</code> set, <code>LAYER_DEPTH_ORDER</code>, claves reservadas) — el mismo patrón
+   que ya usa <code>classify_test.dart</code>. Decisión a coordinar entre los dos chats.</li>
+</ol>
+<blockquote>
+<p><strong>Nota de reparto</strong> (ver MEMORY): <code>core_dart</code> y la app las lleva el chat de
+Flutter; el SDK-TS canónico (<code>@kromia/core</code>) lo lleva el chat de Studio. Si al
+espejar detectáis que el modelo TS debería cambiar (p.ej. promover <code>EffectLayer</code>
+al <code>.json</code>, o mover un constante), abrid issue cruzado — no toquéis el TS desde
+Flutter.</p>
+</blockquote>
+<hr />
+<h2 id="11-indice-de-ficheros-verificado">11. Índice de ficheros (verificado)<a class="headerlink" href="#11-indice-de-ficheros-verificado" title="Enlace permanente a esta sección">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Qué</th>
+<th>Ruta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tipos del modelo (EffectLayer/CardDepthLayer/TagStyle/Rarity)</td>
+<td><code>kromia-sdk/packages/core/src/types.ts</code> (579–693)</td>
+</tr>
+<tr>
+<td>Lógica pura capas 3D + parallax</td>
+<td><code>kromia-sdk/packages/core/src/card-layers.ts</code></td>
+</tr>
+<tr>
+<td>Catálogo de efectos</td>
+<td><code>kromia-sdk/packages/core/src/registries/visual-effects.ts</code></td>
+</tr>
+<tr>
+<td>Serialización al .json (capa A)</td>
+<td><code>kromia-sdk/packages/core/src/generate.ts</code> (<code>serializeVisualEffect</code>)</td>
+</tr>
+<tr>
+<td>Espejo Dart catálogo</td>
+<td><code>kromia-sdk/packages/core_dart/lib/src/visual_effects.dart</code></td>
+</tr>
+<tr>
+<td>Espejo Dart TagStyle (PARCIAL)</td>
+<td><code>kromia-sdk/packages/core_dart/lib/src/tag_styles.dart</code></td>
+</tr>
+<tr>
+<td>Espejo Dart rareza</td>
+<td><code>kromia-sdk/packages/core_dart/lib/src/rarity.dart</code></td>
+</tr>
+<tr>
+<td>Espejo Dart calibración</td>
+<td><code>kromia-sdk/packages/core_dart/lib/src/image_calibration.dart</code></td>
+</tr>
+<tr>
+<td>Render tilt 3D</td>
+<td><code>kromia-studio/src/components/album/visual-effects/HoloCard.tsx</code></td>
+</tr>
+<tr>
+<td>Render foil + máscara</td>
+<td><code>kromia-studio/src/components/album/visual-effects/FoilLayer.tsx</code></td>
+</tr>
+<tr>
+<td>Render capas 3D parallax</td>
+<td><code>kromia-studio/src/components/album/visual-effects/DepthLayerStack.tsx</code></td>
+</tr>
+<tr>
+<td>Render efectos catálogo</td>
+<td><code>kromia-studio/src/components/album/visual-effects/VisualEffectLayers.tsx</code></td>
+</tr>
+<tr>
+<td>Resolver efecto por carta</td>
+<td><code>kromia-studio/src/components/album/visual-effects/effect-resolve.ts</code></td>
+</tr>
+<tr>
+<td>Generación máscara contornos</td>
+<td><code>kromia-studio/src/lib/contour-mask.ts</code></td>
+</tr>
+<tr>
+<td>i18n blend/labels</td>
+<td><code>kromia-studio/src/components/album/visual-effects/effect-i18n.ts</code></td>
+</tr>
+<tr>
+<td>Modal efecto per-carta</td>
+<td><code>kromia-studio/src/components/album/CardFoilDialog.tsx</code></td>
+</tr>
+<tr>
+<td>Edición foil per-capa-3D</td>
+<td><code>kromia-studio/src/components/album/visual-effects/depth-foil-edit.ts</code></td>
+</tr>
+<tr>
+<td>Edición tagStyles / foil toda-la-carta</td>
+<td><code>kromia-studio/src/components/album/visual-effects/tag-styles-edit.ts</code></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Kromia — privado, uso interno.
+    </div>
+  
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/luishidalgoa/kromia-sdk" target="_blank" rel="noopener" title="SDK en GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.action.edit"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
