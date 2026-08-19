@@ -1054,6 +1054,27 @@ export interface RarityBucket {
   range?: [number, number];
   /** Peso de aparición. Convención 0..100 (se normaliza al repartir). */
   weight: number;
+  /**
+   * KRO-349 — ¿conseguir una carta de esta rareza es un MOMENTO? Lo declara el
+   * publisher; no se deduce.
+   *
+   * Existe porque Kromia es genérico: cada publisher inventa sus rarezas y les
+   * pone los nombres que quiere, así que **«rara» no significa lo mismo en dos
+   * álbumes** y ningún host puede adivinar cuáles son las gordas. La app lo
+   * estaba deduciendo de un booleano `isRare`, y eso fallaba por los dos lados —
+   * una rareza intermedia se celebraba como si fuera la mejor, y un álbum cuyo
+   * eje de rareza no fuera binario no se celebraba nunca.
+   *
+   * Va en el BUCKET y no en la carta a propósito: el publisher declara sus
+   * niveles una vez —tres o cinco— en vez de marcar quinientos cromos uno a uno.
+   *
+   * Hoy lo consume el sonido de la app (la intensidad «especial» del revelado).
+   * Se deja como bandera y no como escala porque el único consumidor distingue
+   * dos casos, y una escala inventada por adelantado se queda sin significado.
+   *
+   * Ausente = `false`: un álbum que no lo declare se comporta como hasta ahora.
+   */
+  highlight?: boolean;
 }
 
 export interface RaritySource {

@@ -150,3 +150,24 @@ export function normalizeRarityWeights(buckets: RarityBucket[]): RarityBucket[] 
   }
   return buckets.map(b => ({ ...b, weight: (Math.max(0, b.weight) / total) * 100 }));
 }
+
+/**
+ * KRO-349 — ¿la rareza de esta carta es una de las que el publisher marcó como
+ * MOMENTO?
+ *
+ * Vive aquí y no en cada host porque casar el valor de una carta con su bucket
+ * NO es una comparación: para un `enum` es el valor exacto y para un `rating` es
+ * un rango inclusivo. Escrito dos veces, un álbum por rating se celebraría en un
+ * sitio y en el otro no — la misma familia de fallo que KRO-302 y KRO-338.
+ *
+ * Reutiliza `rarityBucketForValue` en vez de repetir el emparejamiento: si algún
+ * día cambia cómo se casa un bucket, cambia en un solo sitio.
+ */
+export function isHighlightRarity(
+  rs: RaritySource | undefined | null,
+  value: string | number | null | undefined,
+): boolean {
+  if (!rs?.buckets?.length) return false;
+  if (value === null || value === undefined || value === '') return false;
+  return rarityBucketForValue(value, rs.buckets)?.highlight === true;
+}

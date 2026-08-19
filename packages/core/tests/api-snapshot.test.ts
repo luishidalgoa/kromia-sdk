@@ -138,6 +138,7 @@ const EXPECTED_EXPORTS = [
   // KRO-28 — fuente de rareza (validador + helpers)
   'isFieldEligibleForRarity',
   'validateRaritySource',
+  'isHighlightRarity',
   'rarityBucketForValue',
   'normalizeRarityWeights',
   // KRO-132 — almacenamiento de medios por-álbum (ruta + slug + cuota)

@@ -168,6 +168,7 @@ export {
 export {
   isFieldEligibleForRarity,
   validateRaritySource,
+  isHighlightRarity,
   rarityBucketForValue,
   normalizeRarityWeights,
   type RarityValidationIssue,
