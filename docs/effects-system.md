@@ -139,6 +139,48 @@ profundidad (back/mid/front) → parallax 3D al inclinar. Cada capa puede llevar
 `foil` (`EffectLayer`). `CardEffect3D` = pila de capas + `depth`. Spec:
 **`docs/holographic-3d-foil-spec.md`**.
 
+## 5-bis. ⚠️ El blend de una capa depende de que su contenedor la AÍSLE
+
+Descubierto por Mobile arreglando el Zapdos en blanco (KRO-351, PR #220). Es la
+trampa más cara de esta zona porque **no es drift de contrato: los dos hosts
+cumplen la spec y aun así pintan distinto.**
+
+**El síntoma.** Una carta con `__depthLayers` y sin ninguna base (`arte` vacío y
+sin capa `back`) salía **en blanco** en la rejilla de la app, mientras en Studio se
+veía perfecta.
+
+**La causa.** El foil por-capa se pinta con un `saveLayer` que lleva el `blendMode`
+DENTRO, así que su `color-dodge` no compone contra la imagen de su capa sino
+**contra todo lo ya pintado debajo**. Sin base, eso es el papel gris
+`FOIL_ART_VOID_SUBSTRATE` (0.627), y `colorDodge(dst,src) = dst/(1-src)` satura
+cualquier brillo medio sobre ese gris. Medido: **0.63 → 0.85 → 0.94** con dos
+capas. Las cartas con base se salvan porque la base tapa el gris antes del dodge.
+
+**Por qué Studio no lo reproduce.** Cada capa va en un `div` con `transform`, y un
+`transform` crea un *stacking context* que **encierra ahí el `mix-blend-mode`**. El
+aislamiento es un efecto colateral del `transform`, no una decisión explícita —
+que es justo lo que lo hace peligroso.
+
+**La regla, para las dos plataformas:**
+
+> El `mix-blend-mode` / `blendMode` de una capa **solo compone contra lo que su
+> contenedor encierra**. Si el contenedor no aísla, compone contra todo el lienzo.
+> Antes de tocar el aislamiento de una capa —quitar un `transform`, cambiar un
+> `saveLayer`, aplanar capas «que no lo necesitan»— hay que comprobar el caso SIN
+> BASE, que es el único donde la diferencia se ve.
+
+**Si algún día se optimiza el editor** quitando el `transform` de las capas sin
+parallax, **a Studio le pasaría exactamente lo mismo**. Queda escrito aquí para que
+quien lo intente lo lea antes y no después.
+
+**Y no se arregla apagando el foil**: se probó (PR #202 de mobile), mató el
+tornasolado también en el foco y hubo que revertirlo (#203). El arreglo bueno es
+recortar la capa con su propio cutout (luminancia × alfa) cuando no hay base.
+
+**La carta sin base es VÁLIDA**, no un hueco del validador:
+`validateCardDepthLayers` no exige ninguna profundidad concreta, y Studio ya avisa
+al creador en el editor (KRO-334). El render tiene que aguantarla, no rechazarla.
+
 ## 6. Mapa de FICHEROS por plataforma
 
 ### SDK — `@kromia/core` (fuente única, TS canónico) · `packages/core/src/`

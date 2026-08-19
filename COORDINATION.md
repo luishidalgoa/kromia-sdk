@@ -78,6 +78,23 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 
 ## Cola de handoffs abierta (vivo — mantener)
 
+> ### ✅ BARRIDO 2026-08-19 — la cola de efectos está VACÍA
+>
+> Mobile repasó las entradas marcadas «NUEVO» y confirmó que **KRO-264, KRO-256,
+> KRO-257 y KRO-259 están en `main` de la app**. En particular la de KRO-264
+> (degradado multibanda del marco), que seguía abierta como pendiente: hoy está
+> resuelta en `iridescent_foil.dart:908` con `isMultibandGradient`,
+> `foilGradientPositions`, el ciclo y el paneo por giroscopio de
+> `foilMultibandPan`, y cubierta en `test/iridescent_foil_test.dart`.
+>
+> **Las entradas de abajo se conservan como historial, NO como trabajo pendiente.**
+> No las reenvíes.
+>
+> Lección que deja este barrido: una cola que solo se escribe y nunca se cierra
+> deja de ser una cola y pasa a ser ruido — y peor, ruido que parece trabajo. Al
+> cerrar un handoff, márcalo aquí en el mismo movimiento en que se cierra el ticket.
+
+
 - **Efectos → Flutter** · **NUEVO 2026-07-18 — KRO-264 · KRP 5.9.0 (minor) —
   degradado MULTIBANDA del marco**: `border_gradient_hex` acepta ahora 2–16
   colores con peso opcional `#RRGGBB@1.4` (ancho relativo de banda) + param
