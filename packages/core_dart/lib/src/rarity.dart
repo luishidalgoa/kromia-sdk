@@ -20,12 +20,29 @@ class RarityBucket {
   /// Peso de aparición. Convención 0..100 (se normaliza al repartir).
   final num weight;
 
-  const RarityBucket({this.value, this.range, required this.weight});
+  /// KRO-349 — ¿conseguir una carta de esta rareza es un MOMENTO? Lo declara el
+  /// publisher; no se deduce.
+  ///
+  /// Existe porque Kromia es genérico: cada publisher inventa sus rarezas y les
+  /// pone los nombres que quiere, así que **«rara» no significa lo mismo en dos
+  /// álbumes** y ningún host puede adivinar cuáles son las gordas.
+  ///
+  /// Va en el BUCKET y no en la carta a propósito: el publisher ya declara sus
+  /// tres o cinco niveles con sus pesos, así que marcarlos ahí es una decisión
+  /// por nivel en vez de repasar quinientos cromos, y una carta nueva hereda el
+  /// suyo sin que nadie se acuerde de nada.
+  final bool highlight;
+
+  const RarityBucket(
+      {this.value, this.range, required this.weight, this.highlight = false});
 
   factory RarityBucket.fromJson(Map<String, dynamic> json) => RarityBucket(
         value: json['value'] as String?,
         range: (json['range'] as List?)?.map((e) => e as num).toList(),
         weight: (json['weight'] as num?) ?? 0,
+        // Ausente = no es momento: un álbum que no declara nada se comporta
+        // exactamente como hasta ahora.
+        highlight: json['highlight'] == true,
       );
 }
 
@@ -208,4 +225,22 @@ List<RarityBucket> normalizeRarityWeights(List<RarityBucket> buckets) {
           range: b.range,
           weight: ((b.weight > 0 ? b.weight : 0) / total) * 100))
       .toList();
+}
+
+/// KRO-349 — ¿la rareza de esta carta es una de las que el publisher marcó como
+/// MOMENTO? Espejo de `isHighlightRarity` (`rarity.ts`).
+///
+/// Vive aquí y no en cada host porque casar el valor de una carta con su bucket
+/// **no es una comparación**: para un `enum` es el valor exacto y para un
+/// `rating` es un rango inclusivo. Escrito dos veces, un álbum por puntuación se
+/// celebraría en un sitio y en el otro no — la misma familia de fallo que
+/// KRO-302 y KRO-338.
+///
+/// Reutiliza [rarityBucketForValue] en vez de repetir el emparejamiento: si
+/// algún día cambia cómo se casa un bucket, cambia en un solo sitio.
+bool isHighlightRarity(RaritySource? rs, Object? value) {
+  final buckets = rs?.buckets;
+  if (buckets == null || buckets.isEmpty) return false;
+  if (value == null || value == '') return false;
+  return rarityBucketForValue(value, buckets)?.highlight == true;
 }

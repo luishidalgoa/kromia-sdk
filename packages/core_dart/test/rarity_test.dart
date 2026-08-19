@@ -13,6 +13,8 @@ const ratingField =
 const plainField = FieldDefLike(key: 'nombre', label: 'Nombre', type: 'text');
 
 void main() {
+  _kro349();
+
   group('isFieldEligibleForRarity', () {
     test('rating/enum/ordinal_enum → true', () {
       expect(isFieldEligibleForRarity(const FieldDefLike(key: 'x', type: 'number', behavior: 'rating')), true);
@@ -144,6 +146,67 @@ void main() {
     });
     test('vacío → vacío', () {
       expect(normalizeRarityWeights(const []), isEmpty);
+    });
+  });
+}
+
+/// KRO-349 — la importancia la DECLARA el publisher, no se deduce.
+///
+/// Espejo de `rarity.test.ts` (bloque «rarezas marcadas como momento»). Kromia
+/// es genérico: cada publisher inventa sus rarezas y les pone el nombre que
+/// quiere, así que **«rara» no significa lo mismo en dos álbumes**. La app lo
+/// deducía de un booleano `isRare` y fallaba por los dos lados.
+void _kro349() {
+  const porValor = RaritySource(fieldKey: 'rareza', buckets: [
+    RarityBucket(value: 'Común', weight: 70),
+    RarityBucket(value: 'Rara', weight: 25),
+    RarityBucket(value: 'Legendaria', weight: 5, highlight: true),
+  ]);
+
+  group('KRO-349 · rarezas marcadas como momento', () {
+    test('solo la rareza marcada cuenta como momento', () {
+      expect(isHighlightRarity(porValor, 'Legendaria'), isTrue);
+      expect(isHighlightRarity(porValor, 'Rara'), isFalse);
+      expect(isHighlightRarity(porValor, 'Común'), isFalse);
+    });
+
+    test('funciona igual cuando la rareza es un rango numérico', () {
+      // El caso que el `isRare` de la app no podía cubrir: un álbum cuyo eje de
+      // rareza es una PUNTUACIÓN. Aquí el bucket se casa por rango, no por
+      // igualdad — y por eso el helper vive en el SDK y no en cada host.
+      const porRango = RaritySource(fieldKey: 'poder', buckets: [
+        RarityBucket(range: [0, 79], weight: 90),
+        RarityBucket(range: [80, 100], weight: 10, highlight: true),
+      ]);
+      expect(isHighlightRarity(porRango, 95), isTrue);
+      expect(isHighlightRarity(porRango, 80), isTrue, reason: 'inclusivo');
+      expect(isHighlightRarity(porRango, 79), isFalse);
+      expect(isHighlightRarity(porRango, '95'), isTrue, reason: 'llega como texto');
+    });
+
+    test('sin declarar, nada es momento', () {
+      // Un álbum que no declara nada se comporta EXACTAMENTE como hasta ahora.
+      const sinMarcar = RaritySource(
+          fieldKey: 'rareza',
+          buckets: [RarityBucket(value: 'Común', weight: 100)]);
+      expect(isHighlightRarity(sinMarcar, 'Común'), isFalse);
+      expect(isHighlightRarity(null, 'Legendaria'), isFalse);
+    });
+
+    test('un valor que no cae en ningún bucket no es momento', () {
+      expect(isHighlightRarity(porValor, 'Inventada'), isFalse);
+      expect(isHighlightRarity(porValor, ''), isFalse);
+      expect(isHighlightRarity(porValor, null), isFalse);
+    });
+
+    test('y el highlight sobrevive al JSON', () {
+      // Llega del backend, no se construye a mano.
+      final b = RarityBucket.fromJson(
+          {'value': 'Legendaria', 'weight': 5, 'highlight': true});
+      expect(b.highlight, isTrue);
+      expect(RarityBucket.fromJson({'value': 'Común', 'weight': 70}).highlight,
+          isFalse,
+          reason: 'ausente = no es momento');
     });
   });
 }
