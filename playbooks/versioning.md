@@ -59,6 +59,9 @@ Categorías: **Added** (features) · **Changed** (mejoras/cambios de comportamie
 ### Al cerrar trabajo user-facing (cada ship-task)
 - [ ] Añade **1 entrada por cambio user-facing** (no por commit) bajo
   `## [Unreleased]`, en su categoría, con las refs `(KRO-NN)`.
+- [ ] **Funde la entrada en la cabecera de categoría que YA existe** bajo
+  `[Unreleased]`; no cuelgues un `### Added` nuevo debajo del tuyo. Al cortar la
+  versión la duplicación queda congelada, y las notas de la Release SON ese texto.
 - [ ] Los cambios triviales (typo, formato, refactor interno, bump de submódulo)
   NO van al changelog.
 - [ ] Un cambio que toca varios repos → entrada en el `CHANGELOG.md` de **cada
@@ -68,6 +71,11 @@ Categorías: **Added** (features) · **Changed** (mejoras/cambios de comportamie
 - [ ] Decide MINOR vs PATCH según lo acumulado en `[Unreleased]`.
 - [ ] Renombra `## [Unreleased]` → `## [X.Y.Z] - YYYY-MM-DD` y crea un
   `[Unreleased]` vacío arriba.
+- [ ] Comprueba que la sección cortada lleva **una sola cabecera por categoría**,
+  en orden `Added · Changed · Deprecated · Removed · Fixed · Security`. Si hay
+  duplicadas, reagrupa ANTES de tagear — después el tag ya está publicado y
+  moverlo pide force. Verifica comparando el CONJUNTO de entradas antes/después,
+  no a ojo.
 - [ ] Bump de la versión en `package.json` (Studio/backend) o `pubspec.yaml`
   (Flutter) a `X.Y.Z`.
 - [ ] Tag `vX.Y.Z` en ese repo **solo con permiso del user** (aplica la regla
@@ -86,8 +94,13 @@ Categorías: **Added** (features) · **Changed** (mejoras/cambios de comportamie
   es un acto de release; confírmalo con el user (regla de no-push).
 - **Idioma**: el changelog es cara al usuario → español claro, no jerga interna
   ni nombres de símbolos de código.
+- **Cabeceras de categoría duplicadas**: ir acumulando en `[Unreleased]` tarea a
+  tarea hace que cada una pegue su propio `### Added`. Medido en el corte
+  0.11.0/0.9.0: `### Added` ×3 y `### Fixed` ×3 dentro de la MISMA versión. Se
+  evita al añadir; al cortar ya solo queda reagrupar.
 
 ## Last verified
 
-2026-07-04 — creación del histórico de CHANGELOG de Studio (585 commits del
-último mes condensados) + esta política.
+2026-08-20 — corte de Studio 0.11.0 + backend 0.9.0 end-to-end (CHANGELOG, bump,
+tag al commit del corte y GitHub Release desde la sección). Antes: 2026-07-04,
+creación del histórico de CHANGELOG de Studio + esta política.
