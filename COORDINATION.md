@@ -40,15 +40,13 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
    | Chat | `session_id` | cwd |
    |---|---|---|
    | **Kromia Brain** (Studio: editor web + backend + SDK, **efectos incluidos**) | `local_13e92463-5a04-40c8-b4bb-e182142b2f94` | `Downloads/kromia-studio` |
-   | **Kromia mobile** (Flutter: `core_dart` + app + su render) | ⚠️ `local_a987e3aa-6bba-47b2-b9b6-e34cb9b1c7ae` **ARCHIVADA (2026-08-21)** — rebota | `Downloads/kromia-mobile` |
+   | **Kromia mobile** (Flutter: `core_dart` + app + su render) | `local_a987e3aa-6bba-47b2-b9b6-e34cb9b1c7ae` | `Downloads/kromia-mobile` |
 
-   ⚠️ **2026-08-21 — el id de Mobile REBOTA.** La sesión se archivó el mismo día en
-   que mandó su último mensaje (KRO-366 en la app, PR #252). `list_sessions` deja
-   tres sesiones en `Downloads/kromia-mobile` y **ninguna se llama «Kromia mobile»**:
-   `local_f02eb252-…` («Ondine», PR 216, creada el 20-jul) es la única con actividad
-   reciente, pero el título no manda a favor y adivinar el destinatario es peor que
-   no mandar nada. **Pendiente de que el user confirme el id nuevo.** Hasta entonces,
-   los handoffs a Mobile van a la Cola de abajo.
+   ℹ️ **2026-08-21/22 — el id de Mobile estuvo ARCHIVADO unas horas** y `send_message`
+   rebotaba. Se desarchivó y volvió a funcionar con el MISMO id. Lección: cuando
+   rebote, **NO adivines** — en `Downloads/kromia-mobile` hay tres sesiones y la que
+   tenía actividad reciente («Ondine») no era la buena. El título manda; si ninguna
+   encaja, el handoff se encola aquí y se pregunta al user.
 
    ⚠️ **El chat de Efectos SE DISUELVE (decisión del user, 2026-08-11).** Llevaba sin
    actividad desde el 24 de julio y su terreno se quedó sin dueño: durante ese tiempo
@@ -103,58 +101,13 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 > cerrar un handoff, márcalo aquí en el mismo movimiento en que se cierra el ticket.
 
 
-- **Studio → Mobile** · **NUEVO 2026-08-21 — KRO-367 + respuestas a sus tres
-  preguntas de KRO-366.** No se pudo entregar por `send_message` (id archivado).
-
-  **Respuestas a lo que preguntaron** (comprobado en el código, no de memoria):
-
-  1. **`distanciaM` con `puede: true`**: SÍ llega. `loQueVeElCliente` la mete en
-     cuanto existe, sin mirar el veredicto. Que la enseñen — «estáis a 40 m» en un
-     sitio con gente ya no dice si podéis cerrar, dice hacia dónde mirar.
-  2. **El primer `proximity`**: NO llega nada hasta la primera `trade:position`;
-     `proximity` se emite desde un único sitio y es dentro de `handlePosicion`. Y es
-     lo correcto: el hueco que les preocupa es un estado que **solo conoce la app**
-     (si pidieron el permiso y qué contestó). El servidor no distingue «denegó» de
-     «todavía no se lo has pedido», y esos dos se pintan distinto.
-  3. **`close_too_far`**: trae lo mismo que `proximity` (`motivo`, `radioM`, y
-     `distanciaM` **solo cuando se ha podido calcular**). Si falta una posición o
-     está caducada no hay distancia — no se omite, es que no existe.
-  4. **Posiciones fuera de `agreed`**: se **descartan**. La guarda
-     (`if (roomSession.status !== 'agreed') return;`) es la PRIMERA línea, antes de
-     tocar el mapa. Ninguna ruta las escribe. Test: «no se acepta si el trueque no
-     está apalabrado».
-
-  **Les falta un motivo**: además de `sin_posicion` y `demasiado_lejos` existe
-  **`posicion_vieja`** (la compartió y dejó de hacerlo; caduca a los 2 min). Su
-  `desconocido` lo recoge sin mentir —bien diseñado— pero merece texto propio:
-  «vuelve a compartir tu ubicación» es accionable, «todavía no se puede cerrar» no.
-
-  **Eventos NUEVOS de KRO-367** que les tocan para las pantallas:
-  entrada `trade:reject` (sin payload); salida `rejected` `{quien, motivo}` a los
-  dos, `reject_too_late` y `close_expired` al emisor, `expired` a los dos. El
-  **motivo lo decide el servidor** (`no_interesa` | `se_echo_atras`) — que NO
-  ofrezcan texto libre: un motivo escrito por una persona es un mensaje dirigido a
-  otra que queda en su historial y no se puede contestar.
-
-  **El historial cambió de forma**: unión discriminada por `desenlace`. Un
-  `rechazado` no tiene cartas, ni lugar, ni distancia (no están vacíos: no están).
-  Las filas antiguas sin `desenlace` se leen como `hecho`. Detalle en
-  `docs/SOCKETS_MAP.md` y `docs/API_MAP.md`.
-
-  **KRO-371 — YA ARREGLADO** (`180f1ac`, 2026-08-21). Lo dejo escrito porque en la
-  primera versión de este handoff les avisaba de que estaba roto: **ya no lo está**,
-  y no tienen nada bloqueado para la pantalla de la sala.
-
-  Lo que era: un acuerdo dejaba de ser alcanzable a los 5 min —`trade:join` solo
-  miraba memoria y `recuperarSesionDeDisco` no la llamaba nadie— así que salía en
-  `/me/active` y al entrar respondía `session_not_found`. Ahora se recupera de disco,
-  volver conserva la oferta, la aceptación y el rol, y el acuerdo NO se degrada a
-  `active` al entrar.
-
-  **Y un evento nuevo que les toca**: `trade:error#not_a_participant`. Se entraba a
-  un trueque ajeno conociendo el identificador de la sala —viaja en una notificación
-  y en un enlace— y ahora solo entra quien ya es de ella. Si su pantalla construye
-  un join desde un enlace, ese es el error que puede recibir.
+- **Studio → Mobile** · ✅ **ENTREGADO 2026-08-22** — KRO-367 + KRO-371 + respuestas a
+  sus tres preguntas de KRO-366. Estuvo encolado unas horas porque su id estaba
+  archivado. Contenido: los 5 eventos nuevos de KRO-367 (`trade:reject`, `rejected`,
+  `reject_too_late`, `expired`, `close_expired`), el `not_a_participant` de KRO-371,
+  el tercer motivo que les faltaba (`posicion_vieja`), y el aviso de que **su pantalla
+  de historial revienta con un trueque rechazado** (unión discriminada: un rechazado
+  no trae `diste`/`recibiste`). Nada pendiente por este lado.
 
 - **Efectos → Flutter** · **NUEVO 2026-07-18 — KRO-264 · KRP 5.9.0 (minor) —
   degradado MULTIBANDA del marco**: `border_gradient_hex` acepta ahora 2–16
