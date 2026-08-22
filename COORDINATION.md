@@ -101,6 +101,29 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 > cerrar un handoff, márcalo aquí en el mismo movimiento en que se cierra el ticket.
 
 
+- **Studio → Mobile** · **PENDIENTE 2026-08-22 — invitar a gente DESCONECTADA**
+  (`911433c`). Su sesión se archivó otra vez. **Esto les cambia una pantalla, que lo
+  lean antes de seguir.**
+
+  - **`invite_user_offline` YA NO EXISTE.** Que lo quiten. Se puede invitar a alguien
+    desconectado: recibe una notificación, no un evento de socket. Era un resto de
+    cuando las salas vivían solo en memoria — contradecía su `espera` y los 14 días,
+    y hacía que la pantalla de a quién proponer fuera un generador de fallos (esa
+    lista es gente que estará desconectada casi siempre).
+  - **Invitar dos veces a la misma persona devuelve `invite_reused` con el
+    `roomSessionId` de la sala QUE YA HABÍA**, no uno nuevo. Hizo falta porque ahora
+    lo normal es que la sala esté en disco y fuera de memoria, y la comprobación solo
+    miraba el `Map`: se creaban dos y la notificación vieja llevaba a una muerta.
+  - `invite_failed` partido en `invite_self` e `invite_user_not_found`.
+  - **`session_expired` reescrito**: su descripción decía «ha caducado» e inducía a
+    confundirlo con `expired`. Ahora las dos entradas se señalan entre sí. Dato que
+    no tenían: desde KRO-371 `session_expired` no puede dispararse sobre un
+    apalabrado.
+
+  ⚠️ **Sin decidir y avisado al user**: cuántas propuestas abiertas puede tener una
+  persona. Hoy depende de si tu sala seguía en memoria, que es incoherente. Si su
+  pantalla asume una u otra cosa, que lo digan.
+
 - **Studio → Mobile** · ✅ **ENTREGADO 2026-08-22 — 7 estados nuevos en avisos de
   trueque** (`db3e0d9`). Estuvo unos minutos en cola: su sesión se archiva sola en
   cuanto deja de estar en primer plano, y hubo que pedirle al user que la abriera.
