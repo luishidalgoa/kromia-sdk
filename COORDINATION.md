@@ -101,8 +101,8 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 > cerrar un handoff, márcalo aquí en el mismo movimiento en que se cierra el ticket.
 
 
-- **Studio → Mobile** · **PENDIENTE 2026-08-22 — `precisionM` no se manda nunca.**
-  Su sesión volvió a archivarse. **No bloquea la build**, pero conviene que lo lean.
+- **Studio → Mobile** · ✅ **ENTREGADO 2026-08-22 — `precisionM` no se manda nunca**,
+  junto con la pregunta del user de si están listos para la build.
 
   Su `dondeEstoy` (`sala_de_trueque.dart:411`) manda `{'lat','lng'}` y nada más; la
   palabra `precision` no aparece en toda la feature. **Con eso el margen del GPS no se
