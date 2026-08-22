@@ -101,6 +101,28 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 > cerrar un handoff, márcalo aquí en el mismo movimiento en que se cierra el ticket.
 
 
+- **Studio → Mobile** · **PENDIENTE 2026-08-22 — `precisionM` no se manda nunca.**
+  Su sesión volvió a archivarse. **No bloquea la build**, pero conviene que lo lean.
+
+  Su `dondeEstoy` (`sala_de_trueque.dart:411`) manda `{'lat','lng'}` y nada más; la
+  palabra `precision` no aparece en toda la feature. **Con eso el margen del GPS no se
+  aplica jamás**: `sePuedeCerrar` suma el margen de los dos antes de comparar con los
+  300 m, y sin el campo el margen es cero — se puede cerrar estando a ~340 m reales.
+
+  Poco grave en la práctica (al aire libre son 5-20 m), pero **falla hacia el lado
+  equivocado**: todo el modelo está hecho para fallar CERRADO y esto abre la puerta en
+  vez de cerrarla. Y es otra vez el mismo bicho de la semana — una regla escrita,
+  probada y VERDE que no corre porque nadie la activa, igual que
+  `recuperarSesionDeDisco` en KRO-371. Mis tests del margen pasan; el margen no se
+  aplica en producción.
+
+  Si su paquete de geolocalización da `accuracy`, es mandarlo tal cual: el servidor lo
+  usa si viene y lo ignora si no.
+
+  Lo demás está: con `f9598f1` (ubicación) y `62fa5d0` (elegir cartas) el flujo está
+  entero por los dos lados. KRO-364 queda en **verificación**, no completado — el
+  código está, pero eso no lo decide el código.
+
 - **Studio → Mobile** · ✅ **ENTREGADO 2026-08-22 — invitar a gente DESCONECTADA
   (`911433c`) + varias propuestas a la vez (`6b4b26e`)**. Lo segundo les cambia el
   flujo: **hay que hacer `trade:join` antes de operar sobre una sala**, porque con
