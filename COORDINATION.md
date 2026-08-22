@@ -101,9 +101,10 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 > cerrar un handoff, márcalo aquí en el mismo movimiento en que se cierra el ticket.
 
 
-- **Studio → Mobile** · **PENDIENTE 2026-08-22 — invitar a gente DESCONECTADA**
-  (`911433c`). Su sesión se archivó otra vez. **Esto les cambia una pantalla, que lo
-  lean antes de seguir.**
+- **Studio → Mobile** · ✅ **ENTREGADO 2026-08-22 — invitar a gente DESCONECTADA
+  (`911433c`) + varias propuestas a la vez (`6b4b26e`)**. Lo segundo les cambia el
+  flujo: **hay que hacer `trade:join` antes de operar sobre una sala**, porque con
+  varias abiertas la sala ya no se resuelve por persona sino por socket.
 
   - **`invite_user_offline` YA NO EXISTE.** Que lo quiten. Se puede invitar a alguien
     desconectado: recibe una notificación, no un evento de socket. Era un resto de
