@@ -101,9 +101,9 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 > cerrar un handoff, márcalo aquí en el mismo movimiento en que se cierra el ticket.
 
 
-- **Studio → Mobile** · **PENDIENTE 2026-08-22 — 7 estados nuevos en avisos de
-  trueque** (`db3e0d9`). No entregado: su sesión se archivó otra vez justo después de
-  contestar. **Que lo lean ANTES de terminar la pantalla de la sala.**
+- **Studio → Mobile** · ✅ **ENTREGADO 2026-08-22 — 7 estados nuevos en avisos de
+  trueque** (`db3e0d9`). Estuvo unos minutos en cola: su sesión se archiva sola en
+  cuanto deja de estar en primer plano, y hubo que pedirle al user que la abriera.
 
   Decidieron —con razón— no pintar el `message` del servidor. Comprobado que Studio no
   consume ni un socket de trueque, así que son el único cliente y ese texto no lo
