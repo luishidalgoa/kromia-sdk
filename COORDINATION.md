@@ -101,6 +101,32 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 > cerrar un handoff, márcalo aquí en el mismo movimiento en que se cierra el ticket.
 
 
+- **Studio → Mobile** · **PENDIENTE 2026-08-22 — 7 estados nuevos en avisos de
+  trueque** (`db3e0d9`). No entregado: su sesión se archivó otra vez justo después de
+  contestar. **Que lo lean ANTES de terminar la pantalla de la sala.**
+
+  Decidieron —con razón— no pintar el `message` del servidor. Comprobado que Studio no
+  consume ni un socket de trueque, así que son el único cliente y ese texto no lo
+  renderiza nadie. **Pero eso dejaba SIETE avisos mudos**: su único contenido era esa
+  frase, sin `status`. `delete_RoomSession` era el peor — tres significados metidos en
+  una sola frase en castellano.
+
+  Ahora llevan estado: `invite_sent` · `invite_reused` · `invite_failed` · `joined` ·
+  `session_closed` · `session_denied` · `participant_disconnected`.
+
+  Lo que más les afecta al montar la sala:
+  - **`invite_sent` vs `invite_reused`**: para quien invita no es lo mismo «se ha
+    enviado» que «ya estabais en una». Antes solo se distinguían por el texto.
+  - **No confundir `session_closed` / `expired` / `rejected`**: los dos últimos cuentan
+    POR QUÉ acabó; el primero solo dice que la sala se soltó. Tratarlos igual hace que
+    un caducado y un rechazado se lean como lo mismo, y en el historial no lo son.
+  - Que se suelte la sala **no borra el trueque**: si estaba apalabrado sigue en disco
+    y se vuelve con `trade:join`. Es su propio punto de que un aviso perdido no puede
+    ser la única forma de enterarse de nada.
+
+  La entrada `trade:session#(sin status)` del mapa deja de tapar cinco cosas y pasa a
+  ser un centinela. Todo en `docs/SOCKETS_MAP.md`.
+
 - **Studio → Mobile** · ✅ **ENTREGADO 2026-08-22** — KRO-367 + KRO-371 + respuestas a
   sus tres preguntas de KRO-366. Estuvo encolado unas horas porque su id estaba
   archivado. Contenido: los 5 eventos nuevos de KRO-367 (`trade:reject`, `rejected`,
