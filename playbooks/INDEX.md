@@ -22,6 +22,7 @@
 | Empezar una feature/bug/mejora nueva (planificación, Jira, branch) | [start-feature.md](start-feature.md) |
 | Cerrar una tarea (cierre Jira, memoria, commits, follow-ups) | [ship-task.md](ship-task.md) |
 | Añadir o modificar un **playbook** | [add-playbook.md](add-playbook.md) |
+| **Depurar, probar, o dar algo por funcionando** | [../docs/verificar-de-verdad.md](../docs/verificar-de-verdad.md) — doc densa, no playbook |
 
 ## Convención de formato
 
