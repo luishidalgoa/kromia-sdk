@@ -42,6 +42,16 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
    | **Kromia Brain** (Studio: editor web + backend + SDK, **efectos incluidos**) | `local_13e92463-5a04-40c8-b4bb-e182142b2f94` | `Downloads/kromia-studio` |
    | **Kromia mobile** (Flutter: `core_dart` + app + su render) | `local_a987e3aa-6bba-47b2-b9b6-e34cb9b1c7ae` | `Downloads/kromia-mobile` |
 
+   ⚠️ **2026-08-27 — el destinatario ya NO se direcciona por `local_<uuid>`, sino por
+   NOMBRE**, y el nombre CAMBIA entre sesiones. Ese día Mobile pasó a llamarse
+   `kromia-mobile-67` y este chat `kromia-studio-45`; el `local_a987e3aa-…` de la tabla
+   rebotó con *«No agent named … is reachable»*. Y horas después `kromia-mobile-67`
+   también rebotó, porque la sesión había terminado.
+
+   **O sea: esta tabla no puede ser la fuente de la dirección.** Saca el nombre de
+   `ListAgents` justo antes de escribir — es lo único que está vivo. Los ids de aquí
+   sirven para saber QUIÉN es quién, no para direccionar.
+
    ℹ️ **2026-08-21/22 — el id de Mobile estuvo ARCHIVADO unas horas** y `send_message`
    rebotaba. Se desarchivó y volvió a funcionar con el MISMO id. Lección: cuando
    rebote, **NO adivines** — en `Downloads/kromia-mobile` hay tres sesiones y la que
@@ -100,6 +110,38 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 > deja de ser una cola y pasa a ser ruido — y peor, ruido que parece trabajo. Al
 > cerrar un handoff, márcalo aquí en el mismo movimiento en que se cierra el ticket.
 
+
+- **Studio → Mobile** · 🔴 **SIN ENTREGAR (2026-08-27) — KRO-386: al elegir qué
+  cartas ofreces no se ve el cromo.** `hoja_de_cartas.dart` no tiene ningún widget
+  `Image`; la celda pinta un `Container` con color, número y nombre.
+
+  **No es MinIO** — que era la sospecha, y por eso conviene decirlo antes que nada:
+  el `MINIO_ENDPOINT_HOST` del backend ya apunta a `s3.minio.hdglabs.com`, y en el
+  mismo dispositivo y la misma sesión la parrilla del álbum pinta las seis cartas
+  con su foto. La imagen no falla al cargar: no se pide nunca. La parrilla del álbum
+  ya resuelve bien la URL, así que hay de dónde copiarla.
+
+  Suelto y aparte: en la cabecera del álbum el publisher sale como «Un desconocido».
+
+- **Studio → Mobile** · 🔴 **SIN ENTREGAR (2026-08-27) — contrato de KRO-384: cambiar
+  de álbum dentro de la sala.** Mobile lo estaba esperando y había parado a propósito
+  para no empezar sin él; cuando lo tuve escrito, su sesión ya había terminado y
+  `send_message` rebotó.
+
+  **El contrato entero está en la descripción de KRO-384** (evento, los cuatro estados
+  de salida, qué pinta cada uno y por qué), así que no hay que reconstruirlo: basta con
+  apuntar allí. Backend en `main` del backend, `a29f236`.
+
+  Lo que NO está en el ticket y hay que decirle a la cara:
+
+  - El user lo pidió en primera persona («el álbum de las cartas que ofrezco») y **lo
+    implementé como álbum DEL TRUEQUE**, uno solo para los dos. Si al montar la
+    pantalla se ve que quería lo otro, el cambio es de Studio, no suyo.
+  - `offer_wrong_album` es un aviso **para el cliente**, no para el usuario: significa
+    que la app mandó el álbum viejo tras un `album_changed` que no aplicó.
+
+  Pendiente también de entregarle: la copia exacta del toast sin conexión que pidió el
+  user — **«Sin conexión, revisa tu conexión»**, sin detalle debajo.
 
 - **Studio → Mobile** · ✅ **ENTREGADO 2026-08-22 — `precisionM` no se manda nunca**,
   junto con la pregunta del user de si están listos para la build.
