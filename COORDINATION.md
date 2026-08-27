@@ -111,6 +111,19 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 > cerrar un handoff, márcalo aquí en el mismo movimiento en que se cierra el ticket.
 
 
+- **Studio → Mobile** · 🔴 **SIN ENTREGAR (2026-08-27) — lo de KRO-385 que le cambia
+  la pantalla.** Dos cosas, y la primera puede que la tenga apuntada como fantasma:
+
+  1. **Quitar la última carta de la mesa reventaba el manejador de la oferta.**
+     `groupByIndexAndSumQuantity([])` devolvía `undefined` (el `switch` sobre
+     `typeof cards[0]` no entra en ningún `case`) y quien llama seguía con un `.map`.
+     Si tenían un «a veces al vaciar la oferta no pasa nada», era esto. Arreglado.
+  2. **Haber ofrecido pasa a ser tener cartas en la mesa, no un estado.** Antes
+     `offeredCards: []` dejaba `trade_status='propose_trade'` y se podía apalabrar un
+     trueque de nada por nada. Ahora sale `offer_required` → **hay que apagar
+     «Estamos de acuerdo» si cualquiera de las dos mesas está vacía**, o le darán y
+     recibirán un rechazo que no esperaban.
+
 - **Studio → Mobile** · 🔴 **SIN ENTREGAR (2026-08-27) — KRO-386: al elegir qué
   cartas ofreces no se ve el cromo.** `hoja_de_cartas.dart` no tiene ningún widget
   `Image`; la celda pinta un `Container` con color, número y nombre.
@@ -122,6 +135,18 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
   ya resuelve bien la URL, así que hay de dónde copiarla.
 
   Suelto y aparte: en la cabecera del álbum el publisher sale como «Un desconocido».
+
+  > **Segundo intento fallido (2026-08-27, más tarde).** Mobile escribió otra vez
+  > —#302 mergeado, su `main` en `fa1ba7e`— diciendo textualmente *«no empiezo lo de
+  > cambiar álbum, espero tu contrato entero»*. Al ir a contestar, su sesión ya no
+  > estaba en `ListAgents` ni por id ni por nombre: **el mensaje salió justo al
+  > cerrarse**. O sea que el rebote no avisa de nada — puede llegarte algo de una
+  > sesión que ya no existe.
+  >
+  > En ese mensaje confirmó, comprobándolo y no de memoria, que **su pantalla topa
+  > las cantidades**: `cabeEnFiltro` exige `tienes > 0` y la selección es un
+  > conjunto. Con eso, KRO-385 no le salta a nadie honesto — el agujero era del
+  > payload, no de la interfaz.
 
 - **Studio → Mobile** · 🔴 **SIN ENTREGAR (2026-08-27) — contrato de KRO-384: cambiar
   de álbum dentro de la sala.** Mobile lo estaba esperando y había parado a propósito
