@@ -111,6 +111,40 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 > cerrar un handoff, márcalo aquí en el mismo movimiento en que se cierra el ticket.
 
 
+- **Studio → Mobile** · 🔴 **SIN ENTREGAR (2026-08-27) — la librería de iconos se
+  queda en Lucide, y es decisión de CONTRATO.** El user preguntó por Hugeicons; al
+  ver el alcance decidió mantener Lucide. Queda escrito en `AGENTS.md` de Studio
+  (commit `edef10c`).
+
+  Lo que Mobile tiene que saber: **no metáis otra librería de iconos.**
+  `@kromia/core` es dueño de `lucideIconName` —fuente única del catálogo de iconos
+  de sección— y Flutter renderiza el mismo glifo desde ese nombre. Cambiarlo sería
+  bump de `protocolVersion` **más** migración de los iconos que los publishers ya
+  eligieron, que están guardados por ese id.
+
+  Alcance medido por si se retoma: Studio ~148 ficheros / ~196 iconos, Mobile 5
+  ficheros / 83. Y antes de nada, comprobar si esos ~200 caen en el set gratuito de
+  Hugeicons o en el pro de pago.
+
+- **Studio → Mobile** · 🔴 **SIN ENTREGAR (2026-08-27) — cinco hallazgos de la
+  primera prueba del trueque a dos dispositivos.** Todos con ticket propio y con
+  la evidencia dentro; aquí solo el índice:
+
+  - **KRO-387** — «Activar la ubicación» no hace nada, bloquea el hilo de interfaz
+    y llega a ANR. Traza: `unregisterGnssNmeaCallback` en el `main`. **Es lo único
+    que impide probar el cierre de los 300 m.**
+  - **KRO-388** — aceptar no se nota en la sala: ni tú lo ves ni lo ve el otro. El
+    servidor SÍ lo registra (`trade_accepted` en disco) y emite
+    `pending_confirmation`; no se pinta.
+  - **KRO-389** — al cancelar, la tarjeta dice «prueba_bruno ha cancelado» y el
+    aviso «Has rechazado» — en la misma pantalla. (La mitad del aviso que no se
+    manda es del backend, mía.)
+  - **KRO-390** — los avisos de la sala se comen media pantalla; el user los quiere
+    plegables. **Ojo**: eso dejó «Cancelar el trueque» fuera de la vista detrás de
+    la barra fija.
+  - **KRO-386** — el cromo del selector y de la mesa sale sin imagen **y sin
+    nombre** (solo `#7`).
+
 - **Studio → Mobile** · 🔴 **SIN ENTREGAR (2026-08-27) — lo de KRO-385 que le cambia
   la pantalla.** Dos cosas, y la primera puede que la tenga apuntada como fantasma:
 
