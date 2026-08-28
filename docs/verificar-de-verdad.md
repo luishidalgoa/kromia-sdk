@@ -31,6 +31,37 @@ si fueran las cartas poseídas — comparaba la oferta consigo misma y **nunca p
 fallar**. Meses en verde. Y su hermano: una cantidad negativa **invertía el
 sentido del intercambio** (ofrecer «menos una» carta era quitársela al otro).
 
+### Si el sabotaje NO lo pone rojo: la precondición no estaba montada
+
+Es el reverso de la regla de arriba, y es el fallo más repetido de los dos
+chats: en una sola noche cayeron **cuatro tests** con esta forma exacta. Un test
+que **afirma un estado de partida que nunca llegó a montar** pasa en verde
+diga lo que diga el código.
+
+Se presenta de tres maneras, y ninguna se ve leyendo el test:
+
+- **El estado de partida por defecto no es el que crees.** Una sala de trueque
+  arranca en `espera` y **fuera** de la sala. Un test que dice probar «no se
+  manda nada sin haber aceptado» pasaba por el guarda **de al lado** —el del
+  estado—, así que el guarda que decía probar se podía **borrar entero** y
+  seguía verde. Otro no llegaba a mandar nada porque el montaje estaba fuera de
+  la sala, no porque el enlace estuviera bien.
+- **El paso anterior no llegó a guardar.** Un «retirado» parecía funcionar
+  porque el disco ya decía `propose_trade`: la aceptación nunca se había
+  persistido, y el test no lo comprobaba.
+- **Mides el efecto de al lado.** Contar llamadas a algo que **el paso previo ya
+  hizo**, o fotogramas de una animación que **no es la tuya** (el color va en su
+  propio tween, así que siempre hay *algo* moviéndose). El test dice que sí a
+  una pregunta que no es la que crees estar haciendo.
+
+**Cómo se caza**: sabotea, y si sigue verde **no lo dejes pasar** — no es que el
+código esté especialmente bien, es que el test no lo está tocando. Después
+**afirma la precondición dentro del propio test** (`expect` sobre el estado de
+partida, antes de actuar) y **ata la medida a la cosa concreta**: no «¿pulsa
+algo?», sino «¿pulsa *este*?».
+
+> Un test que pasa por el guarda de al lado protege el guarda de al lado.
+
 ## 2. Mira el dato antes de teorizar
 
 Los nombres de las funciones mienten; los datos no.
