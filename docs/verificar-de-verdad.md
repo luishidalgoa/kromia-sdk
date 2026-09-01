@@ -77,6 +77,37 @@ enseñarte un estado que la pantalla ya superó. Pasó: di por no entregada una
 aceptación que sí había llegado — y de tirar de ahí salió que la primera
 aceptación **no se persistía** (KRO-395).
 
+### El mensaje de error suele nombrar la causa equivocada
+
+Cuatro veces en una sola sesión, y ninguna se resolvió razonando mejor:
+
+| lo que decía | lo que era |
+|---|---|
+| un punto verde suelto, «resto de render» | la **ruedecita de carga** girando para siempre — el problema entero |
+| `sala e5e1166c inexistente` | existía; lo que pasa es que **terminó** y se olvida de memoria |
+| `Instance failed to start` (mongod) | arrancaba bien: **tardaba más de los 10 s** del timeout |
+| el GPS «se abre y se cierra a los 4 s» | eran 4 s porque **ya tenía la posición**: era un éxito |
+
+Los cuatro se cerraron **encendiendo algo** —una sonda, el modo depuración, un
+test que ejecutara lo que se estaba deduciendo— y no pensando más rato.
+
+**El detalle que no encaja no es un detalle menor: suele ser el síntoma
+entero.** Si tu explicación deja algo fuera, la explicación no está terminada.
+
+### Cuando dos explicaciones predicen lo mismo, no elijas: instrumenta
+
+Es la trampa de la que salen los mecanismos inventados. «El emulador cortó la
+petición» y «la posición llegó y por eso se cerró» **predicen exactamente el
+mismo log**, así que mirarlo otra vez no decide nada, y la que se acaba
+eligiendo es la cómoda.
+
+Lo que decide es buscar el sitio donde **solo una de las dos puede dejar
+rastro**: aquí, si el servidor había recibido la posición. Una sonda temporal y
+`precisionM: 5` cerraron en diez minutos lo que llevaba horas discutiéndose.
+
+Y ojo con el final feliz: **si aciertas sin comprobarlo, el acierto no valida el
+mecanismo — lo esconde**, y la costumbre de inventarlo queda intacta.
+
 ## 3. Aísla antes de culpar al código
 
 Un fallo bajo carga **no es** una regresión.
