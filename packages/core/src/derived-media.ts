@@ -115,3 +115,42 @@ export function isDerivedMediaKey(key: string): boolean {
 export function isResizableImage(key: string): boolean {
   return /\.(webp|png|jpe?g|avif|tiff?)$/i.test(key);
 }
+
+/**
+ * ¿El validador que trae el cliente en `If-None-Match` corresponde a este ETag?
+ *
+ * Vive aquí por el mismo motivo que el resto de este fichero: **Studio y el
+ * backend sirven el mismo `/api/images`**, y esta comparación tiene bastante
+ * letra pequeña como para que dos implementaciones a mano se separen sin que
+ * nadie lo note. Ya pasó: el backend lo tiene desde KRO-346 y Studio **no lo
+ * tenía en absoluto**, así que sellaba un año de `immutable` sin validador y un
+ * publisher que corregía el arte de una carta seguía viendo el viejo (KRO-410).
+ *
+ * Lo que la letra pequeña obliga a tratar, y que es justo lo que se olvida al
+ * reescribirla:
+ *
+ * - Se aceptan **varios validadores separados por coma** — el cliente puede
+ *   traer los que tenga guardados.
+ * - El **comodín `*`** vale por cualquiera.
+ * - El prefijo `W/` de los validadores **débiles** se ignora: para comparar dos
+ *   representaciones de la MISMA imagen, la distinción fuerte/débil no aporta.
+ * - Las **comillas** son parte de la sintaxis, no del valor.
+ *
+ * NO calcula el ETag ni escribe la respuesta. Lo primero necesita `crypto` de
+ * Node y este paquete entra en el bundle del navegador; lo segundo lo hace cada
+ * host con su propia `Response` (Express en el backend, `NextResponse` en
+ * Studio). Aquí solo vive la decisión, que es lo que no puede divergir.
+ */
+export function validadorCoincide(
+  ifNoneMatch: string | null | undefined,
+  etag: string | null | undefined,
+): boolean {
+  if (!ifNoneMatch || !etag) return false;
+  const limpio = (v: string) => v.trim().replace(/^W\//, '').replace(/^"|"$/g, '');
+  const mio = limpio(etag);
+  if (!mio) return false;
+  return ifNoneMatch.split(',').some(v => {
+    const suyo = limpio(v);
+    return suyo === '*' || suyo === mio;
+  });
+}

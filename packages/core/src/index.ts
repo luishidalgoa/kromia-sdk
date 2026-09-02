@@ -271,6 +271,7 @@ export { imageUrls, firstImageUrl, imageCount } from './image-value';
 export {
   DERIVED_PREFIX, DERIVED_CACHE_VERSION, DERIVED_WIDTHS,
   snapDerivedWidth, derivedMediaKey, isDerivedMediaKey, isResizableImage,
+  validadorCoincide,
 } from './derived-media';
 export { buildAutoDetailComposition, buildAutoListComposition } from './auto-detail';
 export { isSchemaOutdated } from './schema-version';

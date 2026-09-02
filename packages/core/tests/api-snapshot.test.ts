@@ -471,6 +471,10 @@ const EXPECTED_EXPORTS = [
   'derivedMediaKey',
   'isDerivedMediaKey',
   'isResizableImage',
+  // KRO-410 — la decisión de si un `If-None-Match` corresponde a este ETag.
+  // Studio y el backend sirven el mismo `/api/images`; el backend la tenía y
+  // Studio no, y por eso el arte corregido de una carta no se veía.
+  'validadorCoincide',
 ] as const;
 
 describe('API snapshot — @kromia/core barrel', () => {
