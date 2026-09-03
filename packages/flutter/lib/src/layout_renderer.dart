@@ -37,12 +37,19 @@ class LayoutRenderer extends StatelessWidget {
       });
     }
 
+    // KRO-219 — `rounded` es el ÚNICO estilo de acento que pide CURVA: con él el
+    // raíz del detalle conserva su radio (bg y borde se van igual). El segundo
+    // término no es adorno: un `rounded` con la posición apagada no tiene banda que
+    // curvar, y espejarlo sin él metería un drift nuevo mientras se arregla el
+    // viejo. Espejo literal de `curvedAccent` del LayoutRenderer.tsx.
+    final curvado = accent != null && accent.style == 'rounded' && accent.position != 'none';
+
     // KRO-217 §25.3 — en el DETALLE el surface RAÍZ pierde bg/borde/radius
     // (fidelidad full-screen): el papel lo pinta el panel del sheet (host) y el
     // acento se pinta aparte (_AccentFrame). Sin esto, el bgColor OPACO del root
     // TAPA el lavado `ambient` del acento (el tinte fuego no salía). El padding del
     // surface SÍ se conserva. Fuera del detalle, el root pinta su surface normal.
-    Widget content = _container(root, accentSlots, stripSurfaceDeco: isDetail);
+    Widget content = _container(root, accentSlots, stripSurfaceDeco: isDetail, conservaElRadio: curvado);
     // Lienzo raíz SIN surface → padding por defecto p-3 (12px), espejo de react
     // LayoutRenderer (`!rootHasSurface && 'p-3'`). Con surface, el padding ya lo
     // pone la propia surface. Sin esto el contenido (p. ej. la imagen del
@@ -50,7 +57,15 @@ class LayoutRenderer extends StatelessWidget {
     if (root.surface == null) {
       content = Padding(padding: const EdgeInsets.all(12), child: content);
     }
-    Widget tree = _AccentFrame(accent: accent, width: isDetail ? 4 : 3, child: content);
+    // KRO-219 — la banda se curva con el MISMO radio con el que se recorta el
+    // contenido. En web la raya es un `box-shadow` INSET del propio div raíz, así
+    // que la curva le sale gratis; aquí es un borde en un envoltorio aparte y hay
+    // que pasársela. Sin esto el arreglo se queda a medias: el raíz curvaría y la
+    // banda seguiría recta por encima, que es exactamente donde `rounded` y `bar`
+    // tenían que distinguirse. El radio es el que SOBREVIVE al strip del detalle,
+    // no el declarado: con `bar` en el detalle no hay radio y la banda va recta.
+    final radioDelRaiz = isDetail && !curvado ? null : surfaceRadius(root.surface);
+    Widget tree = _AccentFrame(accent: accent, width: isDetail ? 4 : 3, radius: radioDelRaiz, child: content);
     // KRO-217 — color de texto BASE del subárbol (cascada). Web propaga
     // `surface.textColor` por herencia CSS; Flutter no tiene cascada → los textos de
     // datos parten de `bodyBase` (sin color) y HEREDAN este `DefaultTextStyle`. Con
@@ -72,7 +87,8 @@ class LayoutRenderer extends StatelessWidget {
         LayoutContainerNode k => _container(k, accentSlots),
       };
 
-  Widget _container(LayoutContainerNode node, Set<String> accentSlots, {bool stripSurfaceDeco = false}) {
+  Widget _container(LayoutContainerNode node, Set<String> accentSlots,
+      {bool stripSurfaceDeco = false, bool conservaElRadio = false}) {
     final inflow = <LayoutNode>[];
     final absolute = <LayoutNode>[];
     for (final ch in node.children) {
@@ -97,20 +113,25 @@ class LayoutRenderer extends StatelessWidget {
     final surf = surfaceDecoration(node.surface);
     // KRO-217 §25.3 — `stripSurfaceDeco` (root del detalle): descarta bg/borde/radius
     // pero conserva el padding, para no tapar el acento ni doblar el papel del panel.
+    // KRO-219 — con `conservaElRadio` (acento `rounded`) el RADIO sobrevive al strip:
+    // el bg y el borde se siguen yendo, solo se salva la curva.
     final deco = stripSurfaceDeco ? null : surf.decoration;
-    final clip = !stripSurfaceDeco && node.surface?.radius != null && node.surface!.radius != 'none';
+    final radio = stripSurfaceDeco && !conservaElRadio ? null : surfaceRadius(node.surface);
+    Widget out = body;
     if (deco != null || surf.padding != EdgeInsets.zero) {
-      Widget decorated = Container(
+      out = Container(
         decoration: deco,
         padding: surf.padding == EdgeInsets.zero ? null : surf.padding,
-        child: body,
+        child: out,
       );
-      if (clip) {
-        decorated = ClipRRect(borderRadius: BorderRadius.circular(KromiaTokens.radius(node.surface!.radius)), child: decorated);
-      }
-      return decorated;
     }
-    return body;
+    // El recorte va SIEMPRE que quede radio, también sin decoración que pintar: con
+    // el bg y el borde fuera ese `Container` puede no llegar a existir, y entonces el
+    // contenido saldría a esquinas rectas dentro de una banda curva. Y se recorta con
+    // `surfaceRadius`, no con un `circular` a pelo: `radiusCorners` redondea solo
+    // algunas esquinas y el recorte las redondeaba las cuatro.
+    if (radio != null) out = ClipRRect(borderRadius: radio, child: out);
+    return out;
   }
 
   Widget _flex(LayoutContainerNode node, List<LayoutNode> children, Set<String> accentSlots) {
@@ -298,8 +319,12 @@ MainAxisAlignment _mainAlign(String? j) => switch (j) {
 class _AccentFrame extends StatelessWidget {
   final AccentSettings? accent;
   final double width;
+
+  /// KRO-219 — curva de la banda, la misma con la que se recorta el contenido.
+  /// null = banda recta.
+  final BorderRadius? radius;
   final Widget child;
-  const _AccentFrame({required this.accent, required this.width, required this.child});
+  const _AccentFrame({required this.accent, required this.width, required this.radius, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -341,7 +366,12 @@ class _AccentFrame extends StatelessWidget {
         'right' => Border(right: side),
         _ => null,
       };
-      if (border != null) result = Container(foregroundDecoration: BoxDecoration(border: border), child: result);
+      // Con `borderRadius`, Flutter pinta el borde de UN SOLO lado siguiendo la
+      // curva (`paintNonUniformBorder`) porque solo hay un color visible: la banda
+      // se afina en las esquinas igual que el inset del web.
+      if (border != null) {
+        result = Container(foregroundDecoration: BoxDecoration(border: border, borderRadius: radius), child: result);
+      }
     }
     return result;
   }

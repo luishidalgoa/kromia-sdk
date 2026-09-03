@@ -26,7 +26,7 @@ import '../tokens.dart';
         ? BoxDecoration(
             color: _bgColor(s),
             border: border,
-            borderRadius: hasRadius ? _radius(s) : null,
+            borderRadius: surfaceRadius(s),
             boxShadow: KromiaTokens.shadow(s.shadow),
           )
         : null,
@@ -43,7 +43,13 @@ Color? _bgColor(ContainerSurface s) {
   return null;
 }
 
-BorderRadius _radius(ContainerSurface s) {
+/// Radio de un surface como `BorderRadius` (respetando `radiusCorners`), o null
+/// si no lleva. Es PÚBLICO porque el radio lo necesitan ahora dos sitios: el
+/// recorte del contenido y la curva de la banda del acento (KRO-219). Si cada uno
+/// lo calculara por su cuenta, uno de los dos se dejaría `radiusCorners` fuera y
+/// la banda saldría recta justo en las esquinas que el contenido sí curva.
+BorderRadius? surfaceRadius(ContainerSurface? s) {
+  if (s == null || s.radius == null || s.radius == 'none') return null;
   final r = KromiaTokens.radius(s.radius);
   final corners = s.radiusCorners;
   if (corners == null || corners.isEmpty) return BorderRadius.circular(r);
