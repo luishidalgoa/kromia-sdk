@@ -62,6 +62,56 @@ algo?», sino «¿pulsa *este*?».
 
 > Un test que pasa por el guarda de al lado protege el guarda de al lado.
 
+### Y su hermana: comprobar la FORMA en vez del EFECTO
+
+La de arriba es que el test no llega a tocar el código. Ésta es peor de detectar
+porque el test **sí** lo toca: lo que falla es *qué mira*. Afirma sobre algo
+**adyacente** —un valor intermedio, la forma del código, un campo que él mismo
+escribió— en vez de sobre lo observable.
+
+El 2026-09-03 salieron **seis casos en un día entre los dos chats**, todos con
+esta cara:
+
+- **Un valor intermedio en vez del efecto.** Tests que afirmaban sobre
+  `KromiaImage.ancho` —el campo del widget— cuando lo que importa es el `?w=`
+  que sale a la red. Entre los dos hay dos funciones que pueden fallar. Verdes
+  con el original bajándose igual.
+- **Un campo que el propio test escribió.** Un test construía el JSON de
+  respuesta con el campo dentro y luego comprobaba que el parser lo leía:
+  verificaba **su propia escritura**. Ningún test de modelo puede cazar que el
+  servidor deje de mandar un campo — eso vive donde está el riesgo, en el
+  endpoint.
+- **Que el guarda EXISTA en vez de que GOBIERNE.** Un aserto comprobaba que
+  existiera la lista filtrada… y el bucle que la consume podía seguir usando la
+  sin filtrar. Guarda impecable que no manda sobre nada.
+- **Tokens en vez de comportamiento.** Un aserto pedía que el cuerpo de una
+  función contuviera `scope !== 'album'`, `porAlbum` y un `.filter(`. Un
+  `return perms;` metido en la primera línea deja los tres tokens **intactos** y
+  la función sin filtrar nada. Verde con el fallo puesto.
+- **Se cumple por la OTRA ocurrencia.** Un aserto buscaba «un filtro sobre
+  `PERMISSION_GROUPS`» y había dos en el fichero: quitar el del render seguía
+  verde porque el del envío lo satisfacía.
+- **Un sabotaje que no discrimina.** Comparar dos modos de pintado que producen
+  el mismo píxel en la zona medida: el test no distinguía cuál estaba puesto.
+
+**El olor común**: si puedes romper el comportamiento sin romper el test, estás
+mirando la forma. Y el sabotaje es lo único que lo destapa — los seis casos
+salieron ahí, no leyendo.
+
+**Qué hacer**:
+
+- Afirma sobre **lo que sale**: la URL, la fila en la base, el píxel, la
+  respuesta HTTP. No sobre el paso de en medio.
+- Si el test **fabrica su entrada**, no está comprobando a quién se la pide.
+- Un aserto sobre el fuente vale para fijar una regla estructural, pero
+  **anclado**: si el patrón que buscas aparece dos veces en el fichero, tu
+  aserto se cumple por la copia que no te importa.
+- Y cuando puedas, **exporta la función y pruébala llamándola**. Comprobar texto
+  es el último recurso, no el primero.
+
+> Si el sabotaje deja el test verde, el problema es del test — aunque el test lo
+> hayas escrito para cazar exactamente eso.
+
 ## 2. Mira el dato antes de teorizar
 
 Los nombres de las funciones mienten; los datos no.
