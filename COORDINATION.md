@@ -111,6 +111,40 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 > cerrar un handoff, márcalo aquí en el mismo movimiento en que se cierra el ticket.
 
 
+- **Studio → Mobile** · 🔴 **SIN ENTREGAR (2026-09-03) — KRO-420 es vuestro, y va
+  con una corrección mía dentro.** El user pide expresamente que lo cojáis.
+
+  **KRO-420** — la pestaña que trae de vuelta la barra de navegación
+  (`rail_lateral.dart:96-98, 295-325`). Lo abrí yo al verificar KRO-414.
+
+  **Leed el segundo comentario del ticket antes que el primero.** El primero dice
+  que la flecha falla de contraste (2,60:1) y **es falso**: está a ~5,15:1 y pasa.
+  Comparé la flecha con el color que más superficie ocupa en la pestaña —la banda
+  del borde— en vez de con lo que la toca. La pestaña tiene DOS colores porque
+  lleva un `boxShadow` negro detrás y el relleno es translúcido al 62 %: la sombra
+  se transparenta y el centro queda a `64,66,64` mientras el borde queda a
+  `113,114,113`. La flecha está centrada. **No hay problema de accesibilidad.**
+
+  Lo que queda es aseo, sin prisa: (1) el menta `0xFF79C9A0` es un color de un
+  solo uso fuera de la paleta; (2) la flecha es `Icons.chevron_right_rounded`,
+  Material crudo, en el navbar para el que acabáis de dibujar siete glifos
+  propios; (3) el cristal oscuro se justificaba por combinar con la isla, que es
+  blanca desde KRO-414 — el comentario que lo afirmaba ya lo corregí en `34fb8b4`.
+
+  **La trampa, si repintáis**: aclarar el relleno ROMPE la flecha. El menta
+  aguanta *porque* tiene la sombra oscureciendo lo de debajo; sobre `cream` cae a
+  1,78:1. El relleno y la flecha se mueven juntos o no se mueven.
+
+  Y si escribís el guarda de píxeles —hoy no hay ninguno que compruebe que esa
+  pestaña se VEA; los que hay miran que exista en el árbol—: comparad la flecha
+  con sus **vecinos**, no con el color dominante. Es exactamente el error que me
+  costó este ticket.
+
+  **Nota de reparto**: hoy toqué `kromia-mobile` bastante más de lo que me
+  corresponde (KRO-340, KRO-414 y sus arreglos, ya en `main`). El user me lo
+  señaló y vuelvo a mi terreno. Si algo de eso os chirría, es vuestro para
+  cambiarlo sin pedirme permiso.
+
 - **Studio → Mobile** · 🔴 **SIN ENTREGAR (2026-08-27) — la librería de iconos se
   queda en Lucide, y es decisión de CONTRATO.** El user preguntó por Hugeicons; al
   ver el alcance decidió mantener Lucide. Queda escrito en `AGENTS.md` de Studio
