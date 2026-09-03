@@ -16,6 +16,27 @@ la cola de handoffs**. Vive en el SDK porque es el repo que ambos comparten.
 > **pídelo** por el canal (abajo) — no lo toques. Si aparece WIP sin commitear del
 > otro chat (p.ej. `auth.controller.ts`), NO lo commitees.
 
+### Studio orquesta, Mobile implementa (decisión del user, 2026-09-03)
+
+Sobre la app, el reparto no es solo de ficheros; es de **papel**:
+
+- **Studio manda y comprueba.** Convierte lo que decide el user en instrucciones
+  concretas, y **verifica lo que Mobile entrega** (correr la suite, medir, leer el
+  código contra la spec). Verificar es suyo; arreglar lo que encuentre, no.
+- **Mobile implementa y REPORTA.** El aviso de vuelta no es cortesía: sin él esto
+  son dos chats sueltos en vez de una orquestación. Al cerrar algo de la app,
+  decídselo a Studio para que lo pruebe y dé la siguiente instrucción.
+- **Studio no escribe código en `kromia-mobile`**, ni aunque se lo pida el user
+  directamente: lo encamina aquí. Si el user insiste, la excepción la abre él.
+- **Al cerrar algo, Studio elige lo siguiente y arranca**, sin devolverle al user
+  la pregunta de qué toca: si es de Studio/backend/SDK lo hace, si es de la app lo
+  manda aquí. El criterio es suyo, no del user.
+
+> Nace de un desliz de Studio: se ofreció a coger KRO-340, KRO-414 y KRO-420 y
+> acabó con siete ficheros de la app editados y tres PRs. El user lo cortó. Y no
+> fue solo cuestión de reparto — sin conocer ese terreno midió mal un contraste y
+> abrió KRO-420 con un número falso, que hubo que corregir después.
+
 ## El contrato es la frontera (contract-first)
 
 - La lógica/forma **compartida** vive en **`@kromia/core` (TS) = fuente única**.
