@@ -152,14 +152,20 @@ export interface PostLinkAttachment {
 /**
  * Un SITIO: dónde queda la comunidad, dónde está la tienda (KRO-274).
  *
- * NO lleva mapa. El host pinta una tarjeta y, al tocarla, abre la app de mapas
- * del dispositivo. Es deliberado: embeber tiles obliga a elegir proveedor y
- * clave, cuesta por render, y —lo que más pesa— haría que cada visita al muro
- * le contase a un tercero qué ubicación se está mirando. En un canal privado eso
- * es filtrar información a alguien que no pinta nada.
+ * **El dato no lleva mapa; el render sí, y esa separación es el diseño.** Aquí
+ * viven el nombre, la dirección opcional y las coordenadas opcionales — nada
+ * más. Cada host decide qué pinta con eso.
  *
- * Poner el mapa después NO rompe nada: el dato ya está y solo cambia el render.
- * Al revés no — el proveedor se quedaría para siempre.
+ * Se escribió sin mapa a propósito, y por una razón que sigue viva: embeber
+ * teselas de un tercero haría que **cada visita al muro le contase a ese tercero
+ * qué ubicación se está mirando**, y en un canal privado eso es filtrar a quien
+ * no pinta nada. Studio acabó pintándolo porque pudo hacerlo sin ese coste
+ * (MapLibre con teselas propias, desde que se retiró Leaflet en KRO-311); si
+ * mañana un host no puede, la tarjeta sin mapa sigue siendo válida.
+ *
+ * Ese es el orden bueno y no se puede invertir: añadir el mapa después no rompe
+ * nada porque el dato ya está. Meter el proveedor en el CONTRATO sí — se
+ * quedaría para siempre y para todos.
  *
  * `label` es lo ÚNICO obligatorio: «la tienda de Paco» dice más que unas
  * coordenadas, y sin nombre la tarjeta no tendría qué mostrar. Las coordenadas
