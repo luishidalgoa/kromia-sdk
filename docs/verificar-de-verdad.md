@@ -133,6 +133,19 @@ No es un guarda que solo sabe decir que sí, ni una causa inventada: es que el
 verde **apaga la lectura de la evidencia que el propio test produce**. Un número
 que hay que interpretar solo se interpreta cuando algo falla.
 
+**Y no hace falta que la evidencia sea un número.** El mismo día, el mismo caso: la
+respuesta llevaba desde agosto escrita *en prosa* en la cabecera de otro test verde
+—«el blanco no es "no hay arte" —eso se pinta gris— sino el esqueleto de carga que
+no se levanta»—. Nombraba el culpable y distinguía los dos síntomas que llevábamos
+un día tratando como uno solo. Estuvo en el repo mientras dos chats perseguían el
+foil, el asset y el rasterizador del servidor.
+
+O sea que el problema no es el formato de la evidencia: es *dónde vive*. Lo que
+está dentro de un fichero en verde no se lee, sea un número, una frase o una
+conclusión. **Cuando abras una investigación, haz un grep del síntoma por
+`tests/` antes de tocar código** — es el sitio donde alguien ya escribió lo que
+averiguó, y el único que nadie vuelve a mirar.
+
 - **Si tu test imprime un número, ponle un aserto o ponle una frase.** El arreglo
   de Mobile fue hacer que la sonda escriba `(capa SIN pintar)` cuando los dos
   valores coinciden: convierte un dato que hay que interpretar en uno que acusa.
