@@ -195,6 +195,48 @@ el que justamente no debía aplicarse. Lo cazó que el test seguía rojo, no una
 relectura. Los dos casos se vieron **ejerciendo el camino real**, y ninguno se
 habría visto leyendo.
 
+### Y el comentario que afirma un mecanismo que no existe
+
+Los tres de arriba son sobre sondas. Este es sobre lo que dejas escrito, y
+envejece peor: **un comentario heredado es una afirmación que nadie ha vuelto a
+comprobar** (formulación de Mobile, 2026-09-04).
+
+Cómo llega ahí: se copia de un sitio donde SÍ era cierta, y viaja sin su razón.
+Ese mismo día pasó dos veces en el otro chat — un comentario justificando que el
+color saliera del índice de la lista completa «para que desplegar no repinte»
+(falso: el recorte es un prefijo), y la justificación de un guarda de `mounted`
+que decía que navegar destruye el notifier de esa pantalla (falso: el provider no
+es `autoDispose` y el contenedor no se destruye nunca).
+
+El segundo es el peligroso, y su moraleja es la que hay que retener: **un arreglo
+que funciona no invita a releer por qué**. El del color se cazó al ir a escribirle
+un test y descubrir que el fallo no existía; el del `mounted` no se cazó, porque
+el guarda pasaba los tests y nadie volvió. *Un arreglo correcto con una causa
+inventada es más peligroso que uno roto* — el roto se cae solo; este se queda
+escrito, y el siguiente lo usa de premisa.
+
+En un repo donde el comentario ES el registro de diseño, eso decide cosas: con
+«navegar destruye los notifiers» escrito al lado, alguien mete un `autoDispose`
+creyendo que solo formaliza lo que ya pasa.
+
+**Al escribir el porqué de un arreglo, compruébalo como comprobarías el arreglo.**
+Si no sabes ponerle un rojo a la causa, no la afirmes: describe lo que hace el
+guarda y di que la causa está sin confirmar.
+
+### Un test que mide un objeto caduco
+
+Variante temporal de mirar la forma, y muerde al revés: hace parecer malo un
+arreglo bueno. Mobile, el mismo día, capturó el `StatefulNavigationShell` en el
+`builder` y leyó su `currentIndex` — pero el shell se reconstruye al navegar, así
+que la sonda leía una instancia vieja. **El test seguía rojo con la corrección
+puesta**, y estuvo a punto de descartar la buena.
+
+Junto con el `close_too_far` de más arriba, son las dos direcciones del mismo
+error: allí un fallo real escondido tras un mecanismo que no estaba ahí para
+pararlo; aquí un arreglo bueno tapado por una lectura rancia. En los dos casos la
+sonda medía otra cosa. **Cuando el resultado te sorprenda —en cualquiera de las
+dos direcciones—, sospecha de la sonda antes que de la conclusión.**
+
 ## 4. No destruyas tus propias pruebas
 
 Tres veces en un día perdí la evidencia por filtrarla yo mismo:
