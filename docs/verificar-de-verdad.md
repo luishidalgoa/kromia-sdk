@@ -170,6 +170,31 @@ Un fallo bajo carga **no es** una regresión.
 - **No lances suites, builds ni subagentes mientras el user usa el emulador.**
   Saturé la máquina y le dejé el emulador sin servicio de entrada.
 
+### Y su reverso: si el fallo DESAPARECE al sondearlo, mide otra cosa
+
+Aislar sirve para no culpar al código de lo que es la máquina. Esto es al revés:
+**la sonda que exculpa al código y no debía.**
+
+- 2026-09-04, KRO-427. Monté una sonda para probar que un cierre fallido dejaba
+  el trueque a una sola pulsación de ejecutarse. Salió **verde**: la segunda
+  pulsación daba `close_too_far`. A punto estuve de anotar «no se reproduce».
+  Lo que pasaba es que `olvidarPosicionesDe` corre **también** cuando el cierre
+  falla, así que mi sonda —que mandaba la posición una sola vez— se quedaba sin
+  ubicación. Eso **no es un guarda**: en una quedada de verdad los dos móviles
+  siguen mandando ubicación solos. Reenviando posición, como pasa en la
+  realidad, el agujero aparece entero y las cartas cambian de dueño.
+
+Un fallo que se esconde detrás de un mecanismo **que no está ahí para eso** está
+tapado por un accidente, y los accidentes se caen solos. Antes de escribir «no
+se reproduce», pregúntate: *¿lo que lo ha parado existe para pararlo?* Si la
+respuesta es no, tu sonda está midiendo otra cosa.
+
+El primo hermano, el mismo día y en el otro chat: un parche correcto puesto en
+**la otra ocurrencia de la misma función**, un caso que se le parecía mucho y en
+el que justamente no debía aplicarse. Lo cazó que el test seguía rojo, no una
+relectura. Los dos casos se vieron **ejerciendo el camino real**, y ninguno se
+habría visto leyendo.
+
 ## 4. No destruyas tus propias pruebas
 
 Tres veces en un día perdí la evidencia por filtrarla yo mismo:
