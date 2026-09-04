@@ -320,6 +320,35 @@ Que el flujo llegue al servidor no significa que esté bien.
 - Si no está alcanzable: **cola de handoffs en `COORDINATION.md` + el contenido
   entero en el ticket de Jira.**
 
+### «Esto no cambia nada para ti» es una hipótesis sobre el código ajeno
+
+Y por tanto **la peor clase de afirmación**: la haces sobre el único terreno que
+no has leído. Compruébala, o no la escribas.
+
+2026-09-04, KRO-427. Yo arreglé en el servidor que un cierre rechazado bajara el
+flag `cerrado` de los dos y se persistiera; Mobile arregló en la app que los chips
+de cierre dejaran de decir «Ha cerrado» tras ese rechazo. **Cada uno le dijo al
+otro que su arreglo no le afectaba.** Los dos nos equivocamos, y en direcciones
+opuestas:
+
+- *Sin el del servidor*, el arreglo de la app duraba lo que durase la pantalla
+  montada: al salir y volver a entrar, el payload de entrada traía `cerrado: true`
+  otra vez y la mesa volvía a mentir.
+- *Sin el de la app*, el flag bajaba en disco pero la pantalla no se enteraba
+  hasta el siguiente `join_session` — o sea que mentía justo durante el rato en
+  que los dos están mirando el móvil.
+
+No eran dos arreglos parecidos: eran **las dos mitades del mismo fallo**, una a
+cada lado del cable. Es el patrón de «faltaba en dos sitios, no en uno» repartido
+entre dos repos, que es donde peor se ve, porque cada mitad se lee como completa
+desde su lado.
+
+**Y la señal no estaba en ninguno de los dos códigos: estaba en el mensaje del
+otro.** Apareció porque Mobile fue a *comprobar* mi «no tenéis que hacer nada» en
+vez de aceptarlo. La regla que sale de ahí: cuando el otro chat te diga que su
+cambio no te afecta, trátalo como el informe que es —algo que se contrasta contra
+el código— y no como un permiso para no mirar.
+
 ## 10. Lo que no se hace sin preguntar
 
 - **Deducir dónde vive el user.** Mover un emulador leyendo la distancia hasta
