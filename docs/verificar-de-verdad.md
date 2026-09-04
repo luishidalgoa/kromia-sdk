@@ -112,6 +112,36 @@ salieron ahí, no leyendo.
 > Si el sabotaje deja el test verde, el problema es del test — aunque el test lo
 > hayas escrito para cazar exactamente eso.
 
+### El verde apaga la lectura de la sonda que el propio test imprime
+
+Distinta de las de arriba, y peor, porque cierra caminos para **los dos chats a la
+vez**. 2026-09-04, KRO-351.
+
+Un test se llamaba «esta composición NO se lava» y su cabecera concluía que el
+blanco no lo producía el apilado de capas. Con eso se descartó ese camino durante
+semanas. Pero **las capas nunca llegaron a pintarse**: el doble alimentaba al
+foil, y la imagen de la capa la bajaba el cliente HTTP real, que en un test sin
+red no trae nada. Lo que medía era papel con brillos encima.
+
+Y esto es lo que hay que retener: **la sonda lo dijo desde el primer día**.
+Imprimía `esquina=0,5568 centro=0,5568` — idénticos. El sujeto va en el centro y
+es de otro color; si se hubiera pintado, esos dos números no podrían coincidir.
+Estaban a la vista en cada ejecución. Nadie los leyó **porque el test estaba en
+verde**.
+
+No es un guarda que solo sabe decir que sí, ni una causa inventada: es que el
+verde **apaga la lectura de la evidencia que el propio test produce**. Un número
+que hay que interpretar solo se interpreta cuando algo falla.
+
+- **Si tu test imprime un número, ponle un aserto o ponle una frase.** El arreglo
+  de Mobile fue hacer que la sonda escriba `(capa SIN pintar)` cuando los dos
+  valores coinciden: convierte un dato que hay que interpretar en uno que acusa.
+- **Un descarte es una afirmación, y se comprueba como tal.** «Aquí no está el
+  fallo» cierra un camino para todo el mundo; antes de escribirlo en una cabecera,
+  asegúrate de que el test podía haberlo encontrado.
+- Y el corolario: **antes de fiarte de un descarte ajeno —o tuyo de hace un mes—
+  mira si lo que lo sostiene ejercía de verdad el camino que dice descartar.**
+
 ## 2. Mira el dato antes de teorizar
 
 Los nombres de las funciones mienten; los datos no.
