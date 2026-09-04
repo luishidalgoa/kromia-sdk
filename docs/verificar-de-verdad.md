@@ -253,7 +253,7 @@ formaliza lo que ya pasa.
 Si no sabes ponerle un rojo a la causa, no la afirmes: describe lo que hace el
 guarda y di que la causa está sin confirmar.
 
-### Su vehículo: el comentario heredado
+### Su vehículo: el comentario heredado — y el ticket viejo
 
 Cómo llega ahí una causa falsa, casi siempre: **un comentario heredado es una
 afirmación que nadie ha vuelto a comprobar** (Mobile, 2026-09-04). Se copia de un
@@ -261,6 +261,18 @@ sitio donde SÍ era cierta y viaja sin su razón. En el caso de arriba, el comen
 copiado —«el doble tiene que RESPONDER, no solo tener un estado inicial»— estaba
 escrito encima de un doble que hacía justo las dos cosas: era, literalmente, la
 pista que delataba el fallo que describía.
+
+**Un ticket cerrado es el mismo vehículo, y engaña más.** El 2026-09-04 mandé a
+Mobile tres «pistas» sacadas de la descripción de KRO-334; las tres estaban ya
+resueltas en su código. No las había leído: leí el ticket.
+
+Y el matiz es de ellos, que es lo que lo hace útil: **no estaban mal, estaban
+caducadas** — en su día fueron ciertas. Esa es la variante peligrosa, porque *quien
+la lee la comprueba contra su recuerdo y le cuadra*. Un dato falso se cae al
+mirarlo; uno caducado se confirma solo.
+
+Un ticket, como un comentario, describe el mundo del día en que se escribió. Si vas
+a apoyar una decisión en él, ábrele el fichero.
 
 ### Un test que mide un objeto caduco
 
