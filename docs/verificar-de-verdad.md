@@ -195,33 +195,42 @@ el que justamente no debía aplicarse. Lo cazó que el test seguía rojo, no una
 relectura. Los dos casos se vieron **ejerciendo el camino real**, y ninguno se
 habría visto leyendo.
 
-### Y el comentario que afirma un mecanismo que no existe
+### La causa inventada bajo un arreglo que funciona
 
-Los tres de arriba son sobre sondas. Este es sobre lo que dejas escrito, y
-envejece peor: **un comentario heredado es una afirmación que nadie ha vuelto a
-comprobar** (formulación de Mobile, 2026-09-04).
+De todas las trampas de esta doc, **esta es la única que ningún mecanismo tumba
+solo.** Un test que mira la forma se cae en cuanto alguien sabotea. Un comentario
+heredado se cae en cuanto alguien va a probarlo. Pero una causa falsa escrita
+debajo de un arreglo *correcto* pasa los tests, sobrevive a los sabotajes y se
+hereda intacta — solo cae si alguien la lee con desconfianza. (El orden y el
+argumento son de Mobile, 2026-09-04.)
 
-Cómo llega ahí: se copia de un sitio donde SÍ era cierta, y viaja sin su razón.
-Ese mismo día pasó dos veces en el otro chat — un comentario justificando que el
-color saliera del índice de la lista completa «para que desplegar no repinte»
-(falso: el recorte es un prefijo), y la justificación de un guarda de `mounted`
-que decía que navegar destruye el notifier de esa pantalla (falso: el provider no
-es `autoDispose` y el contenedor no se destruye nunca).
+Porque **un arreglo que funciona no invita a releer por qué**. Ese día, en el otro
+chat, dos comentarios falsos: uno justificando que el color de una categoría
+saliera del índice de la lista completa «para que desplegar no repinte» —falso, el
+recorte es un prefijo—, y la justificación de un guarda de `mounted` diciendo que
+navegar destruye el notifier de esa pantalla —falso: el provider no es
+`autoDispose` y el contenedor no se destruye nunca—.
 
-El segundo es el peligroso, y su moraleja es la que hay que retener: **un arreglo
-que funciona no invita a releer por qué**. El del color se cazó al ir a escribirle
-un test y descubrir que el fallo no existía; el del `mounted` no se cazó, porque
-el guarda pasaba los tests y nadie volvió. *Un arreglo correcto con una causa
-inventada es más peligroso que uno roto* — el roto se cae solo; este se queda
-escrito, y el siguiente lo usa de premisa.
-
-En un repo donde el comentario ES el registro de diseño, eso decide cosas: con
-«navegar destruye los notifiers» escrito al lado, alguien mete un `autoDispose`
-creyendo que solo formaliza lo que ya pasa.
+El primero se cazó al ir a escribirle un test y descubrir que el fallo no existía.
+El segundo no se cazó: el guarda era correcto, el intermitente desapareció, y
+**todas las señales decían «cerrado»**. La causa falsa no costaba nada mientras
+nadie la usara para decidir; el riesgo era el siguiente que la usara de premisa.
+En un repo donde el comentario ES el registro de diseño, con «navegar destruye los
+notifiers» escrito al lado, alguien mete un `autoDispose` creyendo que solo
+formaliza lo que ya pasa.
 
 **Al escribir el porqué de un arreglo, compruébalo como comprobarías el arreglo.**
 Si no sabes ponerle un rojo a la causa, no la afirmes: describe lo que hace el
 guarda y di que la causa está sin confirmar.
+
+### Su vehículo: el comentario heredado
+
+Cómo llega ahí una causa falsa, casi siempre: **un comentario heredado es una
+afirmación que nadie ha vuelto a comprobar** (Mobile, 2026-09-04). Se copia de un
+sitio donde SÍ era cierta y viaja sin su razón. En el caso de arriba, el comentario
+copiado —«el doble tiene que RESPONDER, no solo tener un estado inicial»— estaba
+escrito encima de un doble que hacía justo las dos cosas: era, literalmente, la
+pista que delataba el fallo que describía.
 
 ### Un test que mide un objeto caduco
 
