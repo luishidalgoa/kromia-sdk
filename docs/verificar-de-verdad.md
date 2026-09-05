@@ -388,6 +388,37 @@ Que el flujo llegue al servidor no significa que esté bien.
 - Si el asset o el dato no existe, **dilo en el ticket** para que nadie se
   bloquee a mitad.
 
+### Y al CERRARLO: abre la ficha, aunque el encargo venga impecable
+
+Un encargo bien acotado describe **una esquina** del ticket. El número que lleva
+pegado abarca todo lo demás, y es facilísimo cerrar el ticket entero por haber
+resuelto la esquina — sobre todo cuando el encargo era correcto.
+
+**La señal: si vas a cerrar un ticket que no escribiste tú, ábrelo.** No el hilo
+donde se habló, no el mensaje que te lo encargó: la ficha, con sus criterios de
+aceptación y su estado.
+
+El caso que lo enseñó (2026-09-05, KRO-267). Llegó como «que el test de la app
+parta de una respuesta real en vez de fabricar el mapa». El encargo era correcto
+y su diagnóstico también. Se verificó, y salió que ni siquiera hacía falta
+hacerlo: el fallo estaba arreglado y el guarda ya existía en el otro lado. Todo
+apuntaba a cerrar.
+
+La ficha decía otra cosa: **«Al borrar una cuenta, los álbumes NO deben morir:
+huérfanos anonimizados + lista negra de nombres»**, en verificación/QA, con
+criterios sin comprobar —la lista negra es la mitad del ticket— y un motivo de
+seguridad escrito dentro: quien reclamara el nombre liberado heredaría los
+álbumes huérfanos como si fueran suyos.
+
+Y el remate, que es lo que hace que la regla valga: al ir a comprobar los
+criterios de verdad, **la mitad sí estaba** (39 tests de julio que aguantaban) y
+**uno no lo probaba nada** — la no-adopción, con su guarda escrito y marcado
+como CRÍTICO en un comentario, y cero tests. Cerrar por el encargo habría dado
+por buenas las dos cosas sin distinguirlas.
+
+Los dos chats habíamos hablado del ticket entero por su número durante varios
+mensajes sin que ninguno abriera la ficha.
+
 ## 9. Trabajando con el otro chat
 
 - **No edites sus ficheros.** Si el user te lo pide y su sesión no está viva,
