@@ -290,6 +290,35 @@ son la misma herramienta: **algo que solo puede pasar si el sujeto existe.**
 2. Al leer una siembra, preguntarse *«¿de dónde saldría este dato si el código
    estuviera roto?»*. Si la respuesta es «de ningún sitio», el caso no mide.
 
+### `rejects.toThrow()` acepta CUALQUIER error, incluido el que no buscas
+
+Prima del sujeto vacío, y más escurridiza: aquí el sujeto existe, pero **el fallo
+viene de otro sitio**.
+
+El 2026-09-05, probando que un expulsado no puede fichar en una quedada:
+
+```ts
+await expect(checkin(expulsado, quedada, lat, lng)).rejects.toThrow();
+```
+
+Verde. Y no probaba nada: la quedada del fixture era **dentro de 24 horas**, así
+que la ventana de fichaje ni siquiera estaba abierta y `checkin` rechazaba por
+eso. Quitar el guarda entero dejaba el test **igual de verde**. Lo destapó el
+sabotaje, que es exactamente para lo que está.
+
+**Los dos gestos, y el primero vale por los dos:**
+
+1. **Un control de partida que exija que la acción FUNCIONA** antes de la
+   condición que la bloquea. Si fichar no funciona ni siquiera sin expulsión, el
+   caso no mide el guarda: mide el fixture.
+2. **Afirmar sobre el error concreto**, no sobre que lo haya:
+   `rejects.toThrow(/sacado de esta quedada/)`. Un `toThrow()` pelado es al
+   rechazo lo que `expect(x).toBeTruthy()` es a una comprobación.
+
+Y la regla general detrás: **cuando un caso comprueba que algo se impide, hay que
+demostrar antes que sin el impedimento ocurriría.** Si no, lo que mide es que el
+camino estaba cortado más arriba.
+
 ### Y el criterio se saca del contrato, no de la pantalla
 
 De la misma tarde, y merece estar al lado. Mobile arregló un parser que
