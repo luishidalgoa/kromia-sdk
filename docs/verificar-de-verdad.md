@@ -642,6 +642,38 @@ interfaz.
 Cuando el diagnóstico acierte, **audita el mecanismo aparte**: el acierto no lo
 valida, lo esconde.
 
+### Un `0` de una sonda no cierra nada: abre una lectura
+
+Corolario del anterior, y de los más baratos de aplicar. **Una sonda que busca un
+literal solo puede decir «no lo encontré», nunca «no está»** — y las dos lecturas
+se imprimen igual: `0`.
+
+Pasó dos veces en diez minutos, sobre el mismo párrafo y en los dos chats:
+
+- `grep -c "es una cicatriz"` → **0**. La frase estaba, partida en dos líneas por
+  el ajuste de márgenes.
+- `grep -c "en qué OTRO sitio"` → **0**. La frase estaba, con la palabra en
+  negritas: `en qué **otro** sitio`.
+
+Ninguna de las dos era un fallo del push. `grep` hizo su trabajo perfectamente:
+respondió por su operación, no por la intención de quien preguntaba. Es el patrón
+de *«cuando una herramienta te dé un estado, pregunta contra qué»* en su forma más
+pequeña.
+
+**Y hay una asimetría que conviene tener presente, porque decide cuánto trabajo
+cuesta cada caso:**
+
+| Resultado | Qué vale |
+|---|---|
+| `1` o más | **Concluyente.** Si lo encontró, está. |
+| `0` | **No concluye nada.** Puede ser que falte, o que tu literal no exista con esa forma. |
+
+Así que la regla no es «no uses `grep` para verificar» — sirve, y es lo más barato
+que hay. Es: **un positivo cierra la comprobación; un cero solo la empieza.**
+Ante un `0`, abre el fichero antes de concluir, y prefiere sondas que no dependan
+de la forma del texto: un símbolo de una palabra, un identificador, la existencia
+del fichero.
+
 ## Y una sobre este documento
 
 El 2026-09-05 los dos chats se corrigieron cuatro veces cruzadas en una tarde, y
