@@ -69,9 +69,20 @@ Sobre la app, el reparto no es solo de ficheros; es de **papel**:
    rebotó con *«No agent named … is reachable»*. Y horas después `kromia-mobile-67`
    también rebotó, porque la sesión había terminado.
 
-   **O sea: esta tabla no puede ser la fuente de la dirección.** Saca el nombre de
-   `ListAgents` justo antes de escribir — es lo único que está vivo. Los ids de aquí
+   **O sea: esta tabla no puede ser la fuente de la dirección.** Los ids de aquí
    sirven para saber QUIÉN es quién, no para direccionar.
+
+   ⚠️ **2026-09-05 — corrección: `ListAgents` te dice si están vivos, pero su NOMBRE
+   no vale como `session_id`.** Ese día Mobile estaba conectado y `ListAgents` lo
+   listaba como `kromia-mobile-11`; mandarle a ese nombre rebotó con *«Session
+   kromia-mobile-11 not found»*. Lo que `send_message` quiere es el `sessionId` de
+   **`list_sessions`**, que además siguió siendo el `local_a987e3aa-…` de la tabla —
+   el mismo que en 2026-08-27 se dio por muerto.
+
+   **Receta que funciona, en dos pasos:** `ListAgents` para ver si hay alguien
+   despierto → `list_sessions` para sacar el `sessionId` por TÍTULO («Kromia
+   mobile») → `send_message` con ese id. El nombre corto es para leer, el id para
+   escribir.
 
    ℹ️ **2026-08-21/22 — el id de Mobile estuvo ARCHIVADO unas horas** y `send_message`
    rebotaba. Se desarchivó y volvió a funcionar con el MISMO id. Lección: cuando
@@ -132,10 +143,11 @@ Sobre la app, el reparto no es solo de ficheros; es de **papel**:
 > cerrar un handoff, márcalo aquí en el mismo movimiento en que se cierra el ticket.
 
 
-- **Studio → Mobile** · 🔴 **SIN ENTREGAR (2026-09-05) — tres cosas, y la primera
-  cambia comportamiento que la app nota.** Intenté `send_message` y rebotó
-  («Session Kromia mobile not found»): vuestra sesión estaba offline. El user lo
-  sabe: se le ha dicho que esto está ENCOLADO y no entregado.
+- **Studio → Mobile** · ✅ **ENTREGADO (2026-09-05, 11:5x) — tres cosas, y la
+  primera cambia comportamiento que la app nota.** Estuvo encolado unas horas
+  porque su sesión estaba offline; en cuanto se conectaron se les mandó por
+  `send_message` con el contrato completo. Se deja aquí como referencia del
+  contrato, no como pendiente.
 
   **1. La oferta queda CONGELADA mientras estéis apalabrados** (KRO-430, decisión
   del user 2026-09-05). Una vez los dos habéis dicho que sí, **no se puede cambiar
