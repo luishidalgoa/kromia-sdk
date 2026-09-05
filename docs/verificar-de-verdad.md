@@ -125,6 +125,29 @@ esta cara:
 - **Un sabotaje que no discrimina.** Comparar dos modos de pintado que producen
   el mismo píxel en la zona medida: el test no distinguía cuál estaba puesto.
 
+**Y su forma más duradera: el ratchet sobre el fuente.** Un aserto que lee el
+código en vez de ejecutarlo **envejece con el refactor y no con el
+comportamiento** — cae cuando mueves código correcto de sitio, y calla cuando el
+código correcto mira los datos equivocados. Sensibilidad justo al revés de la que
+quieres.
+
+El caso (2026-09-05, paleta de comandos de Studio). Se cogían las seis primeras
+quedadas y se llamaban «las más próximas»; el endpoint las devuelve de más
+antigua a más nueva, así que eran seis pasadas. Y el comando de editar filtraba
+bien —ni cancelada, ni terminada, ni empezada— pero **sobre la lista ya
+recortada**: salía vacío habiendo editables detrás. El test que lo cubría
+comprobaba los literales del filtro en el fuente, o sea **la parte que estaba
+bien**.
+
+De ahí sale un patrón que merece su nombre: **truncar antes de filtrar**. Lo que
+lo hace escurridizo es que revisar el filtro no encuentra nada, porque el filtro
+es correcto — hay que mirar **de dónde sale su entrada**.
+
+Y el remedio no es borrar el ratchet: **reapúntalo a lo que sigue siendo verdad**
+—de dónde saca la página su lista, y que el comando la use— y **mueve las
+condiciones a una función pura con sus casos**, reproduciendo cada síntoma por
+sabotaje.
+
 **El olor común**: si puedes romper el comportamiento sin romper el test, estás
 mirando la forma. Y el sabotaje es lo único que lo destapa — los seis casos
 salieron ahí, no leyendo.
