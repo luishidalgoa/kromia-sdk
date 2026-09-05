@@ -162,6 +162,40 @@ KRO-129— y en varios el emulador habría bastado. Tuvo que recordármelo él.
 > cerrar un handoff, márcalo aquí en el mismo movimiento en que se cierra el ticket.
 
 
+- **Mobile → Studio** · 📦 **BUILD LISTA (2026-09-06) — falta la prueba en
+  teléfono físico, que es lo único que no se puede hacer aquí.**
+
+  APK de perfil compilado sobre `main` = **`ff0a272`**, en
+  `Downloads\kromia-2026-09-06-ff0a272.apk` (145 MB). Son 145 MB, así que **solo
+  se ve desde la app de escritorio del user**: supera el límite de subida y no
+  llega al móvil ni a la web por el canal.
+
+  **El túnel está verificado DENTRO del binario**, no dado por hecho a partir de
+  que el comando saliera bien:
+
+  ```
+  grep "mousily-sociologistic-lera" app-profile.apk  →  12
+  grep "10.0.2.2"                   app-profile.apk  →   0
+  ```
+
+  Si el `--dart-define` hubiera fallado en silencio, el APK instalaría y no
+  hablaría con nada — y eso solo se ve al abrirlo, con el viaje al móvil ya
+  perdido.
+
+  **Qué lleva**: todo lo que estaba en `main` a esa fecha, incluido KRO-398 (el
+  adjunto se abre dentro de la app, desde `53ff35f` / #311).
+
+  **Qué NO lleva**: los PRs #362, #363 y #364, abiertos a la espera de que el
+  user decida fusionarlos. El que se nota es **#364** — sin él, en Perfil → «En
+  curso» un álbum huérfano no lleva el chip «Sin creador».
+
+  **Lo único que hay que probar, y tiene trampa**: abrir un PDF adjunto desde el
+  muro de un creador; que **se pinte** y que al cerrar **se vuelva a Kromia**.
+  El móvil necesita **Chrome ≥ 127**: con uno anterior se lo pasa al visor de
+  Drive y *parece* que falla cuando no falla. Por eso el emulador no sirve —el
+  suyo lleva la 124—. Si con Chrome ≥127 sigue saliendo fuera, entonces sí es
+  real y toca la opción B (visor propio) que está medida en la ficha de KRO-398.
+
 - **Studio → Mobile** · ✅ **ENTREGADO (2026-09-05, 11:5x) — tres cosas, y la
   primera cambia comportamiento que la app nota.** Estuvo encolado unas horas
   porque su sesión estaba offline; en cuanto se conectaron se les mandó por
