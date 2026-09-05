@@ -13,17 +13,26 @@ async function connect(): Promise<Client> {
 }
 
 const textOf = (r: any) => JSON.parse(r.content[0].text);
+const textoCrudo = (r: any) => r.content[0].text as string;
+
+/** Las 16, ordenadas. Si cambian, este fichero tiene que enterarse. */
+const TOOLS = [
+  'apply_composition', 'apply_template', 'auto_compose', 'describe',
+  'get_template', 'list_behaviors', 'list_components', 'list_effects',
+  'list_field_types', 'list_recipes', 'list_slot_kinds', 'list_templates',
+  'validate_album_data', 'validate_composition', 'validate_rarity_source',
+  'validate_tag_styles',
+];
 
 describe('kromia MCP server (F1)', () => {
-  it('expone las tools de catálogo + validación + construcción', async () => {
+  it('expone EXACTAMENTE las 16 tools, ni una más ni una menos', async () => {
+    // La lista es CERRADA a propósito. Con `arrayContaining` —como estaba— borrar
+    // una tool dejaba el test en verde: el agente conectado se queda sin la pieza
+    // y aquí no se entera nadie. Y al revés, una tool nueva sin entrada aquí es
+    // una tool sin ningún caso que la ejercite, que es como llegó `list_effects`.
     const client = await connect();
     const { tools } = await client.listTools();
-    const names = tools.map(t => t.name).sort();
-    expect(names).toEqual(expect.arrayContaining([
-      'list_recipes', 'list_components', 'list_field_types', 'list_slot_kinds',
-      'list_templates', 'describe', 'validate_composition',
-      'auto_compose', 'apply_template', 'get_template', 'apply_composition',
-    ]));
+    expect(tools.map(t => t.name).sort()).toEqual(TOOLS);
   });
 
   it('list_recipes devuelve recetas con id/kind', async () => {

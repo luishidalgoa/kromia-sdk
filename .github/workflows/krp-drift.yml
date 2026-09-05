@@ -54,6 +54,12 @@ on:
       # solo se compilaba de rebote cuando alguien empujaba Studio. Un cambio
       # aquí podía subirse roto y no enterarse nadie hasta la siguiente pantalla.
       - 'packages/react/**'
+      # KRO-156 — el servidor MCP tampoco lo corria NADIE, y ademas su suite ni
+      # siquiera arrancaba en un checkout como submodulo (le faltaba su propio
+      # vitest.config.ts, asi que subia hasta el de Studio). Resultado: 13 tests
+      # que se dieron por verdes una vez y dejaron de comprobarse al dia
+      # siguiente. Es el unico paquete del SDK que ESCRIBE datos del publisher.
+      - 'packages/mcp/**'
       - 'contracts/**'
       - '.github/workflows/krp-drift.yml'
       # Lo que gobierna CÓMO instala el job. Faltaban, y no es teórico: el
@@ -72,6 +78,7 @@ on:
       - 'packages/core_dart/pubspec.yaml'
       - 'packages/core_dart/**'
       - 'packages/react/**'          # KRO-316
+      - 'packages/mcp/**'            # KRO-156
       - 'contracts/**'
       - 'package.json'
       - 'pnpm-workspace.yaml'
@@ -180,6 +187,23 @@ jobs:
       - name: Tests de @kromia/react
         if: ${{ !cancelled() }}
         run: pnpm --filter @kromia/react exec vitest run
+
+      # -- Capa 0c: @kromia/mcp (KRO-156) ------------------------------------
+      # Mismo agujero que el de arriba y una vuelta de tuerca: este paquete es
+      # el unico del SDK con una rama que ESCRIBE en el backend del publisher
+      # (`apply_composition` con confirm:true), y era la unica sin cobertura.
+      #
+      # Su suite ni arrancaba desde el paquete: sin `vitest.config.ts` propio,
+      # vitest subia por el filesystem hasta el config de kromia-studio y moria
+      # con un error de ESM que no nombra ni a este paquete ni a sus tests. O
+      # sea que no fallaba en rojo, fallaba antes de empezar -- que es la unica
+      # forma de que un `Tests: 0` pase por bueno.
+      - name: Tipos de @kromia/mcp
+        if: ${{ !cancelled() }}
+        run: pnpm --filter @kromia/mcp exec tsc --noEmit
+      - name: Tests de @kromia/mcp
+        if: ${{ !cancelled() }}
+        run: pnpm --filter @kromia/mcp exec vitest run
 
       # ── Capa 2: paridad por COMPORTAMIENTO ────────────────────────────────
       - name: dart pub get

@@ -18,7 +18,7 @@ import {
   layoutTemplatesFor, applyLayoutTemplate,
   buildAutoListComposition, buildAutoDetailComposition,
   validateComposition, validateTagStyles,
-  validateAlbumData, validateRaritySource,
+  validateAlbumData, validateRaritySource, normalizeRarityWeights,
 } from '@kromia/core';
 import type { RecipeId, ViewComposition, FieldDefLike } from '@kromia/core';
 
@@ -201,9 +201,24 @@ export function createKromiaMcpServer(): McpServer {
         .describe('{fieldKey, buckets:[{label?,value?,range?,weight?}]}'),
       fieldDefs: z.array(z.any()).describe('Campos de la carta, para comprobar que el field existe y es elegible'),
     },
-  }, async ({ raritySource, fieldDefs }) => json(
-    validateRaritySource(raritySource as never, fieldDefs as never),
-  ));
+  }, async ({ raritySource, fieldDefs }) => {
+    const validation = validateRaritySource(raritySource as never, fieldDefs as never);
+    // El reparto REAL, no el que se escribio. La ficha de esta tool lo promete
+    // ("devuelve los pesos ya NORMALIZADOS") y hasta ahora solo salia un aviso
+    // de que "se normalizaran" -- que deja al agente con la unica cifra que NO
+    // va a ocurrir: la suya. Con 30/10 el publisher cree repartir 30 % y
+    // reparte 75.
+    //
+    // Solo cuando la fuente es valida: normalizar unos buckets que el backend
+    // va a rechazar seria darle una cifra con pinta de acordada sobre algo que
+    // no se va a aplicar.
+    const buckets = (raritySource as any)?.buckets;
+    return json(
+      validation.valid && Array.isArray(buckets) && buckets.length
+        ? { ...validation, normalizedBuckets: normalizeRarityWeights(buckets as never) }
+        : validation,
+    );
+  });
 
   // ── Construcción (F2) ──────────────────────────────────────────────────
   const fieldShape = z.object({
