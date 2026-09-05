@@ -287,6 +287,30 @@ mirarlo; uno caducado se confirma solo.
 Un ticket, como un comentario, describe el mundo del día en que se escribió. Si vas
 a apoyar una decisión en él, ábrele el fichero.
 
+### La regla enunciada como CONCLUSIÓN en vez de como criterio
+
+Prima de la caducada, y se cuela más fácil porque nace de un acierto. Un fallo
+real produce una regla; la regla se guarda con la forma «haz X»; y en el
+siguiente caso X es justo lo que rompe.
+
+2026-09-05. En KRO-426 encontré que la app apilaba una pantalla con `push` sobre
+la rama equivocada del shell y la barra inferior se quedaba marcando otra
+pestaña. De ahí saqué el aviso «cuidado con `push`, usa `go`», y se lo repetí a
+Mobile en el ticket siguiente. **Ahí `push` era lo correcto y `go` habría sido el
+fallo**: el destino no vivía en ninguna rama, era una ruta raíz, y `go` saca a la
+persona del shell entero y le tira la pila a la que volvía.
+
+La regla buena no es la conclusión, es el criterio que la produjo — y la
+formuló Mobile al corregirme:
+
+> **Mira dónde vive el destino: si está en otra rama del shell, `go`; si está
+> fuera del shell, `push`.**
+
+Cómo se detecta a tiempo: **una regla que se puede seguir sin mirar nada es
+sospechosa.** Si al aplicarla no necesitas comprobar ningún hecho del caso que
+tienes delante, es que has guardado el resultado de una comprobación en vez de
+la comprobación. Escribe la pregunta, no la respuesta.
+
 ### Un test que mide un objeto caduco
 
 Variante temporal de mirar la forma, y muerde al revés: hace parecer malo un
