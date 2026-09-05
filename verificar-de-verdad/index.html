@@ -1,0 +1,1431 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación del SDK polyglot de Kromia — modelo de coleccionables, recipes y validadores compartidos cross-plataforma.">
+      
+      
+        <meta name="author" content="Luis Hidalgo">
+      
+      
+        <link rel="canonical" href="https://luishidalgoa.github.io/kromia-sdk/verificar-de-verdad/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Verificar de verdad — el método de depuración de Kromia - Kromia SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#verificar-de-verdad-el-metodo-de-depuracion-de-kromia" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href=".." title="Kromia SDK" class="md-header__button md-logo" aria-label="Kromia SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kromia SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Verificar de verdad — el método de depuración de Kromia
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Compartir" aria-label="Compartir" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/luishidalgoa/kromia-sdk" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    luishidalgoa/kromia-sdk
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../01-overview/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Empezar aquí
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Repositorio
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Kromia SDK" class="md-nav__button md-logo" aria-label="Kromia SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kromia SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    luishidalgoa/kromia-sdk
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inicio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Empezar aquí
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Empezar aquí
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visión general
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conceptos clave
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repositorio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/luishidalgoa/kromia-sdk/edit/main/docs/verificar-de-verdad.md" title="Editar esta página" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="verificar-de-verdad-el-metodo-de-depuracion-de-kromia">Verificar de verdad — el método de depuración de Kromia<a class="headerlink" href="#verificar-de-verdad-el-metodo-de-depuracion-de-kromia" title="Enlace permanente a esta sección">&para;</a></h1>
+<blockquote>
+<p>Doc <strong>canónica</strong>. La skill <code>verificar-de-verdad</code> (en <code>.claude/skills/</code>, que no
+se versiona) apunta aquí: si cambias algo, cámbialo en este fichero.</p>
+<p>Nace de la sesión de campo del <strong>2026-08-27</strong>, el día que se probó el trueque
+entre dos dispositivos reales de punta a punta. Cada regla lleva el fallo
+concreto que evita, no la buena intención.</p>
+</blockquote>
+<h1 id="verificar-de-verdad">Verificar de verdad<a class="headerlink" href="#verificar-de-verdad" title="Enlace permanente a esta sección">&para;</a></h1>
+<blockquote>
+<p><strong>La regla madre</strong>: un control que solo sabe decir que sí es indistinguible de
+uno que funciona. Y un test verde que nunca has visto rojo es exactamente eso.</p>
+</blockquote>
+<h2 id="1-rojo-antes-que-verde-siempre">1. Rojo antes que verde. Siempre.<a class="headerlink" href="#1-rojo-antes-que-verde-siempre" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Un test que no has visto fallar no sujeta nada.</p>
+<ul>
+<li><strong>Escribe el test ANTES de arreglar</strong>, contra el código roto. Si pasa, el test
+  está mal, no el código.</li>
+<li>Si ya arreglaste, <strong>sabotea el arreglo</strong> y comprueba que cae.</li>
+<li><strong>Mira el RECUENTO, no solo el color.</strong> <code>Tests: 0 total</code> no es rojo: es que la
+  suite no compiló. Pasó de verdad — tres sabotajes a la vez rompieron el
+  fichero y casi lo doy por verificado.</li>
+<li><strong>Sabotea de uno en uno.</strong> Juntos no sabes cuál caza qué.</li>
+<li><strong>Comprueba que cae SOLO lo que debe.</strong> Si el sabotaje tumba también el
+  control, tu montaje está mal.</li>
+</ul>
+<p><strong>Lo que esto destapó</strong>: <code>validateOfferedCardQuantities</code> recibía la oferta como
+si fueran las cartas poseídas — comparaba la oferta consigo misma y <strong>nunca pudo
+fallar</strong>. Meses en verde. Y su hermano: una cantidad negativa <strong>invertía el
+sentido del intercambio</strong> (ofrecer «menos una» carta era quitársela al otro).</p>
+<h3 id="si-el-sabotaje-no-lo-pone-rojo-la-precondicion-no-estaba-montada">Si el sabotaje NO lo pone rojo: la precondición no estaba montada<a class="headerlink" href="#si-el-sabotaje-no-lo-pone-rojo-la-precondicion-no-estaba-montada" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Es el reverso de la regla de arriba, y es el fallo más repetido de los dos
+chats: en una sola noche cayeron <strong>cuatro tests</strong> con esta forma exacta. Un test
+que <strong>afirma un estado de partida que nunca llegó a montar</strong> pasa en verde
+diga lo que diga el código.</p>
+<p>Se presenta de tres maneras, y ninguna se ve leyendo el test:</p>
+<ul>
+<li><strong>El estado de partida por defecto no es el que crees.</strong> Una sala de trueque
+  arranca en <code>espera</code> y <strong>fuera</strong> de la sala. Un test que dice probar «no se
+  manda nada sin haber aceptado» pasaba por el guarda <strong>de al lado</strong> —el del
+  estado—, así que el guarda que decía probar se podía <strong>borrar entero</strong> y
+  seguía verde. Otro no llegaba a mandar nada porque el montaje estaba fuera de
+  la sala, no porque el enlace estuviera bien.</li>
+<li><strong>El paso anterior no llegó a guardar.</strong> Un «retirado» parecía funcionar
+  porque el disco ya decía <code>propose_trade</code>: la aceptación nunca se había
+  persistido, y el test no lo comprobaba.</li>
+<li><strong>Mides el efecto de al lado.</strong> Contar llamadas a algo que <strong>el paso previo ya
+  hizo</strong>, o fotogramas de una animación que <strong>no es la tuya</strong> (el color va en su
+  propio tween, así que siempre hay <em>algo</em> moviéndose). El test dice que sí a
+  una pregunta que no es la que crees estar haciendo.</li>
+</ul>
+<p><strong>Cómo se caza</strong>: sabotea, y si sigue verde <strong>no lo dejes pasar</strong> — no es que el
+código esté especialmente bien, es que el test no lo está tocando. Después
+<strong>afirma la precondición dentro del propio test</strong> (<code>expect</code> sobre el estado de
+partida, antes de actuar) y <strong>ata la medida a la cosa concreta</strong>: no «¿pulsa
+algo?», sino «¿pulsa <em>este</em>?».</p>
+<blockquote>
+<p>Un test que pasa por el guarda de al lado protege el guarda de al lado.</p>
+</blockquote>
+<h3 id="cuando-la-defensa-es-doble-deja-el-caso-facil-verde-pero-escrito">Cuando la defensa es DOBLE: deja el caso fácil verde, pero escrito<a class="headerlink" href="#cuando-la-defensa-es-doble-deja-el-caso-facil-verde-pero-escrito" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Un caso particular del anterior, y no se ve venir porque aquí el código está
+<strong>bien de más</strong>: hay dos mecanismos protegiendo lo mismo, y el test evidente
+pasa por el que no querías probar.</p>
+<p>El caso (2026-09-05, KRO-267). Un criterio sin cubrir: <em>un álbum huérfano no
+puede adoptarse al crear un publisher</em> — si se adoptara, quien crea el publisher
+figuraría como la organización detrás de los álbumes de otro. La consulta filtra
+<code>{ ownerId, orphanedAt: null }</code>, y anonimizar deja el <code>ownerId</code> a null.</p>
+<p>O sea que <strong>un huérfano corriente ya no casa por dueño</strong>. El test obvio —meter un
+huérfano y comprobar que no se adopta— pasa <strong>igual sin la cláusula</strong>: lo salva el
+otro filtro. Verde el día que se escribe y verde el día que alguien borre la
+cláusula, que es justo el día en que tendría que gritar.</p>
+<p>El caso que discrimina es el que la cláusula defiende <strong>de verdad</strong>: un huérfano
+que <strong>sí</strong> casa por dueño. Hoy solo llega de un documento antiguo o de que alguien
+cambie el anonimizado — que es exactamente la «variante futura» que el propio
+comentario del código anticipaba.</p>
+<p><strong>Y lo que hay que hacer con el caso fácil no es borrarlo: es dejarlo verde y
+decir por qué.</strong> Un test que no puede fallar tiene valor si documenta que la
+defensa es doble; lo que no puede es quedarse ahí <strong>mudo</strong>, porque el siguiente
+que lo lea contará dos pruebas donde hay una. La explicación va <strong>al lado del
+caso</strong>, no en la cabecera del fichero: quien borra la cláusula abre ese test, no
+el docstring.</p>
+<blockquote>
+<p>Con dos cerrojos, el sabotaje solo prueba el que aún cierra. Pregunta cuál de
+los dos estás midiendo antes de dar el guarda por cubierto.</p>
+</blockquote>
+<h3 id="y-su-hermana-comprobar-la-forma-en-vez-del-efecto">Y su hermana: comprobar la FORMA en vez del EFECTO<a class="headerlink" href="#y-su-hermana-comprobar-la-forma-en-vez-del-efecto" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>La de arriba es que el test no llega a tocar el código. Ésta es peor de detectar
+porque el test <strong>sí</strong> lo toca: lo que falla es <em>qué mira</em>. Afirma sobre algo
+<strong>adyacente</strong> —un valor intermedio, la forma del código, un campo que él mismo
+escribió— en vez de sobre lo observable.</p>
+<p>El 2026-09-03 salieron <strong>seis casos en un día entre los dos chats</strong>, todos con
+esta cara:</p>
+<ul>
+<li><strong>Un valor intermedio en vez del efecto.</strong> Tests que afirmaban sobre
+  <code>KromiaImage.ancho</code> —el campo del widget— cuando lo que importa es el <code>?w=</code>
+  que sale a la red. Entre los dos hay dos funciones que pueden fallar. Verdes
+  con el original bajándose igual.</li>
+<li><strong>Un campo que el propio test escribió.</strong> Un test construía el JSON de
+  respuesta con el campo dentro y luego comprobaba que el parser lo leía:
+  verificaba <strong>su propia escritura</strong>. Ningún test de modelo puede cazar que el
+  servidor deje de mandar un campo — eso vive donde está el riesgo, en el
+  endpoint.</li>
+<li><strong>Que el guarda EXISTA en vez de que GOBIERNE.</strong> Un aserto comprobaba que
+  existiera la lista filtrada… y el bucle que la consume podía seguir usando la
+  sin filtrar. Guarda impecable que no manda sobre nada.</li>
+<li><strong>Tokens en vez de comportamiento.</strong> Un aserto pedía que el cuerpo de una
+  función contuviera <code>scope !== 'album'</code>, <code>porAlbum</code> y un <code>.filter(</code>. Un
+  <code>return perms;</code> metido en la primera línea deja los tres tokens <strong>intactos</strong> y
+  la función sin filtrar nada. Verde con el fallo puesto.</li>
+<li><strong>Se cumple por la OTRA ocurrencia.</strong> Un aserto buscaba «un filtro sobre
+  <code>PERMISSION_GROUPS</code>» y había dos en el fichero: quitar el del render seguía
+  verde porque el del envío lo satisfacía.</li>
+<li><strong>Un sabotaje que no discrimina.</strong> Comparar dos modos de pintado que producen
+  el mismo píxel en la zona medida: el test no distinguía cuál estaba puesto.</li>
+</ul>
+<p><strong>Y su forma más duradera: el ratchet sobre el fuente.</strong> Un aserto que lee el
+código en vez de ejecutarlo <strong>envejece con el refactor y no con el
+comportamiento</strong> — cae cuando mueves código correcto de sitio, y calla cuando el
+código correcto mira los datos equivocados. Sensibilidad justo al revés de la que
+quieres.</p>
+<p>El caso (2026-09-05, paleta de comandos de Studio). Se cogían las seis primeras
+quedadas y se llamaban «las más próximas»; el endpoint las devuelve de más
+antigua a más nueva, así que eran seis pasadas. Y el comando de editar filtraba
+bien —ni cancelada, ni terminada, ni empezada— pero <strong>sobre la lista ya
+recortada</strong>: salía vacío habiendo editables detrás. El test que lo cubría
+comprobaba los literales del filtro en el fuente, o sea <strong>la parte que estaba
+bien</strong>.</p>
+<p>De ahí sale un patrón que merece su nombre: <strong>truncar antes de filtrar</strong>. Lo que
+lo hace escurridizo es que revisar el filtro no encuentra nada, porque el filtro
+es correcto — hay que mirar <strong>de dónde sale su entrada</strong>.</p>
+<p>Y el remedio no es borrar el ratchet: <strong>reapúntalo a lo que sigue siendo verdad</strong>
+—de dónde saca la página su lista, y que el comando la use— y <strong>mueve las
+condiciones a una función pura con sus casos</strong>, reproduciendo cada síntoma por
+sabotaje.</p>
+<p><strong>El olor común</strong>: si puedes romper el comportamiento sin romper el test, estás
+mirando la forma. Y el sabotaje es lo único que lo destapa — los seis casos
+salieron ahí, no leyendo.</p>
+<p><strong>Qué hacer</strong>:</p>
+<ul>
+<li>Afirma sobre <strong>lo que sale</strong>: la URL, la fila en la base, el píxel, la
+  respuesta HTTP. No sobre el paso de en medio.</li>
+<li>Si el test <strong>fabrica su entrada</strong>, no está comprobando a quién se la pide.</li>
+<li>Un aserto sobre el fuente vale para fijar una regla estructural, pero
+  <strong>anclado</strong>: si el patrón que buscas aparece dos veces en el fichero, tu
+  aserto se cumple por la copia que no te importa.</li>
+<li>Y cuando puedas, <strong>exporta la función y pruébala llamándola</strong>. Comprobar texto
+  es el último recurso, no el primero.</li>
+</ul>
+<blockquote>
+<p>Si el sabotaje deja el test verde, el problema es del test — aunque el test lo
+hayas escrito para cazar exactamente eso.</p>
+</blockquote>
+<h3 id="el-verde-apaga-la-lectura-de-la-sonda-que-el-propio-test-imprime">El verde apaga la lectura de la sonda que el propio test imprime<a class="headerlink" href="#el-verde-apaga-la-lectura-de-la-sonda-que-el-propio-test-imprime" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Distinta de las de arriba, y peor, porque cierra caminos para <strong>los dos chats a la
+vez</strong>. 2026-09-04, KRO-351.</p>
+<p>Un test se llamaba «esta composición NO se lava» y su cabecera concluía que el
+blanco no lo producía el apilado de capas. Con eso se descartó ese camino durante
+semanas. Pero <strong>las capas nunca llegaron a pintarse</strong>: el doble alimentaba al
+foil, y la imagen de la capa la bajaba el cliente HTTP real, que en un test sin
+red no trae nada. Lo que medía era papel con brillos encima.</p>
+<p>Y esto es lo que hay que retener: <strong>la sonda lo dijo desde el primer día</strong>.
+Imprimía <code>esquina=0,5568 centro=0,5568</code> — idénticos. El sujeto va en el centro y
+es de otro color; si se hubiera pintado, esos dos números no podrían coincidir.
+Estaban a la vista en cada ejecución. Nadie los leyó <strong>porque el test estaba en
+verde</strong>.</p>
+<p>No es un guarda que solo sabe decir que sí, ni una causa inventada: es que el
+verde <strong>apaga la lectura de la evidencia que el propio test produce</strong>. Un número
+que hay que interpretar solo se interpreta cuando algo falla.</p>
+<p><strong>Y no hace falta que la evidencia sea un número.</strong> El mismo día, el mismo caso: la
+respuesta llevaba desde agosto escrita <em>en prosa</em> en la cabecera de otro test verde
+—«el blanco no es "no hay arte" —eso se pinta gris— sino el esqueleto de carga que
+no se levanta»—. Nombraba el culpable y distinguía los dos síntomas que llevábamos
+un día tratando como uno solo. Estuvo en el repo mientras dos chats perseguían el
+foil, el asset y el rasterizador del servidor.</p>
+<p>O sea que el problema no es el formato de la evidencia: es <em>dónde vive</em>. Lo que
+está dentro de un fichero en verde no se lee, sea un número, una frase o una
+conclusión. <strong>Cuando abras una investigación, haz un grep del síntoma por
+<code>tests/</code> antes de tocar código</strong> — es el sitio donde alguien ya escribió lo que
+averiguó, y el único que nadie vuelve a mirar.</p>
+<ul>
+<li><strong>Si tu test imprime un número, ponle un aserto o ponle una frase.</strong> El arreglo
+  de Mobile fue hacer que la sonda escriba <code>(capa SIN pintar)</code> cuando los dos
+  valores coinciden: convierte un dato que hay que interpretar en uno que acusa.</li>
+<li><strong>Un descarte es una afirmación, y se comprueba como tal.</strong> «Aquí no está el
+  fallo» cierra un camino para todo el mundo; antes de escribirlo en una cabecera,
+  asegúrate de que el test podía haberlo encontrado.</li>
+<li>Y el corolario: <strong>antes de fiarte de un descarte ajeno —o tuyo de hace un mes—
+  mira si lo que lo sostiene ejercía de verdad el camino que dice descartar.</strong></li>
+</ul>
+<h3 id="cuando-una-herramienta-te-de-un-estado-pregunta-contra-que">Cuando una herramienta te dé un estado, pregunta CONTRA QUÉ<a class="headerlink" href="#cuando-una-herramienta-te-de-un-estado-pregunta-contra-que" title="Enlace permanente a esta sección">&para;</a></h3>
+<p><strong>El estado que da una herramienta describe su propia operación, no tu
+intención.</strong> La distancia entre las dos es donde vive el fallo, y no hay ningún
+aviso que la señale: la herramienta ha hecho su trabajo y lo dice.</p>
+<p>El caso (2026-09-05). Tres PRs encadenadas —cada una sobre la rama de la
+anterior, para resolver el CHANGELOG una sola vez— se fusionaron con seis
+segundos entre ellas. Las tres quedaron <strong>MERGED</strong>, verdes, sin conflicto ni
+aviso. Y dos de los tres trabajos <strong>no llegaron a <code>main</code></strong>: el reapuntado de la
+base al fusionar la anterior no es instantáneo, así que cada una entró
+exactamente donde apuntaba — una rama intermedia. <code>MERGED</code> era cierto; lo que
+significaba era «fusionado en algún sitio».</p>
+<p>Es la misma familia que el resto de este documento, y por eso conviene verla
+junta:</p>
+<table>
+<thead>
+<tr>
+<th>Estado</th>
+<th>Lo que parece decir</th>
+<th>Lo que dice de verdad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PR <code>MERGED</code></td>
+<td>está en <code>main</code></td>
+<td>se fusionó contra su base, sea cual sea</td>
+</tr>
+<tr>
+<td>test en verde</td>
+<td>el comportamiento está protegido</td>
+<td>algo pasó, quizá por otro cerrojo</td>
+</tr>
+<tr>
+<td>campo calculado</td>
+<td>el cliente lo recibe</td>
+<td>se calculó; entregarlo es otra cosa</td>
+</tr>
+<tr>
+<td>ticket cerrado</td>
+<td>el trabajo está hecho</td>
+<td>alguien lo dio por hecho</td>
+</tr>
+</tbody>
+</table>
+<p><strong>La señal práctica, y cuesta cinco segundos: si un cambio no se puede comprobar
+en el destino, no está hecho.</strong> Un <code>grep</code> sobre <code>origin/main</code> no depende de que
+nadie interprete bien un estado. Lo mismo vale para una fusión, un despliegue o
+un dato que cruza una frontera: la prueba es mirar el destino, no leer el
+informe de la operación.</p>
+<p>Y en cadena, la condición de parada no es un estado de la herramienta: es que
+<strong>el contenido esté donde tiene que estar</strong> antes de dar el siguiente paso.</p>
+<h3 id="el-control-de-partida-no-es-opcional">El control de partida no es opcional<a class="headerlink" href="#el-control-de-partida-no-es-opcional" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Un caso de regresión suele afirmar una <strong>ausencia</strong>: «esto no se guarda», «esto
+no aparece», «a este no lo toca». Y esa forma tiene un punto ciego que no se ve
+mirando el test: <strong>puede pasar porque el sujeto está vacío</strong>, no porque el código
+haga lo correcto.</p>
+<p>El 2026-09-05 nos pasó a los dos chats el mismo día, cada uno en su repo:</p>
+<ul>
+<li><strong>Backend</strong> — un caso decía «al cerrar por baja, la fila no guarda las cartas
+  de quien se fue». Verde a la primera. La siembra ponía <code>offer: []</code>, y
+  <code>ofertaSiLaHay</code> exige <code>albumId</code>: <strong>no había cartas que guardar</strong>. Lo destapó el
+  sabotaje — al hacer que sí las guardara, el test siguió en verde.</li>
+<li><strong>Mobile</strong> — el fixture usaba <code>{'cartas': [...]}</code> y el formato real es
+  <code>{'albumId', 'cards'}</code>, así que <code>tryFrom</code> devolvía <code>null</code> <strong>siempre</strong>. Con eso,
+  ningún caso distinguía nada: todos miraban el mismo <code>null</code>.</li>
+</ul>
+<p>Y aquí está el matiz que hace útil la sección, porque es más incómodo que «tenía
+un typo»: <strong>el fixture roto no falla de una forma que se note — falla de una
+forma que produce exactamente la señal que ibas a mirar.</strong></p>
+<p>En aquella pasada de Mobile fueron <strong>las dos a la vez</strong>: dos casos en rojo donde
+esperaban verde y cuatro en verde donde esperaban rojo, y <strong>cada mitad
+confirmaba la lectura equivocada de la otra</strong>. Los rojos decían «el arreglo hace
+falta»; los verdes, «el arreglo funciona». Ninguna de las dos señales tenía nada
+que ver con el código: <code>tryFrom</code> devolvía <code>null</code> siempre, así que ningún caso
+distinguía nada.</p>
+<p>Por eso no basta con desconfiar del verde. <strong>La señal correcta no valida el
+fixture, sea del color que sea: solo dice que algo pasó.</strong></p>
+<p>Lo que salvó los dos casos fue lo mismo: <strong>el caso POSITIVO</strong>, el que afirma que
+el dato SÍ está. El de Mobile lo tenía escrito («con <code>hecho</code> sí se guardan») y
+por ahí saltó; en el backend hizo su papel el sabotaje que no dio rojo. Los dos
+son la misma herramienta: <strong>algo que solo puede pasar si el sujeto existe.</strong></p>
+<blockquote>
+<p><strong>El control de partida es lo único que distingue un rojo bueno de un fixture
+roto.</strong> Si un fichero solo comprueba ausencias, no está comprobando: está
+midiendo el vacío.</p>
+</blockquote>
+<p><strong>Los dos gestos:</strong></p>
+<ol>
+<li>Junto a cada caso que afirma una ausencia, uno que afirme la <strong>presencia</strong> con
+   la misma siembra. Si el positivo no pasa, el fixture está mal y los negativos
+   no valían nada.</li>
+<li>Al leer una siembra, preguntarse <em>«¿de dónde saldría este dato si el código
+   estuviera roto?»</em>. Si la respuesta es «de ningún sitio», el caso no mide.</li>
+</ol>
+<h3 id="rejectstothrow-acepta-cualquier-error-incluido-el-que-no-buscas"><code>rejects.toThrow()</code> acepta CUALQUIER error, incluido el que no buscas<a class="headerlink" href="#rejectstothrow-acepta-cualquier-error-incluido-el-que-no-buscas" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Prima del sujeto vacío, y más escurridiza: aquí el sujeto existe, pero <strong>el fallo
+viene de otro sitio</strong>.</p>
+<p>El 2026-09-05, probando que un expulsado no puede fichar en una quedada:</p>
+<div class="language-ts highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">await</span><span class="w"> </span><span class="nx">expect</span><span class="p">(</span><span class="nx">checkin</span><span class="p">(</span><span class="nx">expulsado</span><span class="p">,</span><span class="w"> </span><span class="nx">quedada</span><span class="p">,</span><span class="w"> </span><span class="nx">lat</span><span class="p">,</span><span class="w"> </span><span class="nx">lng</span><span class="p">)).</span><span class="nx">rejects</span><span class="p">.</span><span class="nx">toThrow</span><span class="p">();</span>
+</span></code></pre></div>
+<p>Verde. Y no probaba nada: la quedada del fixture era <strong>dentro de 24 horas</strong>, así
+que la ventana de fichaje ni siquiera estaba abierta y <code>checkin</code> rechazaba por
+eso. Quitar el guarda entero dejaba el test <strong>igual de verde</strong>. Lo destapó el
+sabotaje, que es exactamente para lo que está.</p>
+<p><strong>Los dos gestos, y el primero vale por los dos:</strong></p>
+<ol>
+<li><strong>Un control de partida que exija que la acción FUNCIONA</strong> antes de la
+   condición que la bloquea. Si fichar no funciona ni siquiera sin expulsión, el
+   caso no mide el guarda: mide el fixture.</li>
+<li><strong>Afirmar sobre el error concreto</strong>, no sobre que lo haya:
+   <code>rejects.toThrow(/sacado de esta quedada/)</code>. Un <code>toThrow()</code> pelado es al
+   rechazo lo que <code>expect(x).toBeTruthy()</code> es a una comprobación.</li>
+</ol>
+<p>Y la regla general detrás: <strong>cuando un caso comprueba que algo se impide, hay que
+demostrar antes que sin el impedimento ocurriría.</strong> Si no, lo que mide es que el
+camino estaba cortado más arriba.</p>
+<h3 id="y-el-criterio-se-saca-del-contrato-no-de-la-pantalla">Y el criterio se saca del contrato, no de la pantalla<a class="headerlink" href="#y-el-criterio-se-saca-del-contrato-no-de-la-pantalla" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>De la misma tarde, y merece estar al lado. Mobile arregló un parser que
+descartaba las cartas con una lista negra (<code>si es rechazado, tíralas</code>) y lo pasó
+a lista blanca (<code>solo si está hecho</code>), razonando: <em>«que el modelo no conserve lo
+que la pantalla no pinta»</em>.</p>
+<p>Suena a principio y <strong>no lo es</strong>: es una regla sobre la forma, no sobre el dato.
+El contrato del historial dice que un <code>caducado</code> <strong>sí trae cartas</strong> —son el
+«esto» del «estuvisteis a 2,8 km de cerrar esto»— así que la lista blanca
+estricta no era más segura: <strong>leía mal el contrato</strong> y tiraba un dato que el
+servidor manda a propósito.</p>
+<p>No se habría notado, porque la pantalla del caducado no las pinta hoy. Habría
+entrado en verde, con sus sabotajes cayendo, y el dato perdido en silencio hasta
+que alguien quisiera enseñarlo.</p>
+<p><strong>La pregunta correcta no es «¿esto se pinta?» sino «¿el contrato dice que este
+caso trae el dato?»</strong> — y esa solo se responde leyendo el contrato. Es la misma
+enfermedad que un campo que se calcula y no se entrega: el dato existe, viaja, y
+alguien lo tira por una decisión de una línea que nadie vuelve a mirar.</p>
+<p><strong>El valor bueno aguanta los DOS extremos.</strong> Ahí está el test que lo demuestra:
+pasarse de restrictivo tiene que ponerse rojo igual que pasarse de permisivo. Si
+solo sabotea uno de los lados, lo que tienes no es un criterio: es una preferencia
+que resiste una sola dirección.</p>
+<h3 id="el-sabotaje-comprueba-la-implementacion-nunca-la-premisa">El sabotaje comprueba la implementación, NUNCA la premisa<a class="headerlink" href="#el-sabotaje-comprueba-la-implementacion-nunca-la-premisa" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Y esto es un agujero del método entero, no una trampa más. Conviene leerlo justo
+después de lo de arriba, porque es su forma general.</p>
+<p>Todo lo de esta sección —el rojo antes que el verde, sabotear de uno en uno, el
+valor que aguanta los dos extremos— comprueba <strong>una sola cosa</strong>: que el código
+hace lo que decidiste. Si la decisión está mal, el sabotaje <strong>no lo detecta: lo
+protege</strong>. Y encima con una señal verde que se parece mucho al rigor.</p>
+<p>El caso, del 2026-09-05 (KRO-267). Al rescatar de la papelera un álbum con
+coleccionistas escribí que había que sacarlo <strong>del todo</strong> —limpiar <code>deletedAt</code>
+además de <code>hardDeleteAt</code>— razonando que dentro de la papelera <em>«seguiría
+invisible, porque todos los listados filtran por <code>deletedAt: null</code>»</em>. Y lo dejé
+fijado con un sabotaje, <code>solo-libra</code>, que ponía en rojo la alternativa de limpiar
+solo <code>hardDeleteAt</code>.</p>
+<p>El sabotaje era <strong>correcto como sabotaje</strong>: tumbaba exactamente lo que decía que
+tumbaba. Y estaba defendiendo la conducta equivocada, porque la premisa era
+falsa:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>listMyAlbums (la colección)   → .find({ username })   SIN deletedAt
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>Album.findById (detalle, cartas)                      SIN deletedAt
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>catálogo público                                      CON deletedAt
+</span></code></pre></div>
+<p>El coleccionista <strong>nunca</strong> dejó de ver ese álbum. Limpiar <code>deletedAt</code> no hacía
+falta, y lo que hacía de más era republicar al catálogo algo que su autor había
+retirado a propósito — justo lo que el mismo comentario decía que no se debía
+hacer. Lo destapó Mobile abriendo los tres endpoints; ningún test podía.</p>
+<p><strong>Lo que hace este fallo difícil de ver es que la premisa era consistente consigo
+misma en tres sitios</strong>: el comentario del servicio, la cabecera del test, y la
+ficha del ticket decían lo mismo, se citaban entre sí y encajaban. <strong>La
+consistencia interna se siente como verificación y no lo es.</strong> Tres documentos de
+acuerdo no valen lo que un <code>grep</code> sobre el fichero.</p>
+<blockquote>
+<p><strong>Un sabotaje valida la implementación contra tu intención; nunca la intención.
+Si la premisa está mal, tus tests la protegen — y cuanto mejor escritos, más
+convincente es el error.</strong></p>
+</blockquote>
+<p>La intención solo se comprueba contra algo <strong>externo</strong>: el contrato, el dato
+real, o el código del otro lado. Nunca contra otro texto tuyo.</p>
+<p><strong>Qué hacer, en concreto.</strong> Antes de escribir el sabotaje, escribe la premisa de
+la que depende la decisión y <strong>dónde la comprobaste</strong>. Literalmente, en el
+comentario:</p>
+<ul>
+<li>✅ «los tres endpoints de colección filtran <code>deletedAt</code> — comprobado en
+  <code>user.albums.controller.ts:97</code>, <code>albums.controller.ts:216</code> y … »</li>
+<li>❌ «todos filtran por <code>deletedAt: null</code>»</li>
+</ul>
+<p>Si al escribir esa línea la respuesta es <em>«es evidente»</em>, <em>«lo dice el ticket»</em> o
+<em>«lo puse yo antes»</em>, la premisa <strong>no está verificada</strong>: está repetida. El mismo
+día pasó en las dos direcciones —a Mobile con el contrato del <code>caducado</code>, a
+Studio con esto—, y en los dos casos lo que lo destapó no fue un test: fue ir a
+leer la fuente externa.</p>
+<h2 id="2-mira-el-dato-antes-de-teorizar">2. Mira el dato antes de teorizar<a class="headerlink" href="#2-mira-el-dato-antes-de-teorizar" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Los nombres de las funciones mienten; los datos no.</p>
+<ul>
+<li>Lee <strong>la base</strong>, la <strong>traza</strong>, el <strong>log</strong> — no el nombre del método.</li>
+<li>¿Un botón no hace nada? Antes de culpar al cliente, <strong>mira si el servidor lo
+  registró</strong>. Puede estar llegando y no pintándose. O al revés.</li>
+<li>¿Un ANR? La <strong>traza del hilo <code>main</code></strong> dice exactamente qué lo bloquea.</li>
+<li>¿Se movieron las cartas? <strong>Cuéntalas antes y después.</strong></li>
+</ul>
+<p><strong>Cuidado con lo que solo vive en memoria.</strong> Leer el disco entre dos pasos puede
+enseñarte un estado que la pantalla ya superó. Pasó: di por no entregada una
+aceptación que sí había llegado — y de tirar de ahí salió que la primera
+aceptación <strong>no se persistía</strong> (KRO-395).</p>
+<h3 id="el-mensaje-de-error-suele-nombrar-la-causa-equivocada">El mensaje de error suele nombrar la causa equivocada<a class="headerlink" href="#el-mensaje-de-error-suele-nombrar-la-causa-equivocada" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Cuatro veces en una sola sesión, y ninguna se resolvió razonando mejor:</p>
+<table>
+<thead>
+<tr>
+<th>lo que decía</th>
+<th>lo que era</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>un punto verde suelto, «resto de render»</td>
+<td>la <strong>ruedecita de carga</strong> girando para siempre — el problema entero</td>
+</tr>
+<tr>
+<td><code>sala e5e1166c inexistente</code></td>
+<td>existía; lo que pasa es que <strong>terminó</strong> y se olvida de memoria</td>
+</tr>
+<tr>
+<td><code>Instance failed to start</code> (mongod)</td>
+<td>arrancaba bien: <strong>tardaba más de los 10 s</strong> del timeout</td>
+</tr>
+<tr>
+<td>el GPS «se abre y se cierra a los 4 s»</td>
+<td>eran 4 s porque <strong>ya tenía la posición</strong>: era un éxito</td>
+</tr>
+</tbody>
+</table>
+<p>Los cuatro se cerraron <strong>encendiendo algo</strong> —una sonda, el modo depuración, un
+test que ejecutara lo que se estaba deduciendo— y no pensando más rato.</p>
+<p><strong>El detalle que no encaja no es un detalle menor: suele ser el síntoma
+entero.</strong> Si tu explicación deja algo fuera, la explicación no está terminada.</p>
+<h3 id="un-error-escrito-en-un-log-no-es-un-error-que-ocurrio">Un error escrito en un log no es un error que ocurrió<a class="headerlink" href="#un-error-escrito-en-un-log-no-es-un-error-que-ocurrio" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Del 2026-09-06, y es la versión fina de todo lo anterior: no fallé por no
+comprobar, fallé por <strong>parar de comprobar en el primer indicio coherente</strong>.</p>
+<p>Un PR de la app estaba en rojo. Saqué el log con <code>gh run view --log-failed</code>,
+grepeé palabras con forma de error y encontré esto:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>::error::Falta el secreto SDK_REPO_TOKEN. Este repo depende de kromia-sdk
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>(privado) y el GITHUB_TOKEN no puede clonar otro repo privado.
+</span></code></pre></div>
+<p>Encajaba perfectamente —el repo sí depende del SDK privado— así que diagnostiqué
+«falta el secreto» y lo reporté. <strong>Era falso.</strong> Ese texto es el <strong>cuerpo del
+script</strong> que GitHub imprime entero al montar el paso; vive dentro de un <code>if</code> que
+no se cumplió. El paso salió en <code>success</code>.</p>
+<p>Dos señales lo desmentían y las dos estaban delante:</p>
+<ul>
+<li><strong>La duración: 7m14s.</strong> El guarda del token es el primer paso y falla en
+  segundos. Siete minutos significan que llegó a correr los tests. El número
+  estaba en mi propio mensaje y no le di valor.</li>
+<li><strong>Mi propia salida decía <code>UNKNOWN STEP</code> en cada línea.</strong> <code>gh</code> no pudo atribuir
+  el log a sus pasos, o sea que estaba leyendo texto sin saber de dónde salía —
+  y aun así deduje de qué paso venía.</li>
+</ul>
+<p>Lo que había que hacer, y cuesta una orden:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>gh<span class="w"> </span>run<span class="w"> </span>view<span class="w"> </span>&lt;id&gt;<span class="w"> </span>--json<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>--jq<span class="w"> </span><span class="s1">'.jobs[] | .name as $j | .steps[] | "\(.conclusion) -- \($j) / \(.name)"'</span>
+</span></code></pre></div>
+<p>Eso devuelve <strong>qué paso falló</strong>, que es el dato. El log es prosa; los pasos son
+el dato. El fallo real era un test de memoria que comparaba <code>rssMb</code> y <code>rssMaxMb</code>
+sin saber que salen de <strong>dos fuentes distintas del sistema</strong> (<code>/proc/self/statm</code>
+y <code>getrusage</code>, esta en KB): unos kilobytes de desfase que <code>.round()</code> convertía en
+<strong>un mega entero</strong> en la dirección equivocada. Una invariante afirmada sobre
+valores redondeados que solo se cumple en bytes.</p>
+<blockquote>
+<p><strong>El texto de un error en un log no prueba que ese error ocurriera.</strong> Los
+scripts se imprimen enteros al montarse. Mira <strong>qué paso falló</strong>, no qué
+palabras aparecen.</p>
+</blockquote>
+<p>Y la regla de encima, que es la que generaliza: <strong>una hipótesis que encaja no es
+una hipótesis comprobada.</strong> Cuanto mejor encaja el primer indicio, más tienta
+dejar de mirar — y ahí es justo donde hay que pedir el segundo dato.</p>
+<h3 id="cuando-dos-explicaciones-predicen-lo-mismo-no-elijas-instrumenta">Cuando dos explicaciones predicen lo mismo, no elijas: instrumenta<a class="headerlink" href="#cuando-dos-explicaciones-predicen-lo-mismo-no-elijas-instrumenta" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Es la trampa de la que salen los mecanismos inventados. «El emulador cortó la
+petición» y «la posición llegó y por eso se cerró» <strong>predicen exactamente el
+mismo log</strong>, así que mirarlo otra vez no decide nada, y la que se acaba
+eligiendo es la cómoda.</p>
+<p>Lo que decide es buscar el sitio donde <strong>solo una de las dos puede dejar
+rastro</strong>: aquí, si el servidor había recibido la posición. Una sonda temporal y
+<code>precisionM: 5</code> cerraron en diez minutos lo que llevaba horas discutiéndose.</p>
+<p>Y ojo con el final feliz: <strong>si aciertas sin comprobarlo, el acierto no valida el
+mecanismo — lo esconde</strong>, y la costumbre de inventarlo queda intacta.</p>
+<h2 id="3-aisla-antes-de-culpar-al-codigo">3. Aísla antes de culpar al código<a class="headerlink" href="#3-aisla-antes-de-culpar-al-codigo" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Un fallo bajo carga <strong>no es</strong> una regresión.</p>
+<ul>
+<li>La suite entera dio <strong>177 fallos en 5 suites</strong>; <strong>cuatro pasaron aisladas</strong>.
+  Era el mongo en memoria sin arrancar en 10 s con dos emuladores encima.</li>
+<li>Antes de perseguir nada: <strong>relanza la suite sospechosa sola</strong>.</li>
+<li>Mide la máquina (<code>FreePhysicalMemory</code>, swap, procesos) — pero ojo: en Windows
+  el «libre» bajo suele ser caché reclamable, no presión real.</li>
+<li><strong>No lances suites, builds ni subagentes mientras el user usa el emulador.</strong>
+  Saturé la máquina y le dejé el emulador sin servicio de entrada.</li>
+</ul>
+<h3 id="y-su-reverso-si-el-fallo-desaparece-al-sondearlo-mide-otra-cosa">Y su reverso: si el fallo DESAPARECE al sondearlo, mide otra cosa<a class="headerlink" href="#y-su-reverso-si-el-fallo-desaparece-al-sondearlo-mide-otra-cosa" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Aislar sirve para no culpar al código de lo que es la máquina. Esto es al revés:
+<strong>la sonda que exculpa al código y no debía.</strong></p>
+<ul>
+<li>2026-09-04, KRO-427. Monté una sonda para probar que un cierre fallido dejaba
+  el trueque a una sola pulsación de ejecutarse. Salió <strong>verde</strong>: la segunda
+  pulsación daba <code>close_too_far</code>. A punto estuve de anotar «no se reproduce».
+  Lo que pasaba es que <code>olvidarPosicionesDe</code> corre <strong>también</strong> cuando el cierre
+  falla, así que mi sonda —que mandaba la posición una sola vez— se quedaba sin
+  ubicación. Eso <strong>no es un guarda</strong>: en una quedada de verdad los dos móviles
+  siguen mandando ubicación solos. Reenviando posición, como pasa en la
+  realidad, el agujero aparece entero y las cartas cambian de dueño.</li>
+</ul>
+<p>Un fallo que se esconde detrás de un mecanismo <strong>que no está ahí para eso</strong> está
+tapado por un accidente, y los accidentes se caen solos. Antes de escribir «no
+se reproduce», pregúntate: <em>¿lo que lo ha parado existe para pararlo?</em> Si la
+respuesta es no, tu sonda está midiendo otra cosa.</p>
+<p>El primo hermano, el mismo día y en el otro chat: un parche correcto puesto en
+<strong>la otra ocurrencia de la misma función</strong>, un caso que se le parecía mucho y en
+el que justamente no debía aplicarse. Lo cazó que el test seguía rojo, no una
+relectura. Los dos casos se vieron <strong>ejerciendo el camino real</strong>, y ninguno se
+habría visto leyendo.</p>
+<h3 id="la-causa-inventada-bajo-un-arreglo-que-funciona">La causa inventada bajo un arreglo que funciona<a class="headerlink" href="#la-causa-inventada-bajo-un-arreglo-que-funciona" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>De todas las trampas de esta doc, <strong>esta es la única que ningún mecanismo tumba
+solo.</strong> Un test que mira la forma se cae en cuanto alguien sabotea. Un comentario
+heredado se cae en cuanto alguien va a probarlo. Pero una causa falsa escrita
+debajo de un arreglo <em>correcto</em> pasa los tests, sobrevive a los sabotajes y se
+hereda intacta — solo cae si alguien la lee con desconfianza. (El orden y el
+argumento son de Mobile, 2026-09-04.)</p>
+<p>Porque <strong>un arreglo que funciona no invita a releer por qué</strong>. Ese día, en el otro
+chat, dos comentarios falsos: uno justificando que el color de una categoría
+saliera del índice de la lista completa «para que desplegar no repinte» —falso, el
+recorte es un prefijo—, y la justificación de un guarda de <code>mounted</code> diciendo que
+navegar destruye el notifier de esa pantalla —falso: el provider no es
+<code>autoDispose</code> y el contenedor no se destruye nunca—.</p>
+<p>El primero se cazó al ir a escribirle un test y descubrir que el fallo no existía.
+El segundo no se cazó: el guarda era correcto, el intermitente desapareció, y
+<strong>todas las señales decían «cerrado»</strong>. La causa falsa no costaba nada mientras
+nadie la usara para decidir; el riesgo era el siguiente que la usara de premisa.
+En un repo donde el comentario ES el registro de diseño, con «navegar destruye los
+notifiers» escrito al lado, alguien mete un <code>autoDispose</code> creyendo que solo
+formaliza lo que ya pasa.</p>
+<p><strong>Al escribir el porqué de un arreglo, compruébalo como comprobarías el arreglo.</strong>
+Si no sabes ponerle un rojo a la causa, no la afirmes: describe lo que hace el
+guarda y di que la causa está sin confirmar.</p>
+<h3 id="su-vehiculo-el-comentario-heredado-y-el-ticket-viejo">Su vehículo: el comentario heredado — y el ticket viejo<a class="headerlink" href="#su-vehiculo-el-comentario-heredado-y-el-ticket-viejo" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Cómo llega ahí una causa falsa, casi siempre: <strong>un comentario heredado es una
+afirmación que nadie ha vuelto a comprobar</strong> (Mobile, 2026-09-04). Se copia de un
+sitio donde SÍ era cierta y viaja sin su razón. En el caso de arriba, el comentario
+copiado —«el doble tiene que RESPONDER, no solo tener un estado inicial»— estaba
+escrito encima de un doble que hacía justo las dos cosas: era, literalmente, la
+pista que delataba el fallo que describía.</p>
+<p><strong>Un ticket cerrado es el mismo vehículo, y engaña más.</strong> El 2026-09-04 mandé a
+Mobile tres «pistas» sacadas de la descripción de KRO-334; las tres estaban ya
+resueltas en su código. No las había leído: leí el ticket.</p>
+<p>Y el matiz es de ellos, que es lo que lo hace útil: <strong>no estaban mal, estaban
+caducadas</strong> — en su día fueron ciertas. Esa es la variante peligrosa, porque <em>quien
+la lee la comprueba contra su recuerdo y le cuadra</em>. Un dato falso se cae al
+mirarlo; uno caducado se confirma solo.</p>
+<p>Un ticket, como un comentario, describe el mundo del día en que se escribió. Si vas
+a apoyar una decisión en él, ábrele el fichero.</p>
+<h3 id="la-regla-enunciada-como-conclusion-en-vez-de-como-criterio">La regla enunciada como CONCLUSIÓN en vez de como criterio<a class="headerlink" href="#la-regla-enunciada-como-conclusion-en-vez-de-como-criterio" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Prima de la caducada, y se cuela más fácil porque nace de un acierto. Un fallo
+real produce una regla; la regla se guarda con la forma «haz X»; y en el
+siguiente caso X es justo lo que rompe.</p>
+<p>2026-09-05. En KRO-426 encontré que la app apilaba una pantalla con <code>push</code> sobre
+la rama equivocada del shell y la barra inferior se quedaba marcando otra
+pestaña. De ahí saqué el aviso «cuidado con <code>push</code>, usa <code>go</code>», y se lo repetí a
+Mobile en el ticket siguiente. <strong>Ahí <code>push</code> era lo correcto y <code>go</code> habría sido el
+fallo</strong>: el destino no vivía en ninguna rama, era una ruta raíz, y <code>go</code> saca a la
+persona del shell entero y le tira la pila a la que volvía.</p>
+<p>La regla buena no es la conclusión, es el criterio que la produjo — y la
+formuló Mobile al corregirme:</p>
+<blockquote>
+<p><strong>Mira dónde vive el destino: si está en otra rama del shell, <code>go</code>; si está
+fuera del shell, <code>push</code>.</strong></p>
+</blockquote>
+<p>Cómo se detecta a tiempo: <strong>una regla que se puede seguir sin mirar nada es
+sospechosa.</strong> Si al aplicarla no necesitas comprobar ningún hecho del caso que
+tienes delante, es que has guardado el resultado de una comprobación en vez de
+la comprobación. Escribe la pregunta, no la respuesta.</p>
+<h3 id="un-test-que-mide-un-objeto-caduco">Un test que mide un objeto caduco<a class="headerlink" href="#un-test-que-mide-un-objeto-caduco" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Variante temporal de mirar la forma, y muerde al revés: hace parecer malo un
+arreglo bueno. Mobile, el mismo día, capturó el <code>StatefulNavigationShell</code> en el
+<code>builder</code> y leyó su <code>currentIndex</code> — pero el shell se reconstruye al navegar, así
+que la sonda leía una instancia vieja. <strong>El test seguía rojo con la corrección
+puesta</strong>, y estuvo a punto de descartar la buena.</p>
+<p>Junto con el <code>close_too_far</code> de más arriba, son las dos direcciones del mismo
+error: allí un fallo real escondido tras un mecanismo que no estaba ahí para
+pararlo; aquí un arreglo bueno tapado por una lectura rancia. En los dos casos la
+sonda medía otra cosa. <strong>Cuando el resultado te sorprenda —en cualquiera de las
+dos direcciones—, sospecha de la sonda antes que de la conclusión.</strong></p>
+<h2 id="4-no-destruyas-tus-propias-pruebas">4. No destruyas tus propias pruebas<a class="headerlink" href="#4-no-destruyas-tus-propias-pruebas" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Tres veces en un día perdí la evidencia por filtrarla yo mismo:</p>
+<ul>
+<li><code>| tail -25</code> y <code>| grep</code> se comieron el motivo de un fallo.</li>
+<li><code>2&gt;&amp;1 &gt; fichero</code> manda stderr al terminal y <strong>pierde el resumen</strong> — el orden
+  correcto es <code>&gt; fichero 2&gt;&amp;1</code>.</li>
+<li>Un <code>&amp;&amp;</code> tras un <code>grep</code> que <strong>encontró</strong> «FAILURE» siguió adelante e instaló una
+  build vieja en dos dispositivos.</li>
+</ul>
+<p><strong>Captura crudo a fichero y luego filtra.</strong> Y comprueba la ruta de los tests: un
+<code>npx jest tests/unit/x</code> que no existe dice «0 matches» y <strong>parece que pasó</strong>.</p>
+<h2 id="5-antes-de-reportar-un-fantasma">5. Antes de reportar un fantasma<a class="headerlink" href="#5-antes-de-reportar-un-fantasma" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Cuatro veces estuve a punto de abrir un ticket de algo que no era:</p>
+<ul>
+<li><strong>Espera.</strong> «No carga» era carga; a los 25 s aparecía.</li>
+<li><strong>Scrollea.</strong> «Falta el botón» era el botón tapado por la barra fija.</li>
+<li><strong>Mira si es estado transitorio.</strong> Un título «Trueque» era un placeholder.</li>
+<li><strong>Mira la red y la build.</strong> «El móvil no conecta» era mi APK apuntando a
+  <code>10.0.2.2</code>, que solo existe en el emulador.</li>
+</ul>
+<p>Si al final era falsa alarma, <strong>dilo</strong>. Retirar una acusación vale tanto como
+levantarla.</p>
+<h2 id="6-en-dispositivo-prueba-donde-duele">6. En dispositivo: prueba donde duele<a class="headerlink" href="#6-en-dispositivo-prueba-donde-duele" title="Enlace permanente a esta sección">&para;</a></h2>
+<ul>
+<li><strong>El emulador no es la prueba buena.</strong> <code>adb emu geo fix</code> inyecta un punto
+  suelto, no un flujo de GPS: un <code>getCurrentPosition</code> de alta precisión puede no
+  volver nunca. Lo que se cuelga ahí puede ir bien en un móvil real — y al
+  revés.</li>
+<li><strong>Prueba también en 720×1600.</strong> Tres fallos de maquetación reales solo se
+  veían en el móvil pequeño; en el Pixel del emulador no existían.</li>
+<li><strong>Comprueba que instalaste lo que crees</strong>: <code>lastUpdateTime</code> de <code>dumpsys
+  package</code> contra el reloj del host. El emulador va en UTC.</li>
+<li>Detalles caros: dos emuladores a la vez → el segundo <strong>no pinta nada</strong> salvo
+  con <code>-gpu swiftshader_indirect</code>. Y la build para móvil físico necesita
+  <code>--dart-define=API_BASE_URL=http://&lt;IP-LAN&gt;:3000/api</code> o la de ngrok.</li>
+</ul>
+<h2 id="7-analiza-la-interfaz-no-solo-el-flujo">7. Analiza la interfaz, no solo el flujo<a class="headerlink" href="#7-analiza-la-interfaz-no-solo-el-flujo" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Que el flujo llegue al servidor no significa que esté bien.</p>
+<ul>
+<li><strong>Mira la pantalla como un usuario primerizo.</strong> ¿Se entiende qué hace este
+  botón? ¿Se ve lo que he venido a ver?</li>
+<li><strong>Mide cuando puedas.</strong> «Se ve poco» es una queja; «las cartas ocupan el 4 % de
+  la pantalla y el pie de página el 22 %» es un argumento — y fue lo que movió
+  la prioridad.</li>
+<li><strong>Nada pulsable puede quedarse mudo.</strong> Un botón que no responde manda a la
+  gente a pulsarlo otra vez, y eso empeoró un ANR.</li>
+<li><strong>El botón dice lo que quieres hacer, no lo que te lo impide.</strong></li>
+</ul>
+<h2 id="8-al-escribir-el-ticket">8. Al escribir el ticket<a class="headerlink" href="#8-al-escribir-el-ticket" title="Enlace permanente a esta sección">&para;</a></h2>
+<ul>
+<li><strong>Escenario concreto</strong>: quién manda qué, en qué estado, y qué sale mal. Si no
+  sabes escribirlo, no es un hallazgo.</li>
+<li><strong>Por qué no lo cazó nadie</strong> — suele ser la parte más útil.</li>
+<li><strong>La salvedad honesta</strong>: lo que NO has podido comprobar, y por qué.</li>
+<li>Nada de «sería bueno añadir». Solo defectos reales.</li>
+<li>Si el asset o el dato no existe, <strong>dilo en el ticket</strong> para que nadie se
+  bloquee a mitad.</li>
+</ul>
+<h3 id="y-al-cerrarlo-abre-la-ficha-aunque-el-encargo-venga-impecable">Y al CERRARLO: abre la ficha, aunque el encargo venga impecable<a class="headerlink" href="#y-al-cerrarlo-abre-la-ficha-aunque-el-encargo-venga-impecable" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Un encargo bien acotado describe <strong>una esquina</strong> del ticket. El número que lleva
+pegado abarca todo lo demás, y es facilísimo cerrar el ticket entero por haber
+resuelto la esquina — sobre todo cuando el encargo era correcto.</p>
+<p><strong>La señal: si vas a cerrar un ticket que no escribiste tú, ábrelo.</strong> No el hilo
+donde se habló, no el mensaje que te lo encargó: la ficha, con sus criterios de
+aceptación y su estado.</p>
+<p>El caso que lo enseñó (2026-09-05, KRO-267). Llegó como «que el test de la app
+parta de una respuesta real en vez de fabricar el mapa». El encargo era correcto
+y su diagnóstico también. Se verificó, y salió que ni siquiera hacía falta
+hacerlo: el fallo estaba arreglado y el guarda ya existía en el otro lado. Todo
+apuntaba a cerrar.</p>
+<p>La ficha decía otra cosa: <strong>«Al borrar una cuenta, los álbumes NO deben morir:
+huérfanos anonimizados + lista negra de nombres»</strong>, en verificación/QA, con
+criterios sin comprobar —la lista negra es la mitad del ticket— y un motivo de
+seguridad escrito dentro: quien reclamara el nombre liberado heredaría los
+álbumes huérfanos como si fueran suyos.</p>
+<p>Y el remate, que es lo que hace que la regla valga: al ir a comprobar los
+criterios de verdad, <strong>la mitad sí estaba</strong> (39 tests de julio que aguantaban) y
+<strong>uno no lo probaba nada</strong> — la no-adopción, con su guarda escrito y marcado
+como CRÍTICO en un comentario, y cero tests. Cerrar por el encargo habría dado
+por buenas las dos cosas sin distinguirlas.</p>
+<p>Los dos chats habíamos hablado del ticket entero por su número durante varios
+mensajes sin que ninguno abriera la ficha.</p>
+<h2 id="9-trabajando-con-el-otro-chat">9. Trabajando con el otro chat<a class="headerlink" href="#9-trabajando-con-el-otro-chat" title="Enlace permanente a esta sección">&para;</a></h2>
+<ul>
+<li><strong>No edites sus ficheros.</strong> Si el user te lo pide y su sesión no está viva,
+  hazlo — y <strong>díselo lo primero</strong> cuando vuelva, con el diff y la suite.</li>
+<li><strong>Comprueba sus informes contra el código.</strong> «Ya está arreglado» resultó ser
+  el fichero equivocado; un <code>grep</code> del texto enseñó las dos copias.</li>
+<li><strong>El destinatario se saca de <code>ListAgents</code> justo antes de escribir</strong>: los
+  nombres cambian, y recibir un mensaje suyo no garantiza poder contestar.</li>
+<li>Si no está alcanzable: <strong>cola de handoffs en <code>COORDINATION.md</code> + el contenido
+  entero en el ticket de Jira.</strong></li>
+</ul>
+<h3 id="esto-no-cambia-nada-para-ti-es-una-hipotesis-sobre-el-codigo-ajeno">«Esto no cambia nada para ti» es una hipótesis sobre el código ajeno<a class="headerlink" href="#esto-no-cambia-nada-para-ti-es-una-hipotesis-sobre-el-codigo-ajeno" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Y por tanto <strong>la peor clase de afirmación</strong>: la haces sobre el único terreno que
+no has leído. Compruébala, o no la escribas.</p>
+<p>2026-09-04, KRO-427. Yo arreglé en el servidor que un cierre rechazado bajara el
+flag <code>cerrado</code> de los dos y se persistiera; Mobile arregló en la app que los chips
+de cierre dejaran de decir «Ha cerrado» tras ese rechazo. <strong>Cada uno le dijo al
+otro que su arreglo no le afectaba.</strong> Los dos nos equivocamos, y en direcciones
+opuestas:</p>
+<ul>
+<li><em>Sin el del servidor</em>, el arreglo de la app duraba lo que durase la pantalla
+  montada: al salir y volver a entrar, el payload de entrada traía <code>cerrado: true</code>
+  otra vez y la mesa volvía a mentir.</li>
+<li><em>Sin el de la app</em>, el flag bajaba en disco pero la pantalla no se enteraba
+  hasta el siguiente <code>join_session</code> — o sea que mentía justo durante el rato en
+  que los dos están mirando el móvil.</li>
+</ul>
+<p>No eran dos arreglos parecidos: eran <strong>las dos mitades del mismo fallo</strong>, una a
+cada lado del cable. Es el patrón de «faltaba en dos sitios, no en uno» repartido
+entre dos repos, que es donde peor se ve, porque cada mitad se lee como completa
+desde su lado.</p>
+<p><strong>Y la señal no estaba en ninguno de los dos códigos: estaba en el mensaje del
+otro.</strong> Apareció porque Mobile fue a <em>comprobar</em> mi «no tenéis que hacer nada» en
+vez de aceptarlo. La regla que sale de ahí: cuando el otro chat te diga que su
+cambio no te afecta, trátalo como el informe que es —algo que se contrasta contra
+el código— y no como un permiso para no mirar.</p>
+<h2 id="10-lo-que-no-se-hace-sin-preguntar">10. Lo que no se hace sin preguntar<a class="headerlink" href="#10-lo-que-no-se-hace-sin-preguntar" title="Enlace permanente a esta sección">&para;</a></h2>
+<ul>
+<li><strong>Deducir dónde vive el user.</strong> Mover un emulador leyendo la distancia hasta
+  acertar es triangular su casa. Si autoriza, lee el GPS de su propio móvil —
+  no geocodifiques su dirección en un servicio externo.</li>
+<li><strong>Tocar el firewall</strong>, rotar claves, o meter credenciales en un formulario.</li>
+<li><strong>Pushear</strong> sin permiso explícito. Y nunca <code>--no-verify</code>: si el hook falla por
+  entorno, <strong>reintenta</strong>, no lo saltes.</li>
+</ul>
+<hr />
+<h2 id="recordatorio-final">Recordatorio final<a class="headerlink" href="#recordatorio-final" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>El síntoma visible <strong>casi nunca es el fallo</strong>. El mensaje que decía «no tienes
+tantas repetidas» tapó durante meses que el control de cantidades no existía. El
+botón que «no hacía nada» tapaba una llamada síncrona bloqueando el hilo de
+interfaz.</p>
+<p>Cuando el diagnóstico acierte, <strong>audita el mecanismo aparte</strong>: el acierto no lo
+valida, lo esconde.</p>
+<h3 id="un-0-de-una-sonda-no-cierra-nada-abre-una-lectura">Un <code>0</code> de una sonda no cierra nada: abre una lectura<a class="headerlink" href="#un-0-de-una-sonda-no-cierra-nada-abre-una-lectura" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Corolario del anterior, y de los más baratos de aplicar. <strong>Una sonda que busca un
+literal solo puede decir «no lo encontré», nunca «no está»</strong> — y las dos lecturas
+se imprimen igual: <code>0</code>.</p>
+<p>Pasó dos veces en diez minutos, sobre el mismo párrafo y en los dos chats:</p>
+<ul>
+<li><code>grep -c "es una cicatriz"</code> → <strong>0</strong>. La frase estaba, partida en dos líneas por
+  el ajuste de márgenes.</li>
+<li><code>grep -c "en qué OTRO sitio"</code> → <strong>0</strong>. La frase estaba, con la palabra en
+  negritas: <code>en qué **otro** sitio</code>.</li>
+</ul>
+<p>Ninguna de las dos era un fallo del push. <code>grep</code> hizo su trabajo perfectamente:
+respondió por su operación, no por la intención de quien preguntaba. Es el patrón
+de <em>«cuando una herramienta te dé un estado, pregunta contra qué»</em> en su forma más
+pequeña.</p>
+<p><strong>Y hay una asimetría que conviene tener presente, porque decide cuánto trabajo
+cuesta cada caso:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Resultado</th>
+<th>Qué vale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>1</code> o más</td>
+<td><strong>Concluyente.</strong> Si lo encontró, está.</td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td><strong>No concluye nada.</strong> Puede ser que falte, o que tu literal no exista con esa forma.</td>
+</tr>
+</tbody>
+</table>
+<p>Así que la regla no es «no uses <code>grep</code> para verificar» — sirve, y es lo más barato
+que hay. Es: <strong>un positivo cierra la comprobación; un cero solo la empieza.</strong>
+Ante un <code>0</code>, abre el fichero antes de concluir, y prefiere sondas que no dependan
+de la forma del texto: un símbolo de una palabra, un identificador, la existencia
+del fichero.</p>
+<h2 id="y-una-sobre-este-documento">Y una sobre este documento<a class="headerlink" href="#y-una-sobre-este-documento" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>El 2026-09-05 los dos chats se corrigieron cuatro veces cruzadas en una tarde, y
+<strong>cada corrección cayó en el punto ciego del otro</strong>. No por casualidad:</p>
+<blockquote>
+<p><strong>Una regla que solo se aplica donde ya te quemaste no es una regla, es una
+cicatriz.</strong></p>
+</blockquote>
+<p>Ese mismo día escribí aquí <em>«si un cambio no se puede comprobar en el destino, no
+está hecho»</em>, lo apliqué religiosamente a cada fusión… y le dije al otro chat que
+una lección estaba «commiteada en el SDK» cuando seguía <strong>solo en mi disco</strong>. La
+regla estaba escrita, entendida y recién redactada por mí. Vivía en el sitio donde
+me había dolido —las PRs— y no llegó al <code>git push</code> de al lado.</p>
+<p>Es el mismo mecanismo que el de <em>guardar la conclusión en vez del criterio</em>, pero
+por el otro extremo: ahí la regla estaba mal escrita; aquí está bien escrita y se
+aplica <strong>solo en el lugar donde nació</strong>.</p>
+<p><strong>Cómo se combate:</strong> cuando una sección de aquí te salve de algo, pregúntate en
+qué <strong>otro</strong> sitio de tu trabajo de hoy vale lo mismo y aún no la has aplicado.
+Y cuando el otro chat te corrija, mira si su corrección es tuya también en otro
+sitio — hoy las cuatro lo eran.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Kromia — privado, uso interno.
+    </div>
+  
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/luishidalgoa/kromia-sdk" target="_blank" rel="noopener" title="SDK en GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.action.edit"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
