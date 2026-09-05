@@ -242,6 +242,66 @@ informe de la operación.
 Y en cadena, la condición de parada no es un estado de la herramienta: es que
 **el contenido esté donde tiene que estar** antes de dar el siguiente paso.
 
+### El control de partida no es opcional
+
+Un caso de regresión suele afirmar una **ausencia**: «esto no se guarda», «esto
+no aparece», «a este no lo toca». Y esa forma tiene un punto ciego que no se ve
+mirando el test: **puede pasar porque el sujeto está vacío**, no porque el código
+haga lo correcto.
+
+El 2026-09-05 nos pasó a los dos chats el mismo día, cada uno en su repo:
+
+- **Backend** — un caso decía «al cerrar por baja, la fila no guarda las cartas
+  de quien se fue». Verde a la primera. La siembra ponía `offer: []`, y
+  `ofertaSiLaHay` exige `albumId`: **no había cartas que guardar**. Lo destapó el
+  sabotaje — al hacer que sí las guardara, el test siguió en verde.
+- **Mobile** — el fixture usaba `{'cartas': [...]}` y el formato real es
+  `{'albumId', 'cards'}`, así que `tryFrom` devolvía `null` siempre. **Tres casos
+  que debían distinguir cosas pasaban todos por el mismo motivo equivocado.**
+
+Lo que salvó los dos fue lo mismo: **el caso POSITIVO**. El de Mobile lo tenía
+escrito («con `hecho` sí se guardan») y por ahí saltó; en el backend hizo su
+papel el sabotaje que no dio rojo.
+
+> **El control de partida es lo único que distingue un rojo bueno de un fixture
+> roto.** Si un fichero solo comprueba ausencias, no está comprobando: está
+> midiendo el vacío.
+
+**Los dos gestos:**
+
+1. Junto a cada caso que afirma una ausencia, uno que afirme la **presencia** con
+   la misma siembra. Si el positivo no pasa, el fixture está mal y los negativos
+   no valían nada.
+2. Al leer una siembra, preguntarse *«¿de dónde saldría este dato si el código
+   estuviera roto?»*. Si la respuesta es «de ningún sitio», el caso no mide.
+
+### Y el criterio se saca del contrato, no de la pantalla
+
+De la misma tarde, y merece estar al lado. Mobile arregló un parser que
+descartaba las cartas con una lista negra (`si es rechazado, tíralas`) y lo pasó
+a lista blanca (`solo si está hecho`), razonando: *«que el modelo no conserve lo
+que la pantalla no pinta»*.
+
+Suena a principio y **no lo es**: es una regla sobre la forma, no sobre el dato.
+El contrato del historial dice que un `caducado` **sí trae cartas** —son el
+«esto» del «estuvisteis a 2,8 km de cerrar esto»— así que la lista blanca
+estricta no era más segura: **leía mal el contrato** y tiraba un dato que el
+servidor manda a propósito.
+
+No se habría notado, porque la pantalla del caducado no las pinta hoy. Habría
+entrado en verde, con sus sabotajes cayendo, y el dato perdido en silencio hasta
+que alguien quisiera enseñarlo.
+
+**La pregunta correcta no es «¿esto se pinta?» sino «¿el contrato dice que este
+caso trae el dato?»** — y esa solo se responde leyendo el contrato. Es la misma
+enfermedad que un campo que se calcula y no se entrega: el dato existe, viaja, y
+alguien lo tira por una decisión de una línea que nadie vuelve a mirar.
+
+**El valor bueno aguanta los DOS extremos.** Ahí está el test que lo demuestra:
+pasarse de restrictivo tiene que ponerse rojo igual que pasarse de permisivo. Si
+solo sabotea uno de los lados, lo que tienes no es un criterio: es una preferencia
+que resiste una sola dirección.
+
 ## 2. Mira el dato antes de teorizar
 
 Los nombres de las funciones mienten; los datos no.
