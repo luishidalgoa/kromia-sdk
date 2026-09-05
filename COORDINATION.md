@@ -124,6 +124,25 @@ Sobre la app, el reparto no es solo de ficheros; es de **papel**:
 3. El otro **espeja** (`core_dart`) / **implementa** (app o Studio) y responde.
 4. **Verifica** con los tests de drift / paridad.
 
+## El emulador está disponible, para los dos (2026-09-05)
+
+Permiso permanente del user: **«siempre que lo necesitéis tú o Mobile podéis usar
+emulador para testear»**. No hay que pedirlo cada vez.
+
+Salió porque ese día cerré media docena de asuntos diciendo «esto queda pendiente
+de tus ojos» —el chip «Sin creador», el rechazo de oferta congelada, el QA de
+KRO-129— y en varios el emulador habría bastado. Tuvo que recordármelo él.
+
+* **Studio**: verificar la app POR EL EMULADOR es parte de mi papel (probar lo que
+  Mobile entrega). Mirar no abre la puerta a editar `kromia-mobile`: si veo un
+  fallo, se lo paso.
+* **Sigue siendo del user** lo que el emulador no da: decisiones de producto y de
+  vocabulario, y lo que necesita móvil FÍSICO — cámara, escaneo de QR, giroscopio
+  para los efectos, rendimiento real.
+* Trampas conocidas: dos emuladores a la vez → el segundo no pinta si no se lanza
+  con `-gpu swiftshader_indirect`; y una APK sin `--dart-define` apunta a
+  `10.0.2.2`, o sea que solo vale en emulador.
+
 ## Cola de handoffs abierta (vivo — mantener)
 
 > ### ✅ BARRIDO 2026-08-19 — la cola de efectos está VACÍA
