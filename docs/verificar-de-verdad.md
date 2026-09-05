@@ -186,6 +186,39 @@ averiguó, y el único que nadie vuelve a mirar.
 - Y el corolario: **antes de fiarte de un descarte ajeno —o tuyo de hace un mes—
   mira si lo que lo sostiene ejercía de verdad el camino que dice descartar.**
 
+### Cuando una herramienta te dé un estado, pregunta CONTRA QUÉ
+
+**El estado que da una herramienta describe su propia operación, no tu
+intención.** La distancia entre las dos es donde vive el fallo, y no hay ningún
+aviso que la señale: la herramienta ha hecho su trabajo y lo dice.
+
+El caso (2026-09-05). Tres PRs encadenadas —cada una sobre la rama de la
+anterior, para resolver el CHANGELOG una sola vez— se fusionaron con seis
+segundos entre ellas. Las tres quedaron **MERGED**, verdes, sin conflicto ni
+aviso. Y dos de los tres trabajos **no llegaron a `main`**: el reapuntado de la
+base al fusionar la anterior no es instantáneo, así que cada una entró
+exactamente donde apuntaba — una rama intermedia. `MERGED` era cierto; lo que
+significaba era «fusionado en algún sitio».
+
+Es la misma familia que el resto de este documento, y por eso conviene verla
+junta:
+
+| Estado | Lo que parece decir | Lo que dice de verdad |
+|---|---|---|
+| PR `MERGED` | está en `main` | se fusionó contra su base, sea cual sea |
+| test en verde | el comportamiento está protegido | algo pasó, quizá por otro cerrojo |
+| campo calculado | el cliente lo recibe | se calculó; entregarlo es otra cosa |
+| ticket cerrado | el trabajo está hecho | alguien lo dio por hecho |
+
+**La señal práctica, y cuesta cinco segundos: si un cambio no se puede comprobar
+en el destino, no está hecho.** Un `grep` sobre `origin/main` no depende de que
+nadie interprete bien un estado. Lo mismo vale para una fusión, un despliegue o
+un dato que cruza una frontera: la prueba es mirar el destino, no leer el
+informe de la operación.
+
+Y en cadena, la condición de parada no es un estado de la herramienta: es que
+**el contenido esté donde tiene que estar** antes de dar el siguiente paso.
+
 ## 2. Mira el dato antes de teorizar
 
 Los nombres de las funciones mienten; los datos no.
