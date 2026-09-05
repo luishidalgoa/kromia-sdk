@@ -261,9 +261,17 @@ El 2026-09-05 nos pasó a los dos chats el mismo día, cada uno en su repo:
 
 Y aquí está el matiz que hace útil la sección, porque es más incómodo que «tenía
 un typo»: **el fixture roto no falla de una forma que se note — falla de una
-forma que produce exactamente la señal que ibas a mirar.** Ves el rojo que
-esperabas, o el verde que esperabas, y das por buena la conclusión. La señal
-correcta no valida el fixture: solo dice que algo pasó.
+forma que produce exactamente la señal que ibas a mirar.**
+
+En aquella pasada de Mobile fueron **las dos a la vez**: dos casos en rojo donde
+esperaban verde y cuatro en verde donde esperaban rojo, y **cada mitad
+confirmaba la lectura equivocada de la otra**. Los rojos decían «el arreglo hace
+falta»; los verdes, «el arreglo funciona». Ninguna de las dos señales tenía nada
+que ver con el código: `tryFrom` devolvía `null` siempre, así que ningún caso
+distinguía nada.
+
+Por eso no basta con desconfiar del verde. **La señal correcta no valida el
+fixture, sea del color que sea: solo dice que algo pasó.**
 
 Lo que salvó los dos casos fue lo mismo: **el caso POSITIVO**, el que afirma que
 el dato SÍ está. El de Mobile lo tenía escrito («con `hecho` sí se guardan») y
