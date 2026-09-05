@@ -641,3 +641,26 @@ interfaz.
 
 Cuando el diagnóstico acierte, **audita el mecanismo aparte**: el acierto no lo
 valida, lo esconde.
+
+## Y una sobre este documento
+
+El 2026-09-05 los dos chats se corrigieron cuatro veces cruzadas en una tarde, y
+**cada corrección cayó en el punto ciego del otro**. No por casualidad:
+
+> **Una regla que solo se aplica donde ya te quemaste no es una regla, es una
+> cicatriz.**
+
+Ese mismo día escribí aquí *«si un cambio no se puede comprobar en el destino, no
+está hecho»*, lo apliqué religiosamente a cada fusión… y le dije al otro chat que
+una lección estaba «commiteada en el SDK» cuando seguía **solo en mi disco**. La
+regla estaba escrita, entendida y recién redactada por mí. Vivía en el sitio donde
+me había dolido —las PRs— y no llegó al `git push` de al lado.
+
+Es el mismo mecanismo que el de *guardar la conclusión en vez del criterio*, pero
+por el otro extremo: ahí la regla estaba mal escrita; aquí está bien escrita y se
+aplica **solo en el lugar donde nació**.
+
+**Cómo se combate:** cuando una sección de aquí te salve de algo, pregúntate en
+qué **otro** sitio de tu trabajo de hoy vale lo mismo y aún no la has aplicado.
+Y cuando el otro chat te corrija, mira si su corrección es tuya también en otro
+sitio — hoy las cuatro lo eran.
