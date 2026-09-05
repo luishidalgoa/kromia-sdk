@@ -256,12 +256,19 @@ El 2026-09-05 nos pasó a los dos chats el mismo día, cada uno en su repo:
   `ofertaSiLaHay` exige `albumId`: **no había cartas que guardar**. Lo destapó el
   sabotaje — al hacer que sí las guardara, el test siguió en verde.
 - **Mobile** — el fixture usaba `{'cartas': [...]}` y el formato real es
-  `{'albumId', 'cards'}`, así que `tryFrom` devolvía `null` siempre. **Tres casos
-  que debían distinguir cosas pasaban todos por el mismo motivo equivocado.**
+  `{'albumId', 'cards'}`, así que `tryFrom` devolvía `null` **siempre**. Con eso,
+  ningún caso distinguía nada: todos miraban el mismo `null`.
 
-Lo que salvó los dos fue lo mismo: **el caso POSITIVO**. El de Mobile lo tenía
-escrito («con `hecho` sí se guardan») y por ahí saltó; en el backend hizo su
-papel el sabotaje que no dio rojo.
+Y aquí está el matiz que hace útil la sección, porque es más incómodo que «tenía
+un typo»: **el fixture roto no falla de una forma que se note — falla de una
+forma que produce exactamente la señal que ibas a mirar.** Ves el rojo que
+esperabas, o el verde que esperabas, y das por buena la conclusión. La señal
+correcta no valida el fixture: solo dice que algo pasó.
+
+Lo que salvó los dos casos fue lo mismo: **el caso POSITIVO**, el que afirma que
+el dato SÍ está. El de Mobile lo tenía escrito («con `hecho` sí se guardan») y
+por ahí saltó; en el backend hizo su papel el sabotaje que no dio rojo. Los dos
+son la misma herramienta: **algo que solo puede pasar si el sujeto existe.**
 
 > **El control de partida es lo único que distingue un rojo bueno de un fixture
 > roto.** Si un fichero solo comprueba ausencias, no está comprobando: está
