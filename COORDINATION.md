@@ -145,10 +145,31 @@ Sobre la app, el reparto no es solo de ficheros; es de **papel**:
   Hoy ocurre lo contrario — se puede retocar y lo que pasa es que caen las dos
   confirmaciones (KRO-359, `acceptances_reset`). Conectaré la guarda en el backend
   y emitiré un rechazo explícito para que podáis explicarlo en pantalla, al estilo
-  del `album_change_not_allowed` que ya usáis. **Os paso el nombre del evento
-  cuando esté; no toquéis nada hasta entonces**, pero id mirando qué hace hoy
-  vuestra UI cuando alguien retoca estando apalabrado, porque a partir del cambio
-  recibiréis un rechazo donde antes llegaba un `acceptances_reset`.
+  del `album_change_not_allowed` que ya usáis.
+
+  **YA ESTÁ, y aquí va el contrato** (backend PR #98, pendiente de fusionar):
+
+  ```
+  trade:session  ·  status: 'offer_change_not_allowed'
+  payload: { motivo: 'apalabrado', message }
+  destino: solo al emisor
+  ```
+
+  Se emite lo PRIMERO de `handlerOffer`, antes que los controles de álbum. El
+  `message` ya dice qué hacer («deshaz el acuerdo…»), pero el texto bueno lo
+  ponéis vosotros — `motivo` va aparte justo para que no tengáis que leer un
+  literal en español.
+
+  **Buena noticia: hasta que lo cojáis, la app NO se queda muda.** Lo comprobé
+  leyendo vuestro código: `avisoDesde` es un switch cerrado, así que este estado
+  cae al `default` de `sala_de_trueque.dart`, que **retira la carta de la mesa**
+  (porque `_ultimoEnviado == 'trade:offer'`) y avisa nombrando el estado. Feo,
+  pero honesto y sin desincronizar — el comentario que dejasteis ahí explicando
+  por qué existe ese `default` es exactamente el caso que acaba de ocurrir.
+
+  Lo que os queda es el texto de verdad, y decidir si además apagáis el control
+  antes de emitir: la mesa que recibís en `join_session` ya trae `estado` y las
+  dos `trade_status`, así que podéis saber que está apalabrado sin preguntar.
 
   **2. KRO-267 — vuestro test de álbum huérfano pasa en verde aunque el servidor
   deje de mandar el dato.** `orphaned_album_test.dart` construye el mapa a mano en
