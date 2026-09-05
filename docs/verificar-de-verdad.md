@@ -62,6 +62,37 @@ algo?», sino «¿pulsa *este*?».
 
 > Un test que pasa por el guarda de al lado protege el guarda de al lado.
 
+### Cuando la defensa es DOBLE: deja el caso fácil verde, pero escrito
+
+Un caso particular del anterior, y no se ve venir porque aquí el código está
+**bien de más**: hay dos mecanismos protegiendo lo mismo, y el test evidente
+pasa por el que no querías probar.
+
+El caso (2026-09-05, KRO-267). Un criterio sin cubrir: *un álbum huérfano no
+puede adoptarse al crear un publisher* — si se adoptara, quien crea el publisher
+figuraría como la organización detrás de los álbumes de otro. La consulta filtra
+`{ ownerId, orphanedAt: null }`, y anonimizar deja el `ownerId` a null.
+
+O sea que **un huérfano corriente ya no casa por dueño**. El test obvio —meter un
+huérfano y comprobar que no se adopta— pasa **igual sin la cláusula**: lo salva el
+otro filtro. Verde el día que se escribe y verde el día que alguien borre la
+cláusula, que es justo el día en que tendría que gritar.
+
+El caso que discrimina es el que la cláusula defiende **de verdad**: un huérfano
+que **sí** casa por dueño. Hoy solo llega de un documento antiguo o de que alguien
+cambie el anonimizado — que es exactamente la «variante futura» que el propio
+comentario del código anticipaba.
+
+**Y lo que hay que hacer con el caso fácil no es borrarlo: es dejarlo verde y
+decir por qué.** Un test que no puede fallar tiene valor si documenta que la
+defensa es doble; lo que no puede es quedarse ahí **mudo**, porque el siguiente
+que lo lea contará dos pruebas donde hay una. La explicación va **al lado del
+caso**, no en la cabecera del fichero: quien borra la cláusula abre ese test, no
+el docstring.
+
+> Con dos cerrojos, el sabotaje solo prueba el que aún cierra. Pregunta cuál de
+> los dos estás midiendo antes de dar el guarda por cubierto.
+
 ### Y su hermana: comprobar la FORMA en vez del EFECTO
 
 La de arriba es que el test no llega a tocar el código. Ésta es peor de detectar
