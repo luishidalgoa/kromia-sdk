@@ -437,6 +437,54 @@ test que ejecutara lo que se estaba deduciendo— y no pensando más rato.
 **El detalle que no encaja no es un detalle menor: suele ser el síntoma
 entero.** Si tu explicación deja algo fuera, la explicación no está terminada.
 
+### Un error escrito en un log no es un error que ocurrió
+
+Del 2026-09-06, y es la versión fina de todo lo anterior: no fallé por no
+comprobar, fallé por **parar de comprobar en el primer indicio coherente**.
+
+Un PR de la app estaba en rojo. Saqué el log con `gh run view --log-failed`,
+grepeé palabras con forma de error y encontré esto:
+
+```
+::error::Falta el secreto SDK_REPO_TOKEN. Este repo depende de kromia-sdk
+(privado) y el GITHUB_TOKEN no puede clonar otro repo privado.
+```
+
+Encajaba perfectamente —el repo sí depende del SDK privado— así que diagnostiqué
+«falta el secreto» y lo reporté. **Era falso.** Ese texto es el **cuerpo del
+script** que GitHub imprime entero al montar el paso; vive dentro de un `if` que
+no se cumplió. El paso salió en `success`.
+
+Dos señales lo desmentían y las dos estaban delante:
+
+- **La duración: 7m14s.** El guarda del token es el primer paso y falla en
+  segundos. Siete minutos significan que llegó a correr los tests. El número
+  estaba en mi propio mensaje y no le di valor.
+- **Mi propia salida decía `UNKNOWN STEP` en cada línea.** `gh` no pudo atribuir
+  el log a sus pasos, o sea que estaba leyendo texto sin saber de dónde salía —
+  y aun así deduje de qué paso venía.
+
+Lo que había que hacer, y cuesta una orden:
+
+```bash
+gh run view <id> --json jobs --jq '.jobs[] | .name as $j | .steps[] | "\(.conclusion) -- \($j) / \(.name)"'
+```
+
+Eso devuelve **qué paso falló**, que es el dato. El log es prosa; los pasos son
+el dato. El fallo real era un test de memoria que comparaba `rssMb` y `rssMaxMb`
+sin saber que salen de **dos fuentes distintas del sistema** (`/proc/self/statm`
+y `getrusage`, esta en KB): unos kilobytes de desfase que `.round()` convertía en
+**un mega entero** en la dirección equivocada. Una invariante afirmada sobre
+valores redondeados que solo se cumple en bytes.
+
+> **El texto de un error en un log no prueba que ese error ocurriera.** Los
+> scripts se imprimen enteros al montarse. Mira **qué paso falló**, no qué
+> palabras aparecen.
+
+Y la regla de encima, que es la que generaliza: **una hipótesis que encaja no es
+una hipótesis comprobada.** Cuanto mejor encaja el primer indicio, más tienta
+dejar de mirar — y ahí es justo donde hay que pedir el segundo dato.
+
 ### Cuando dos explicaciones predicen lo mismo, no elijas: instrumenta
 
 Es la trampa de la que salen los mecanismos inventados. «El emulador cortó la
