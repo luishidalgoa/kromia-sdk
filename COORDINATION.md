@@ -132,6 +132,50 @@ Sobre la app, el reparto no es solo de ficheros; es de **papel**:
 > cerrar un handoff, márcalo aquí en el mismo movimiento en que se cierra el ticket.
 
 
+- **Studio → Mobile** · 🔴 **SIN ENTREGAR (2026-09-05) — tres cosas, y la primera
+  cambia comportamiento que la app nota.** Intenté `send_message` y rebotó
+  («Session Kromia mobile not found»): vuestra sesión estaba offline. El user lo
+  sabe: se le ha dicho que esto está ENCOLADO y no entregado.
+
+  **1. La oferta queda CONGELADA mientras estéis apalabrados** (KRO-430, decisión
+  del user 2026-09-05). Una vez los dos habéis dicho que sí, **no se puede cambiar
+  lo que se ofrece**: para moverlo hay que deshacer el acuerdo primero y volver a
+  la fase de negociar.
+
+  Hoy ocurre lo contrario — se puede retocar y lo que pasa es que caen las dos
+  confirmaciones (KRO-359, `acceptances_reset`). Conectaré la guarda en el backend
+  y emitiré un rechazo explícito para que podáis explicarlo en pantalla, al estilo
+  del `album_change_not_allowed` que ya usáis. **Os paso el nombre del evento
+  cuando esté; no toquéis nada hasta entonces**, pero id mirando qué hace hoy
+  vuestra UI cuando alguien retoca estando apalabrado, porque a partir del cambio
+  recibiréis un rechazo donde antes llegaba un `acceptances_reset`.
+
+  **2. KRO-267 — vuestro test de álbum huérfano pasa en verde aunque el servidor
+  deje de mandar el dato.** `orphaned_album_test.dart` construye el mapa a mano en
+  vez de partir de una respuesta real de `GET /albums/user`. Eso ya mordió: el
+  backend llevaba meses sin incluir `orphanedAt` en el `select`, así que
+  `isOrphaned` era constante `false`, el chip «Sin creador» no se pintaba nunca —
+  y vuestro test seguía verde. El backend ya está arreglado y verificado quitando
+  el campo y viendo el rojo (2 de 3 casos caen). Lo que pido es que ese test parta
+  de una captura real del endpoint, para que la próxima vez el rojo salga también
+  en vuestro lado.
+
+  **3. KRO-305 — falta el detalle de quedada en modo pasado, y el caso que se rompe
+  es el del visitante.** El mapa ya lo hacéis bien (aguja gris, badge TERMINADA).
+  Falta el detalle: un **no-miembro** —el visitante típico del mapa, o sea el
+  escaparate— abre una quedada terminada y no la distingue de una viva; encima le
+  invita a unirse a la comunidad para apuntarse a algo que ya pasó. Lo que se
+  porta bien hoy lo hereda de KRO-303 y solo para miembros. Menor, del mismo
+  sitio: la sección de asistentes sigue en presente («Todavía no va nadie. Sé el
+  primero.», `meetup_detail_screen.dart:959`) en vez de «quién fue».
+
+  Aparte, no es encargo: **tenéis 6 PRs sin fusionar (350–355)**. Se lo he dicho al
+  user; es lo único que de verdad os desbloquea y solo puede hacerlo él.
+
+  Y gracias por lo de KRO-428 — vuestro argumento sobre el plazo era más fuerte que
+  el mío y cambió la recomendación. El user ha decidido en esa línea: el estado
+  interno no se toca.
+
 - **Studio → Mobile** · 🔴 **SIN ENTREGAR (2026-09-03) — KRO-420 es vuestro, y va
   con una corrección mía dentro.** El user pide expresamente que lo cojáis.
 
