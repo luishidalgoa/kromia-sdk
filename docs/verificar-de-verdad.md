@@ -346,6 +346,65 @@ pasarse de restrictivo tiene que ponerse rojo igual que pasarse de permisivo. Si
 solo sabotea uno de los lados, lo que tienes no es un criterio: es una preferencia
 que resiste una sola dirección.
 
+### El sabotaje comprueba la implementación, NUNCA la premisa
+
+Y esto es un agujero del método entero, no una trampa más. Conviene leerlo justo
+después de lo de arriba, porque es su forma general.
+
+Todo lo de esta sección —el rojo antes que el verde, sabotear de uno en uno, el
+valor que aguanta los dos extremos— comprueba **una sola cosa**: que el código
+hace lo que decidiste. Si la decisión está mal, el sabotaje **no lo detecta: lo
+protege**. Y encima con una señal verde que se parece mucho al rigor.
+
+El caso, del 2026-09-05 (KRO-267). Al rescatar de la papelera un álbum con
+coleccionistas escribí que había que sacarlo **del todo** —limpiar `deletedAt`
+además de `hardDeleteAt`— razonando que dentro de la papelera *«seguiría
+invisible, porque todos los listados filtran por `deletedAt: null`»*. Y lo dejé
+fijado con un sabotaje, `solo-libra`, que ponía en rojo la alternativa de limpiar
+solo `hardDeleteAt`.
+
+El sabotaje era **correcto como sabotaje**: tumbaba exactamente lo que decía que
+tumbaba. Y estaba defendiendo la conducta equivocada, porque la premisa era
+falsa:
+
+```
+listMyAlbums (la colección)   → .find({ username })   SIN deletedAt
+Album.findById (detalle, cartas)                      SIN deletedAt
+catálogo público                                      CON deletedAt
+```
+
+El coleccionista **nunca** dejó de ver ese álbum. Limpiar `deletedAt` no hacía
+falta, y lo que hacía de más era republicar al catálogo algo que su autor había
+retirado a propósito — justo lo que el mismo comentario decía que no se debía
+hacer. Lo destapó Mobile abriendo los tres endpoints; ningún test podía.
+
+**Lo que hace este fallo difícil de ver es que la premisa era consistente consigo
+misma en tres sitios**: el comentario del servicio, la cabecera del test, y la
+ficha del ticket decían lo mismo, se citaban entre sí y encajaban. **La
+consistencia interna se siente como verificación y no lo es.** Tres documentos de
+acuerdo no valen lo que un `grep` sobre el fichero.
+
+> **Un sabotaje valida la implementación contra tu intención; nunca la intención.
+> Si la premisa está mal, tus tests la protegen — y cuanto mejor escritos, más
+> convincente es el error.**
+
+La intención solo se comprueba contra algo **externo**: el contrato, el dato
+real, o el código del otro lado. Nunca contra otro texto tuyo.
+
+**Qué hacer, en concreto.** Antes de escribir el sabotaje, escribe la premisa de
+la que depende la decisión y **dónde la comprobaste**. Literalmente, en el
+comentario:
+
+- ✅ «los tres endpoints de colección filtran `deletedAt` — comprobado en
+  `user.albums.controller.ts:97`, `albums.controller.ts:216` y … »
+- ❌ «todos filtran por `deletedAt: null`»
+
+Si al escribir esa línea la respuesta es *«es evidente»*, *«lo dice el ticket»* o
+*«lo puse yo antes»*, la premisa **no está verificada**: está repetida. El mismo
+día pasó en las dos direcciones —a Mobile con el contrato del `caducado`, a
+Studio con esto—, y en los dos casos lo que lo destapó no fue un test: fue ir a
+leer la fuente externa.
+
 ## 2. Mira el dato antes de teorizar
 
 Los nombres de las funciones mienten; los datos no.
