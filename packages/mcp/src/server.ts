@@ -22,6 +22,24 @@ import {
 } from '@kromia/core';
 import type { RecipeId, ViewComposition, FieldDefLike } from '@kromia/core';
 
+/**
+ * Los tipos base, SACADOS DEL REGISTRO y no escritos a mano (KRO-156).
+ *
+ * Esta lista vivía a mano en la descripción de `list_behaviors` y decía «solo
+ * estos siete», omitiendo `image` y `cardRef`. No era un detalle: `image` es el
+ * ÚNICO tipo que llena los slots obligatorios `avatar`, `banner`, `thumb` y
+ * `cover`. Con la lista incompleta, un agente diseñaba una ficha de perfil con
+ * el avatar vacío, y `validate_composition` devolvía `valid:true` porque el
+ * slot obligatorio sin llenar es solo un `warn`.
+ *
+ * Se descubrió USANDO el MCP, no leyéndolo. Y la descripción de una tool es lo
+ * único que el agente lee antes de llamar: es interfaz, no comentario.
+ *
+ * Van entre acentos graves para que `image` no se confunda con `array<image>` —
+ * el test que lo vigila caía en esa trampa con un `includes` a secas.
+ */
+const TIPOS_BASE_LISTADOS = allFieldTypes().map(t => `\`${t.id}\``).join(', ');
+
 /** Envuelve datos como resultado textual JSON de una tool. */
 const json = (data: unknown) => ({
   content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }],
@@ -59,7 +77,7 @@ export function createKromiaMcpServer(): McpServer {
   server.registerTool('list_behaviors', {
     title: 'Listar behaviors',
     description:
-      'Lista los BEHAVIORS: lo que le da SIGNIFICADO a un campo por encima de su tipo (rating, iso_date, markdown, card_index_list…). Importa porque el behavior decide en qué SLOT puede entrar el campo, así que elegirlo bien es lo que hace que auto_compose acierte. Son los mismos `behavior` que piden `auto_compose` y `validate_composition` en sus fields/fieldDefs. `forType` filtra por tipo base — y OJO, los tipos base son solo estos siete: text, textarea, number, select, array<string>, array<number>, array<image>. «enum» NO es un tipo base, es un behavior (el de las opciones predefinidas), así que filtrar por él devuelve vacío.',
+      'Lista los BEHAVIORS: lo que le da SIGNIFICADO a un campo por encima de su tipo (rating, iso_date, markdown, card_index_list…). Importa porque el behavior decide en qué SLOT puede entrar el campo, así que elegirlo bien es lo que hace que auto_compose acierte. Son los mismos `behavior` que piden `auto_compose` y `validate_composition` en sus fields/fieldDefs. `forType` filtra por tipo base. Los tipos base son: ' + TIPOS_BASE_LISTADOS + '. «enum» NO es un tipo base, es un behavior (el de las opciones predefinidas), así que filtrar por él devuelve vacío.',
     inputSchema: {
       forType: z.string().optional()
         .describe('Tipo base: text | textarea | number | select | array<string> | array<number> | array<image>'),
