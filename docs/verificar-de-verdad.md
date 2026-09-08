@@ -887,6 +887,25 @@ normalmente acaba en un cambio «por si acaso» o en una tarde de teorías.
 3. **la pregunta**, formulada para que se responda contando y no opinando;
 4. y qué harás con cada respuesta — *si sale cero, se cierra; si sale alguno, esto*.
 
+**Y el fallo que se cuela aquí no es suponer — es no MARCAR qué es qué.** Un
+mensaje que pone en el mismo párrafo, con el mismo tono, «esto lo he medido» y
+«esto pasaría si…» le quita al que lee la posibilidad de elegir qué comprobar. Lo
+supuesto no sobra: sobra disfrazado de medido.
+
+Pasó con esta misma regla recién escrita (2026-09-08, unas horas después):
+«el health no publica la base» iba medido, «con la variable mal puesta serviría
+producción» iba supuesto —y era falso, se refutaba leyendo un fichero de cuatro
+líneas del otro repo— y los dos iban seguidos y en el mismo tono.
+
+Que la regla se incumpla tan pronto dice algo de la regla: **separar no es un
+gesto que se recuerda, es un formato**. Si el mensaje no tiene dos apartados
+distintos, se mezclan solos.
+
+Detalle que compensa: aun siendo falsa, la hipótesis se refutó **en tres
+minutos** porque era concreta. Una sospecha refutable barata no es un fallo del
+canal — es el canal funcionando. Lo caro es la vaga, que no se puede medir y solo
+se puede creer.
+
 El punto 4 es el que evita el «por si acaso»: obliga a decidir la conducta
 **antes** de saber el resultado, cuando todavía no se puede racionalizar.
 
