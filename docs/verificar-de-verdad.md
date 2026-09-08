@@ -758,6 +758,35 @@ Y el mismo animal aparece en la red de tests, con el nombre engañando: un fiche
 llamado *«se aplica en CADA puerta de entrada»* cubría tres de cuatro. Si un test
 dice cubrirlas todas, **cuenta las puertas en el código y cuenta los `describe`**.
 
+### Ojo: son DOS preguntas, y el `grep` de rutas solo responde una
+
+Lo cazó el chat de Mobile leyendo esta misma sección, que es el sitio con más
+gracia posible: **la receta de arriba cubre tres de las cuatro filas de su propia
+tabla.**
+
+Un guarda tiene **dos formas de no proteger**, y no se buscan igual:
+
+| | La pregunta | La sonda | El caso rojo |
+| --- | --- | --- | --- |
+| Le falta una puerta | ¿por qué **otras puertas** se entra? | `grep` de **rutas** | que aparezca una puerta sin cubrir |
+| No tiene ninguna | **¿quién llama a esto?** | `grep` de **llamantes** | que **nadie** lo llame |
+
+Las filas 1-3 son la primera: tres altas, dos campos, dos endpoints. **KRO-441 es
+la segunda** — el clasificador estaba bien escrito y **no era alcanzable desde
+ningún sitio**. Ahí no faltaba una puerta: no había.
+
+Y el `grep` de rutas **no lo habría encontrado nunca**, porque no hay ninguna ruta
+que buscar. Lo que hace falta es el otro:
+
+```bash
+# ¿lo llama alguien que no sea su propio test?
+grep -rn "nombreDeLaRegla" src/ tests/ --include=*.ts
+```
+
+Si todos los usos caen en `tests/`, la regla es documentación, no comportamiento
+— y eso tiene su propia entrada larga en la memoria del proyecto, porque en este
+backend ha pasado ya cuatro veces.
+
 ## 8. Al escribir el ticket
 
 - **Escenario concreto**: quién manda qué, en qué estado, y qué sale mal. Si no
