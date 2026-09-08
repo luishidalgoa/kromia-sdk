@@ -80,7 +80,10 @@ export function createKromiaMcpServer(): McpServer {
       'Lista los BEHAVIORS: lo que le da SIGNIFICADO a un campo por encima de su tipo (rating, iso_date, markdown, card_index_list…). Importa porque el behavior decide en qué SLOT puede entrar el campo, así que elegirlo bien es lo que hace que auto_compose acierte. Son los mismos `behavior` que piden `auto_compose` y `validate_composition` en sus fields/fieldDefs. `forType` filtra por tipo base. Los tipos base son: ' + TIPOS_BASE_LISTADOS + '. «enum» NO es un tipo base, es un behavior (el de las opciones predefinidas), así que filtrar por él devuelve vacío.',
     inputSchema: {
       forType: z.string().optional()
-        .describe('Tipo base: text | textarea | number | select | array<string> | array<number> | array<image>'),
+        // Derivado tambien aqui: esta lista estaba escrita a mano DOS LINEAS mas
+        // abajo de la otra, y arregle una y deje la de al lado. El agente lee
+        // esta al mirar los parametros, asi que miente igual.
+        .describe('Tipo base. Los que hay: ' + TIPOS_BASE_LISTADOS),
     },
   }, async ({ forType }) => json(
     (forType ? getBehaviorsByType(forType as never) : allBehaviors()).map((b: any) => ({

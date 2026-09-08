@@ -94,6 +94,25 @@ describe('KRO-156 · la descripción de list_behaviors no puede mentir sobre los
         expect(nombra(await descripcionDe('list_behaviors'), 'image')).toBe(true);
     });
 
+    it('y el PARÁMETRO `forType` tampoco, que llevaba la misma lista a mano', async () => {
+        /**
+         * La misma mentira, **dos líneas más abajo** en el mismo fichero: la
+         * descripción del parámetro repetía los siete tipos por su cuenta.
+         *
+         * Arreglé la descripción de la tool y dejé esta — el patrón del día,
+         * cometido dentro del arreglo del patrón del día. Un agente que mira los
+         * parámetros de la tool lee ESTA, así que mentía igual.
+         */
+        const client = await connect();
+        const { tools } = await client.listTools();
+        const forType = String(
+            (tools.find(t => t.name === 'list_behaviors') as any)?.inputSchema?.properties?.forType?.description ?? '',
+        );
+        const faltan = allFieldTypes().map(t => t.id).filter(id => !nombra(forType, id));
+
+        expect(faltan, `el parámetro no nombra: ${faltan.join(', ')}`).toEqual([]);
+    });
+
     describe('los controles — lo que esto NO puede romper', () => {
         it('sigue avisando de que «enum» NO es un tipo base', async () => {
             /**
