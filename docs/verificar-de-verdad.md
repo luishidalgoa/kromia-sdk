@@ -721,6 +721,43 @@ Que el flujo llegue al servidor no significa que esté bien.
   gente a pulsarlo otra vez, y eso empeoró un ANR.
 - **El botón dice lo que quieres hacer, no lo que te lo impide.**
 
+## 7 bis. El guarda está en la puerta que estabas mirando
+
+La forma de fallo más repetida de este proyecto no es un guarda mal escrito. Es
+uno **bien escrito que cubre una de las puertas**. Todos los casos son iguales:
+
+| El guarda | Dónde estaba | Por dónde se entraba igual |
+| --- | --- | --- |
+| Validar el nombre de usuario (KRO-439) | una de las **tres** altas | las otras dos |
+| El veto de nombres (KRO-267) | `name` y `slug` del publisher | `displayName`, que es **el que se ve** |
+| «No delatar qué cuentas existen» (KRO-446) | `resend-activation` | `resend-studio`, el de al lado |
+| Clasificar el fallo de red (KRO-441) | el clasificador, correcto | **nadie lo llamaba** |
+
+**Por qué pasa, que es lo que lo hace evitable**: el guarda se escribe *mirando
+el caso que lo motivó*, y ese caso entra por **una** puerta concreta. Las demás
+ni se piensan — en ese momento, para quien escribe, no existen.
+
+Por eso la pregunta que lo caza no es «¿está bien este guarda?», que casi siempre
+sí:
+
+> **¿Por qué OTRAS puertas se llega a lo que estoy protegiendo?**
+
+Y se responde contando, no leyendo:
+
+```bash
+# rutas, no funciones sueltas: una función sin enrutar no es una puerta
+grep -nE "^router\.(get|post|put|patch)\(" src/**/*.routes.ts | grep -i "<lo-que-sea>"
+```
+
+Cuando la respuesta sea «más de una», **el test se escribe sobre la lista**: un
+`describe.each` de las puertas más un caso que lea el fichero de rutas y se ponga
+**rojo si aparece una tercera** sin cubrir. Un test que apunta a UNA función no
+puede decir nada sobre cuántas hay.
+
+Y el mismo animal aparece en la red de tests, con el nombre engañando: un fichero
+llamado *«se aplica en CADA puerta de entrada»* cubría tres de cuatro. Si un test
+dice cubrirlas todas, **cuenta las puertas en el código y cuenta los `describe`**.
+
 ## 8. Al escribir el ticket
 
 - **Escenario concreto**: quién manda qué, en qué estado, y qué sale mal. Si no
