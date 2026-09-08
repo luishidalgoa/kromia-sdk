@@ -859,6 +859,37 @@ por buenas las dos cosas sin distinguirlas.
 Los dos chats habíamos hablado del ticket entero por su número durante varios
 mensajes sin que ninguno abriera la ficha.
 
+### Acota la sospecha hasta dejar UNA pregunta con respuesta binaria
+
+Lo difícil de refutar no es un error evidente —ese se cae solo— sino **una
+hipótesis cómoda**: bien argumentada, con medidas, encajando entera. A esa hay
+que ir a refutarla **a propósito**, y eso solo es barato si quien la manda la ha
+dejado en algo que se pueda contar.
+
+El caso (2026-09-08). Mobile sospechó que `_buildHeroLegacy` podía dejar avatares
+vacíos, y en vez de mandar «creo que hay un problema con los avatares» mandó tres
+medidas propias —el slot solo acepta `image`, la elección va por *behavior* sin
+mirar el tipo, esos behaviors están retirados desde KRO-69— y **una sola pregunta
+que no podía responder**: *¿existe en la base algún campo con ese behavior sobre
+`array<image>`?*
+
+Backend la respondió en un minuto con una consulta de solo lectura: **cero**. Y el
+cambio no se hizo — habría tocado composiciones de álbumes reales por un caso que
+no existe.
+
+Con la versión vaga, esa sospecha no se refuta: **se cree o no se cree**, y
+normalmente acaba en un cambio «por si acaso» o en una tarde de teorías.
+
+**Cómo se manda una sospecha, entonces:**
+
+1. lo que **has medido**, con fichero y línea;
+2. lo que **no puedes medir tú**, y por qué (permisos, otro repo, otra máquina);
+3. **la pregunta**, formulada para que se responda contando y no opinando;
+4. y qué harás con cada respuesta — *si sale cero, se cierra; si sale alguno, esto*.
+
+El punto 4 es el que evita el «por si acaso»: obliga a decidir la conducta
+**antes** de saber el resultado, cuando todavía no se puede racionalizar.
+
 ## 9. Trabajando con el otro chat
 
 - **No edites sus ficheros.** Si el user te lo pide y su sesión no está viva,
