@@ -405,6 +405,51 @@ día pasó en las dos direcciones —a Mobile con el contrato del `caducado`, a
 Studio con esto—, y en los dos casos lo que lo destapó no fue un test: fue ir a
 leer la fuente externa.
 
+### Un test CORRECTO que defiende una decisión caducada
+
+La categoría que ningún sabotaje encuentra, porque **no hay nada roto**: el test
+está bien escrito, el código hace lo que el test dice, y la decisión que ambos
+sujetan fue correcta el día que se tomó. Lo que caducó es el mundo.
+
+Solo aparece cuando alguien va a cambiar la conducta y **se topa con él**. Hasta
+entonces es indistinguible de un guarda sano — de hecho lo es.
+
+El caso (2026-09-08, KRO-444). Había que dejar de repetir la causa de una caída
+en el toast, porque ya la dice la cinta de arriba. Al hacerlo salió rojo esto:
+
+```dart
+test('pero QUIEN SÍ ha medido, atribuye — y con la frase de la fuente', () {
+  expect(friendlyError(_rechazo(errno)), causaDeLaCaida(Conexion.sinServidor));
+});
+```
+
+Un test verde afirmando, letra por letra, que el toast **debe** decir la frase de
+la cinta. Consagrando la duplicación que se venía a quitar.
+
+Y no estaba mal escrito. Su razón (KRO-415) era buena y sigue viva: con
+`ECONNREFUSED` no se adivina, **el `errno` es la medida**, así que quien mide
+puede atribuir. Lo que caducó no fue el permiso — fue **dónde se ejerce**: cuando
+se decidió, la cinta no salía en la mitad de los casos por un bug del disparador,
+así que el toast era la única señal. Al arreglar el bug, pasó a ser la segunda.
+
+> **Tener derecho a decir algo no es motivo para decirlo dos veces.**
+
+**Qué hacer, y lo que NO hay que hacer.** No se borra. Un test que se borra se
+lleva el razonamiento con él, y dentro de seis meses alguien lee el diff y
+entiende que se relajó un guarda. **Se REAPUNTA** a lo que sigue siendo verdad,
+con la historia entera dentro: qué se decidió, por qué, y por qué cambió. Aquí
+pasó a comprobar que la frase sigue saliendo de la fuente única y que las
+pantallas ya no la repiten — el permiso intacto, la superficie corregida.
+
+**La señal:** cuando un test te impida hacer un cambio que crees correcto, **ve a
+leer por qué se escribió antes de tocarlo**. Si su razón sigue viva y solo cambió
+dónde se aplica, se reapunta. Si murió, se documenta la muerte. Lo que no vale es
+borrarlo por estorbar: eso convierte una decisión razonada en un hueco mudo.
+
+Es prima de *guardar la conclusión en vez del criterio*, pero al revés: allí la
+regla estaba mal escrita desde el principio; aquí estaba bien escrita y el
+terreno se movió debajo.
+
 ## 2. Mira el dato antes de teorizar
 
 Los nombres de las funciones mienten; los datos no.
