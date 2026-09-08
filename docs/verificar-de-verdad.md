@@ -721,6 +721,37 @@ Que el flujo llegue al servidor no significa que esté bien.
   gente a pulsarlo otra vez, y eso empeoró un ANR.
 - **El botón dice lo que quieres hacer, no lo que te lo impide.**
 
+### Un rojo que confirma tu hipótesis merece la misma desconfianza que un verde
+
+Todo este documento enseña a no fiarse del verde. **Del rojo tampoco** — y ese se
+cuela más, porque un verde inesperado se investiga y **un rojo esperado se
+celebra**: «bien, todavía no está implementado», y a otra cosa.
+
+Los dos casos del 2026-09-08, uno en cada repo:
+
+- **Backend (KRO-447).** Un control afirmaba que el motor de bajas borra el
+  documento del usuario. **No lo hace** — lo borra el llamante, a propósito. El
+  caso salía rojo por un motivo que no era el suyo, y eso no se vio hasta
+  implementar la conducta y verlo **seguir** rojo.
+- **Mobile (KRO-438).** Un fixture usaba `{'cartas': …}` donde el formato real es
+  `{'albumId', 'cards'}`, así que el parser devolvía `null` siempre. La pasada dio
+  **dos rojos y tres verdes, todos por la razón equivocada** — y cada mitad
+  confirmaba la lectura errónea de la otra: los rojos decían «el arreglo hace
+  falta» y los verdes «el arreglo funciona».
+
+**Qué hacer, y cuesta cinco segundos: leer el MENSAJE, no el color.** Un rojo
+bueno describe exactamente el fallo que esperabas — el valor que falta, la
+llamada que no ocurrió. Si el mensaje habla de otra cosa —un `null` donde
+esperabas un objeto, un símbolo que no existe, un tipo que no cuadra— el test se
+está rompiendo antes de llegar a lo que mide, y **no ha probado nada**.
+
+La forma que más engaña es el rojo **por ausencia**: escribes el test contra una
+función que aún no existe, sale rojo, y lo lees como «el comportamiento falta»
+cuando lo que falta es el símbolo. Es correcto al empezar en TDD, pero deja de
+serlo en cuanto la función existe — y ahí el mismo rojo ya significa otra cosa.
+
+> Un test rojo dice que algo pasó. **Cuál** de las dos cosas, lo dice el mensaje.
+
 ## 7 bis. El guarda está en la puerta que estabas mirando
 
 La forma de fallo más repetida de este proyecto no es un guarda mal escrito. Es
