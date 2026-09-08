@@ -22,6 +22,24 @@ import {
 } from '@kromia/core';
 import type { RecipeId, ViewComposition, FieldDefLike } from '@kromia/core';
 
+/**
+ * Los tipos base, SACADOS DEL REGISTRO y no escritos a mano (KRO-156).
+ *
+ * Esta lista vivía a mano en la descripción de `list_behaviors` y decía «solo
+ * estos siete», omitiendo `image` y `cardRef`. No era un detalle: `image` es el
+ * ÚNICO tipo que llena los slots obligatorios `avatar`, `banner`, `thumb` y
+ * `cover`. Con la lista incompleta, un agente diseñaba una ficha de perfil con
+ * el avatar vacío, y `validate_composition` devolvía `valid:true` porque el
+ * slot obligatorio sin llenar es solo un `warn`.
+ *
+ * Se descubrió USANDO el MCP, no leyéndolo. Y la descripción de una tool es lo
+ * único que el agente lee antes de llamar: es interfaz, no comentario.
+ *
+ * Van entre acentos graves para que `image` no se confunda con `array<image>` —
+ * el test que lo vigila caía en esa trampa con un `includes` a secas.
+ */
+const TIPOS_BASE_LISTADOS = allFieldTypes().map(t => `\`${t.id}\``).join(', ');
+
 /** Envuelve datos como resultado textual JSON de una tool. */
 const json = (data: unknown) => ({
   content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }],
@@ -59,10 +77,13 @@ export function createKromiaMcpServer(): McpServer {
   server.registerTool('list_behaviors', {
     title: 'Listar behaviors',
     description:
-      'Lista los BEHAVIORS: lo que le da SIGNIFICADO a un campo por encima de su tipo (rating, iso_date, markdown, card_index_list…). Importa porque el behavior decide en qué SLOT puede entrar el campo, así que elegirlo bien es lo que hace que auto_compose acierte. Son los mismos `behavior` que piden `auto_compose` y `validate_composition` en sus fields/fieldDefs. `forType` filtra por tipo base — y OJO, los tipos base son solo estos siete: text, textarea, number, select, array<string>, array<number>, array<image>. «enum» NO es un tipo base, es un behavior (el de las opciones predefinidas), así que filtrar por él devuelve vacío.',
+      'Lista los BEHAVIORS: lo que le da SIGNIFICADO a un campo por encima de su tipo (rating, iso_date, markdown, card_index_list…). Importa porque el behavior decide en qué SLOT puede entrar el campo, así que elegirlo bien es lo que hace que auto_compose acierte. Son los mismos `behavior` que piden `auto_compose` y `validate_composition` en sus fields/fieldDefs. `forType` filtra por tipo base. Los tipos base son: ' + TIPOS_BASE_LISTADOS + '. «enum» NO es un tipo base, es un behavior (el de las opciones predefinidas), así que filtrar por él devuelve vacío.',
     inputSchema: {
       forType: z.string().optional()
-        .describe('Tipo base: text | textarea | number | select | array<string> | array<number> | array<image>'),
+        // Derivado tambien aqui: esta lista estaba escrita a mano DOS LINEAS mas
+        // abajo de la otra, y arregle una y deje la de al lado. El agente lee
+        // esta al mirar los parametros, asi que miente igual.
+        .describe('Tipo base. Los que hay: ' + TIPOS_BASE_LISTADOS),
     },
   }, async ({ forType }) => json(
     (forType ? getBehaviorsByType(forType as never) : allBehaviors()).map((b: any) => ({
@@ -252,10 +273,39 @@ export function createKromiaMcpServer(): McpServer {
     return fields.map(f => f.key).filter(k => !colocados.has(k));
   }
 
+  /**
+   * Los slots OBLIGATORIOS que se han quedado sin ningún field (KRO-156).
+   *
+   * Hermano de `camposFuera`, y hace falta porque cubren fallos DISTINTOS:
+   * aquel dice «se descartó un campo tuyo», este dice «falta una pieza de la
+   * receta». Se puede tener uno vacío y el otro lleno.
+   *
+   * El caso que lo trajo: `hero_protagonico` mandaba el `array<image>` a
+   * `gallery` y dejaba `banner` Y `avatar` vacíos — con `sinColocar` vacío,
+   * porque el campo SÍ se colocó. La única red que había no se enteraba.
+   *
+   * Se saca aparte y no se deja en `validation.issues` porque ahí es un `warn`,
+   * y la condición de parada que documentan estas tools es `valid === true`:
+   * el agente termina con un perfil sin avatar y nada se lo dice.
+   *
+   * Que sea `warn` y no `error` es DELIBERADO —un diseño a medias no es
+   * inválido— y Studio hace exactamente esto mismo: lo detecta aparte
+   * (`hasRequiredEmptyWarn` en `CopyCompositionDialog`) para enseñarlo. Aquí se
+   * copia esa decisión, no se cambia la validación.
+   */
+  function obligatoriosSinLlenar(comp: ViewComposition): string[] {
+    const manifest: any = getRecipeManifest(comp.recipe as RecipeId);
+    if (!manifest) return [];
+    const slots = (comp.slots ?? {}) as Record<string, { fields?: string[] }>;
+    return (manifest.slots ?? [])
+      .filter((sl: any) => !sl.optional && !(slots[sl.id]?.fields ?? []).length)
+      .map((sl: any) => sl.id);
+  }
+
   server.registerTool('auto_compose', {
     title: 'Autogenerar una composición',
     description:
-      'Genera una ViewComposition SENSATA a partir de los campos de la sección (heurística del SDK: mapea imagen/título/subtítulo/badge/stats a los slots correctos). `kind`: list o detail. Es el mejor punto de partida — luego ajústala con apply_template o a mano y re-valida. Devuelve {composition, validation, sinColocar}. MIRA SIEMPRE `sinColocar`: la heurística coloca los campos que caben en la receta elegida y DESCARTA el resto, y aun así la validación sale valid:true — porque una composición sin un campo es perfectamente válida. Si el campo que te importaba aparece ahí, la composición no sirve para lo que querías por mucho que valide.',
+      'Genera una ViewComposition SENSATA a partir de los campos de la sección (heurística del SDK: mapea imagen/título/subtítulo/badge/stats a los slots correctos). `kind`: list o detail. Es el mejor punto de partida — luego ajústala con apply_template o a mano y re-valida. Devuelve {composition, validation, sinColocar, obligatoriosVacios}. MIRA SIEMPRE `sinColocar`: la heurística coloca los campos que caben en la receta elegida y DESCARTA el resto, y aun así la validación sale valid:true — porque una composición sin un campo es perfectamente válida. Si el campo que te importaba aparece ahí, la composición no sirve para lo que querías por mucho que valide. Y MIRA TAMBIÉN `obligatoriosVacios`: son slots que la receta exige y han quedado sin nada — es un fallo DISTINTO (ahí el campo puede haberse colocado en otro sitio) y también sale `valid:true`, porque un obligatorio vacío es solo un `warn`. Un `detail_profile` sin `avatar` valida perfectamente y no es un perfil.',
     inputSchema: {
       kind:     z.enum(['list', 'detail']),
       fields:   z.array(fieldShape).describe('Campos de la sección [{key,type,behavior?,label?,options?}]'),
@@ -267,14 +317,21 @@ export function createKromiaMcpServer(): McpServer {
       ? buildAutoListComposition(campos)
       : buildAutoDetailComposition(campos, recipeId as RecipeId | undefined);
     const sinColocar = camposFuera(composition, campos);
+    const obligatoriosVacios = obligatoriosSinLlenar(composition);
     return json({
       composition,
       validation: validateComposition(composition),
+      // Slots que la receta EXIGE y han quedado sin nada. Distinto de
+      // `sinColocar`: aquí el campo puede estar colocado en otro sitio.
+      obligatoriosVacios,
       // Los campos que la heurística no colocó. NO es un error: una vista de
       // lista no tiene sitio para todo. Pero hay que verlo para decidir.
       sinColocar,
       ...(sinColocar.length
         ? { nota: `La heurística no colocó ${sinColocar.length} campo(s): ${sinColocar.join(', ')}. Si alguno importa, muévelo a un slot a mano o usa una receta con más sitio (mira list_recipes / apply_template) y vuelve a validar.` }
+        : {}),
+      ...(obligatoriosVacios.length
+        ? { avisoObligatorios: `La receta "${composition.recipe}" exige ${obligatoriosVacios.join(', ')} y ha(n) quedado sin ningún field. La validación sale valid:true igualmente (es un warn), así que NO te pares ahí. Si es un slot de imagen, comprueba el TIPO del campo: solo el tipo escalar \`image\` entra en un slot que acepta image — \`array<image>\` es otro slot-kind y se va a la galería.` }
         : {}),
     });
   });
