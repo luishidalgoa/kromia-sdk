@@ -111,7 +111,7 @@ describe('kromia MCP server (F1)', () => {
       name: 'auto_compose', arguments: { kind: 'list', fields: [{ key: 'name', type: 'text', behavior: 'title' }] },
     })).composition;
     const out = textOf(await client.callTool({
-      name: 'apply_composition', arguments: { schemaId: 'x', sectionKey: 's', composition: comp },
+      name: 'apply_composition', arguments: { albumSchemaId: 'x', sectionKey: 's', composition: comp },
     }));
     expect(out.applied).toBe(false);
     expect(out.dryRun).toBe(true);
@@ -120,7 +120,7 @@ describe('kromia MCP server (F1)', () => {
   it('apply_composition: composición inválida no aplica (aunque confirm:true)', async () => {
     const client = await connect();
     const out = textOf(await client.callTool({
-      name: 'apply_composition', arguments: { schemaId: 'x', sectionKey: 's', composition: { recipe: '__nope__' }, confirm: true },
+      name: 'apply_composition', arguments: { albumSchemaId: 'x', sectionKey: 's', composition: { recipe: '__nope__' }, confirm: true },
     }));
     expect(out.applied).toBe(false);
     expect(out.validation.valid).toBe(false);
@@ -134,7 +134,7 @@ describe('kromia MCP server (F1)', () => {
       name: 'auto_compose', arguments: { kind: 'list', fields: [{ key: 'name', type: 'text', behavior: 'title' }] },
     })).composition;
     const r: any = await client.callTool({
-      name: 'apply_composition', arguments: { schemaId: 'x', sectionKey: 's', composition: comp, confirm: true },
+      name: 'apply_composition', arguments: { albumSchemaId: 'x', sectionKey: 's', composition: comp, confirm: true },
     });
     expect(r.isError).toBe(true);
   });
