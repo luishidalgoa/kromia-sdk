@@ -22,6 +22,19 @@
  * proceso para comprobar que sin credenciales no se escribe. Estos las necesitan
  * puestas. Compartir fichero haría que el resultado dependiera del orden.
  */
+/*
+ * KRO-456 — la URL que estos tests fijan CAMBIÓ, y eso normalmente es olor a
+ * test amoldado al código. Aquí no: la ruta anterior (`card-schemas`) no podía
+ * funcionar —buscaba la sección en un `dataStructure` que ese modelo no tiene,
+ * así que contestaba 404 a cualquier sección— y se comprobó en vivo contra el
+ * entorno local antes de tocar nada. Las secciones son del AlbumSchema.
+ *
+ * Y el motivo de que nadie lo viera está justo aquí: estos tests mockean
+ * `fetch`, a propósito, para fijar lo que el MCP EMITE. Eso sigue siendo lo
+ * correcto — lo que faltaba era la otra mitad, que el backend atendiera esa
+ * forma. Ahora existe: `tests/integration/el-mcp-escribe-donde-viven-las-secciones-kro456`
+ * en `Kromia_NodeJS`, contra la ruta de verdad.
+ */
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
@@ -85,12 +98,12 @@ describe('KRO-156 · apply_composition escribe de verdad', () => {
     const comp = await composicionValida(client);
 
     const out = textOf(await aplicar(client, {
-      schemaId: 'sch-1', sectionKey: 'principal', composition: comp, confirm: true,
+      albumSchemaId: 'sch-1', sectionKey: 'principal', composition: comp, confirm: true,
     }));
 
     expect(llamadas).toHaveLength(1);
     const [{ url, init }] = llamadas;
-    expect(url).toBe('https://api.kromia.test/api/card-schemas/sch-1/sections/principal/composition');
+    expect(url).toBe('https://api.kromia.test/api/album-schemas/sch-1/sections/principal/composition');
     expect(init.method).toBe('PATCH');
     expect(init.headers.Authorization).toBe('Bearer tok-secreto');
     // El backend hace el splice; el cliente manda SOLO la composición. Si aquí
@@ -110,7 +123,7 @@ describe('KRO-156 · apply_composition escribe de verdad', () => {
     const comp = await composicionValida(client);
 
     const out = textOf(await aplicar(client, {
-      schemaId: 'schema-v1', sectionKey: 'principal', composition: comp, confirm: true,
+      albumSchemaId: 'schema-v1', sectionKey: 'principal', composition: comp, confirm: true,
     }));
 
     expect(out.result._id).toBe('schema-v2');
@@ -118,7 +131,7 @@ describe('KRO-156 · apply_composition escribe de verdad', () => {
   });
 
   it('una barra de más en KROMIA_API_URL no parte la ruta en dos', async () => {
-    // `https://host/api/` + `/card-schemas` da `//card-schemas`, que para
+    // `https://host/api/` + `/album-schemas` da `//album-schemas`, que para
     // muchos proxys es otra ruta. Es un fallo de configuración del user, no de
     // código, y justo por eso tiene que absorberse aquí.
     process.env.KROMIA_API_URL = 'https://api.kromia.test/api/';
@@ -126,9 +139,9 @@ describe('KRO-156 · apply_composition escribe de verdad', () => {
     const client = await connect();
     const comp = await composicionValida(client);
 
-    await aplicar(client, { schemaId: 'sch-1', sectionKey: 'principal', composition: comp, confirm: true });
+    await aplicar(client, { albumSchemaId: 'sch-1', sectionKey: 'principal', composition: comp, confirm: true });
 
-    expect(llamadas[0].url).toBe('https://api.kromia.test/api/card-schemas/sch-1/sections/principal/composition');
+    expect(llamadas[0].url).toBe('https://api.kromia.test/api/album-schemas/sch-1/sections/principal/composition');
   });
 
   it('lo que llega por parámetro no arma ruta: una barra se escapa', async () => {
@@ -138,9 +151,9 @@ describe('KRO-156 · apply_composition escribe de verdad', () => {
     const client = await connect();
     const comp = await composicionValida(client);
 
-    await aplicar(client, { schemaId: 'sch/1', sectionKey: 'a/b', composition: comp, confirm: true });
+    await aplicar(client, { albumSchemaId: 'sch/1', sectionKey: 'a/b', composition: comp, confirm: true });
 
-    expect(llamadas[0].url).toBe('https://api.kromia.test/api/card-schemas/sch%2F1/sections/a%2Fb/composition');
+    expect(llamadas[0].url).toBe('https://api.kromia.test/api/album-schemas/sch%2F1/sections/a%2Fb/composition');
   });
 
   it('si el backend rechaza, marca isError y NO dice que se aplicó', async () => {
@@ -151,7 +164,7 @@ describe('KRO-156 · apply_composition escribe de verdad', () => {
     const comp = await composicionValida(client);
 
     const r: any = await aplicar(client, {
-      schemaId: 'sch-1', sectionKey: 'principal', composition: comp, confirm: true,
+      albumSchemaId: 'sch-1', sectionKey: 'principal', composition: comp, confirm: true,
     });
 
     expect(r.isError).toBe(true);
@@ -165,7 +178,7 @@ describe('KRO-156 · apply_composition escribe de verdad', () => {
     const comp = await composicionValida(client);
 
     const r: any = await aplicar(client, {
-      schemaId: 'sch-1', sectionKey: 'principal', composition: comp, confirm: true,
+      albumSchemaId: 'sch-1', sectionKey: 'principal', composition: comp, confirm: true,
     });
 
     expect(r.isError).toBe(true);
@@ -182,7 +195,7 @@ describe('KRO-156 · apply_composition escribe de verdad', () => {
     const comp = await composicionValida(client);
 
     const out = textOf(await aplicar(client, {
-      schemaId: 'sch-1', sectionKey: 'principal', composition: comp,
+      albumSchemaId: 'sch-1', sectionKey: 'principal', composition: comp,
     }));
 
     expect(llamadas).toHaveLength(0);
@@ -197,7 +210,7 @@ describe('KRO-156 · apply_composition escribe de verdad', () => {
     const client = await connect();
 
     const out = textOf(await aplicar(client, {
-      schemaId: 'sch-1', sectionKey: 'principal', composition: { recipe: '__nope__' }, confirm: true,
+      albumSchemaId: 'sch-1', sectionKey: 'principal', composition: { recipe: '__nope__' }, confirm: true,
     }));
 
     expect(llamadas).toHaveLength(0);

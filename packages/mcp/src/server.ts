@@ -379,14 +379,14 @@ export function createKromiaMcpServer(): McpServer {
   server.registerTool('apply_composition', {
     title: 'Aplicar una composición a un schema real',
     description:
-      'Aplica una ViewComposition a la SECCIÓN de un schema de Kromia. SEGURO: (1) valida localmente antes de nada; (2) DRY-RUN por defecto — muestra qué se aplicaría SIN escribir; solo escribe con `confirm:true`. Escribir requiere env `KROMIA_API_URL` + `KROMIA_TOKEN` (Bearer del usuario). El backend versiona el schema (revertible).',
+      'Aplica una ViewComposition a la SECCIÓN de un ALBUM-schema de Kromia (las secciones viven en el album-schema, no en el card-schema). SEGURO: (1) valida localmente antes de nada; (2) DRY-RUN por defecto — muestra qué se aplicaría SIN escribir; solo escribe con `confirm:true`. Escribir requiere env `KROMIA_API_URL` + `KROMIA_TOKEN` (Bearer del usuario). El backend versiona el schema, así que el `schemaId` que devuelve NO es el que mandaste: es la versión nueva, y es revertible.',
     inputSchema: {
-      schemaId:    z.string().describe('id del card-schema destino'),
-      sectionKey:  z.string().describe('clave de la sección dentro del schema'),
+      albumSchemaId: z.string().describe('id del ALBUM-schema destino — las secciones viven ahí, no en el card-schema'),
+      sectionKey:    z.string().describe('clave de la sección dentro del album-schema'),
       composition: z.object({ recipe: z.string() }).passthrough(),
       confirm:     z.boolean().optional().describe('true = ESCRIBE en el backend; ausente/false = dry-run'),
     },
-  }, async ({ schemaId, sectionKey, composition, confirm }) => {
+  }, async ({ albumSchemaId, sectionKey, composition, confirm }) => {
     const validation = validateComposition(composition as unknown as ViewComposition);
     if (!validation.valid) {
       return json({ applied: false, reason: 'Composición inválida — corrígela antes de aplicar.', validation });
@@ -394,7 +394,7 @@ export function createKromiaMcpServer(): McpServer {
     if (!confirm) {
       return json({
         applied: false, dryRun: true,
-        wouldApply: { schemaId, sectionKey },
+        wouldApply: { albumSchemaId, sectionKey },
         validation,
         note: 'Dry-run: nada escrito. Repite con confirm:true para aplicar de verdad.',
       });
@@ -405,7 +405,11 @@ export function createKromiaMcpServer(): McpServer {
       return { content: [{ type: 'text' as const, text: 'Para ESCRIBIR faltan las env `KROMIA_API_URL` y/o `KROMIA_TOKEN` en el proceso del MCP.' }], isError: true };
     }
     try {
-      const url = `${base.replace(/\/$/, '')}/card-schemas/${encodeURIComponent(schemaId)}/sections/${encodeURIComponent(sectionKey)}/composition`;
+      // KRO-456 — `album-schemas`, no `card-schemas`. La ruta anterior contestaba
+      // 404 a CUALQUIER sección: buscaba en un `dataStructure` que el CardSchema
+      // no tiene. Esta rama es la única del servidor que escribe y nunca funcionó,
+      // porque estos tests mockean `fetch` y el backend no tenía ninguno suyo.
+      const url = `${base.replace(/\/$/, '')}/album-schemas/${encodeURIComponent(albumSchemaId)}/sections/${encodeURIComponent(sectionKey)}/composition`;
       const res = await fetch(url, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
