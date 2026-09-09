@@ -317,6 +317,10 @@ const EXPECTED_EXPORTS = [
   'cardTagValues',
   // KRO-222/223 — título visible de carta
   'resolveCardTitle',
+  // KRO-223 — la CLAVE del campo que titula, para que quien pinta la ficha pueda
+  // OCULTARLA del cuerpo. La pidió Mobile: sin ella la app sabe el valor pero no
+  // cuál es la fila que ya está arriba, y el título sale duplicado.
+  'resolveCardTitleKey',
   'FOIL_PATTERNS',
   'FOIL_PATTERN_IDS',
   'foilPatternCss',
