@@ -34,14 +34,44 @@ export function resolveCardTitle(
   cardTitleKey?:  string,
   cardPrimaryKey?: string,
 ): string {
-  const legibleText = (f: FieldDefLike) =>
-    f.type === 'text' && !['url', 'email', 'phone'].includes(f.behavior ?? '');
-  const titleField =
-    (cardTitleKey ? fields.find(f => f.key === cardTitleKey) : undefined)
-    ?? fields.find(legibleText)
-    ?? (cardPrimaryKey ? fields.find(f => f.key === cardPrimaryKey) : undefined);
-  const rawTitle = titleField ? getRaw(card, titleField.key) : undefined;
+  const clave = resolveCardTitleKey(fields, cardTitleKey, cardPrimaryKey);
+  const rawTitle = clave ? getRaw(card, clave) : undefined;
   return (rawTitle !== undefined && rawTitle !== null && rawTitle !== '')
     ? String(rawTitle)
     : 'Carta';
+}
+
+/**
+ * La CLAVE del campo que titula la carta — la misma elección que hace
+ * `resolveCardTitle`, sin mirar los datos. `undefined` si no hay candidato.
+ *
+ * ## Para qué hace falta, además del valor
+ *
+ * Para poder OCULTAR ese campo del cuerpo del detalle. Quien pinta la ficha
+ * necesita saber cuál es la fila que ya está arriba: sin esto se lee «Ignis» en
+ * la cabecera y «Nombre: Ignis» otra vez debajo. Lo pidió el chat de Mobile al
+ * auditar su lado (KRO-223), y la alternativa —deducir la clave en la app—
+ * sería la TERCERA copia de esta prioridad (TS, `core_dart`, la app), que es
+ * exactamente el drift que esta función vino a cerrar.
+ *
+ * ## Es estructural a propósito
+ *
+ * Contesta «qué campo titula esta sección», no «qué pone en esta carta»: por eso
+ * no recibe la carta. Si dependiera del valor, dos cartas de la misma sección
+ * ocultarían campos distintos y el detalle cambiaría de forma según cuál abras.
+ */
+export function resolveCardTitleKey(
+  fields:          ReadonlyArray<FieldDefLike>,
+  cardTitleKey?:   string,
+  cardPrimaryKey?: string,
+): string | undefined {
+  const legibleText = (f: FieldDefLike) =>
+    f.type === 'text' && !['url', 'email', 'phone'].includes(f.behavior ?? '');
+  const titleField =
+    // La elección explícita solo vale si el campo EXISTE. Una clave inválida se
+    // comporta como no haber elegido — mismo criterio que el backend al servirla.
+    (cardTitleKey ? fields.find(f => f.key === cardTitleKey) : undefined)
+    ?? fields.find(legibleText)
+    ?? (cardPrimaryKey ? fields.find(f => f.key === cardPrimaryKey) : undefined);
+  return titleField?.key;
 }
