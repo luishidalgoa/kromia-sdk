@@ -74,7 +74,7 @@ export { AccordionWithActionsRecipe } from './recipes/AccordionWithActionsRecipe
 // ── Dispatchers ────────────────────────────────────────────────────────
 export { RecipeRenderer }       from './recipes/RecipeRenderer';
 export { NestedRecipeRenderer } from './recipes/NestedRecipeRenderer';
-export { RefGallery, MiniCardRefs, type CardRefResolver } from './recipes/RefGallery';
+export { RefGallery, MiniCardRefs, type CardRefResolver, type CardRefHint } from './recipes/RefGallery';
 // KRO-133 — zoom de galería: capacidad (contexto) + visor reutilizable. El host
 // envuelve su subtree en ImageZoomProvider y monta ImageZoomOverlay donde toque.
 export { ImageZoomProvider, useImageZoom, type OpenImageZoom } from './recipes/ImageZoomContext';
