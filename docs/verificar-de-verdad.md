@@ -681,6 +681,54 @@ Tres veces en un día perdí la evidencia por filtrarla yo mismo:
 **Captura crudo a fichero y luego filtra.** Y comprueba la ruta de los tests: un
 `npx jest tests/unit/x` que no existe dice «0 matches» y **parece que pasó**.
 
+### Una aserción NEGATIVA no prueba nada sin una positiva al lado
+
+`expect(x).toBeUndefined()`, `findsNothing`, `not.toContain`, `toHaveLength(0)`:
+todas se cumplen **también** en una pantalla que no llegó a cargar, en una
+respuesta que nunca llegó y en un objeto que no se construyó.
+
+El 2026-09-09 el chat de Mobile lo vio en directo. Tres tests de widget daban
+`pumpAndSettle timed out` y los arregló bombeando un rato fijo. Con eso, el test
+principal **se puso verde** — y era mentira: `pump` avanza un reloj falso, así
+que las peticiones no resolvían y la pantalla se quedaba en el indicador de
+carga. La aserción era `findsNothing` sobre «Aún no has anclado ninguna carta»,
+y **mientras carga ese texto tampoco está**. El test pasaba sin haber medido
+nada.
+
+Lo cazó su hermano: el caso que exigía **ver la carta** (`findsOneWidget`)
+seguía rojo. Uno afirmaba algo positivo y el otro no.
+
+**La regla**: toda aserción negativa necesita, en el mismo caso o en uno
+hermano de la misma tanda, algo positivo que garantice que **llegaste al estado
+que querías mirar**. Si no, lo único que has demostrado es que la pantalla
+estaba en blanco.
+
+Y el arreglo de la espera es el mismo de siempre: **esperar a la condición, no
+al reloj**. Un número de milisegundos es una apuesta sobre una máquina concreta.
+
+### Mide el ENTORNO en la misma corrida que el resultado
+
+Un intermitente no se cierra repitiendo hasta que salga: se cierra **poniendo al
+lado del resultado una cifra que diga cómo estaba la máquina**.
+
+El mismo día, dos chats con el mismo problema. Tres corridas del backend dieron
+7 rojos · 267 rojos · 0 rojos, que leídos solos parecen una regresión
+intermitente. Con la columna de al lado —14 · 593 · 0 errores del motor de
+almacenamiento— se leen como lo que eran: un termómetro. Y el caso «flaky» que
+llevaba semanas con una hipótesis escrita solo aparecía en la corrida de 593.
+
+En la app la columna equivalente es cuántos rojos llevan la **firma del
+entorno** (ahí, el mensaje «No llegó en N s» del tope de espera).
+
+**Sin esa columna, «en solitario pasa» es una excusa; con ella, es un dato.** Y
+ojo con el sesgo que viene detrás: si la hipótesis cómoda es «contención», la
+conclusión tiene que salir de la columna, no de que encaje con lo que ya
+pensabas.
+
+Cuidado además con lo que tú mismo metes en la máquina: ese día la carga que
+invalidó dos de las tres corridas la estaba causando yo, con mis propios agentes
+corriendo en paralelo — después de avisar al otro chat de que no lo hiciera.
+
 ## 5. Antes de reportar un fantasma
 
 Cuatro veces estuve a punto de abrir un ticket de algo que no era:
