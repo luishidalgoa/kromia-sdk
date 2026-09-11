@@ -1,4 +1,4 @@
-/// `card_title.dart` — espejo de `card-title.ts` (@kromia/core, `7e48b96`). Título
+/// `card_title.dart` — espejo de `card-title.ts` (@kromia/core, `de9b7b8`). Título
 /// visible de una carta (heurística PURA cross-platform; render-only, no toca el KRP).
 ///
 /// El backend persiste y sirve `cardTitleKey` en el CardSchema (combined schema);
@@ -43,6 +43,40 @@ String resolveCardTitle(
   String? cardTitleKey,
   String? cardPrimaryKey,
 ]) {
+  final clave = resolveCardTitleKey(fields, cardTitleKey, cardPrimaryKey);
+  final raw = clave != null ? _getRaw(card, clave) : null;
+  return (raw != null && raw != '') ? raw.toString() : 'Carta';
+}
+
+/// La CLAVE del campo que titula la carta — la misma elección que hace
+/// [resolveCardTitle], sin mirar los datos. `null` si no hay candidato.
+///
+/// ## Para qué hace falta, además del valor
+///
+/// Para poder OCULTAR ese campo del cuerpo del detalle. Quien pinta la ficha
+/// necesita saber cuál es la fila que ya está arriba: sin esto se lee «Ignis» en
+/// la cabecera y «Nombre: Ignis» otra vez debajo.
+///
+/// La app no puede deducirla por su cuenta: sería la TERCERA copia de esta
+/// prioridad (TS, `core_dart`, la app), que es el drift que esta heurística vino
+/// a cerrar. Por eso `resolveCardTitle` **se apoya en ella** en vez de repetir la
+/// cascada — un solo criterio, no dos que puedan separarse.
+///
+/// ## Es estructural a propósito
+///
+/// Contesta «qué campo titula esta sección», no «qué pone en esta carta»: por eso
+/// no recibe la carta. Si dependiera del valor, dos cartas de la misma sección
+/// ocultarían campos distintos y el detalle cambiaría de forma según cuál abras.
+///
+/// Y una `cardTitleKey` que no exista entre los campos **no** se devuelve: cae al
+/// siguiente candidato, igual que el título. Una clave inválida se comporta como
+/// no haber elegido —mismo criterio que el backend al servirla— porque devolverla
+/// haría creer al publisher que eligió algo.
+String? resolveCardTitleKey(
+  List<FieldDefLike> fields, [
+  String? cardTitleKey,
+  String? cardPrimaryKey,
+]) {
   bool legibleText(FieldDefLike f) =>
       f.type == 'text' && !const ['url', 'email', 'phone'].contains(f.behavior ?? '');
   final titleField = (cardTitleKey != null
@@ -52,6 +86,5 @@ String resolveCardTitle(
       (cardPrimaryKey != null
           ? _firstWhereOrNull(fields, (f) => f.key == cardPrimaryKey)
           : null);
-  final raw = titleField != null ? _getRaw(card, titleField.key) : null;
-  return (raw != null && raw != '') ? raw.toString() : 'Carta';
+  return titleField?.key;
 }
