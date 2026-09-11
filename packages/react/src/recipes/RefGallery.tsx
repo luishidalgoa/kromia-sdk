@@ -34,7 +34,18 @@ import type { FieldDefLike } from '../recipe-utils';
  * la FOTO real de la carta referenciada en vez del placeholder degradado.
  * Devuelve null/undefined si la ref no resuelve (→ placeholder).
  */
-export type CardRefResolver = (ref: string | number) => {
+/**
+ * KRO-339 — PISTA de tamaño para el host: la fracción del ancho del slot que
+ * ocupa cada mini-carta (0-1). No son píxeles —el SDK no mide el DOM—: el host
+ * la multiplica por el ancho máximo que conoce de su marco, y así pide la foto al
+ * tamaño al que se va a pintar en vez del original. Aditiva: un resolutor de un
+ * solo argumento la ignora.
+ */
+export interface CardRefHint {
+  widthFraction: number;
+}
+
+export type CardRefResolver = (ref: string | number, hint?: CardRefHint) => {
   imageUrl?: string;
   title?: string;
   /** KRO-198 — capas 3D (KRO-130) de la carta referenciada cuando NO tiene arte
@@ -135,8 +146,8 @@ export function MiniCardRefs({
   // inyectó `resolveRef` y la ref resuelve; si no, el degradado placeholder.
   // El número en overlay siempre (blanco con sombra sobre foto; tinte sobre
   // el degradado).
-  const cardFace = (ref: string | number) => {
-    const resolved = resolveRef?.(ref);
+  const cardFace = (ref: string | number, hint?: CardRefHint) => {
+    const resolved = resolveRef?.(ref, hint);
     const imgUrl = resolved?.imageUrl;
     // KRO-198 — fallback a las capas 3D apiladas cuando la carta no tiene arte
     // plano (Ignis y cía.): se componen back→front (object-cover) = el arte en
@@ -167,7 +178,7 @@ export function MiniCardRefs({
     return (
       <div className="flex gap-2.5 overflow-x-auto snap-x snap-mandatory pb-1">
         {refs.slice(0, 24).map((ref, i) => {
-          const face = cardFace(ref);
+          const face = cardFace(ref, { widthFraction: (refSize ?? 35) / 100 });
           const Cell = onRefTap ? 'button' : 'div';
           return (
             <Cell
@@ -206,6 +217,12 @@ export function MiniCardRefs({
   // Card central destacada cuando hay ≥2 visibles.
   const highlightIdx = visible.length >= 2 ? Math.floor(visible.length / 2) : -1;
 
+  // KRO-339 — lo que ocupa cada mini-carta del slot: su columna y, dentro de
+  // ella, el `refSize` si lo hay (el mismo cálculo que su `width` de abajo).
+  const pistaDeRejilla: CardRefHint = {
+    widthFraction: (1 / cols) * (refSize != null && refSize < 100 ? refSize / 100 : 1),
+  };
+
   return (
     <div
       className="grid gap-2.5"
@@ -213,7 +230,7 @@ export function MiniCardRefs({
     >
       {visible.map((ref, i) => {
         const highlighted = i === highlightIdx;
-        const face = cardFace(ref);
+        const face = cardFace(ref, pistaDeRejilla);
         const Cell = onRefTap ? 'button' : 'div';
         return (
           <Cell
