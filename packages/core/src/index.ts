@@ -554,8 +554,10 @@ export {
   CARD_SHAPES, CARD_SHAPE_IDS, DEFAULT_CARD_SHAPE, CUSTOM_CARD_SHAPE, MAX_SHAPE_PATH_LENGTH,
   DEFAULT_SHAPE_SCALE, MIN_SHAPE_SCALE,
   cardShapeById, cardShapePath, validateShapePath, clampShapeScale, scaleShapePath,
+  // KRO-232 — dónde colocar una marca para que quepa dentro de la silueta.
+  cardShapeBadgeInset, CARD_SHAPE_BADGE_INSET_MAX,
 } from './card-shapes';
-export type { CardShapeDefinition, CardShapeId } from './card-shapes';
+export type { CardShapeDefinition, CardShapeId, CardCorner } from './card-shapes';
 
 // KRO-202 / KRO-224 — marcos ornamentales de carta (SVG paramétrico blanco-sobre-transparente
 // para usar como máscara/relleno teñido). Render-only, TS puro, fuente única cross-platform;
