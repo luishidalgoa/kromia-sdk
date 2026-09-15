@@ -142,3 +142,128 @@ String scaleShapePath(String path, num scale) {
     return r == r.truncateToDouble() ? r.toInt().toString() : r.toString();
   });
 }
+
+// ── KRO-232 — MARCAS DENTRO DE LA SILUETA ─────────────────────────────────────
+
+/// Hasta dónde se puede meter una marca hacia dentro buscando sitio: un 30 % de
+/// la carta. Más allá deja de estar «en la esquina», así que es mejor decir que
+/// no cabe (`null`) y que el host decida. Espejo de `CARD_SHAPE_BADGE_INSET_MAX`.
+const double cardShapeBadgeInsetMax = 0.3;
+
+/// Resolución de la búsqueda (0,5 % de la carta). Espejo de `PASO_INSET`.
+const double _pasoInset = 0.005;
+
+/// Tramos al aplanar cada curva. Espejo de `PASOS_CURVA`.
+const int _pasosCurva = 24;
+
+typedef _Punto = (double, double);
+
+/// Aplana un path VÁLIDO del protocolo (M/L/Q/C/Z) a un polígono. Espejo de
+/// `aplanarPath`.
+List<_Punto> _aplanarPath(String path) {
+  final t = path.trim().split(RegExp(r'\s+'));
+  final pts = <_Punto>[];
+  var i = 0;
+  var cur = (0.0, 0.0);
+  double n() => double.parse(t[i++]);
+  while (i < t.length) {
+    final c = t[i++];
+    if (c == 'M' || c == 'L') {
+      cur = (n(), n());
+      pts.add(cur);
+    } else if (c == 'Q') {
+      final cx = n(), cy = n(), x = n(), y = n();
+      for (var k = 1; k <= _pasosCurva; k++) {
+        final u = k / _pasosCurva, a = 1 - u;
+        pts.add((a * a * cur.$1 + 2 * a * u * cx + u * u * x,
+            a * a * cur.$2 + 2 * a * u * cy + u * u * y));
+      }
+      cur = (x, y);
+    } else if (c == 'C') {
+      final x1 = n(), y1 = n(), x2 = n(), y2 = n(), x = n(), y = n();
+      for (var k = 1; k <= _pasosCurva; k++) {
+        final u = k / _pasosCurva, a = 1 - u;
+        pts.add((
+          a * a * a * cur.$1 + 3 * a * a * u * x1 + 3 * a * u * u * x2 + u * u * u * x,
+          a * a * a * cur.$2 + 3 * a * a * u * y1 + 3 * a * u * u * y2 + u * u * u * y,
+        ));
+      }
+      cur = (x, y);
+    }
+    // Z: el polígono se cierra solo (el último vértice enlaza con el primero).
+  }
+  return pts;
+}
+
+bool _puntoDentro(_Punto p, List<_Punto> poly) {
+  var dentro = false;
+  for (var a = 0, b = poly.length - 1; a < poly.length; b = a++) {
+    final (xi, yi) = poly[a];
+    final (xj, yj) = poly[b];
+    if ((yi > p.$2) != (yj > p.$2) &&
+        p.$1 < ((xj - xi) * (p.$2 - yi)) / (yj - yi) + xi) {
+      dentro = !dentro;
+    }
+  }
+  return dentro;
+}
+
+/// ¿Se cortan los segmentos pq y rs (en su interior)? Espejo de `seCortan`.
+bool _seCortan(_Punto p, _Punto q, _Punto r, _Punto s) {
+  double o(_Punto a, _Punto b, _Punto c) =>
+      (b.$1 - a.$1) * (c.$2 - a.$2) - (b.$2 - a.$2) * (c.$1 - a.$1);
+  final d1 = o(p, q, r), d2 = o(p, q, s), d3 = o(r, s, p), d4 = o(r, s, q);
+  return ((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) &&
+      ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0));
+}
+
+/// Una caja cabe ENTERA si sus cuatro esquinas están dentro y ningún borde de la
+/// silueta la atraviesa (una muesca estrecha entre dos esquinas). Espejo de
+/// `cajaDentro`.
+bool _cajaDentro(double x, double y, double w, double h, List<_Punto> poly) {
+  final esquinas = <_Punto>[(x, y), (x + w, y), (x + w, y + h), (x, y + h)];
+  if (!esquinas.every((e) => _puntoDentro(e, poly))) return false;
+  for (var a = 0, b = poly.length - 1; a < poly.length; b = a++) {
+    for (var k = 0; k < 4; k++) {
+      if (_seCortan(poly[b], poly[a], esquinas[k], esquinas[(k + 1) % 4])) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+/// Cuánto hay que meter una marca hacia dentro, desde su [corner], para que
+/// quepa ENTERA en la silueta de la carta. Espejo 1:1 de `cardShapeBadgeInset`.
+///
+/// Todo en el espacio normalizado de la carta (0..1 en cada eje): [box] es el
+/// tamaño de la marca como fracción del ancho (`w`) y del alto (`h`), y lo que
+/// devuelve es la distancia MÍNIMA desde los dos bordes de esa esquina, también
+/// en fracción (del ancho en horizontal y del alto en vertical).
+///
+/// - Sin silueta (estándar, o una custom inválida que cae a estándar) → `null`:
+///   el host sigue con su regla del redondeo de esquinas.
+/// - Si no cabe antes de [cardShapeBadgeInsetMax] → `null`, en vez de llevar la
+///   marca al centro de la carta.
+///
+/// [corner]: `'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'`.
+double? cardShapeBadgeInset({
+  String? shape,
+  String? shapePath,
+  num? shapeScale,
+  required String corner,
+  required ({double w, double h}) box,
+}) {
+  final base = cardShapePath(shape: shape, shapePath: shapePath);
+  if (base == null) return null;
+  final poly = _aplanarPath(scaleShapePath(base, shapeScale ?? defaultShapeScale));
+  final izquierda = corner.endsWith('left');
+  final arriba = corner.startsWith('top');
+  for (var paso = 0; paso * _pasoInset <= cardShapeBadgeInsetMax + 1e-9; paso++) {
+    final s = paso * _pasoInset;
+    final x = izquierda ? s : 1 - s - box.w;
+    final y = arriba ? s : 1 - s - box.h;
+    if (_cajaDentro(x, y, box.w, box.h, poly)) return (s * 1000).round() / 1000;
+  }
+  return null;
+}
