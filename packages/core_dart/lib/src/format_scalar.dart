@@ -11,7 +11,8 @@ import 'dart:convert';
 import 'field_def.dart';
 
 const Map<String, String> _currencySymbols = {
-  'EUR': '€', 'USD': '\$', 'GBP': '£', 'JPY': '¥',
+  'EUR': '€', 'USD': '\$', 'GBP': '£', 'JPY': '¥', 'CHF': 'CHF', 'CAD': '\$', 'AUD': '\$',
+  'MXN': '\$', 'BRL': 'R\$', 'ARS': '\$', 'CNY': '¥', 'KRW': '₩', 'INR': '₹',
 };
 
 bool _isEmpty(dynamic v) {
@@ -38,9 +39,14 @@ String _groupThousands(String digits) {
   return buf.toString();
 }
 
-/// Formato es-ES con 2 decimales: 1234.5 → "1.234,50".
-String _formatEs2dec(num value) {
+/// Formato es-ES con 2 decimales: 1234.5 → "1.234,50". Con [sinDecimales]
+/// redondea a entero y no pinta la coma (JPY/KRW): 1500 → "1.500".
+String _formatEs2dec(num value, {bool sinDecimales = false}) {
   final neg = value < 0;
+  if (sinDecimales) {
+    final s = _groupThousands(value.abs().round().toString());
+    return neg ? '-$s' : s;
+  }
   final cents = (value.abs() * 100).round();
   final intPart = cents ~/ 100;
   final decPart = cents % 100;
@@ -67,8 +73,15 @@ String formatScalar(dynamic value, [FieldDefLike? def]) {
   }
 
   // Currency: 19.99 → "19,99 €".
+  // KRO-198 — el código de moneda viene de behaviorConfig.currency (ISO); si no,
+  // EUR. Código sin símbolo conocido → el propio código. JPY/KRW sin decimales.
   if (b == 'currency' && value is num) {
-    return '${_formatEs2dec(value)} ${_currencySymbols['EUR']}';
+    final cfg = def?.behaviorConfig ?? const <String, dynamic>{};
+    final raw = cfg['currency'];
+    final code = raw is String && raw.trim().isNotEmpty ? raw.trim().toUpperCase() : 'EUR';
+    final symbol = _currencySymbols[code] ?? code;
+    final sinDecimales = code == 'JPY' || code == 'KRW';
+    return '${_formatEs2dec(value, sinDecimales: sinDecimales)} $symbol';
   }
 
   // Percentage: 75 → "75 %".
@@ -81,9 +94,13 @@ String formatScalar(dynamic value, [FieldDefLike? def]) {
     return '★' * v + '☆' * (max - v);
   }
 
-  // Measurement: la unidad la define behaviorConfig del editor.
+  // Measurement: 12.5 → "12.5 cm". KRO-198 — la unidad viene de
+  // behaviorConfig.unit (texto libre); sin unidad → número plano.
   if (b == 'measurement') {
-    return value is num ? _numStr(value) : value.toString();
+    final cfg = def?.behaviorConfig ?? const <String, dynamic>{};
+    final raw = cfg['unit'];
+    final unit = raw is String && raw.trim().isNotEmpty ? ' ${raw.trim()}' : '';
+    return '${value is num ? _numStr(value) : value.toString()}$unit';
   }
 
   // Incremental (KRO-84 V2): pad + prefijo/sufijo opcionales (solo presentación).
