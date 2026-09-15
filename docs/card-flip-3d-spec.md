@@ -18,9 +18,15 @@ La versión buena (Studio `HoloCard.tsx`, commits de KRO-227) hace **dos** cosas
    crossfade ni un widget intercambiado: durante el giro se ve el canto de
    perfil, como al voltear un cromo físico.
 2. **El gesto que dispara el giro es "forzar el tilt"**: arrastras (puntero
-   pulsado) más allá del borde de la carta — cuando el arrastre se pasa **un
-   25 % del recorrido** (overshoot ≥ 1.25), la carta se voltea. Una vez por
-   gesto. El botón "Reverso/Anverso" queda como fallback accesible.
+   pulsado) hasta el **borde** de la carta (overshoot ≥ 1.0) y la carta se
+   voltea. Una vez por gesto. **No hay botón**: el giro va solo por gesto.
+
+> **Cambio (KRO-231, 2026-09-11).** Esta spec decía overshoot ≥ 1.25 y un botón
+> «Reverso/Anverso» de fallback. En julio, validando la app en su móvil, el user
+> pidió un giro más ligero y quitar el botón (kromia-mobile #57); se hizo solo en la
+> app, y Studio y esta spec se quedaron atrás, así que la app parecía haber
+> derivado. El user decidió igualar Studio a la app. El umbral vive en Studio en
+> `visual-effects/giro-de-la-carta.ts`.
 
 ## 1. Estructura de capas (orden EXACTO de transforms)
 
@@ -64,14 +70,14 @@ Referencia: `HoloCard.tsx` (`onDown`/`onMove`/`onUp`) — matemática exacta:
 ```text
 rawX      = (puntero.x - carta.left) / carta.width      // 0..1 dentro de la carta
 overshoot = |rawX - 0.5| * 2                            // 1.0 = borde de la carta
-DISPARA cuando: arrastrando (puntero PULSADO) && overshoot >= 1.25
+DISPARA cuando: arrastrando (puntero PULSADO) && overshoot >= 1.0   // el borde (KRO-231; antes 1.25)
 ```
 
 - **Una activación por gesto**: flag `fired` que se resetea al soltar
   (pointer up / cancel). Sin `fired`, cruzar el umbral varias veces en el
   mismo arrastre haría flip-flop.
 - **Pointer capture**: el arrastre se sigue trackeando aunque el dedo/puntero
-  salga de la carta — imprescindible, porque el umbral (1.25) está FUERA de
+  salga de la carta — imprescindible, porque el umbral (1.0, el borde) está EN el límite de
   sus límites. En Flutter un `GestureDetector.onPanUpdate` con
   `details.localPosition` ya recibe updates fuera del child mientras dura el
   pan: calcula `rawX = localPosition.dx / size.width` sin clampear.
@@ -81,7 +87,7 @@ DISPARA cuando: arrastrando (puntero PULSADO) && overshoot >= 1.25
 - El gesto solo se registra si la carta **tiene reverso** (ver §3); si no,
   ni pan-handler (no robes gestos al scroll).
 
-## 3. Cuándo hay reverso (gate) + botón fallback
+## 3. Cuándo hay reverso (gate)
 
 Referencia: `kromia-studio/src/components/album/CardFocusOverlay.tsx`.
 
@@ -91,11 +97,11 @@ hasBack      = backResolved.image != null
                || (album.physicalTracking == 'qr' && backResolved.qr != null)
 ```
 
-- `hasBack == false` → sin gesto, sin botón, sin cara trasera montada.
-- Botón fallback (accesibilidad + descubribilidad): pill bajo la carta,
-  icono ⟳ (rota 180° con el estado) + texto `Reverso`/`Anverso`, toggle del
-  mismo estado que el gesto. En Studio: `bg-black/45 → hover /65`, texto
-  blanco 90 %, 11px, `rounded-full`, `px-3 py-1`.
+- `hasBack == false` → sin gesto y sin cara trasera montada.
+- **No hay botón «Reverso/Anverso»** (KRO-231, 2026-09-11). Existió como fallback
+  de accesibilidad y descubribilidad; el user lo quitó en la app («ensuciaba el
+  foco», kromia-mobile #57) y después decidió igualar Studio. El giro va solo por
+  gesto, en las dos plataformas.
 - El dorso pinta lo que ya tenéis en `CardBackView` (imagen a sangre + QR
   cuadrado `(x%, y%)` lado `size%`, gates de KRO-228 sin cambios). Sin diseño
   de imagen: superficie oscura `#1a1713` con un halo radial dorado sutil
