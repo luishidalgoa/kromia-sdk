@@ -46,17 +46,40 @@ void main() {
     test('0 → "0,00 €"', () {
       expect(formatScalar(0, def('currency')), '0,00 €');
     });
-    test('1234.5 → 2 decimales + €', () {
-      expect(formatScalar(1234.5, def('currency')), matches(RegExp(r'^1[.,]?234,50 €$')));
+    // es-ES (ICU, `minimumGroupingDigits: 2`) NO agrupa los números de 4 cifras:
+    // el punto de miles aparece desde 5. Medido contra el TS (Node 24, ICU 78.2).
+    // Antes esto era una regex que aceptaba las dos formas y tapaba la diferencia.
+    test('1234.5 → "1234,50 €" (4 cifras: sin punto de miles)', () {
+      expect(formatScalar(1234.5, def('currency')), '1234,50 €');
     });
+    test('1000 → "1000,00 €"', () => expect(formatScalar(1000, def('currency')), '1000,00 €'));
+    test('12345.5 → "12.345,50 €" (5 cifras: con punto)', () {
+      expect(formatScalar(12345.5, def('currency')), '12.345,50 €');
+    });
+    test('1234567.891 → "1.234.567,89 €"', () {
+      expect(formatScalar(1234567.891, def('currency')), '1.234.567,89 €');
+    });
+    test('9999.999 → "10.000,00 €" (se agrupa DESPUÉS de redondear)', () {
+      expect(formatScalar(9999.999, def('currency')), '10.000,00 €');
+    });
+    test('9999.99 → "9999,99 €"', () => expect(formatScalar(9999.99, def('currency')), '9999,99 €'));
     // KRO-198 — símbolo dinámico vía behaviorConfig.currency (espejo de 53808fb).
     FieldDefLike defCur([String? code]) => FieldDefLike(
         key: 'x', type: 'number', behavior: 'currency',
         behaviorConfig: code == null ? null : {'currency': code});
     test('USD → "19,99 \$"', () => expect(formatScalar(19.99, defCur('USD')), '19,99 \$'));
     test('GBP → "19,99 £"', () => expect(formatScalar(19.99, defCur('GBP')), '19,99 £'));
-    test('JPY → sin decimales', () {
-      expect(formatScalar(1500, defCur('JPY')), matches(RegExp(r'^1[.,]?500 ¥$')));
+    test('JPY → sin decimales, y 4 cifras sin punto: "1500 ¥"', () {
+      expect(formatScalar(1500, defCur('JPY')), '1500 ¥');
+    });
+    test('JPY 9999.5 → "10.000 ¥" (redondea a 5 cifras y entonces agrupa)', () {
+      expect(formatScalar(9999.5, defCur('JPY')), '10.000 ¥');
+    });
+    test('negativo de 4 cifras → "-1234,50 \$"', () {
+      expect(formatScalar(-1234.5, defCur('USD')), '-1234,50 \$');
+    });
+    test('negativo de 5 cifras → "-12.345,50 \$"', () {
+      expect(formatScalar(-12345.5, defCur('USD')), '-12.345,50 \$');
     });
     test('código desconocido → usa el propio código como símbolo', () {
       expect(formatScalar(5, defCur('ZZZ')), '5,00 ZZZ');
