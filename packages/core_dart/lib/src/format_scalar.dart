@@ -30,7 +30,13 @@ String _numStr(num v) {
 }
 
 /// Inserta separador de miles '.' (es-ES) en una cadena de dígitos.
+///
+/// Solo desde 5 cifras: es-ES en ICU lleva `minimumGroupingDigits: 2`, así que
+/// «1234» va sin punto y «12.345» con él. Es lo que da `toLocaleString('es-ES')`
+/// en el TS; agrupar también las de 4 era la única diferencia de paridad que
+/// quedaba en `currency`, y la tapaba una regex en los tests.
 String _groupThousands(String digits) {
+  if (digits.length < 5) return digits;
   final buf = StringBuffer();
   for (var i = 0; i < digits.length; i++) {
     if (i > 0 && (digits.length - i) % 3 == 0) buf.write('.');
