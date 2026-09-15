@@ -1,0 +1,1367 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación del SDK polyglot de Kromia — modelo de coleccionables, recipes y validadores compartidos cross-plataforma.">
+      
+      
+        <meta name="author" content="Luis Hidalgo">
+      
+      
+        <link rel="canonical" href="https://luishidalgoa.github.io/kromia-sdk/print-format-spec/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Formato de imprenta para cartas físicas — spec + gap analysis (KRO-216) - Kromia SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#formato-de-imprenta-para-cartas-fisicas-spec-gap-analysis-kro-216" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href=".." title="Kromia SDK" class="md-header__button md-logo" aria-label="Kromia SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kromia SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Formato de imprenta para cartas físicas — spec + gap analysis (KRO-216)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Compartir" aria-label="Compartir" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/luishidalgoa/kromia-sdk" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    luishidalgoa/kromia-sdk
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../01-overview/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Empezar aquí
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Repositorio
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Kromia SDK" class="md-nav__button md-logo" aria-label="Kromia SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kromia SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    luishidalgoa/kromia-sdk
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inicio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Empezar aquí
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Empezar aquí
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visión general
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conceptos clave
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repositorio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-decisiones-bloqueantes-antes-de-tocar-codigo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Decisiones BLOQUEANTES (antes de tocar código)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-el-qr-cifras-medidas-riesgo-no-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. El QR — cifras MEDIDAS (riesgo nº 1)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. El QR — cifras MEDIDAS (riesgo nº 1)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#payloads-candidatos-medido-2026-07-03-ecc-m" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Payloads candidatos (medido 2026-07-03, ECC M)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-parametros-consolidados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Parámetros consolidados
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Parámetros consolidados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#geometria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geometría
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resolucion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resolución
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#color" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Color
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#foil-depende-de-b1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Foil (depende de B1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        QR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#material" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Material
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#produccion-vdp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Producción (VDP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-gap-analysis-del-export-actual" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Gap analysis del export actual
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-riesgos-abiertos-que-el-research-no-cubrio-del-critico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Riesgos abiertos que el research NO cubrió (del crítico)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-contradicciones-a-reconciliar-con-la-imprenta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Contradicciones a reconciliar con la imprenta
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-cuestionario-para-la-imprenta-piloto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Cuestionario para la imprenta piloto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-proximos-pasos-roadmap-mapeado-a-jira" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Próximos pasos (roadmap, mapeado a Jira)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/luishidalgoa/kromia-sdk/edit/main/docs/print-format-spec.md" title="Editar esta página" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="formato-de-imprenta-para-cartas-fisicas-spec-gap-analysis-kro-216">Formato de imprenta para cartas físicas — spec + gap analysis (KRO-216)<a class="headerlink" href="#formato-de-imprenta-para-cartas-fisicas-spec-gap-analysis-kro-216" title="Enlace permanente a esta sección">&para;</a></h1>
+<blockquote>
+<p><strong>Estado</strong>: research completo (2026-07-03), anclado al código real y con las
+cifras clave del QR <strong>medidas</strong>, no estimadas. Es el spec base para elegir
+imprenta piloto y ajustar el export de la tirada. <strong>No es definitivo</strong>: los
+valores marcados <em>[confirmar]</em> los fija la imprenta piloto vía el cuestionario
+(§7). No codificar el modo print-ready hasta cerrar las <strong>decisiones
+bloqueantes</strong> (§1).</p>
+</blockquote>
+<h2 id="0-tldr">0. TL;DR<a class="headerlink" href="#0-tldr" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>El export actual de la tirada (<code>MintTiradaDialog.tsx</code>) es un buen <strong>origen /
+preview</strong> pero <strong>no es print-ready</strong> para ninguna imprenta profesional. Tres
+cosas lo bloquean, por orden de importancia:</p>
+<ol>
+<li><strong>El QR no cabe legible al tamaño que se coloca hoy</strong> (medido, §2). Con el
+   payload actual (221 B) y un placement del 25-30%, el módulo cae a
+   ~0.28-0.31 mm, por debajo del suelo de imprenta (~0.4 mm). Hay que <strong>agrandar
+   el QR (~25 mm, ECC M) o recortar el payload</strong> — y esto último toca la
+   propiedad núcleo (verificación offline).</li>
+<li><strong>No hay sangrado ni geometría física</strong>: todo se rasteriza <code>object-cover</code> al
+   trim exacto, en px arbitrarios (<code>PRINT_W=2000</code>), sin mm/DPI/bleed. Cualquier
+   desvío de cuchilla deja borde blanco.</li>
+<li><strong>La máscara de foil está en el formato equivocado</strong>: escala de grises por
+   luminancia y con convención <strong>invertida</strong> (claro=foil; el estándar es
+   negro K100=foil). Y falta decidir la <strong>ruta de foil</strong> (clásica vs digital),
+   que determina si la máscara va como vector binario o ráster gris.</li>
+</ol>
+<p><strong>Entregable objetivo</strong>: PDF/X-4 (arte CMYK + foil spot + dieline en capas) +
+dataset CSV/JSON para datos variables (VDP) + manifest enriquecido, generado en
+un <strong>paso de servidor</strong> (el canvas del navegador solo produce RGB). El ZIP de
+PNGs actual se conserva como paquete de <strong>prueba/preview/Flutter</strong>.</p>
+<hr />
+<h2 id="1-decisiones-bloqueantes-antes-de-tocar-codigo">1. Decisiones BLOQUEANTES (antes de tocar código)<a class="headerlink" href="#1-decisiones-bloqueantes-antes-de-tocar-codigo" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Estas tres no son técnicas de imprenta: son decisiones de <strong>producto</strong> que
+condicionan todo el export. Hay que cerrarlas primero.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Decisión</th>
+<th>Opciones</th>
+<th>Impacto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B1</td>
+<td><strong>Ruta de foil</strong></td>
+<td>(a) clásica hot/cold con plancha · (b) <strong>digital / VDP</strong> (MGI JETvarnish, cold foil en línea)</td>
+<td>Determina el formato de la máscara: vector binario 100%K (clásica) vs ráster gris invertido (digital). La clásica NO soporta foil distinto por carta sin multiplicar coste; para coleccionables variados con QR único, la <strong>digital</strong> es la única viable.</td>
+</tr>
+<tr>
+<td>B2</td>
+<td><strong>Tamaño del QR vs payload</strong></td>
+<td>(a) QR grande <strong>≥25 mm</strong> (~41% del reverso) manteniendo el payload firmado · (b) <strong>recortar el payload</strong> para bajar de versión</td>
+<td>(b) puede <strong>romper la verificación OFFLINE</strong> si se saca la firma del QR → deja de ser una decisión de tamaño y pasa a ser de arquitectura de seguridad. Ver §2.</td>
+</tr>
+<tr>
+<td>B3</td>
+<td><strong>Imprenta piloto</strong></td>
+<td>(a) POD tipo QPMN/MPC (MOQ≈1, foil+VDP sin mínimo) · (b) industrial tipo Cartamundi (MOQ≈2500)</td>
+<td>Decide si Kromia puede hacer <strong>tiradas cortas</strong> y si CMYK+ICC es obligatorio.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-el-qr-cifras-medidas-riesgo-no-1">2. El QR — cifras MEDIDAS (riesgo nº 1)<a class="headerlink" href="#2-el-qr-cifras-medidas-riesgo-no-1" title="Enlace permanente a esta sección">&para;</a></h2>
+<blockquote>
+<p>Medido el 2026-07-03 contra una identidad real (<code>cardidentities</code>), serializando
+el <code>CardQrPayload</code> exacto (<code>serializeCardQrPayload</code>, <code>card-qr.ts</code>) con firma
+P-256 P1363 (64 B → 86 chars base64url). <strong>No es una estimación.</strong></p>
+</blockquote>
+<p><strong>Payload real = 221 bytes</strong>: <code>id</code> UUID v4 (36) + <code>albumId</code> ObjectId (24) +
+<code>cardIndex</code> (num) + <code>kind:'card-identity'</code> + firma (86) + andamiaje JSON.</p>
+<p>Versión de QR y tamaño de módulo resultante (con quiet zone de 4 módulos):</p>
+<table>
+<thead>
+<tr>
+<th>ECC</th>
+<th>Versión</th>
+<th>Módulos</th>
+<th>Tamaño para módulo ≥0.4 mm</th>
+<th>% del ancho (63 mm)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L</td>
+<td>9</td>
+<td>53×53</td>
+<td>~24-25 mm</td>
+<td>~40%</td>
+</tr>
+<tr>
+<td><strong>M</strong></td>
+<td><strong>10</strong></td>
+<td><strong>57×57</strong></td>
+<td><strong>~25-26 mm</strong></td>
+<td><strong>~41%</strong></td>
+</tr>
+<tr>
+<td>Q</td>
+<td>12</td>
+<td>65×65</td>
+<td>~30 mm</td>
+<td>~48%</td>
+</tr>
+<tr>
+<td>H</td>
+<td>15</td>
+<td>77×77</td>
+<td>~34 mm</td>
+<td>~54%</td>
+</tr>
+</tbody>
+</table>
+<p>Módulo (mm) por tamaño físico y ECC:</p>
+<table>
+<thead>
+<tr>
+<th>Tamaño</th>
+<th>ECC L</th>
+<th>ECC M</th>
+<th>ECC Q</th>
+<th>ECC H</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15 mm (24%)</td>
+<td>0.246</td>
+<td>0.231</td>
+<td>0.205</td>
+<td>0.176</td>
+</tr>
+<tr>
+<td>18 mm (29%)</td>
+<td>0.295</td>
+<td>0.277</td>
+<td>0.247</td>
+<td>0.212</td>
+</tr>
+<tr>
+<td>20 mm (32%)</td>
+<td>0.328</td>
+<td>0.308</td>
+<td>0.274</td>
+<td>0.235</td>
+</tr>
+<tr>
+<td>22 mm (35%)</td>
+<td>0.361</td>
+<td>0.338</td>
+<td>0.301</td>
+<td>0.259</td>
+</tr>
+<tr>
+<td><strong>25 mm (40%)</strong></td>
+<td>0.410</td>
+<td><strong>0.385</strong></td>
+<td>0.342</td>
+<td>0.294</td>
+</tr>
+<tr>
+<td>28 mm (44%)</td>
+<td>0.459</td>
+<td>0.431</td>
+<td>0.384</td>
+<td>0.329</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Lecturas</strong>:</p>
+<ul>
+<li>El <strong>suelo de imprenta</strong> habitual es ~0.4 mm/módulo (absoluto ~0.33 mm = 4 dots
+  @300 dpi). Verde = seguro, ámbar = límite, rojo = por debajo.</li>
+<li>Hoy el QR se coloca en el <code>%</code> del publisher <strong>sin validar</strong> (<code>qrPlacement.size</code>).
+  A 25-30% (16-19 mm) el módulo cae a <strong>0.28-0.31 mm</strong> → <strong>QR de fábrica en
+  riesgo aunque escanee en pantalla</strong>.</li>
+<li><strong>Contradicción ECC vs módulo resuelta con datos</strong>: subir a ECC Q/H (más
+  robusto) engorda la versión y <strong>encoge</strong> el módulo. Con 221 B no se puede tener
+  "ECC Q + módulo ≥0.4 mm + QR pequeño". Recomendación: <strong>ECC M + QR ≥25 mm</strong>, o
+  recortar payload.</li>
+<li><strong>Palanca de payload</strong> (decisión B2): <code>albumId</code> (24 B) es redundante dentro del
+  QR si el <code>id</code> (UUID único global) ya identifica la carta y el backend resuelve
+  el resto. Quitar <code>albumId</code> + acortar <code>id</code> (p.ej. base64url de 16 B en vez de
+  UUID de 36) baja ~40-50 B → probablemente 1 versión menos → módulo mayor al
+  mismo tamaño. <strong>Pero</strong> la firma (86 B) es el grueso y <strong>no se puede quitar sin
+  perder la verificación offline</strong> (la propiedad núcleo de KRO-16). Si se saca la
+  firma del QR, el escaneo pasa a requerir red → es un cambio de arquitectura,
+  no un ajuste de tamaño. Documentar la decisión antes de tocar el modelo.</li>
+</ul>
+<h3 id="payloads-candidatos-medido-2026-07-03-ecc-m">Payloads candidatos (medido 2026-07-03, ECC M)<a class="headerlink" href="#payloads-candidatos-medido-2026-07-03-ecc-m" title="Enlace permanente a esta sección">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Payload</th>
+<th>Versión</th>
+<th>módulo @20 mm (32%)</th>
+<th>@25 mm (40%)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Actual</strong> (v+kind+uuid36+albumId24+idx+sig) 221 B</td>
+<td>v10</td>
+<td>0.308 ❌</td>
+<td>0.385 ⚠️</td>
+</tr>
+<tr>
+<td>sin <code>albumId</code> (uuid36) 184 B</td>
+<td>v9</td>
+<td>0.328 ❌</td>
+<td>0.410 ✅</td>
+</tr>
+<tr>
+<td>sin <code>albumId</code> + <code>id</code> corto (16 B→~22 ch) 170 B</td>
+<td>v8</td>
+<td>0.351 ⚠️</td>
+<td>0.439 ✅</td>
+</tr>
+<tr>
+<td><strong>compacto</strong> no-JSON (<code>id16</code>+<code>idx</code>+<code>sig</code>) 109 B</td>
+<td>v5</td>
+<td><strong>0.444 ✅</strong></td>
+<td>0.556 ✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Conclusión medida</strong>: recortar campos del JSON ayuda poco (v10→v8; a 20 mm sigue
+&lt;0.4 mm). El <strong>único</strong> camino a un QR pequeño (20 mm) y seguro es el <strong>formato
+compacto no-JSON</strong>. <strong>PERO</strong> — restricción dura (la firma cubre
+<code>v\nkind\nid\nalbumId\ncardIndex\nserial</code>, <code>cardQrSigningInput</code>): <strong>todo campo que
+se quite del QR debe salir también del input de firma</strong>, o la <strong>verificación
+offline se rompe</strong> (el verificador necesita esos campos para reconstruir lo
+firmado). Es decir, QR pequeño ⇒ <strong>cambio de contrato del QR + bump de <code>v</code> +
+espejo en Flutter (<code>core_dart</code>)</strong>, no un simple ajuste. Sacar la firma del QR
+(dejar solo <code>id</code>) haría el QR diminuto pero <strong>elimina la verificación offline</strong> —
+es la decisión B2, de producto, no de tamaño.</p>
+<p><strong>Fixes de QR baratos e inmediatos</strong> (no dependen de la imprenta; <strong>hechos</strong>
+2026-07-03 salvo lo indicado): <code>margin: 2 → 4</code> ✅ (quiet zone ISO 18004), isla
+blanca <strong>cuadrada</strong> en vez de <code>roundRect</code> ✅ (que muerde la quiet zone),
+<code>width: 640 → 1024</code> ✅. <strong>Pendiente</strong>: validación en el editor (avisar si el QR
+queda a &lt;safe mm del borde o si el módulo estimado &lt; umbral) — <strong>diferida hasta
+B2</strong> (el umbral seguro depende del formato de payload elegido) y a que la
+impresión física sea una capacidad real. Exportar el QR <strong>vectorial</strong> (SVG) en vez
+de PNG = parte del modo print-ready de servidor.</p>
+<hr />
+<h2 id="3-parametros-consolidados">3. Parámetros consolidados<a class="headerlink" href="#3-parametros-consolidados" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Confianza: <strong>alta</strong> salvo lo marcado. <em>[confirmar]</em> = lo fija la imprenta piloto.</p>
+<h3 id="geometria">Geometría<a class="headerlink" href="#geometria" title="Enlace permanente a esta sección">&para;</a></h3>
+<ul>
+<li><strong>Trim (corte final)</strong>: 63 × 88 mm (poker/TCG estándar; 2.5"×3.5" = 63.5×88.9 mm
+  es equivalente, ~0.5 mm de diferencia). <strong>Fijar la retícula en mm reales</strong> y
+  derivar px = <code>mm/25.4*dpi</code>, no al revés.</li>
+<li><strong>Sangrado (bleed)</strong>: <strong>3 mm/lado</strong> <em>[confirmar: algunas UE aceptan 2 mm]</em> →
+  lienzo total <strong>69 × 94 mm</strong>. El arte debe <strong>desbordar</strong> el trim.</li>
+<li><strong>Zona segura</strong>: <strong>3 mm</strong> hacia dentro del trim <em>[confirmar: alguna fuente pide
+  5 mm]</em> → caja útil ~57 × 82 mm. Todo QR/texto/logo crítico <strong>dentro</strong>.</li>
+<li><strong>Esquinas</strong>: <strong>no</strong> hornear el redondeo en el PNG; se entrega rectángulo con
+  bleed y el <strong>troquel</strong> las redondea (~3 mm de radio). El <code>cornerRadius</code> en % del
+  editor (<code>options.ts</code>, xl≈28%≈17.6 mm a 63 mm es irrealizable) es <strong>visual</strong>;
+  mapearlo a mm real o marcarlo como tal.</li>
+</ul>
+<h3 id="resolucion">Resolución<a class="headerlink" href="#resolucion" title="Enlace permanente a esta sección">&para;</a></h3>
+<ul>
+<li><strong>DPI objetivo</strong>: <strong>600 dpi</strong> sobre el lienzo con bleed → ~1630 × 2220 px
+  (mín. universal 300 dpi). El <code>PRINT_W=2000</code> fijo es un número arbitrario sin
+  bleed; derivar de mm+dpi.</li>
+<li><strong>Anverso</strong> (nace de <strong>SVG</strong>): idealmente entregarlo <strong>vectorial</strong> (PDF/X-4 o
+  SVG crudo) — escala sin pérdida, texto/line-art nítido. Es la mejora de mayor
+  impacto/menor coste. Si se mantiene PNG, ≥2250 px de ancho para cubrir 600 dpi
+  con bleed.</li>
+</ul>
+<h3 id="color">Color<a class="headerlink" href="#color" title="Enlace permanente a esta sección">&para;</a></h3>
+<ul>
+<li><strong>Corto plazo</strong>: <strong>embeber sRGB</strong> en los PNG + declarar <code>colorSpace:'sRGB'</code> en
+  el manifest y dejar <strong>una</strong> conversión CMYK a la imprenta. (Hoy los PNG salen
+  RGB <strong>sin perfil</strong> pero el README los rotula "(CMYK)" → desajuste a corregir.)</li>
+<li><strong>Print-ready</strong>: CMYK con perfil pactado <em>[confirmar: FOGRA39 UE / GRACoL 2006
+  o CRPC6 NA]</em>, TAC objetivo 300-330%.</li>
+<li><strong>Marca fuera de gamut</strong>: dorado <code>#F0B429</code> → vía <strong>foil metálico</strong> (en CMYK sale
+  mostaza) o Pantone spot; verde <code>#2D6B45</code> → Pantone spot o aprobar desvío contra
+  prueba. Equivalentes CMYK <strong>solo de referencia</strong> (dependen del perfil).</li>
+</ul>
+<h3 id="foil-depende-de-b1">Foil (depende de B1)<a class="headerlink" href="#foil-depende-de-b1" title="Enlace permanente a esta sección">&para;</a></h3>
+<ul>
+<li><strong>Máscara</strong> — ruta <strong>clásica</strong>: vector PDF/SVG, formas <strong>sólidas</strong>, binario
+  <strong>100%K negro = foil</strong>, spot nombrado <em>[confirmar: "Foil"/"Gold"/"Spot1"]</em>. Ruta
+  <strong>digital</strong>: ráster gris (TIFF, ≥600 dpi). <strong>En ambas: negro = aplicar foil</strong>
+  (hoy la máscara está en gris por luminancia <strong>e invertida</strong> → hay que
+  <strong>invertirla</strong> <em>[re-verificar el signo en el código antes de invertir]</em>).</li>
+<li><strong>Textura holográfica</strong>: <strong>no es imprimible</strong> (es micro-relieve óptico). La
+  aporta la imprenta de su catálogo. Enviar un <code>foilStyle</code> <strong>nombrado</strong> por zona
+  (<code>rainbow</code>/<code>cracked-ice</code>/<code>confetti</code>/<code>light-columns</code>/<code>gold</code>/<code>silver</code>), no el
+  bitmap. Reetiquetar <code>foilTextures/</code> como "preview only".</li>
+<li><strong>Cobertura y detalle</strong> <em>[confirmar por proceso]</em>: spot ≤~30% del área; si<blockquote>
+<p>~60-70% → cartón holográfico full-surface. Trazo mín. ~0.2-0.3 mm. El
+  <strong>contour-mask fino es el peor caso de registro</strong> (el brillo "baila" ±1-2 mm) →
+  engordar/simplificar la máscara o reservar foil a zonas macizas.</p>
+</blockquote>
+</li>
+<li><strong>Separación foil ↔ spot-UV</strong>: ≥~1.6 mm, nunca solapar <em>[confirmar]</em>.</li>
+</ul>
+<h3 id="qr">QR<a class="headerlink" href="#qr" title="Enlace permanente a esta sección">&para;</a></h3>
+<p>Ver §2. Resumen: <strong>ECC M</strong>, <strong>≥25 mm</strong> dentro de la safe zone, <strong>margin 4</strong>,
+negro <strong>K-only</strong> sobre isla blanca, <strong>ventana mate knockout</strong> (sin foil ni
+laminado brillante sobre el QR + quiet zone), reverso <strong>black-core</strong> opaco, QR
+<strong>vectorial</strong>.</p>
+<h3 id="material">Material<a class="headerlink" href="#material" title="Enlace permanente a esta sección">&para;</a></h3>
+<ul>
+<li><strong>Black-core 310 gsm</strong> (300-330), calibre ~0.37-0.42 mm — opacidad alta
+  (imprescindible con QR + doble cara).</li>
+<li>Laminado <strong>mate o silk/soft-touch</strong> — mejor base de foil (el gloss lo agrieta)
+  y mejor para el escaneo del QR (menos reflejo). Linen <strong>no</strong> se lamina.</li>
+</ul>
+<h3 id="produccion-vdp">Producción (VDP)<a class="headerlink" href="#produccion-vdp" title="Enlace permanente a esta sección">&para;</a></h3>
+<ul>
+<li>Cada carta = QR firmado único → es <strong>datos variables</strong> puro. Entregar
+  <strong>plantilla estática PDF/X-4</strong> (1 carta: arte+foil+dieline) + <strong>dataset
+  CSV/JSON</strong> (<code>id</code>, <code>qrPayload</code>, <code>cardIndex</code>→front, reverso). La <strong>imposición</strong>
+  (n-up) la hace la imprenta. Conservar <code>backs/&lt;id&gt;.png</code> como fallback.</li>
+</ul>
+<hr />
+<h2 id="4-gap-analysis-del-export-actual">4. Gap analysis del export actual<a class="headerlink" href="#4-gap-analysis-del-export-actual" title="Enlace permanente a esta sección">&para;</a></h2>
+<p><code>src/components/album/MintTiradaDialog.tsx</code> salvo indicación.</p>
+<table>
+<thead>
+<tr>
+<th>Sev</th>
+<th>Actual</th>
+<th>Necesario</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🔴 bloq</td>
+<td>Máscara de foil = PNG gris por luminancia, convención <strong>invertida</strong> (claro=foil), sobre fondo negro (~L372-386)</td>
+<td>Negro K100 = foil; vector binario (clásica) o TIFF gris (digital)</td>
+<td>Decidir B1; invertir <em>[re-verificar signo]</em>; idealmente trazar silueta como path desde el SVG crudo; documentar "black=foil"</td>
+</tr>
+<tr>
+<td>🔴 bloq</td>
+<td><code>drawCover</code> object-cover al <strong>trim exacto</strong>, <code>PRINT_W=2000</code> sin bleed</td>
+<td>Lienzo <strong>trim+3 mm/lado</strong> (69×94 mm) a DPI derivado de mm; arte hasta el borde del bleed</td>
+<td>Sustituir el marco; añadir <code>trimMm/bleedMm/safeMm/dpi</code> + rects <code>trimBox/safeBox</code> al manifest</td>
+</tr>
+<tr>
+<td>🔴 bloq</td>
+<td>QR <code>margin:2</code>, <code>width:640</code> fijo, pad <code>roundRect</code>, tamaño = %·ancho <strong>sin validar</strong>; módulo puede caer a 0.28-0.31 mm</td>
+<td>≥25 mm, <code>margin:4</code>, pad cuadrado, ECC M, módulo ≥0.4 mm, QR vectorial, validación en editor</td>
+<td>Ver §2; recortar payload (B2) o forzar tamaño mínimo</td>
+</tr>
+<tr>
+<td>🔴 bloq</td>
+<td>QR sobre reverso sin zona prohibida; el editor no impide QR sobre dorado/verde/foil</td>
+<td>Ventana <strong>mate knockout</strong> sin foil/barniz sobre QR+quiet zone; K-only sobre isla blanca</td>
+<td>Emitir rect del QR como zona prohibida en manifest + máscara <code>finishing/qr-knockout/&lt;id&gt;.png</code></td>
+</tr>
+<tr>
+<td>🟠 imp</td>
+<td>PNG RGB <strong>sin</strong> perfil, README rotula "(CMYK)"</td>
+<td>sRGB embebido + <code>colorSpace</code> en manifest (o CMYK+perfil en print-ready)</td>
+<td>Corregir el README; embeber sRGB; metadatos de color al manifest</td>
+</tr>
+<tr>
+<td>🟠 imp</td>
+<td>El modelo solo conoce <code>aspect</code> (ratio); manifest todo en px</td>
+<td>Tamaño físico en <strong>mm</strong> + DPI + perfil</td>
+<td>Bloque <code>print{ widthMm, heightMm, bleedMm, safeMm, dpi, colorSpace, cornerRadiusMm }</code></td>
+</tr>
+<tr>
+<td>🟠 imp</td>
+<td><code>#F0B429</code>/<code>#2D6B45</code> no declarados como spot</td>
+<td>Pantone spot (dorado ideal vía foil)</td>
+<td>Añadir <code>spotColors</code> al manifest; pedir Pantone a la imprenta</td>
+</tr>
+<tr>
+<td>🟠 imp</td>
+<td><code>foilTextures/</code> se entrega como imprimible</td>
+<td><code>foilStyle</code> nombrado por zona</td>
+<td>Reetiquetar "preview only"; campo textual <code>foilStyle</code></td>
+</tr>
+<tr>
+<td>🟠 imp</td>
+<td><strong>No</strong> se genera ningún PDF; ZIP de PNGs no es print-ready</td>
+<td>Modo print-ready PDF/X-4 + CSV VDP + QR SVG</td>
+<td>Requiere <strong>paso de servidor</strong> (backend); mantener el ZIP como paquete de prueba</td>
+</tr>
+<tr>
+<td>🟡 nice</td>
+<td><code>cornerRadius</code> en % irrealizable</td>
+<td>Radio en mm (~3) o marcar "visual"</td>
+<td>Documentar rectángulo+bleed; radio real al manifest</td>
+</tr>
+<tr>
+<td>🟡 nice</td>
+<td>Sin dieline; full-card foil no avisa de cobertura/solape</td>
+<td>Dieline spot <code>CutContour</code>; avisos de cobertura/gap</td>
+<td>Emitir dieline + validaciones en el editor</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-riesgos-abiertos-que-el-research-no-cubrio-del-critico">5. Riesgos abiertos que el research NO cubrió (del crítico)<a class="headerlink" href="#5-riesgos-abiertos-que-el-research-no-cubrio-del-critico" title="Enlace permanente a esta sección">&para;</a></h2>
+<ul>
+<li><strong>Registro anverso↔reverso</strong> (see-through): tolerancia de alineación cara-cara
+  ±1-2 mm no tratada; afecta a arte/QR cerca del borde.</li>
+<li><strong>Show-through</strong> del anverso al reverso vs contraste del QR: cuantificar la
+  opacidad mínima; ¿black-core <strong>obligatorio</strong> cuando hay QR?</li>
+<li><strong>Sobre/pack físico</strong>: material, sellado, colación/aleatorización de rarezas,
+  mapeo orden-de-impresión → sobres. Afecta al coste, no tratado.</li>
+<li><strong>Cantos</strong> (edge coloring/gilding) y su interacción con el bleed.</li>
+<li><strong>Coste y plazos reales</strong> por unidad para 50-200 cartas con foil + QR único.</li>
+<li><strong>Prueba de color física</strong> (hard proof) + aprobación como <strong>gate obligatorio</strong>
+  antes de la tirada completa.</li>
+<li><strong>Durabilidad del QR</strong> a años (abrasión/UV) vs ECC elegido.</li>
+<li><strong>Pipeline de servidor</strong> para CMYK/PDF-X: dimensionar (¿Ghostscript/ICC en
+  Node? reparto Studio↔backend?).</li>
+</ul>
+<hr />
+<h2 id="6-contradicciones-a-reconciliar-con-la-imprenta">6. Contradicciones a reconciliar con la imprenta<a class="headerlink" href="#6-contradicciones-a-reconciliar-con-la-imprenta" title="Enlace permanente a esta sección">&para;</a></h2>
+<ul>
+<li><strong>Bleed</strong> 2 vs 3 mm (fuentes UE vs MPC/DriveThru). Codificar tras confirmar.</li>
+<li><strong>Safe zone</strong> 3 vs 5 mm. 5 mm reduce el área útil y <strong>compite con el QR ≥25 mm</strong>.</li>
+<li><strong>Formato de máscara de foil</strong>: vector binario (clásica) vs ráster gris
+  (digital) son <strong>opuestos</strong> → depende de B1.</li>
+<li><strong>Dorado de marca</strong>: foil metálico vs Pantone spot vs CMYK proceso — tres rutas
+  sin decidir; afecta a si el dorado es una <strong>zona de foil</strong> (cambio de modelo).</li>
+</ul>
+<hr />
+<h2 id="7-cuestionario-para-la-imprenta-piloto">7. Cuestionario para la imprenta piloto<a class="headerlink" href="#7-cuestionario-para-la-imprenta-piloto" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Mandar a 2-3 imprentas (una POD MOQ≈1 tipo QPMN/MPC + una con <strong>foil digital/VDP</strong>
+para cartas). Cada pregunta apunta a una decisión de Kromia.</p>
+<ol>
+<li><strong>Geometría</strong>: ¿trim exacto (63×88 mm o 2.5×3.5"), bleed/lado (&#8532; mm o &#8539;"),
+   zona segura, y tolerancia real de corte en ±mm?</li>
+<li><strong>Esquinas</strong>: ¿radio de troquel (~3/3.5 mm) y confirmáis que entregamos
+   rectángulo con bleed (no redondeamos en el archivo)?</li>
+<li><strong>Resolución</strong>: ¿DPI del arte (300/400/600) a tamaño final con bleed?
+   ¿aceptáis el anverso <strong>vectorial</strong> (PDF/X-4) o exigís ráster? ¿resolución mín.
+   para rásters reales (arte subido) y avisáis si no llega?</li>
+<li><strong>Color</strong>: ¿RGB con sRGB embebido y convertís vosotros, o CMYK con vuestro
+   perfil (nombre exacto)? ¿límite de TAC? Si no saben el perfil = señal de alarma.</li>
+<li><strong>Marca</strong>: <code>#F0B429</code>/<code>#2D6B45</code> fuera de gamut — ¿5ª tinta Pantone spot?
+   ¿dorado vía foil metálico? ¿qué Pantone recomendáis?</li>
+<li><strong>Foil (proceso)</strong> ⚑ bloqueante: ¿hot/cold con plancha o <strong>foil digital</strong>
+   (MGI)? ¿soportáis foil <strong>distinto por carta</strong> (VDP) sin plancha nueva?</li>
+<li><strong>Foil (formato)</strong>: ¿vector 100%K en capa/spot nombrado (¿qué nombre?), o
+   ráster gris (TIFF, ¿DPI?)? ¿binario o admite gris intermedio? ¿umbral?</li>
+<li><strong>Holográfico</strong>: ¿lo aportáis con vuestra lámina? ¿qué patrones de catálogo?
+   ¿cómo os indicamos cuál por zona? ¿confirmáis que nuestra textura es solo
+   orientativa?</li>
+<li><strong>Foil (límites)</strong>: ¿detalle mínimo (trazo/hueco/texto en mm)? ¿tolerancia de
+   registro foil↔CMYK? ¿un foil de contorno fino aguanta o solo zonas macizas?
+   ¿cobertura máx.? ¿se puede imprimir CMYK <strong>encima</strong> del foil?</li>
+<li><strong>QR</strong> ⚑: es único por carta (firmado, ~221 B → QR v10 a ECC M). ¿tamaño y
+    módulo mínimo en mm que <strong>garantizáis</strong> escaneable? ¿ECC/quiet zone? ¿lo
+    procesáis K100? ¿podéis dejar <strong>ventana mate</strong> sin foil/barniz sobre el
+    QR+quiet zone, y en qué formato la máscara?</li>
+<li><strong>VDP</strong>: ¿soportáis datos variables (QR único por carta)? ¿plantilla PDF/X +
+    dataset CSV/JSON que imponéis vosotros, o pliego ya impuesto? ¿motor VDP y
+    formato de datos? ¿MOQ y recargo para 50-200 cartas piloto?</li>
+<li><strong>Material</strong>: ¿cartones/gramajes (black-core 300/310/330), laminados
+    recomendados para que un QR de ~25 mm escanee, confirmáis que el linen no se
+    lamina, separación mín. foil↔spot-UV? ¿tenéis <strong>plantilla oficial</strong>
+    descargable con capas de corte/bleed/safe/foil/QR?</li>
+</ol>
+<hr />
+<h2 id="8-proximos-pasos-roadmap-mapeado-a-jira">8. Próximos pasos (roadmap, mapeado a Jira)<a class="headerlink" href="#8-proximos-pasos-roadmap-mapeado-a-jira" title="Enlace permanente a esta sección">&para;</a></h2>
+<p><strong>Antes de tocar código (research/decisión)</strong>:
+- [x] Medir el payload real del QR y su versión → <strong>221 B, v10 @ECC M</strong> (§2).
+- [ ] <strong>B1</strong> decidir ruta de foil con la imprenta piloto.
+- [ ] <strong>B2</strong> decidir tamaño de QR vs recorte de payload (¿firma dentro del QR?).
+- [ ] <strong>B3</strong> enviar el cuestionario (§7) y elegir imprenta piloto; pedir su
+  plantilla oficial + una <strong>prueba de color física</strong> de 1-2 cartas.</p>
+<p><strong>Fixes baratos, ya (no bloquean, no dependen de la imprenta)</strong>:
+- [ ] Dejar de rotular "(CMYK)" en el README; embeber sRGB + <code>colorSpace</code> en el
+  manifest.
+- [ ] QR: <code>margin:2→4</code>, pad cuadrado, validación de tamaño/margen en el editor
+  (verificar antes que no rompe el WYSIWYG del preview).
+- [ ] Enriquecer el <code>manifest.json</code> con el bloque <code>print{}</code> + <code>trimBox/safeBox</code> +
+  zona knockout del QR + <code>foilStyle</code> + <code>spotColors</code> + convención "negro=foil".
+  <strong>DATA, no bumpea el KRP.</strong></p>
+<p><strong>Print-ready (servidor, cuando estén B1-B3)</strong>:
+- [ ] Modo print-ready en el <strong>backend</strong> (Node): rasterizar el anverso desde el
+  SVG crudo a lienzo trim+bleed derivado de mm+dpi, conversión CMYK con perfil,
+  ensamblar PDF/X-4 (capas Art+Foil+Dieline) + CSV VDP + QR SVG. Mantener el ZIP
+  de PNGs actual como paquete de prueba/preview/Flutter.</p>
+<hr />
+<p><em>Research generado por un barrido multi-agente (8 dimensiones web-grounded +
+síntesis + crítico adversarial), verificado contra el código real y con las
+cifras del QR medidas contra la BBDD. Ver KRO-216.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Kromia — privado, uso interno.
+    </div>
+  
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/luishidalgoa/kromia-sdk" target="_blank" rel="noopener" title="SDK en GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.action.edit"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

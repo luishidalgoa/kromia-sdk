@@ -1,0 +1,1000 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentación del SDK polyglot de Kromia — modelo de coleccionables, recipes y validadores compartidos cross-plataforma.">
+      
+      
+        <meta name="author" content="Luis Hidalgo">
+      
+      
+        <link rel="canonical" href="https://luishidalgoa.github.io/kromia-sdk/custom-foil-render-spec/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Render del custom_foil — spec cross-platform (KRO-122) - Kromia SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#render-del-custom_foil-spec-cross-platform-kro-122" class="md-skip">
+          Saltar a contenido
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href=".." title="Kromia SDK" class="md-header__button md-logo" aria-label="Kromia SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kromia SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Render del custom_foil — spec cross-platform (KRO-122)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Búsqueda" placeholder="Búsqueda" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Buscar">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Compartir" aria-label="Compartir" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpiar" aria-label="Limpiar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando búsqueda
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/luishidalgoa/kromia-sdk" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    luishidalgoa/kromia-sdk
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Inicio
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../01-overview/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Empezar aquí
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Repositorio
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Kromia SDK" class="md-nav__button md-logo" aria-label="Kromia SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kromia SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    luishidalgoa/kromia-sdk
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inicio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Empezar aquí
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Empezar aquí
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visión general
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Conceptos clave
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/luishidalgoa/kromia-sdk" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repositorio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Tabla de contenidos">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Tabla de contenidos
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-modelo-de-datos-ya-en-el-sdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1) Modelo de datos (ya en el SDK)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-fusion-blend-los-5-modos-el-compositing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2) Fusión (blend) — los 5 modos + el compositing ⭐
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-textura-layout-por-kind-foiltexturelayoutkind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3) Textura — layout por kind (foilTextureLayout(kind))
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-mascara-siempre-por-luminancia-custom_foil_mask" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4) Máscara — SIEMPRE por LUMINANCIA ⭐ (CUSTOM_FOIL_MASK)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-bis-capa-procedural-iridiscente-kind-iridescent-kro-250-pila-unificada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4-bis) Capa PROCEDURAL iridiscente (kind: 'iridescent') — KRO-250, pila unificada
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-tilt-movimiento-custom_foil_tilt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5) Tilt / movimiento (CUSTOM_FOIL_TILT)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-orden-de-pintado-custom_foil_layer_order-array-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6) Orden de pintado (CUSTOM_FOIL_LAYER_ORDER = 'array-order')
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checklist-de-paridad-flutter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checklist de paridad Flutter
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/luishidalgoa/kromia-sdk/edit/main/docs/custom-foil-render-spec.md" title="Editar esta página" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="render-del-custom_foil-spec-cross-platform-kro-122">Render del <code>custom_foil</code> — spec cross-platform (KRO-122)<a class="headerlink" href="#render-del-custom_foil-spec-cross-platform-kro-122" title="Enlace permanente a esta sección">&para;</a></h1>
+<p>Fuente canónica del RENDER del <strong>foil PERSONALIZADO</strong> (<code>custom_foil</code>) para que
+<strong>Flutter lo espeje 1:1</strong> sin drift. A diferencia del <code>iridescent_foil</code> (un efecto
+de catálogo con params), el <code>custom_foil</code> es una <strong>PILA DE CAPAS que aporta el
+creador</strong>: cada capa = una imagen de textura + una máscara opcional + una fusión +
+una intensidad. No hay contrato KRP que lo gobierne (las capas son DATA de álbum,
+<code>TagStyle.customLayers</code>); esta spec es la <strong>capa C</strong> (cómo se PINTA), y sus datos
+viven en <code>@kromia/core/custom-foil-recipe.ts</code>. Referencia de Studio:
+<code>FoilLayer.tsx</code> (+ <code>CustomFoilLayers</code> en <code>VisualEffectLayers.tsx</code>).</p>
+<blockquote>
+<p>⚠️ <strong>Estado</strong>: <code>custom_foil</code> quedó DESCARTADO en la app tras KRO-224 (se lavaba,
+igual que el iridiscente). El iridiscente + holographic se reactivaron vía
+<strong>ShaderMask</strong> (<code>color-dodge(arte, foil)</code> real). Este doc es la receta para
+hacer lo MISMO con la pila de capas del custom foil. <strong>La causa del "amarillo
+plano" que tapa el arte casi siempre es una de estas dos: (a) el blend se compone
+contra el FONDO de la celda en vez de contra el arte, o (b) la máscara no se
+aplica por LUMINANCIA.</strong> Ver §2 y §4.</p>
+</blockquote>
+<h2 id="1-modelo-de-datos-ya-en-el-sdk">1) Modelo de datos (ya en el SDK)<a class="headerlink" href="#1-modelo-de-datos-ya-en-el-sdk" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Una carta con un <code>TagStyle</code> cuyo <code>customLayers</code> no está vacío usa ESAS capas en vez
+de un efecto de catálogo (<code>resolveCardEffects</code> → <code>ResolvedEffect.customLayers</code>).
+Cada capa es un <code>EffectLayer</code> (<code>types.ts</code>):</p>
+<table>
+<thead>
+<tr>
+<th>campo</th>
+<th>tipo</th>
+<th>qué es</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kind</code></td>
+<td><code>'foil' \| 'glitter' \| 'pattern'</code></td>
+<td>naturaleza → orienta el LAYOUT de la textura (§3)</td>
+</tr>
+<tr>
+<td><code>textureUrl</code></td>
+<td>string</td>
+<td>la lámina/tornasol/glitter/patrón que se superpone</td>
+</tr>
+<tr>
+<td><code>maskUrl?</code></td>
+<td>string</td>
+<td>máscara en GRISES (blanco=brilla, negro=oculta). Opcional</td>
+</tr>
+<tr>
+<td><code>blend</code></td>
+<td><code>EffectBlendMode</code></td>
+<td>modo de FUSIÓN (§2)</td>
+</tr>
+<tr>
+<td><code>intensity?</code></td>
+<td>number 0..1</td>
+<td>opacidad efectiva de la capa (default <strong>0.6</strong>)</td>
+</tr>
+<tr>
+<td><code>motion?</code></td>
+<td>number 0..1</td>
+<td>RESERVADO (hoy no se lee — ver §5)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-fusion-blend-los-5-modos-el-compositing">2) Fusión (blend) — los 5 modos + el compositing ⭐<a class="headerlink" href="#2-fusion-blend-los-5-modos-el-compositing" title="Enlace permanente a esta sección">&para;</a></h2>
+<p><code>EFFECT_BLEND_MODES</code> = <code>['color-dodge','overlay','screen','soft-light','hard-light']</code>.
+Las keys == nombres de CSS <code>mix-blend-mode</code>. Mapeo canónico a Flutter (fuente única
+<code>EFFECT_BLEND_TO_FLUTTER</code>, NO mapear a mano):</p>
+<table>
+<thead>
+<tr>
+<th>blend</th>
+<th>CSS <code>mix-blend-mode</code></th>
+<th>Flutter <code>dart:ui</code> <code>BlendMode</code></th>
+<th>carácter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>color-dodge</code></td>
+<td>color-dodge</td>
+<td><code>BlendMode.colorDodge</code></td>
+<td>aclara mucho; el tornasol relumbra en zonas claras (default)</td>
+</tr>
+<tr>
+<td><code>overlay</code></td>
+<td>overlay</td>
+<td><code>BlendMode.overlay</code></td>
+<td>realza contraste; equilibrado</td>
+</tr>
+<tr>
+<td><code>screen</code></td>
+<td>screen</td>
+<td><code>BlendMode.screen</code></td>
+<td>solo aclara; brillo suave</td>
+</tr>
+<tr>
+<td><code>soft-light</code></td>
+<td>soft-light</td>
+<td><code>BlendMode.softLight</code></td>
+<td>luz tenue; sutil</td>
+</tr>
+<tr>
+<td><code>hard-light</code></td>
+<td>hard-light</td>
+<td><code>BlendMode.hardLight</code></td>
+<td>foco potente; muy marcado</td>
+</tr>
+</tbody>
+</table>
+<p><strong>EL PUNTO CRÍTICO (causa del lavado):</strong> el blend de una capa se aplica CONTRA el
+resultado compuesto hasta ahí — <strong>el arte de la carta + las capas previas</strong> — NO
+contra el fondo de la celda. En web, <code>mix-blend-mode</code> compone contra lo que hay
+DEBAJO en el DOM (el arte), por eso se ve bien sin más. En Flutter, si pintas la
+capa con <code>saveLayer</code> + <code>BlendMode.colorDodge</code> sobre un árbol donde el arte está en
+una CAPA DE COMPOSITING AISLADA (p.ej. <code>KromiaImage</code> con su <code>AnimatedSwitcher</code>, o
+<code>DepthLayerStack</code> con <code>Transform</code>), el <code>saveLayer</code> compone contra el FONDO CLARO de
+la celda → satura a blanco/plano. <strong>Es exactamente el bug de KRO-224.</strong> La solución
+que ya usáis para el iridiscente aplica igual aquí: <strong>envolver el arte con un
+<code>ShaderMask</code> / fragment shader que reciba el arte como sampler</strong> y aplique el blend
+de cada capa PÍXEL a PÍXEL contra el arte real. La pila de capas se aplica en orden
+(§6) sobre ese mismo sampler.</p>
+<h2 id="3-textura-layout-por-kind-foiltexturelayoutkind">3) Textura — layout por <code>kind</code> (<code>foilTextureLayout(kind)</code>)<a class="headerlink" href="#3-textura-layout-por-kind-foiltexturelayoutkind" title="Enlace permanente a esta sección">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>kind</th>
+<th>repeat</th>
+<th>size (en % del cuadro)</th>
+<th>por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pattern</code></td>
+<td><strong>sí</strong> (tesela)</td>
+<td><code>160% auto</code></td>
+<td>patrón que se repite sin costura; <code>auto</code> conserva su aspect</td>
+</tr>
+<tr>
+<td><code>foil</code> / <code>glitter</code></td>
+<td>no</td>
+<td><code>250% 100%</code></td>
+<td>lámina ÚNICA SOBREDIMENSIONADA → deja recorrido para el paneo por tilt (§5)</td>
+</tr>
+</tbody>
+</table>
+<p>La textura va SIEMPRE por el proxy same-origin de imágenes (en Studio <code>toThumbUrl</code>
+→ <code>/api/images/&lt;key&gt;</code>): el MinIO es PRIVADO, la URL cruda da AccessDenied, y para
+<code>mask-image</code> una URL cross-origin dispara CORS. <strong>Flutter debe cargar textura Y
+máscara por el proxy autenticado igual</strong> (no la URL cruda de MinIO).</p>
+<h2 id="4-mascara-siempre-por-luminancia-custom_foil_mask">4) Máscara — SIEMPRE por LUMINANCIA ⭐ (<code>CUSTOM_FOIL_MASK</code>)<a class="headerlink" href="#4-mascara-siempre-por-luminancia-custom_foil_mask" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>La máscara es una imagen en GRISES que limita DÓNDE brilla la textura: <strong>blanco =
+brilla, negro = oculta</strong>. Se interpreta por <strong>LUMINANCIA, NO por alfa</strong>. Sin
+<code>maskUrl</code> → la capa brilla ENTERA.</p>
+<ul>
+<li><strong>Studio (CSS)</strong>: <code>mask-mode: luminance; mask-size: cover; mask-position: center;
+  mask-repeat: no-repeat</code>.</li>
+<li><strong>Flutter</strong>: convertir la máscara luma→alfa y aplicarla como <code>BlendMode.dstIn</code>
+  sobre la capa de textura. <strong>NO uses el alfa crudo de la máscara</strong> (una máscara PNG
+  opaca en negro tiene alfa=1 en todos los píxeles → por alfa no recortaría NADA y
+  la textura taparía la carta = el bug del "amarillo plano"). Convierte por
+  luminancia: <code>alpha = luma(rgb)</code> (p.ej. un <code>ColorFilter.matrix</code> que vuelca RGB→A, o
+  el canal de luminancia en el shader).</li>
+<li>Encaje <code>cover</code> + <code>center</code> porque la máscara se genera del MISMO arte (mismo
+  aspect) → el contorno cae justo sobre los bordes del dibujo.</li>
+<li><strong>KRO-248 — layout <code>tile</code></strong> (KRP 5.5.0): <code>EffectLayer</code> gana <code>maskLayout?:
+  'cover'|'tile'</code> + <code>maskScale?: number</code> (5–100 = % del ancho por tesela;
+  ausente = <code>cover</code>, retro-compat). Con <code>tile</code> la máscara se REPITE
+  (<code>mask-repeat: repeat</code>, <code>mask-size: &lt;scale&gt;% auto</code>, anclada <code>top left</code>) →
+  patrones tipo "papel perforado"/cosmos-holo. Fuente única
+  <strong><code>foilMaskLayout(layout, scale)</code></strong> (<code>custom-foil-recipe.ts</code>) — NO hardcodear
+  el layout en el host. La interpretación sigue siendo por LUMINANCIA. En
+  Flutter: wrap-repeat de la tesela a esa escala antes del luma→alfa. El
+  iridiscente usa el MISMO layout vía sus params <code>mask_url</code>/<code>mask_layout</code>/
+  <code>mask_scale</code> (ver <code>iridescent-foil-render-spec.md</code> §1-ter).</li>
+</ul>
+<h2 id="4-bis-capa-procedural-iridiscente-kind-iridescent-kro-250-pila-unificada">4-bis) Capa PROCEDURAL iridiscente (<code>kind: 'iridescent'</code>) — KRO-250, pila unificada<a class="headerlink" href="#4-bis-capa-procedural-iridiscente-kind-iridescent-kro-250-pila-unificada" title="Enlace permanente a esta sección">&para;</a></h2>
+<p><code>EffectLayer.kind</code> admite <strong><code>'iridescent'</code></strong>: una capa de la pila que NO lleva
+textura importada — se pinta con el <strong>motor completo del <code>iridescent_foil</code></strong>
+usando <code>EffectLayer.config</code> (los MISMOS params del catálogo: paleta incl.
+<code>none</code>, warp, <code>mask_url</code>/<code>mask_layout</code>/<code>mask_scale</code>, <code>border_*</code> con fill libre…).</p>
+<p>Reglas de render (<code>isIridescentLayer</code> en <code>custom-foil-recipe.ts</code>):</p>
+<ul>
+<li><strong><code>layer.config</code> GOBIERNA TODO el pintado</strong> de esa capa: <code>textureUrl</code>,
+  <code>maskUrl</code>, <code>maskLayout</code>, <code>maskScale</code>, <code>blend</code>, <code>intensity</code> y <code>motion</code> de la
+  capa se <strong>IGNORAN</strong> (la máscara/fusión/intensidad van DENTRO del config,
+  como en el efecto de catálogo).</li>
+<li>El host despacha por capa: textura → render clásico (§3–§4); iridiscente →
+  el MISMO render del <code>iridescent_foil</code> (en Studio, el componente
+  <code>IridescentFoil</code>; en Flutter, su shader del iridiscente), insertado en el
+  z-order de la pila (orden del array, §6).</li>
+<li>El efecto <code>iridescent_foil</code> de catálogo ≡ una pila de <strong>1 capa iridiscente</strong>
+  (equivalencia conceptual; retro-compat: NADA migra, ambos caminos conviven).</li>
+<li><code>EFFECT_LAYER_KINDS</code> sigue siendo SOLO los 3 kinds de textura (alimenta el
+  selector y <code>foilTextureLayout</code>); <code>isEffectLayerKind</code> acepta también
+  <code>'iridescent'</code> (<code>IRIDESCENT_LAYER_KIND</code>).</li>
+<li>Validación (<code>validateTagStyles</code>): las capas procedurales no exigen textura;
+  su <code>config</code> se valida contra los params del catálogo.</li>
+<li>La separación de foil para IMPRENTA (KRO-16/216) exporta solo capas con
+  <code>textureUrl</code> — la procedural no es estampable tal cual.</li>
+</ul>
+<h2 id="5-tilt-movimiento-custom_foil_tilt">5) Tilt / movimiento (<code>CUSTOM_FOIL_TILT</code>)<a class="headerlink" href="#5-tilt-movimiento-custom_foil_tilt" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>La textura sobredimensionada (§3) se PANEA con la inclinación: el host publica un
+punto normalizado <code>(hx, hy)</code> 0..1 (Studio: CSS vars <code>--holo-x</code>/<code>--holo-y</code> que
+publica <code>HoloCard</code>; Flutter: giroscopio/drag) y la textura se posiciona ahí → el
+tornasol se desplaza al mover la carta. <code>defaultPoint: 0.5</code> (centro), transición
+<code>followMs: 140</code>. En rejilla (sin tilt) hay un vaivén suave <code>CUSTOM_FOIL_SHIMMER</code>
+(<code>durationBaseS 3.4 + index*0.5</code>, <code>delayStepS 0.3</code> por capa para desincronizar).</p>
+<p>⚠️ <code>EffectLayer.motion</code> está <strong>RESERVADO</strong>: hoy el paneo es a fuerza completa en
+AMBOS hosts (Studio no lo lee). Si algún día se implementa, escalaría el paneo
+alrededor del centro: <code>pos = 0.5 + (h - 0.5) * motion</code>. <strong>No inventar otra fórmula</strong>
+(eso reintroduce drift) — coordinar el cambio en el SDK primero.</p>
+<h2 id="6-orden-de-pintado-custom_foil_layer_order-array-order">6) Orden de pintado (<code>CUSTOM_FOIL_LAYER_ORDER = 'array-order'</code>)<a class="headerlink" href="#6-orden-de-pintado-custom_foil_layer_order-array-order" title="Enlace permanente a esta sección">&para;</a></h2>
+<p>Las capas se superponen en el <strong>orden del array</strong> <code>customLayers</code>: <code>[0]</code> la más al
+fondo, la última la más arriba. El publisher controla el z-order reordenando en el
+editor. El glare y el tilt 3D los pone el renderer (no se autoran por capa).</p>
+<h2 id="checklist-de-paridad-flutter">Checklist de paridad Flutter<a class="headerlink" href="#checklist-de-paridad-flutter" title="Enlace permanente a esta sección">&para;</a></h2>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>foil_recipe.dart</code> (o equivalente): <code>EFFECT_BLEND_MODES</code>, <code>EFFECT_LAYER_KINDS</code>,
+      <code>foilTextureLayout</code>, <code>foilLayerOpacity</code> (default 0.6 + clamp), <code>CUSTOM_FOIL_MASK</code>,
+      <code>EFFECT_BLEND_TO_FLUTTER</code>. Espejo de <code>custom-foil-recipe.ts</code>.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> KRO-250: <code>EffectLayerKind</code> += <code>'iridescent'</code> + <code>EffectLayer.config</code> (+
+      <code>textureUrl</code> opcional) en el modelo Dart; <code>IRIDESCENT_LAYER_KIND</code> +
+      <code>isIridescentLayer</code>; el render despacha la capa procedural al shader del
+      iridiscente con su config (§4-bis).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Compositing: el blend de cada capa se aplica CONTRA EL ARTE (ShaderMask/shader
+      con el arte como sampler), NO contra el fondo de la celda. (= fix KRO-224.)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Máscara por LUMINANCIA→alfa (<code>dstIn</code>), NO alfa crudo.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Textura + máscara por el proxy autenticado (no URL cruda de MinIO).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Layout por kind (pattern tesela 160%; foil/glitter lámina 250%×100%).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Paneo por tilt (giroscopio/drag) con el punto 0..1; shimmer en rejilla.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Orden = orden del array; recorte al redondeado/silueta de la carta.</li>
+</ul>
+<blockquote>
+<p>Nota de paridad: como con el iridiscente, el ruido/anti-alias exacto puede diferir
+entre CSS y shader — apunta al LOOK (lámina que reluce confinada por la máscara),
+no al píxel.</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Volver al principio
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Kromia — privado, uso interno.
+    </div>
+  
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/luishidalgoa/kromia-sdk" target="_blank" rel="noopener" title="SDK en GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.code.copy", "content.code.annotate", "content.action.edit"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado al portapapeles", "clipboard.copy": "Copiar al portapapeles", "search.result.more.one": "1 m\u00e1s en esta p\u00e1gina", "search.result.more.other": "# m\u00e1s en esta p\u00e1gina", "search.result.none": "No se encontraron documentos", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Teclee para comenzar b\u00fasqueda", "search.result.term.missing": "Falta", "select.version": "Seleccionar versi\u00f3n"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
