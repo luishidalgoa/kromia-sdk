@@ -169,3 +169,128 @@ export function scaleShapePath(path: string, scale: number): string {
     return String(Math.round(v * 10000) / 10000);
   });
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// KRO-232 — MARCAS DENTRO DE LA SILUETA
+// ─────────────────────────────────────────────────────────────────────────
+
+/** Esquina de la celda donde va una marca (número, «la tienes», favorito). */
+export type CardCorner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+
+/**
+ * Hasta dónde se puede meter una marca hacia dentro buscando sitio: un 30 % de
+ * la carta. Más allá deja de estar «en la esquina» y se lee como otra cosa, así
+ * que es mejor decir que no cabe (`null`) y que el host decida.
+ */
+export const CARD_SHAPE_BADGE_INSET_MAX = 0.3;
+
+/** Resolución de la búsqueda (0,5 % de la carta). */
+const PASO_INSET = 0.005;
+/** Tramos al aplanar cada curva: de sobra para una celda de rejilla. */
+const PASOS_CURVA = 24;
+
+type Punto = [number, number];
+
+/** Aplana un path VÁLIDO del protocolo (M/L/Q/C/Z) a un polígono. */
+function aplanarPath(path: string): Punto[] {
+  const t = path.trim().split(/\s+/);
+  const pts: Punto[] = [];
+  let i = 0;
+  let cur: Punto = [0, 0];
+  while (i < t.length) {
+    const c = t[i++];
+    if (c === 'M' || c === 'L') {
+      cur = [Number(t[i++]), Number(t[i++])];
+      pts.push(cur);
+    } else if (c === 'Q') {
+      const cx = Number(t[i++]), cy = Number(t[i++]), x = Number(t[i++]), y = Number(t[i++]);
+      for (let k = 1; k <= PASOS_CURVA; k++) {
+        const u = k / PASOS_CURVA, a = 1 - u;
+        pts.push([a * a * cur[0] + 2 * a * u * cx + u * u * x, a * a * cur[1] + 2 * a * u * cy + u * u * y]);
+      }
+      cur = [x, y];
+    } else if (c === 'C') {
+      const x1 = Number(t[i++]), y1 = Number(t[i++]), x2 = Number(t[i++]), y2 = Number(t[i++]), x = Number(t[i++]), y = Number(t[i++]);
+      for (let k = 1; k <= PASOS_CURVA; k++) {
+        const u = k / PASOS_CURVA, a = 1 - u;
+        pts.push([
+          a * a * a * cur[0] + 3 * a * a * u * x1 + 3 * a * u * u * x2 + u * u * u * x,
+          a * a * a * cur[1] + 3 * a * a * u * y1 + 3 * a * u * u * y2 + u * u * u * y,
+        ]);
+      }
+      cur = [x, y];
+    }
+    // Z: el polígono se cierra solo (el último vértice enlaza con el primero).
+  }
+  return pts;
+}
+
+function puntoDentro([px, py]: Punto, poly: Punto[]): boolean {
+  let dentro = false;
+  for (let a = 0, b = poly.length - 1; a < poly.length; b = a++) {
+    const [xi, yi] = poly[a], [xj, yj] = poly[b];
+    if ((yi > py) !== (yj > py) && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) dentro = !dentro;
+  }
+  return dentro;
+}
+
+/** ¿Se cortan los segmentos pq y rs (en su interior)? */
+function seCortan(p: Punto, q: Punto, r: Punto, s: Punto): boolean {
+  const o = (a: Punto, b: Punto, c: Punto) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+  const d1 = o(p, q, r), d2 = o(p, q, s), d3 = o(r, s, p), d4 = o(r, s, q);
+  return ((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0));
+}
+
+/**
+ * Una caja cabe ENTERA en el polígono si sus cuatro esquinas están dentro y
+ * ningún borde de la silueta la atraviesa. Lo segundo es lo que un muestreo de
+ * puntos no ve: una muesca estrecha que entra en la caja entre dos muestras.
+ */
+function cajaDentro(x: number, y: number, w: number, h: number, poly: Punto[]): boolean {
+  const esquinas: Punto[] = [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
+  if (!esquinas.every(e => puntoDentro(e, poly))) return false;
+  for (let a = 0, b = poly.length - 1; a < poly.length; b = a++) {
+    for (let k = 0; k < 4; k++) {
+      if (seCortan(poly[b], poly[a], esquinas[k], esquinas[(k + 1) % 4])) return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Cuánto hay que meter una marca hacia dentro, desde su esquina, para que quepa
+ * ENTERA en la silueta de la carta.
+ *
+ * Todo va en el espacio normalizado de la carta (0..1 en cada eje): `box` es el
+ * tamaño de la marca como fracción del ancho (`w`) y del alto (`h`), y lo que
+ * devuelve es la distancia desde los dos bordes de esa esquina, también en
+ * fracción (del ancho en horizontal y del alto en vertical). Es la MÍNIMA: la
+ * marca se queda lo más cerca posible de su esquina.
+ *
+ * - Sin silueta (estándar, o una custom inválida que cae a estándar) → `null`:
+ *   el host sigue con su regla del redondeo de esquinas.
+ * - Si no cabe antes de {@link CARD_SHAPE_BADGE_INSET_MAX} → `null`, en vez de
+ *   llevar la marca al centro de la carta.
+ *
+ * Decisión del user (KRO-232, «D»): lo que sobresalga de la forma se sigue
+ * recortando; esto solo coloca las marcas donde no sobresalen. Studio y la app
+ * lo leen de aquí para ponerlas en el mismo sitio.
+ */
+export function cardShapeBadgeInset(
+  fmt: { shape?: string; shapePath?: string; shapeScale?: number } | undefined,
+  corner: CardCorner,
+  box: { w: number; h: number },
+): number | null {
+  const base = cardShapePath(fmt);
+  if (!base) return null;
+  const poly = aplanarPath(scaleShapePath(base, fmt?.shapeScale ?? DEFAULT_SHAPE_SCALE));
+  const izquierda = corner.endsWith('left');
+  const arriba = corner.startsWith('top');
+  for (let paso = 0; paso * PASO_INSET <= CARD_SHAPE_BADGE_INSET_MAX + 1e-9; paso++) {
+    const s = paso * PASO_INSET;
+    const x = izquierda ? s : 1 - s - box.w;
+    const y = arriba ? s : 1 - s - box.h;
+    if (cajaDentro(x, y, box.w, box.h, poly)) return Math.round(s * 1000) / 1000;
+  }
+  return null;
+}

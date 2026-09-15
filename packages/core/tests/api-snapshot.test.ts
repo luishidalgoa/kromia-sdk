@@ -296,6 +296,9 @@ const EXPECTED_EXPORTS = [
   'validateShapePath',
   'clampShapeScale',
   'scaleShapePath',
+  // KRO-232 — marcas dentro de la silueta
+  'cardShapeBadgeInset',
+  'CARD_SHAPE_BADGE_INSET_MAX',
   // KRO-133 F5 — recetas → presets de layout
   'recipeToComposition',
   // KRO-133 — ratchet de conformidad del motor de layout
