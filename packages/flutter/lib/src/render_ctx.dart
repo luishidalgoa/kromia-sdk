@@ -43,6 +43,12 @@ typedef CardRefCellBuilder = Widget Function(Object ref);
 /// `@kromia/react` (paridad de UX, KRO-133).
 typedef ImageTap = void Function(List<String> images, int index);
 
+/// KRO-470 (espejo de KRO-222) — tap en un DATO de la composición (una
+/// estadística, un chip, el texto de un slot): recibe la key del campo tocado y
+/// el host abre su ficha (nombre + valor + nota). Espejo de la delegación por
+/// `data-stat-key`/`data-chip-key`/`data-slot-id` del detalle de Studio.
+typedef FieldTap = void Function(String fieldKey);
+
 /// Contexto de render: composición + datos del item + defs + builder de imagen.
 class RenderCtx {
   final ViewComposition composition;
@@ -53,6 +59,10 @@ class RenderCtx {
 
   /// Tap en imágenes de galería/carrusel → visor. null = no interactivo.
   final ImageTap? onImageTap;
+
+  /// KRO-470 — tap en un dato → key del campo. null = los datos no son
+  /// interactivos y el árbol queda idéntico al de antes (sin detectores).
+  final FieldTap? onFieldTap;
 
   /// Resolución de refs de carta a su arte/título (las mini-cartas relacionadas).
   final CardRefResolver? resolveCardRef;
@@ -80,6 +90,7 @@ class RenderCtx {
     KromiaImageBuilder? imageBuilder,
     this.onCardRefTap,
     this.onImageTap,
+    this.onFieldTap,
     this.resolveCardRef,
     this.cardRefCell,
     this.cardFormat,
@@ -97,4 +108,18 @@ class RenderCtx {
 
   Map<String, SlotComposition> get slots => composition.slots;
   FieldDefLike? defFor(String? key) => key == null ? null : _byKey[key];
+
+  /// KRO-470 — hace tocable un dato: al tocarlo avisa con la key de SU campo. Sin
+  /// gancho devuelve [child] tal cual, para que un host que no abre fichas no
+  /// cargue con detectores. `opaque`: el hueco entre letras de un chip o de una
+  /// estadística también cuenta como tocarla.
+  Widget tocable(String fieldKey, Widget child) {
+    final tap = onFieldTap;
+    if (tap == null) return child;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => tap(fieldKey),
+      child: child,
+    );
+  }
 }

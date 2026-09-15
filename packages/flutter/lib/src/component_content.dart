@@ -170,8 +170,9 @@ Widget _statsRow(RenderCtx ctx, String? sid) {
         const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, height: 1.4, fontFeatures: [FontFeature.tabularFigures()]),
         ap);
     final labelColor = appearanceTextColor(ap); // color propio del slot, o null → hereda
+    // KRO-470 — la celda entera (valor + etiqueta) abre la ficha de SU campo.
     cells.add(Expanded(
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
+      child: ctx.tocable(k, Column(mainAxisSize: MainAxisSize.min, children: [
         // KRO-198 — paridad con `StatsRow.tsx`: VALOR `text-lg` (18px) bold tabular.
         // KRO-222 — recorta por `truncateChars` + "…"; líneas por `appearance.truncate`.
         Text(applyAppearanceTruncate(formatScalar(v, def), ap),
@@ -181,7 +182,7 @@ Widget _statsRow(RenderCtx ctx, String? sid) {
           // de caption: color propio si lo hay; si no, hereda el base ATENUADO (§18.1
           // "la etiqueta sigue el color, sobre el mismo texto base legible").
           _statLabel(def.label!.toUpperCase(), labelColor, appearanceMaxLines(ap, def: 2)),
-      ]),
+      ])),
     ));
   }
   if (cells.isEmpty) return const SizedBox.shrink();
@@ -235,6 +236,8 @@ Widget _badgeRow(RenderCtx ctx, String? sid) {
     if (shadow.isNotEmpty) chip = DecoratedBox(decoration: BoxDecoration(boxShadow: shadow), child: chip);
     final op = appearanceOpacity(ap);
     if (op < 1.0) chip = Opacity(opacity: op, child: chip);
+    // KRO-470 — cada chip abre SU campo, no el primero de la fila.
+    chip = ctx.tocable(f.key, chip);
     chips.add((key: f.key, chip: chip, ap: ap));
   }
   if (chips.isEmpty) return const SizedBox.shrink();

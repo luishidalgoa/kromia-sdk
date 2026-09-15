@@ -116,6 +116,10 @@ Widget? slotContent(RenderCtx ctx, String slotId) {
   // Texto.
   final text = composeText(r);
   if (text.isEmpty) return null;
+  // KRO-470 — el texto de un slot abre la ficha de su campo. Con varios campos
+  // compuestos en una sola cadena no hay un trozo por campo que distinguir, así
+  // que manda el primero (en Studio, con hijos por campo, gana el tocado).
+  Widget tocable(Widget w) => ctx.tocable(first!.key, w);
   final shown = appearanceTransform(text, ap);
   if (ap?.display == 'badge') {
     // KRO-198 follow-up (TS `f633dd1`, BadgeSlot) — `chipWidth:'fill'` también en
@@ -124,9 +128,9 @@ Widget? slotContent(RenderCtx ctx, String slotId) {
     // 'content' = clásico (pastilla ajustada al contenido). Data render-only.
     if (ap?.chipWidth == 'fill') {
       final apFill = ap!.mergedOver(const SlotAppearance(align: 'center'));
-      return wrap(SizedBox(width: double.infinity, child: badgePill(shown, apFill)));
+      return wrap(tocable(SizedBox(width: double.infinity, child: badgePill(shown, apFill))));
     }
-    return wrap(badgePill(shown, ap));
+    return wrap(tocable(badgePill(shown, ap)));
   }
 
   final longText = _isLongText(first?.def);
@@ -159,5 +163,5 @@ Widget? slotContent(RenderCtx ctx, String slotId) {
   // bgColor → fondo del bloque de texto (espejo de paletteClass(bgColor,'bg')).
   final bg = appearanceBgColor(ap);
   if (bg != null) textW = Container(color: bg, child: textW);
-  return wrap(textW);
+  return wrap(tocable(textW));
 }
