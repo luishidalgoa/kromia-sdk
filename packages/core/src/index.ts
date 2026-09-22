@@ -556,6 +556,8 @@ export {
   cardShapeById, cardShapePath, validateShapePath, clampShapeScale, scaleShapePath,
   // KRO-232 — dónde colocar una marca para que quepa dentro de la silueta.
   cardShapeBadgeInset, CARD_SHAPE_BADGE_INSET_MAX,
+  // KRO-471 — si una caja (el QR del reverso) cabe entera en la silueta.
+  cardShapeBoxInside,
 } from './card-shapes';
 export type { CardShapeDefinition, CardShapeId, CardCorner } from './card-shapes';
 
