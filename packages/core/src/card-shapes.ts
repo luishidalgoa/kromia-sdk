@@ -258,6 +258,27 @@ function cajaDentro(x: number, y: number, w: number, h: number, poly: Punto[]): 
 }
 
 /**
+ * KRO-471 — ¿cabe la caja ENTERA dentro de la silueta de la carta?
+ *
+ * Mismo espacio normalizado y misma geometría que {@link cardShapeBadgeInset}:
+ * `box` va en fracción del ancho (`x`, `w`) y del alto (`y`, `h`) de la carta. Sin
+ * silueta (estándar, o una custom inválida que cae a estándar) cabe siempre que
+ * esté dentro de la carta. Lo usa el paquete de impresión de Studio para avisar de
+ * un QR que el troquel cortaría.
+ */
+export function cardShapeBoxInside(
+  fmt: { shape?: string; shapePath?: string; shapeScale?: number } | undefined,
+  box: { x: number; y: number; w: number; h: number },
+): boolean {
+  const dentroDeLaCarta = box.x >= 0 && box.y >= 0 && box.x + box.w <= 1 && box.y + box.h <= 1;
+  if (!dentroDeLaCarta) return false;
+  const base = cardShapePath(fmt);
+  if (!base) return true;
+  const poly = aplanarPath(scaleShapePath(base, fmt?.shapeScale ?? DEFAULT_SHAPE_SCALE));
+  return cajaDentro(box.x, box.y, box.w, box.h, poly);
+}
+
+/**
  * Cuánto hay que meter una marca hacia dentro, desde su esquina, para que quepa
  * ENTERA en la silueta de la carta.
  *

@@ -298,6 +298,7 @@ const EXPECTED_EXPORTS = [
   'scaleShapePath',
   // KRO-232 — marcas dentro de la silueta
   'cardShapeBadgeInset',
+  'cardShapeBoxInside',                 // KRO-471 — el QR del reverso cabe dentro de la silueta
   'CARD_SHAPE_BADGE_INSET_MAX',
   // KRO-133 F5 — recetas → presets de layout
   'recipeToComposition',
