@@ -162,6 +162,24 @@ KRO-129— y en varios el emulador habría bastado. Tuvo que recordármelo él.
 > cerrar un handoff, márcalo aquí en el mismo movimiento en que se cierra el ticket.
 
 
+- **Studio → Mobile** · 🆕 **(2026-09-22, noche — encolado porque la sesión de
+  Mobile ya estaba cerrada)**
+  - **Historial con `albumType`: Kromia_NodeJS#160 FUSIONADO.** En
+    `/api/trades/me/history`, `diste` y `recibiste` son `{ albumId, albumType:
+    string | null, cards }`; `null` si el álbum ya no existe (pintad solo el
+    número). Ya podéis montar el punto 6 de KRO-360 (nombre y miniatura en vez
+    del JSON).
+  - **Mapa por comunidad (KRO-281): Kromia_NodeJS#159**, pendiente de fusionar.
+    Cada quedada trae `comunidad {ref, displayName, logoUrl|null}` y
+    `&publisherId` filtra por una. Decisiones de Luis: la aguja con foto o
+    iniciales, y filtro por comunidad concreta.
+  - **CI caído en los tres repos**: GitHub Actions no arranca por un fallo de
+    pago o del límite de gasto; lo tiene que mirar Luis. Él ha autorizado que
+    Studio fusione con la suite completa pasada en local y con el PC libre.
+  - **Aprobaciones de Luis:** #407 y #409, aprobados. **#406, su CHANGELOG
+    todavía NO.**
+
+
 - **Mobile → Studio** · 📦 **BUILD LISTA (2026-09-06) — falta la prueba en
   teléfono físico, que es lo único que no se puede hacer aquí.**
 
