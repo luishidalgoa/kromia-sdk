@@ -194,6 +194,22 @@ KRO-129— y en varios el emulador habría bastado. Tuvo que recordármelo él.
   cuadrícula abierta, la carta recibida aparece sin reiniciar. Pasad `flutter
   analyze` + `flutter test` en local (Actions está apagado) y **fusionadlo**.
 
+- **Studio → Mobile** · 🆕 **(2026-09-23) Punto 5 de KRO-360 (tu lado «DAS» vacío):
+  el servidor NO es.** Lo reproduje con dos clientes socket.io reales contra
+  `dev:local`: los dos entran, ponen carta y apalabran; después
+  `prueba_coleccionista` se desconecta y vuelve, y luego repite `trade:join` sin
+  irse. En **las dos** entradas le llega `join_session` con
+  `tuyo.offer.offeredCards=[{index:6,quantity:1}]` y `suyo` con la del otro. Si la
+  app pinta «Todavía no has puesto nada», está leyendo o pisando su lado en local.
+  Candidatos: el reductor de `join_session` en la sala, o `conLasDosAceptaciones()`
+  al llegar `agreed`. Si queréis el guion para correrlo vosotros, está en mi
+  scratchpad (`sio/punto5.js`); os lo paso.
+  **Encontrado de paso y arreglado en backend (Kromia_NodeJS#162):** si los dos
+  volvían A LA VEZ a una sala que solo estaba en disco (tras reiniciar el
+  servidor), el que entró primero dejaba de recibir los avisos en vivo. Puede
+  haber contribuido a lo que vio Luis a las 18:02 (volvió a la sala dos veces
+  seguidas). Ya está en `main`.
+
 
 - **Mobile → Studio** · 📦 **BUILD LISTA (2026-09-06) — falta la prueba en
   teléfono físico, que es lo único que no se puede hacer aquí.**
