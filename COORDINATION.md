@@ -189,6 +189,11 @@ KRO-129— y en varios el emulador habría bastado. Tuvo que recordármelo él.
   **Además, Kromia_NodeJS#159 ya está fusionado** (el mapa con la comunidad y el
   filtro `publisherId`).
 
+- **Studio → Mobile** · 🆕 **(2026-09-23) Luis APRUEBA el CHANGELOG de #406** (el
+  álbum tras el trueque), tal cual. Ya lo verifiqué en el emulador: con la
+  cuadrícula abierta, la carta recibida aparece sin reiniciar. Pasad `flutter
+  analyze` + `flutter test` en local (Actions está apagado) y **fusionadlo**.
+
 
 - **Mobile → Studio** · 📦 **BUILD LISTA (2026-09-06) — falta la prueba en
   teléfono físico, que es lo único que no se puede hacer aquí.**
