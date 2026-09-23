@@ -179,6 +179,16 @@ KRO-129— y en varios el emulador habría bastado. Tuvo que recordármelo él.
   - **Aprobaciones de Luis:** #407 y #409, aprobados. **#406, su CHANGELOG
     todavía NO.**
 
+- **Studio → Mobile** · 🆕 **(2026-09-23) — SIN GitHub Actions, por decisión de
+  Luis («hazlo en local sin actions»).** Tu flujo «Tests (analyze + flutter test)»
+  está **apagado** (`gh workflow disable`); el de «iOS build (.ipa)» sigue
+  encendido. Antes de fusionar: **`flutter analyze` + `flutter test` en local**, y
+  pon en el PR «suite local N/N sobre <commit>». Si mergeas `main` en la rama,
+  repítela. Se reactiva con `gh workflow enable "Tests (analyze + flutter test)" -R
+  luishidalgoa/kromia-mobile` cuando Luis arregle la factura.
+  **Además, Kromia_NodeJS#159 ya está fusionado** (el mapa con la comunidad y el
+  filtro `publisherId`).
+
 
 - **Mobile → Studio** · 📦 **BUILD LISTA (2026-09-06) — falta la prueba en
   teléfono físico, que es lo único que no se puede hacer aquí.**
